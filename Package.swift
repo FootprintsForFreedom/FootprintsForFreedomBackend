@@ -4,21 +4,36 @@ import PackageDescription
 let package = Package(
     name: "Backend",
     platforms: [
-       .macOS(.v10_15)
+       .macOS(.v12)
+    ],
+    products: [
+        .library(name: "AppApi", targets: ["AppApi"]),
     ],
     dependencies: [
         // 💧 A server-side Swift web framework.
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0"),
+        .package(url: "https://github.com/autimatisering/VaporSMTPKit.git", from: "1.0.0"),
+        .package(url: "https://github.com/binarybirds/liquid", from: "1.3.0"),
+        .package(url: "https://github.com/binarybirds/liquid-local-driver", from: "1.3.0"),
+        .package(url: "https://github.com/binarybirds/swift-html", from: "1.2.0"),
+        .package(url: "https://github.com/binarybirds/spec", from: "1.2.0"),
     ],
     targets: [
+        .target(name: "AppApi", dependencies: []),
         .target(
             name: "App",
             dependencies: [
                 .product(name: "Fluent", package: "fluent"),
                 .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
-                .product(name: "Vapor", package: "vapor")
+                .product(name: "VaporSMTPKit", package: "VaporSMTPKit"),
+                .product(name: "Vapor", package: "vapor"),
+                .product(name: "Liquid", package: "liquid"),
+                .product(name: "LiquidLocalDriver", package: "liquid-local-driver"),
+                .product(name: "SwiftHtml", package: "swift-html"),
+                
+                .target(name: "AppApi")
             ],
             swiftSettings: [
                 // Enable better optimizations when building in Release configuration. Despite the use of
@@ -31,6 +46,10 @@ let package = Package(
         .testTarget(name: "AppTests", dependencies: [
             .target(name: "App"),
             .product(name: "XCTVapor", package: "vapor"),
+            .product(name: "Spec", package: "spec"),
+        ]),
+        .testTarget(name: "AppApiTests", dependencies: [
+            .target(name: "AppApi"),
         ])
     ]
 )

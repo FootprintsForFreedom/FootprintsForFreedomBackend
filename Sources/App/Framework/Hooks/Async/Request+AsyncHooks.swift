@@ -1,0 +1,22 @@
+//
+//  File.swift
+//  
+//
+//  Created by niklhut on 01.02.22.
+//
+
+import Vapor
+
+extension Request {
+
+    func invokeAsync<ReturnType>(_ name: String, args: HookArguments = [:]) async throws -> ReturnType? {
+        let ctxArgs = args.merging(["req": self]) { (_, new) in new }
+        return try await application.invokeAsync(name, args: ctxArgs)
+    }
+
+    func invokeAllAsync<ReturnType>(_ name: String, args: HookArguments = [:]) async throws -> [ReturnType] {
+        let ctxArgs = args.merging(["req": self]) { (_, new) in new }
+        return try await application.invokeAllAsync(name, args: ctxArgs)
+    }
+}
+
