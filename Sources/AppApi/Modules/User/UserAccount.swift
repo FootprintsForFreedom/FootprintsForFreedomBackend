@@ -26,6 +26,14 @@ public extension User.Account {
         }
     }
     
+    struct Verification: Codable {
+        public let token: String
+        
+        public init(token: String) {
+            self.token = token
+        }
+    }
+    
     struct ChangePassword: Codable  {
         public let currentPassword: String
         public let newPassword: String
@@ -40,10 +48,10 @@ public extension User.Account {
     struct List: Codable {
         public let id: UUID
         public let name: String
-        public let school: String
+        public let school: String?
         public let isModerator: Bool
         
-        public init(id: UUID, name: String, school: String, isModerator: Bool) {
+        public init(id: UUID, name: String, school: String?, isModerator: Bool) {
             self.id = id
             self.name = name
             self.school = school
@@ -55,23 +63,23 @@ public extension User.Account {
         public let id: UUID
         public let name: String
         public let email: String?
-        public let school: String
+        public let school: String?
         public let verified: Bool?
         public let isModerator: Bool?
         
-        public static func publicDetail(id: UUID, name: String, school: String) -> Self {
+        public static func publicDetail(id: UUID, name: String, school: String?) -> Self {
             return .init(id: id, name: name, school: school)
         }
         
-        public static func ownDetail(id: UUID, name: String, email: String, school: String, verified: Bool, isModerator: Bool) -> Self {
+        public static func ownDetail(id: UUID, name: String, email: String, school: String?, verified: Bool, isModerator: Bool) -> Self {
             return .init(id: id, name: name, email: email, school: school, verified: verified, isModerator: isModerator)
         }
         
-        public static func adminDetail(id: UUID, name: String, school: String, verified: Bool, isModerator: Bool) -> Self {
+        public static func adminDetail(id: UUID, name: String, school: String?, verified: Bool, isModerator: Bool) -> Self {
             return .init(id: id, name: name, school: school, verified: verified, isModerator: isModerator)
         }
         
-        private init(id: UUID, name: String, school: String) {
+        private init(id: UUID, name: String, school: String?) {
             self.id = id
             self.name = name
             self.school = school
@@ -80,7 +88,7 @@ public extension User.Account {
             self.isModerator = nil
         }
         
-        private init(id: UUID, name: String, school: String, verified: Bool, isModerator: Bool) {
+        private init(id: UUID, name: String, school: String?, verified: Bool, isModerator: Bool) {
             self.id = id
             self.name = name
             self.school = school
@@ -89,7 +97,7 @@ public extension User.Account {
             self.email = nil
         }
         
-        private init(id: UUID, name: String, email: String, school: String, verified: Bool, isModerator: Bool) {
+        private init(id: UUID, name: String, email: String, school: String?, verified: Bool, isModerator: Bool) {
             self.id = id
             self.name = name
             self.email = email
@@ -102,10 +110,10 @@ public extension User.Account {
     struct Create: Codable {
         public let name: String
         public let email: String
-        public let school: String
+        public let school: String?
         public let password: String
         
-        public init(name: String, email: String, school: String, password: String) {
+        public init(name: String, email: String, school: String?, password: String) {
             self.name = name
             self.email = email
             self.school = school
@@ -116,9 +124,9 @@ public extension User.Account {
     struct Update: Codable {
         public let name: String
         public let email: String
-        public let school: String
+        public let school: String?
         
-        public init(name: String, email: String, school: String) {
+        public init(name: String, email: String, school: String?) {
             self.name = name
             self.email = email
             self.school = school
@@ -128,9 +136,9 @@ public extension User.Account {
     struct Patch: Codable {
         public let name: String?
         public let email: String?
-        public let school: String?
+        public let school: String??
         
-        public init(name: String?, email: String?, school: String?) {
+        public init(name: String?, email: String?, school: String??) {
             self.name = name
             self.email = email
             self.school = school

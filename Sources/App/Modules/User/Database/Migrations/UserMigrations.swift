@@ -17,7 +17,7 @@ enum UserMigrations {
                 .id()
                 .field(UserAccountModel.FieldKeys.v1.name, .string, .required)
                 .field(UserAccountModel.FieldKeys.v1.email, .string, .required)
-                .field(UserAccountModel.FieldKeys.v1.school, .string, .required)
+                .field(UserAccountModel.FieldKeys.v1.school, .string)
                 .field(UserAccountModel.FieldKeys.v1.password, .string, .required)
                 .field(UserAccountModel.FieldKeys.v1.verified, .bool, .sql(.default(false)))
                 .field(UserAccountModel.FieldKeys.v1.isModerator, .bool, .sql(.default(false)))
@@ -31,10 +31,20 @@ enum UserMigrations {
                 .foreignKey(UserTokenModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id)
                 .unique(on: UserTokenModel.FieldKeys.v1.value)
                 .create()
+            
+            try await db.schema(UserVerificationTokenModel.schema)
+                .id()
+                .field(UserVerificationTokenModel.FieldKeys.v1.value, .string, .required)
+                .field(UserVerificationTokenModel.FieldKeys.v1.userId, .uuid, .required)
+                .foreignKey(UserVerificationTokenModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id)
+                .unique(on: UserVerificationTokenModel.FieldKeys.v1.value)
+                .unique(on: UserVerificationTokenModel.FieldKeys.v1.userId)
+                .create()
         }
 
         func revert(on db: Database) async throws  {
             try await db.schema(UserTokenModel.schema).delete()
+            try await db.schema(UserVerificationTokenModel.schema).delete()
             try await db.schema(UserAccountModel.schema).delete()
         }
     }

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  UserApiController.swift
 //  
 //
 //  Created by niklhut on 01.02.22.
@@ -81,6 +81,8 @@ extension UserApiController: ApiController {
         model.email = input.email
         model.school = input.school
         model.password = try Bcrypt.hash(input.password)
+        model.verified = false
+        model.isModerator = false
     }
     
     func updateInput(_ req: Request, _ model: UserAccountModel, _ input: User.Account.Update) async throws {
@@ -103,7 +105,6 @@ extension UserApiController: ApiController {
         setupUpdateRoutes(protectedRoutes)
         setupPatchRoutes(protectedRoutes)
         setupDeleteRoutes(protectedRoutes)
-        setupUpdatePasswordRoutes(protectedRoutes)
     }
     
 }
@@ -139,5 +140,12 @@ extension UserApiController: ApiUpdatePasswordController {
     
     func updatePasswordResponse(_ req: Request, _ model: UserAccountModel) async throws -> Response {
         try await detailOutput(req, model).encodeResponse(for: req)
+    }
+    
+    func setupUpdatePasswordRoutes(_ routes: RoutesBuilder) {
+        let protectedRoutes = routes.grouped(AuthenticatedUser.guardMiddleware())
+        let baseRoutes = getBaseRoutes(protectedRoutes)
+        let existingModelRoutes = baseRoutes.grouped(ApiModel.pathIdComponent).grouped("updatePassword")
+        existingModelRoutes.put(use: updatePasswordApi)
     }
 }
