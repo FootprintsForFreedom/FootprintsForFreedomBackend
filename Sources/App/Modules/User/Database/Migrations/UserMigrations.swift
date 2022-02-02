@@ -35,6 +35,7 @@ enum UserMigrations {
             try await db.schema(UserVerificationTokenModel.schema)
                 .id()
                 .field(UserVerificationTokenModel.FieldKeys.v1.value, .string, .required)
+                .field(UserVerificationTokenModel.FieldKeys.v1.createdAt, .datetime, .required)
                 .field(UserVerificationTokenModel.FieldKeys.v1.userId, .uuid, .required)
                 .foreignKey(UserVerificationTokenModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id)
                 .unique(on: UserVerificationTokenModel.FieldKeys.v1.value)
