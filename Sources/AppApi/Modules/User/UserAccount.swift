@@ -49,12 +49,14 @@ public extension User.Account {
         public let id: UUID
         public let name: String
         public let school: String?
+        public let verified: Bool
         public let isModerator: Bool
         
-        public init(id: UUID, name: String, school: String?, isModerator: Bool) {
+        public init(id: UUID, name: String, school: String?, verified: Bool, isModerator: Bool) {
             self.id = id
             self.name = name
             self.school = school
+            self.verified = verified
             self.isModerator = isModerator
         }
     }

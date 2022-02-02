@@ -43,7 +43,7 @@ extension UserApiController: ApiController {
     
     func listOutput(_ req: Request, _ models: [UserAccountModel]) async throws -> [User.Account.List] {
         models.map { model in
-                .init(id: model.id!, name: model.name, school: model.school, isModerator: model.isModerator)
+                .init(id: model.id!, name: model.name, school: model.school, verified: model.verified, isModerator: model.isModerator)
         }
     }
     
