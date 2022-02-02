@@ -23,7 +23,7 @@ struct UserCreateAccountTemplate: MailTemplateRepresentable {
         
         willkommen bei Footprints for Freedom.
         
-        Du hast dich erfolgreich angemeldet. Bitte bestätige mit dem folgendne Link deine E-Mail-Adresse:
+        Du hast dich erfolgreich angemeldet. Bitte bestätige mit dem folgenden Link deine E-Mail-Adresse:
         \(verificationLink)
         
         Sobald deine E-Mail-Adresse bestätigt ist, kannst du Orte erstellen und Medien hochladen.
