@@ -25,7 +25,7 @@ final class UserAccountModel: DatabaseModelInterface {
     @ID() var id: UUID?
     @Field(key: FieldKeys.v1.name) var name: String
     @Field(key: FieldKeys.v1.email) var email: String
-    @Field(key: FieldKeys.v1.school) var school: String?
+    @OptionalField(key: FieldKeys.v1.school) var school: String?
     @Field(key: FieldKeys.v1.password) var password: String
     @Field(key: FieldKeys.v1.verified) var verified: Bool
     @Field(key: FieldKeys.v1.isModerator) var isModerator: Bool
