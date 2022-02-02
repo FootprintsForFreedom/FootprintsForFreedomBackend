@@ -11,11 +11,11 @@ public func configure(_ app: Application) throws {
     // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
 
     app.databases.use(.postgres(
-        hostname: Environment.get("DATABASE_HOST") ?? "localhost",
-        port: Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? PostgresConfiguration.ianaPortNumber,
-        username: Environment.get("DATABASE_USERNAME") ?? "nh",
-        password: Environment.get("DATABASE_PASSWORD") ?? "",
-        database: Environment.get("DATABASE_NAME") ?? "digital_traces"
+        hostname: Environment.dbHost,
+        port: Environment.dbPort.flatMap(Int.init(_:)) ?? PostgresConfiguration.ianaPortNumber,
+        username: Environment.pgUser,
+        password: Environment.pgPassword,
+        database: Environment.pgDbName
     ), as: .psql)
     
     /// setup Liquid using the local file storage driver

@@ -10,12 +10,12 @@ import VaporSMTPKit
 
 extension SMTPCredentials {
     static var `default`: SMTPCredentials {
-        let hostname = Environment.get("EMAIL_HOST")!
-        let email = Environment.get("EMAIL_ADRESS")!
-        let password = Environment.get("EMAIL_PASSWORD")!
+        let hostname = Environment.emailHost
+        let email = Environment.emailAdress
+        let password = Environment.emailPassword
         let port: Int = {
             var port: Int = 587
-            if let parameter = Environment.get("EMAIL_PORT"), let newPort = Int(parameter) {
+            if let parameter = Environment.emailPort, let newPort = Int(parameter) {
                 port = newPort
             }
             return port
