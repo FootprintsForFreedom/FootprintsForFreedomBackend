@@ -93,7 +93,7 @@ extension UserApiController: ApiController {
         model.school = input.school
         if previousEmail != model.email {
             model.verified = false
-            try await createVerification(req, model)
+            try await createVerificationRequest(req, model)
             try await model.$verificationToken.load(on: req.db)
             let userUpdateAccountMail = try UserUpdateEmailAccountTemplate(user: model, oldEmail: previousEmail)
             try await userUpdateAccountMail.send(on: req)
@@ -107,7 +107,7 @@ extension UserApiController: ApiController {
         model.school = input.school ?? model.school
         if previousEmail != model.email {
             model.verified = false
-            try await createVerification(req, model)
+            try await createVerificationRequest(req, model)
             try await model.$verificationToken.load(on: req.db)
             let userUpdateAccountMail = try UserUpdateEmailAccountTemplate(user: model, oldEmail: previousEmail)
             try await userUpdateAccountMail.send(on: req)

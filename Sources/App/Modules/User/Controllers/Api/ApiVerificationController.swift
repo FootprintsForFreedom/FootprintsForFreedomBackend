@@ -10,7 +10,7 @@ import Vapor
 protocol ApiVerificationController: VerificationController {
     associatedtype VerificationObject: Decodable
     
-    func createVerification(_ req: Request, _ model: DatabaseModel) async throws
+    func createVerificationRequest(_ req: Request, _ model: DatabaseModel) async throws
     func requestVerificationApi(_ req: Request) async throws -> Response
     func requestVerificationResponse(_ req: Request, _ model: DatabaseModel) async throws -> Response
     
@@ -33,7 +33,7 @@ extension ApiVerificationController {
     
     func requestVerificationApi(_ req: Request) async throws -> Response {
         let model = try await findBy(identifier(req), on: req.db)
-        try await createVerification(req, model)
+        try await createVerificationRequest(req, model)
         return try await requestVerificationResponse(req, model)
     }
     

@@ -10,7 +10,7 @@ import Vapor
 extension UserApiController: ApiVerificationController {
     typealias VerificationObject = User.Account.Verification
     
-    func createVerification(_ req: Request, _ model: UserAccountModel) async throws {
+    func createVerificationRequest(_ req: Request, _ model: UserAccountModel) async throws {
         try await model.$verificationToken.load(on: req.db)
         if let oldVerificationToken = model.verificationToken {
             try await oldVerificationToken.delete(on: req.db)
@@ -60,7 +60,7 @@ extension UserApiController: ApiVerificationController {
     }
     
     func afterCreate(_ req: Request, _ model: UserAccountModel) async throws {
-        try await createVerification(req, model)
+        try await createVerificationRequest(req, model)
         try await model.$verificationToken.load(on: req.db)
         let userCreateAccountMail = try UserCreateAccountTemplate(user: model)
         try await userCreateAccountMail.send(on: req)
