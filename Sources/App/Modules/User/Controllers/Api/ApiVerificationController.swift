@@ -10,20 +10,19 @@ import Vapor
 protocol ApiVerificationController: VerificationController {
     associatedtype VerificationObject: Decodable
     
-    func verificationValidators() -> [AsyncValidator]
+    func createVerification(_ req: Request, _ model: DatabaseModel) async throws
+    func requestVerificationApi(_ req: Request) async throws -> Response
+    func requestVerificationResponse(_ req: Request, _ model: DatabaseModel) async throws -> Response
+    
     func verificationInput(_ req: Request, _ model: DatabaseModel, _ input: VerificationObject) async throws
     func verificationApi(_ req: Request) async throws -> Response
     func verificationResponse(_ req: Request, _ model: DatabaseModel) async throws -> Response
+    
     func setupVerificationRoutes(_ routes: RoutesBuilder)
 }
 
 extension ApiVerificationController {
-    func verificationValidators() -> [AsyncValidator] {
-        []
-    }
-    
     func verificationApi(_ req: Request) async throws -> Response {
-        try await RequestValidator(verificationValidators()).validate(req)
         /// Decode from query not content!
         let input = try req.query.decode(VerificationObject.self)
         let model = try await findBy(identifier(req), on: req.db)
@@ -32,9 +31,19 @@ extension ApiVerificationController {
         return try await verificationResponse(req, model)
     }
     
+    func requestVerificationApi(_ req: Request) async throws -> Response {
+        let model = try await findBy(identifier(req), on: req.db)
+        try await createVerification(req, model)
+        return try await requestVerificationResponse(req, model)
+    }
+    
     func setupVerificationRoutes(_ routes: RoutesBuilder) {
         let baseRoutes = getBaseRoutes(routes)
-        let existingModelRoutes = baseRoutes.grouped(ApiModel.pathIdComponent).grouped("verify")
-        existingModelRoutes.get(use: verificationApi)
+        let existingModelRoutes = baseRoutes.grouped(ApiModel.pathIdComponent)
+        let verificationRoutes = existingModelRoutes.grouped("verify")
+        let requestVerificationRoutes = existingModelRoutes.grouped(AuthenticatedUser.guardMiddleware()).grouped("requestVerification")
+        verificationRoutes.get(use: verificationApi)
+        requestVerificationRoutes.post(use: requestVerificationApi)
+        // TODO: request route
     }
 }
