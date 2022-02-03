@@ -22,7 +22,6 @@ extension UserApiController: ApiVerificationController {
     }
     
     func requestVerificationResponse(_ req: Request, _ model: UserAccountModel) async throws -> Response {
-        // TODO: unverfy after email change
         /// do not allow a verified user to request a verification token
         guard !model.verified else {
             throw Abort(.forbidden)
