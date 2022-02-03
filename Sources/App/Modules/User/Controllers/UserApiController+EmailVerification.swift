@@ -51,7 +51,6 @@ extension UserApiController: ApiVerificationController {
         }
         
         model.verified = true
-        try await model.update(on: req.db)
     }
     
     func afterVerification(_ req: Request, _ model: UserAccountModel) async throws {
