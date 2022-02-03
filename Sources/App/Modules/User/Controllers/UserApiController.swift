@@ -85,16 +85,33 @@ extension UserApiController: ApiController {
         model.isModerator = false
     }
     
+    /// Only use this when all fields are updated
     func updateInput(_ req: Request, _ model: UserAccountModel, _ input: User.Account.Update) async throws {
+        let previousEmail = model.email
         model.name = input.name
         model.email = input.email
         model.school = input.school
+        if previousEmail != model.email {
+            model.verified = false
+            try await createVerification(req, model)
+            try await model.$verificationToken.load(on: req.db)
+            let userUpdateAccountMail = try UserUpdateEmailAccountTemplate(user: model, oldEmail: previousEmail)
+            try await userUpdateAccountMail.send(on: req)
+        }
     }
     
     func patchInput(_ req: Request, _ model: UserAccountModel, _ input: User.Account.Patch) async throws {
+        let previousEmail = model.email
         model.name = input.name ?? model.name
         model.email = input.email ?? model.email
         model.school = input.school ?? model.school
+        if previousEmail != model.email {
+            model.verified = false
+            try await createVerification(req, model)
+            try await model.$verificationToken.load(on: req.db)
+            let userUpdateAccountMail = try UserUpdateEmailAccountTemplate(user: model, oldEmail: previousEmail)
+            try await userUpdateAccountMail.send(on: req)
+        }
     }
     
     func setupRoutes(_ routes: RoutesBuilder) {
