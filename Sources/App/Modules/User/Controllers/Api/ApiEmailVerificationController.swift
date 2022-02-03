@@ -1,5 +1,5 @@
 //
-//  ApiVerificationController.swift
+//  ApiEmailVerificationController.swift
 //  
 //
 //  Created by niklhut on 01.02.22.
@@ -7,10 +7,9 @@
 
 import Vapor
 
-protocol ApiVerificationController: VerificationController {
+protocol ApiEmailVerificationController: VerificationController {
     associatedtype VerificationObject: Decodable
     
-    func createVerificationRequest(_ req: Request, _ model: DatabaseModel) async throws
     func requestVerificationApi(_ req: Request) async throws -> Response
     func requestVerificationResponse(_ req: Request, _ model: DatabaseModel) async throws -> Response
     
@@ -21,7 +20,7 @@ protocol ApiVerificationController: VerificationController {
     func setupVerificationRoutes(_ routes: RoutesBuilder)
 }
 
-extension ApiVerificationController {
+extension ApiEmailVerificationController {
     func verificationApi(_ req: Request) async throws -> Response {
         /// Decode from query not content!
         let input = try req.query.decode(VerificationObject.self)
@@ -33,7 +32,7 @@ extension ApiVerificationController {
     
     func requestVerificationApi(_ req: Request) async throws -> Response {
         let model = try await findBy(identifier(req), on: req.db)
-        try await createVerificationRequest(req, model)
+        try await createVerification(req, model)
         return try await requestVerificationResponse(req, model)
     }
     

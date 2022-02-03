@@ -34,6 +34,24 @@ public extension User.Account {
         }
     }
     
+    struct ResetPasswordRequest: Codable {
+        public let email: String
+        
+        public init(email: String) {
+            self.email = email
+        }
+    }
+    
+    struct ResetPassword: Codable {
+        public let token: String
+        public let newPassword: String
+        
+        public init(token: String, newPassword: String) {
+            self.token = token
+            self.newPassword = newPassword
+        }
+    }
+    
     struct ChangePassword: Codable  {
         public let currentPassword: String
         public let newPassword: String
