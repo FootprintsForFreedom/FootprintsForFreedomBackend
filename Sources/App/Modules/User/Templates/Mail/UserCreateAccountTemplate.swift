@@ -31,7 +31,7 @@ struct UserCreateAccountTemplate: MailTemplateRepresentable {
         Wir wünschen dir viel Spaß und hoffen, dass du neue Einblicke erhalten kannst.
         
         Dein Footprints for Freedom Team
-                
+        
         Diese E-Mail wurde automatisch erstellt. Bitte antworte nicht an diese Adresse.
         """
         
