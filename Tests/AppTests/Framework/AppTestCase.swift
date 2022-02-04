@@ -35,6 +35,7 @@ open class AppTestCase: XCTestCase {
 //            database: Environment.pgTestDbName
 //        ), as: .psql)
 //        app.databases.default(to: .psql)
+        app.passwords.use(.plaintext)
         try app.autoMigrate().wait()
         return app
     }

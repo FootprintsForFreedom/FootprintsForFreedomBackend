@@ -20,8 +20,8 @@ final class UserApiLoginTests: AppTestCase {
         password: String = "password",
         verified: Bool = false,
         isModerator: Bool = false
-    ) async throws -> (UserAccountModel, String) {
-        let user = UserAccountModel(name: name, email: email, school: school, password: try Bcrypt.hash(password), verified: verified, isModerator: isModerator)
+    ) async throws -> (user: UserAccountModel, password: String) {
+        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(password), verified: verified, isModerator: isModerator)
         try await user.create(on: app.db)
         
         return (user, password)

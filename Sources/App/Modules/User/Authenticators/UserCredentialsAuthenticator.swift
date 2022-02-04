@@ -24,7 +24,7 @@ struct UserCredentialsAuthenticator: AsyncCredentialsAuthenticator {
             return
         }
         do {
-            guard try Bcrypt.verify(credentials.password, created: user.password) else {
+            guard try req.application.password.verify(credentials.password, created: user.password) else {
                return
             }
             req.auth.login(AuthenticatedUser(id: user.id!, email: user.email))

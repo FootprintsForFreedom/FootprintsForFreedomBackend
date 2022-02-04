@@ -28,12 +28,12 @@ extension UserApiController: ApiUpdatePasswordController {
         }
         
         /// Verify current password
-        guard try Bcrypt.verify(input.currentPassword, created: model.password) else {
+        guard try req.application.password.verify(input.currentPassword, created: model.password) else {
             throw Abort(.forbidden)
         }
         
         /// Update the password
-        model.password = try Bcrypt.hash(input.newPassword)
+        model.password = try req.application.password.hash(input.newPassword)
     }
     
     func updatePasswordResponse(_ req: Request, _ model: UserAccountModel) async throws -> Response {
