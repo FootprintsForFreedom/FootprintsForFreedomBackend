@@ -66,6 +66,17 @@ extension UserApiController: ApiController {
         model.isModerator = false
     }
     
+    func createResponse(_ req: Request, _ model: UserAccountModel) async throws -> Response {
+        return try await User.Account.Detail.ownDetail(
+            id: model.id!,
+            name: model.name,
+            email: model.email,
+            school: model.school,
+            verified: model.verified,
+            isModerator: model.isModerator
+        ).encodeResponse(status: .created, for: req)
+    }
+    
     /// Only use this when all fields are updated
     func updateInput(_ req: Request, _ model: UserAccountModel, _ input: User.Account.Update) async throws {
         let previousEmail = model.email
@@ -99,7 +110,7 @@ extension UserApiController: ApiController {
         let protectedRoutes = routes.grouped(AuthenticatedUser.guardMiddleware())
         setupListRoutes(protectedRoutes)
         setupDetailRoutes(routes)
-        setupCreateRoutes(protectedRoutes)
+        setupCreateRoutes(routes)
         setupUpdateRoutes(protectedRoutes)
         setupPatchRoutes(protectedRoutes)
         setupDeleteRoutes(protectedRoutes)
