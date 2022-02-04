@@ -18,9 +18,7 @@ struct UserApiController {
         guard let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db) else {
             throw Abort(.notFound)
         }
-        let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789="
-        let tokenValue = String((0..<64).map { _ in letters.randomElement()! })
-        let token = UserTokenModel(value: tokenValue, userId: user.id!)
+        let token = try user.generateToken()
         try await token.create(on: req.db)
         let userDetail = User.Account.Detail.ownDetail(id: user.id!, name: user.name, email: user.email, school: user.school, verified: user.verified, isModerator: user.isModerator)
         return User.Token.Detail(id: token.id!, value: token.value, user: userDetail)

@@ -15,9 +15,7 @@ extension UserApiController: ApiEmailVerificationController {
         if let oldVerificationToken = model.verificationToken {
             try await oldVerificationToken.delete(on: req.db)
         }
-        let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789="
-        let tokenValue = String((0..<64).map { _ in letters.randomElement()! })
-        let verificationToken = UserVerificationTokenModel(value: tokenValue, userId: model.id!)
+        let verificationToken = try model.generateVerificationToken()
         try await verificationToken.create(on: req.db)
     }
     
