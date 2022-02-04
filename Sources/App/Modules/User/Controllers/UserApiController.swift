@@ -7,29 +7,6 @@
 
 import Vapor
 
-extension User.Token.Detail: Content {}
-
-struct UserApiController {
-    
-    func signInApi(req: Request) async throws -> User.Token.Detail {
-        guard let authenticatedUser = req.auth.get(AuthenticatedUser.self) else {
-            throw Abort(.unauthorized)
-        }
-        guard let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db) else {
-            throw Abort(.notFound)
-        }
-        var token: UserTokenModel! = try await UserTokenModel.query(on: req.db)
-            .filter(\.$user.$id, .equal, user.id!)
-            .first()
-        if token == nil {
-            token = try user.generateToken()
-            try await token.create(on: req.db)
-        }
-        let userDetail = User.Account.Detail.ownDetail(id: user.id!, name: user.name, email: user.email, school: user.school, verified: user.verified, isModerator: user.isModerator)
-        return User.Token.Detail(id: token.id!, value: token.value, user: userDetail)
-    }
-}
-
 extension User.Account.List: Content {}
 extension User.Account.Detail: Content {}
 
