@@ -23,6 +23,10 @@ struct UserRouter: RouteCollection {
         routes.grouped("api")
             .grouped(UserCredentialsAuthenticator())
             .post("sign-in", use: apiController.signInApi)
+        
+        routes.grouped("api")
+            .grouped(AuthenticatedUser.guardMiddleware())
+            .post("sign-out", use: apiController.signOutApi)
     }
     
     func apiRoutesHook(_ args: HookArguments) -> Void {
