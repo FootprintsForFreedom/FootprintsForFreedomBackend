@@ -39,7 +39,8 @@ final class UserApiLoginTests: AppTestCase {
             .expect(.ok)
             .expect(.json)
             .expect(User.Token.Detail.self) { content in
-                XCTAssert(!content.value.isEmpty)
+                XCTAssertEqual(content.value.count, 64)
+                XCTAssertEqual(content.user.email, user.email)
             }
             .test()
     }
@@ -88,3 +89,4 @@ final class UserApiLoginTests: AppTestCase {
 //        XCTAssertEqual(tokenCount, 1)
 //    }
 }
+    
