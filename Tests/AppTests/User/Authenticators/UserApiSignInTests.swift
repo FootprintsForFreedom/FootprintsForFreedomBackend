@@ -1,5 +1,5 @@
 //
-//  UserApiLoginTests.swift
+//  UserApiSignInTests.swift
 //  
 //
 //  Created by niklhut on 03.02.22.
@@ -10,7 +10,7 @@ import XCTVapor
 import Fluent
 import Spec
 
-final class UserApiLoginTests: AppTestCase {
+final class UserApiSignInTests: AppTestCase {
     let signInPath = "/api/sign-in/"
     
     private func createNewUser(
