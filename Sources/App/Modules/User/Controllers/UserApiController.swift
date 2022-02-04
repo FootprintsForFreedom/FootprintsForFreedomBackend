@@ -6,6 +6,7 @@
 //
 
 import Vapor
+import Fluent
 
 extension User.Account.List: Content {}
 extension User.Account.Detail: Content {}
@@ -21,7 +22,7 @@ extension UserApiController: ApiController {
         KeyedContentValidator<String>.required("email", optional: optional)
     }
     
-    func listOutput(_ req: Request, _ models: [UserAccountModel]) async throws -> [User.Account.List] {
+    func listOutput(_ req: Request, _ models: Page<UserAccountModel>) async throws -> Page<User.Account.List> {
         models.map { model in
                 .init(id: model.id!, name: model.name, school: model.school, verified: model.verified, isModerator: model.isModerator)
         }

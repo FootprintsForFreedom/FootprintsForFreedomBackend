@@ -6,18 +6,19 @@
 //
 
 import Vapor
+import Fluent
 
 protocol ApiListController: ListController {
     associatedtype ListObject: Content
 
-    func listOutput(_ req: Request, _ models: [DatabaseModel]) async throws -> [ListObject]
-    func listApi(_ req: Request) async throws -> [ListObject]
+    func listOutput(_ req: Request, _ models: Page<DatabaseModel>) async throws -> Page<ListObject>
+    func listApi(_ req: Request) async throws -> Page<ListObject>
     func setupListRoutes(_ routes: RoutesBuilder)
 }
 
 extension ApiListController {
     
-    func listApi(_ req: Request) async throws -> [ListObject] {
+    func listApi(_ req: Request) async throws -> Page<ListObject> {
         let models = try await list(req)
         return try await listOutput(req, models)
     }
