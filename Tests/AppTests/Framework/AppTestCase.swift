@@ -50,16 +50,7 @@ open class AppTestCase: XCTestCase {
     
     func getApiToken(_ user: UserLogin, _ app: Application) throws -> User.Token.Detail {
         var token: User.Token.Detail?
-//        try app
-//            .describe("Test login")
-//            .post("/api/sign-in/")
-//            .body(user)
-//            .expect(User.Token.Detail.self) { content in
-//                XCTAssert(!content.value.isEmpty)
-//                token = content
-//            }
-//            .test()
-
+        
         try app.test(.POST, "/api/sign-in/", beforeRequest: { req in
             try req.content.encode(user)
         }, afterResponse: { res in
@@ -73,9 +64,55 @@ open class AppTestCase: XCTestCase {
         }
         return result
     }
+}
+
+open class AppTestCaseWithToken: AppTestCase {
+    var token: String!
     
-    func getRootApiToken(_ app: Application) throws -> User.Token.Detail {
-        try getApiToken(.init(email: "root@localhost.com", password: "ChangeMe1"), app)
+    override open func setUpWithError() throws {
+        app = try self.createTestApp()
+        let newUserPassword = "password"
+        let newUser = UserAccountModel(name: "Test User", email: "test-user@example.com", school: nil, password: try app.password.hash(newUserPassword), verified: false, isModerator: false)
+        try newUser.create(on: app.db).wait()
+        let newUserLogin = UserLogin(email: newUser.email, password: newUserPassword)
+        
+        token = try getApiToken(newUserLogin, app).value
     }
 }
 
+open class AppTestCaseWithAdminToken: AppTestCase {
+    var adminToken: String!
+    
+    override open func setUpWithError() throws {
+        app = try self.createTestApp()
+        
+        let newAdminUserPassword = "password123"
+        let newAdminUser = UserAccountModel(name: "Test Admin User", email: "test-admin-user@example.com", school: nil, password: try app.password.hash(newAdminUserPassword), verified: false, isModerator: false)
+        try newAdminUser.create(on: app.db).wait()
+        let newAdminUserLogin = UserLogin(email: newAdminUser.email, password: newAdminUserPassword)
+
+        adminToken = try getApiToken(newAdminUserLogin, app).value
+    }
+}
+
+open class AppTestCaseWithAdminAndNormalToken: AppTestCase {
+    var token: String!
+    var adminToken: String!
+    
+    override open func setUpWithError() throws {
+        app = try self.createTestApp()
+        
+        let newUserPassword = "password"
+        let newUser = UserAccountModel(name: "Test User", email: "test-user@example.com", school: nil, password: try app.password.hash(newUserPassword), verified: false, isModerator: false)
+        try newUser.create(on: app.db).wait()
+        let newUserLogin = UserLogin(email: newUser.email, password: newUserPassword)
+
+        let newAdminUserPassword = "password123"
+        let newAdminUser = UserAccountModel(name: "Test Admin User", email: "test-admin-user@example.com", school: nil, password: try app.password.hash(newAdminUserPassword), verified: false, isModerator: false)
+        try newAdminUser.create(on: app.db).wait()
+        let newAdminUserLogin = UserLogin(email: newAdminUser.email, password: newAdminUserPassword)
+        
+        token = try getApiToken(newUserLogin, app).value
+        adminToken = try getApiToken(newAdminUserLogin, app).value
+    }
+}
