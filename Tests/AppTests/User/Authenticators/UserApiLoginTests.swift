@@ -69,24 +69,66 @@ final class UserApiLoginTests: AppTestCase {
             .test()
     }
     
-//    func testLoginDeltesOldTokens() async throws {
-//        let (user, password) = try await createNewUser()
-//
-//        let token = try user.generateToken()
-//        try token.create(on: app.db).wait()
-//
-//        let credentials = UserLoginRequest(name: user.name, password: password)
-//
-//        try app
-//            .describe("Credentials Login should return ok")
-//            .post(signInPath)
-//            .body(credentials)
-//            .expect(.ok)
-//            .expect(.json)
-//            .test()
-//
-//        let tokenCount = try UserTokenModel.query(on: app.db).filter(\.$user.$id, .equal, user.id!).count().wait()
-//        XCTAssertEqual(tokenCount, 1)
-//    }
-}
+    func testLoginReturnsSameTokenForSameUser() async throws {
+        let (user, password) = try await createNewUser()
+        
+        let token = try user.generateToken()
+        try token.create(on: app.db).wait()
+        
+        let credentials = UserLogin(email: user.email, password: password)
+        
+        try app
+            .describe("Credentials Login should return ok and return the same token which was previously created")
+            .post(signInPath)
+            .body(credentials)
+            .expect(.ok)
+            .expect(.json)
+            .expect(User.Token.Detail.self) { content in
+                XCTAssertEqual(content.value, token.value)
+                XCTAssertEqual(content.user.email, user.email)
+            }
+            .test()
+        
+        // check that still only one token esits
+        let tokenCount = try UserTokenModel.query(on: app.db).filter(\.$user.$id, .equal, user.id!).count().wait()
+        XCTAssertEqual(tokenCount, 1)
+    }
     
+    func testLoginReturnsDifferentTokensForDifferentUser() async throws {
+        let (user1, password1) = try await createNewUser()
+        let (user2, password2) = try await createNewUser(email: "test-user.2@example.com")
+        
+        let credentials1 = UserLogin(email: user1.email, password: password1)
+        let credentials2 = UserLogin(email: user2.email, password: password2)
+        
+        var token1: String!
+        
+        try app
+            .describe("First user should login successfully and get token")
+            .post(signInPath)
+            .body(credentials1)
+            .expect(.ok)
+            .expect(.json)
+            .expect(User.Token.Detail.self) { content in
+                XCTAssertEqual(content.value.count, 64)
+                token1 = content.value
+                XCTAssertEqual(content.user.email, user1.email)
+            }
+            .test()
+        
+        try app
+            .describe("Second user should login successfully and get different token than user one")
+            .post(signInPath)
+            .body(credentials2)
+            .expect(.ok)
+            .expect(.json)
+            .expect(User.Token.Detail.self) { content in
+                XCTAssertEqual(content.value.count, 64)
+                XCTAssertNotEqual(content.value, token1)
+                XCTAssertEqual(content.user.email, user2.email)
+            }
+            .test()
+    }
+    
+}
+

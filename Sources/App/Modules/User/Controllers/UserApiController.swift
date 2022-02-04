@@ -18,8 +18,13 @@ struct UserApiController {
         guard let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db) else {
             throw Abort(.notFound)
         }
-        let token = try user.generateToken()
-        try await token.create(on: req.db)
+        var token: UserTokenModel! = try await UserTokenModel.query(on: req.db)
+            .filter(\.$user.$id, .equal, user.id!)
+            .first()
+        if token == nil {
+            token = try user.generateToken()
+            try await token.create(on: req.db)
+        }
         let userDetail = User.Account.Detail.ownDetail(id: user.id!, name: user.name, email: user.email, school: user.school, verified: user.verified, isModerator: user.isModerator)
         return User.Token.Detail(id: token.id!, value: token.value, user: userDetail)
     }
