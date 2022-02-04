@@ -19,7 +19,7 @@ extension UserApiController: ApiController {
     @AsyncValidatorBuilder
     func validators(optional: Bool) -> [AsyncValidator] {
         KeyedContentValidator<String>.required("name", optional: optional)
-        KeyedContentValidator<String>.required("email", optional: optional)
+        KeyedContentValidator<String>.email("email", nil, optional)
     }
     
     func listOutput(_ req: Request, _ models: Page<UserAccountModel>) async throws -> Page<User.Account.List> {
