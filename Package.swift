@@ -14,6 +14,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0"),
+        .package(url: "https://github.com/vapor/fluent-sqlite-driver", from: "4.1.0"),
         .package(url: "https://github.com/autimatisering/VaporSMTPKit.git", from: "1.0.0"),
         .package(url: "https://github.com/binarybirds/liquid", from: "1.3.0"),
         .package(url: "https://github.com/binarybirds/liquid-local-driver", from: "1.3.0"),
@@ -47,6 +48,7 @@ let package = Package(
             .target(name: "App"),
             .product(name: "XCTVapor", package: "vapor"),
             .product(name: "Spec", package: "spec"),
+            .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
         ]),
         .testTarget(name: "AppApiTests", dependencies: [
             .target(name: "AppApi"),
