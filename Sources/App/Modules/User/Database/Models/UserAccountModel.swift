@@ -37,15 +37,17 @@ final class UserAccountModel: DatabaseModelInterface {
     init(id: UUID? = nil,
          name: String,
          email: String,
-         school: String,
+         school: String?,
          password: String,
-         verified: Bool)
-    {
+         verified: Bool,
+         isModerator: Bool
+    ) {
         self.id = id
         self.name = name
         self.email = email
         self.school = school
         self.password = password
         self.verified = verified
+        self.isModerator = isModerator
     }
 }
