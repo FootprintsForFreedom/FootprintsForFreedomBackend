@@ -29,6 +29,7 @@ final class UserApiCreateTests: AppTestCase {
     func testSuccessfulCreateUser() async throws {
         let newUser = try getUserCreateContent()
         
+        // Get original user count
         let userCount = try await UserAccountModel.query(on: app.db).count()
         
         try app
@@ -46,6 +47,7 @@ final class UserApiCreateTests: AppTestCase {
         }
         .test()
         
+        // New user count should be one more than original user count
         let newUserCount = try await UserAccountModel.query(on: app.db).count()
         XCTAssertEqual(newUserCount, userCount + 1)
     }
