@@ -173,11 +173,13 @@ public extension User.Account {
     struct Patch: Codable {
         public let name: String?
         public let email: String?
-        public let school: String??
+        public let setSchool: Bool
+        public let school: String?
         
-        public init(name: String?, email: String?, school: String??) {
+        public init(name: String?, email: String?, setSchool: Bool, school: String?) {
             self.name = name
             self.email = email
+            self.setSchool = setSchool
             self.school = school
         }
     }

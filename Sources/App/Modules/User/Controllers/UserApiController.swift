@@ -111,7 +111,9 @@ extension UserApiController: ApiController {
         let previousEmail = model.email
         model.name = input.name ?? model.name
         model.email = input.email ?? model.email
-        model.school = input.school ?? model.school
+        if input.setSchool {
+            model.school = input.school
+        }
         if previousEmail != model.email {
             model.verified = false
             try await createVerification(req, model)
