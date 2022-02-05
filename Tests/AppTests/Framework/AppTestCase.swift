@@ -21,7 +21,7 @@ open class AppTestCase: XCTestCase {
         let password: String
     }
     
-    func createTestApp() throws -> Application {
+    func createTestApp() async throws -> Application {
         let app = Application(.testing)
         
         try configure(app)
@@ -36,15 +36,15 @@ open class AppTestCase: XCTestCase {
 //        ), as: .psql)
 //        app.databases.default(to: .psql)
         app.passwords.use(.plaintext)
-        try app.autoMigrate().wait()
+        try await app.autoMigrate()
         return app
     }
     
-    override open func setUpWithError() throws {
-        self.app = try self.createTestApp()
+    open override func setUp() async throws {
+        app = try await createTestApp()
     }
     
-    override open func tearDownWithError() throws {
+    open override func tearDown() async throws {
         app.shutdown()
     }
     
@@ -69,29 +69,31 @@ open class AppTestCase: XCTestCase {
 open class AppTestCaseWithToken: AppTestCase {
     var token: String!
     
-    override open func setUpWithError() throws {
-        app = try self.createTestApp()
+    override open func setUp() async throws {
+        app = try await self.createTestApp()
         let newUserPassword = "password"
         let newUser = UserAccountModel(name: "Test User", email: "nonadmin-test-user@example.com", school: nil, password: try app.password.hash(newUserPassword), verified: false, isModerator: false)
-        try newUser.create(on: app.db).wait()
-        let newUserLogin = UserLogin(email: newUser.email, password: newUserPassword)
-        
-        token = try getApiToken(newUserLogin, app).value
+        try await newUser.create(on: app.db)
+
+        let token = try newUser.generateToken()
+        try await token.create(on: app.db)
+        self.token = token.value
     }
 }
 
 open class AppTestCaseWithAdminToken: AppTestCase {
     var adminToken: String!
     
-    override open func setUpWithError() throws {
-        app = try self.createTestApp()
+    override open func setUp() async throws {
+        app = try await self.createTestApp()
         
         let newAdminUserPassword = "password123"
         let newAdminUser = UserAccountModel(name: "Test Admin User", email: "test-admin-user@example.com", school: nil, password: try app.password.hash(newAdminUserPassword), verified: false, isModerator: true)
-        try newAdminUser.create(on: app.db).wait()
-        let newAdminUserLogin = UserLogin(email: newAdminUser.email, password: newAdminUserPassword)
+        try await newAdminUser.create(on: app.db)
 
-        adminToken = try getApiToken(newAdminUserLogin, app).value
+        let adminToken = try newAdminUser.generateToken()
+        try await adminToken.create(on: app.db)
+        self.adminToken = adminToken.value
     }
 }
 
@@ -99,20 +101,23 @@ open class AppTestCaseWithAdminAndNormalToken: AppTestCase {
     var token: String!
     var adminToken: String!
     
-    override open func setUpWithError() throws {
-        app = try self.createTestApp()
+    override open func setUp() async throws {
+        app = try await self.createTestApp()
         
         let newUserPassword = "password"
         let newUser = UserAccountModel(name: "Test User", email: "nonadmin-test-user@example.com", school: nil, password: try app.password.hash(newUserPassword), verified: false, isModerator: false)
-        try newUser.create(on: app.db).wait()
-        let newUserLogin = UserLogin(email: newUser.email, password: newUserPassword)
-
+        try await newUser.create(on: app.db)
+        
+        let token = try newUser.generateToken()
+        try await token.create(on: app.db)
+        self.token = token.value
+        
         let newAdminUserPassword = "password123"
         let newAdminUser = UserAccountModel(name: "Test Admin User", email: "test-admin-user@example.com", school: nil, password: try app.password.hash(newAdminUserPassword), verified: false, isModerator: true)
-        try newAdminUser.create(on: app.db).wait()
-        let newAdminUserLogin = UserLogin(email: newAdminUser.email, password: newAdminUserPassword)
+        try await newAdminUser.create(on: app.db)
         
-        token = try getApiToken(newUserLogin, app).value
-        adminToken = try getApiToken(newAdminUserLogin, app).value
+        let adminToken = try newAdminUser.generateToken()
+        try await adminToken.create(on: app.db)
+        self.adminToken = adminToken.value
     }
 }
