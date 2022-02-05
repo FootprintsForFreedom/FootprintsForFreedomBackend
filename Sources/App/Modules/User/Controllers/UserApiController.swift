@@ -22,6 +22,21 @@ extension UserApiController: ApiController {
         KeyedContentValidator<String>.email("email", nil, optional)
     }
     
+    func beforeList(_ req: Request, _ queryBuilder: QueryBuilder<UserAccountModel>) async throws -> QueryBuilder<UserAccountModel> {
+        /// Require user to be signed in
+        let authenticatedUser = try req.auth.require(AuthenticatedUser.self)
+        /// find the user model belonging to the authenticated user
+        guard let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db) else {
+            throw Abort(.unauthorized)
+        }
+        /// require  the user to be a moderator
+        guard user.isModerator else {
+            throw Abort(.forbidden)
+        }
+        
+        return queryBuilder
+    }
+    
     func listOutput(_ req: Request, _ models: Page<UserAccountModel>) async throws -> Page<User.Account.List> {
         models.map { model in
                 .init(id: model.id!, name: model.name, school: model.school, verified: model.verified, isModerator: model.isModerator)
