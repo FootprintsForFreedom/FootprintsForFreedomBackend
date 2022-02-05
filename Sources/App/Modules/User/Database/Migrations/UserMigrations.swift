@@ -28,7 +28,7 @@ enum UserMigrations {
                 .id()
                 .field(UserTokenModel.FieldKeys.v1.value, .string, .required)
                 .field(UserTokenModel.FieldKeys.v1.userId, .uuid, .required)
-                .foreignKey(UserTokenModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id)
+                .foreignKey(UserTokenModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .cascade)
                 .unique(on: UserTokenModel.FieldKeys.v1.value)
                 .create()
             
@@ -37,7 +37,7 @@ enum UserMigrations {
                 .field(UserVerificationTokenModel.FieldKeys.v1.value, .string, .required)
                 .field(UserVerificationTokenModel.FieldKeys.v1.createdAt, .datetime, .required)
                 .field(UserVerificationTokenModel.FieldKeys.v1.userId, .uuid, .required)
-                .foreignKey(UserVerificationTokenModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id)
+                .foreignKey(UserVerificationTokenModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .cascade)
                 .unique(on: UserVerificationTokenModel.FieldKeys.v1.value)
                 .unique(on: UserVerificationTokenModel.FieldKeys.v1.userId)
                 .create()
