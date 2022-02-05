@@ -72,7 +72,7 @@ open class AppTestCaseWithToken: AppTestCase {
     override open func setUpWithError() throws {
         app = try self.createTestApp()
         let newUserPassword = "password"
-        let newUser = UserAccountModel(name: "Test User", email: "test-user@example.com", school: nil, password: try app.password.hash(newUserPassword), verified: false, isModerator: false)
+        let newUser = UserAccountModel(name: "Test User", email: "nonadmin-test-user@example.com", school: nil, password: try app.password.hash(newUserPassword), verified: false, isModerator: false)
         try newUser.create(on: app.db).wait()
         let newUserLogin = UserLogin(email: newUser.email, password: newUserPassword)
         
@@ -87,7 +87,7 @@ open class AppTestCaseWithAdminToken: AppTestCase {
         app = try self.createTestApp()
         
         let newAdminUserPassword = "password123"
-        let newAdminUser = UserAccountModel(name: "Test Admin User", email: "test-admin-user@example.com", school: nil, password: try app.password.hash(newAdminUserPassword), verified: false, isModerator: false)
+        let newAdminUser = UserAccountModel(name: "Test Admin User", email: "test-admin-user@example.com", school: nil, password: try app.password.hash(newAdminUserPassword), verified: false, isModerator: true)
         try newAdminUser.create(on: app.db).wait()
         let newAdminUserLogin = UserLogin(email: newAdminUser.email, password: newAdminUserPassword)
 
@@ -103,12 +103,12 @@ open class AppTestCaseWithAdminAndNormalToken: AppTestCase {
         app = try self.createTestApp()
         
         let newUserPassword = "password"
-        let newUser = UserAccountModel(name: "Test User", email: "test-user@example.com", school: nil, password: try app.password.hash(newUserPassword), verified: false, isModerator: false)
+        let newUser = UserAccountModel(name: "Test User", email: "nonadmin-test-user@example.com", school: nil, password: try app.password.hash(newUserPassword), verified: false, isModerator: false)
         try newUser.create(on: app.db).wait()
         let newUserLogin = UserLogin(email: newUser.email, password: newUserPassword)
 
         let newAdminUserPassword = "password123"
-        let newAdminUser = UserAccountModel(name: "Test Admin User", email: "test-admin-user@example.com", school: nil, password: try app.password.hash(newAdminUserPassword), verified: false, isModerator: false)
+        let newAdminUser = UserAccountModel(name: "Test Admin User", email: "test-admin-user@example.com", school: nil, password: try app.password.hash(newAdminUserPassword), verified: false, isModerator: true)
         try newAdminUser.create(on: app.db).wait()
         let newAdminUserLogin = UserLogin(email: newAdminUser.email, password: newAdminUserPassword)
         
