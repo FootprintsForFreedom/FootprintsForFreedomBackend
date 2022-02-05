@@ -16,6 +16,19 @@ extension UserApiController: ApiController {
     typealias ApiModel = User.Account
     typealias DatabaseModel = UserAccountModel
     
+    private func onlyForSelfOrModerator(_ req: Request, _ model: UserAccountModel) async throws {
+        /// Require user to be signed in
+        let authenticatedUser = try req.auth.require(AuthenticatedUser.self)
+        /// find the user model belonging to the authenticated user
+        guard let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db) else {
+            throw Abort(.unauthorized)
+        }
+        /// require the model id to be the user id or the user to be an admin
+        guard model.id == user.id || user.isModerator else {
+            throw Abort(.forbidden)
+        }
+    }
+    
     @AsyncValidatorBuilder
     func validators(optional: Bool) -> [AsyncValidator] {
         KeyedContentValidator<String>.required("name", optional: optional)
@@ -107,11 +120,15 @@ extension UserApiController: ApiController {
         }
     }
     
+    func beforePatch(_ req: Request, _ model: UserAccountModel) async throws {
+        try await onlyForSelfOrModerator(req, model)
+    }
+    
     func patchInput(_ req: Request, _ model: UserAccountModel, _ input: User.Account.Patch) async throws {
         let previousEmail = model.email
         model.name = input.name ?? model.name
         model.email = input.email ?? model.email
-        if input.setSchool {
+        if let setSchool = input.setSchool, setSchool {
             model.school = input.school
         }
         if previousEmail != model.email {
@@ -124,16 +141,7 @@ extension UserApiController: ApiController {
     }
     
     func beforeDelete(_ req: Request, _ model: UserAccountModel) async throws {
-        /// Require user to be signed in
-        let authenticatedUser = try req.auth.require(AuthenticatedUser.self)
-        /// find the user model belonging to the authenticated user
-        guard let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db) else {
-            throw Abort(.unauthorized)
-        }
-        /// require the model id to be the user id or the user to be an admin
-        guard model.id == user.id || user.isModerator else {
-            throw Abort(.forbidden)
-        }
+        try await onlyForSelfOrModerator(req, model)
     }
     
     func setupRoutes(_ routes: RoutesBuilder) {
