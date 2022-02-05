@@ -13,7 +13,7 @@ import Spec
 final class UserApiGetOwnUserTests: AppTestCase {
     let getOwnUserPath = "/api/\(User.pathKey)/\(User.Account.pathKey)/me"
     
-    private func createNewUser(
+    private func createNewUserWithToken(
         name: String = "New Test User",
         email: String = "test-user@example.com",
         school: String? = nil,
@@ -31,7 +31,7 @@ final class UserApiGetOwnUserTests: AppTestCase {
     }
     
     func testGetOwnUser() async throws {
-        let (user, token) = try await createNewUser()
+        let (user, token) = try await createNewUserWithToken()
         
         try app
             .describe("Get own user should return authenticated user")
