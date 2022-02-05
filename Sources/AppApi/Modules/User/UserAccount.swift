@@ -88,15 +88,32 @@ public extension User.Account {
         public let isModerator: Bool?
         
         public static func publicDetail(id: UUID, name: String, school: String?) -> Self {
-            return .init(id: id, name: name, school: school)
+            return .init(
+                id: id,
+                name: name,
+                school: school
+            )
         }
         
         public static func ownDetail(id: UUID, name: String, email: String, school: String?, verified: Bool, isModerator: Bool) -> Self {
-            return .init(id: id, name: name, email: email, school: school, verified: verified, isModerator: isModerator)
+            return .init(
+                id: id,
+                name: name,
+                email: email,
+                school: school,
+                verified: verified,
+                isModerator: isModerator
+            )
         }
         
         public static func adminDetail(id: UUID, name: String, school: String?, verified: Bool, isModerator: Bool) -> Self {
-            return .init(id: id, name: name, school: school, verified: verified, isModerator: isModerator)
+            return .init(
+                id: id,
+                name: name,
+                school: school,
+                verified: verified,
+                isModerator: isModerator
+            )
         }
         
         private init(id: UUID, name: String, school: String?) {
