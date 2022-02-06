@@ -46,7 +46,7 @@ struct UserVerifyAccountTemplate: MailTemplateRepresentable {
         )
     }
     
-    func send(on req: Request) async throws {
+    func sendAction(_ req: Request) async throws {
         try await req.application.sendMail(mail, withCredentials: .default).get()
     }
 }

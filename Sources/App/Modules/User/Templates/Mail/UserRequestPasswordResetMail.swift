@@ -46,7 +46,7 @@ struct UserRequestPasswordResetMail: MailTemplateRepresentable {
         // TODO: make sure only verified user can create media and waypoint
     }
     
-    func send(on req: Request) async throws {
+    func sendAction(_ req: Request) async throws {
         try await req.application.sendMail(mail, withCredentials: .default).get()
     }
 }
