@@ -11,23 +11,34 @@ extension UserApiController: ApiEmailVerificationController {
     typealias VerificationObject = User.Account.Verification
     
     func beforeCreateVerification(_ req: Request, _ model: UserAccountModel) async throws {
-        try await model.$verificationToken.load(on: req.db)
-        if let oldVerificationToken = model.verificationToken {
-            try await oldVerificationToken.delete(on: req.db)
-        }
-        let verificationToken = try model.generateVerificationToken()
-        try await verificationToken.create(on: req.db)
-    }
-    
-    func requestVerificationResponse(_ req: Request, _ model: UserAccountModel) async throws -> Response {
         /// do not allow a verified user to request a verification token
         guard !model.verified else {
             throw Abort(.forbidden)
         }
+        /// load the verification token and delete it if present
+        try await model.$verificationToken.load(on: req.db)
+        if let oldVerificationToken = model.verificationToken {
+            try await oldVerificationToken.delete(on: req.db)
+        }
+        /// create new verification token
+        let verificationToken = try model.generateVerificationToken()
+        try await verificationToken.create(on: req.db)
+    }
+    
+    func requestVerificationInput(_ req: Request, _ model: UserAccountModel) async throws {
+        /// Require user to be signed in
+        let authenticatedUser = try req.auth.require(AuthenticatedUser.self)
+        /// require the model id to be the user id
+        guard model.id == authenticatedUser.id else {
+            throw Abort(.forbidden)
+        }
+    }
+    
+    func requestVerificationResponse(_ req: Request, _ model: UserAccountModel) async throws -> HTTPStatus {
         try await model.$verificationToken.load(on: req.db)
         let userVerifyAccountMail = try UserVerifyAccountTemplate(user: model)
         try await userVerifyAccountMail.send(on: req)
-        return try await detailOutput(req, model).encodeResponse(for: req)
+        return .ok
     }
         
     func verificationInput(_ req: Request, _ model: UserAccountModel, _ input: User.Account.Verification) async throws {

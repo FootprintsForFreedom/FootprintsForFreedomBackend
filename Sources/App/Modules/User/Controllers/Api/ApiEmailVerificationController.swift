@@ -10,8 +10,9 @@ import Vapor
 protocol ApiEmailVerificationController: VerificationController {
     associatedtype VerificationObject: Decodable
     
-    func requestVerificationApi(_ req: Request) async throws -> Response
-    func requestVerificationResponse(_ req: Request, _ model: DatabaseModel) async throws -> Response
+    func requestVerificationInput(_ req: Request, _ model: DatabaseModel) async throws
+    func requestVerificationApi(_ req: Request) async throws -> HTTPStatus
+    func requestVerificationResponse(_ req: Request, _ model: DatabaseModel) async throws -> HTTPStatus
     
     func verificationInput(_ req: Request, _ model: DatabaseModel, _ input: VerificationObject) async throws
     func verificationApi(_ req: Request) async throws -> Response
@@ -30,8 +31,9 @@ extension ApiEmailVerificationController {
         return try await verificationResponse(req, model)
     }
     
-    func requestVerificationApi(_ req: Request) async throws -> Response {
+    func requestVerificationApi(_ req: Request) async throws -> HTTPStatus {
         let model = try await findBy(identifier(req), on: req.db)
+        try await requestVerificationInput(req, model)
         try await createVerification(req, model)
         return try await requestVerificationResponse(req, model)
     }
@@ -41,7 +43,7 @@ extension ApiEmailVerificationController {
         let existingModelRoutes = baseRoutes.grouped(ApiModel.pathIdComponent)
         let verificationRoutes = existingModelRoutes.grouped("verify")
         let requestVerificationRoutes = existingModelRoutes.grouped(AuthenticatedUser.guardMiddleware()).grouped("requestVerification")
-        verificationRoutes.get(use: verificationApi)
+        verificationRoutes.post(use: verificationApi)
         requestVerificationRoutes.post(use: requestVerificationApi)
         // TODO: request route
     }
