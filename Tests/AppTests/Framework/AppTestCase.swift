@@ -64,60 +64,55 @@ open class AppTestCase: XCTestCase {
         }
         return result
     }
-}
-
-open class AppTestCaseWithToken: AppTestCase {
-    var token: String!
     
-    override open func setUp() async throws {
-        app = try await self.createTestApp()
+    func getTokenFromOtherUser() async throws -> String {
         let newUserPassword = "password"
         let newUser = UserAccountModel(name: "Test User", email: "nonadmin-test-user@example.com", school: nil, password: try app.password.hash(newUserPassword), verified: false, isModerator: false)
         try await newUser.create(on: app.db)
 
         let token = try newUser.generateToken()
         try await token.create(on: app.db)
-        self.token = token.value
+        return token.value
     }
-}
-
-open class AppTestCaseWithAdminToken: AppTestCase {
-    var adminToken: String!
     
-    override open func setUp() async throws {
-        app = try await self.createTestApp()
-        
+    func getTokenFromOtherAdminUser() async throws -> String {
         let newAdminUserPassword = "password123"
         let newAdminUser = UserAccountModel(name: "Test Admin User", email: "test-admin-user@example.com", school: nil, password: try app.password.hash(newAdminUserPassword), verified: false, isModerator: true)
         try await newAdminUser.create(on: app.db)
 
         let adminToken = try newAdminUser.generateToken()
         try await adminToken.create(on: app.db)
-        self.adminToken = adminToken.value
+        return adminToken.value
+    }
+    
+}
+
+open class AppTestCaseWithToken: AppTestCase {
+    var token: String!
+
+    override open func setUp() async throws {
+        app = try await createTestApp()
+        token = try await getTokenFromOtherUser()
+    }
+}
+
+open class AppTestCaseWithAdminToken: AppTestCase {
+    var adminToken: String!
+
+    override open func setUp() async throws {
+        app = try await createTestApp()
+        adminToken = try await getTokenFromOtherAdminUser()
     }
 }
 
 open class AppTestCaseWithAdminAndNormalToken: AppTestCase {
     var token: String!
     var adminToken: String!
-    
+
     override open func setUp() async throws {
         app = try await self.createTestApp()
-        
-        let newUserPassword = "password"
-        let newUser = UserAccountModel(name: "Test User", email: "nonadmin-test-user@example.com", school: nil, password: try app.password.hash(newUserPassword), verified: false, isModerator: false)
-        try await newUser.create(on: app.db)
-        
-        let token = try newUser.generateToken()
-        try await token.create(on: app.db)
-        self.token = token.value
-        
-        let newAdminUserPassword = "password123"
-        let newAdminUser = UserAccountModel(name: "Test Admin User", email: "test-admin-user@example.com", school: nil, password: try app.password.hash(newAdminUserPassword), verified: false, isModerator: true)
-        try await newAdminUser.create(on: app.db)
-        
-        let adminToken = try newAdminUser.generateToken()
-        try await adminToken.create(on: app.db)
-        self.adminToken = adminToken.value
+
+        token = try await getTokenFromOtherUser()
+        adminToken = try await getTokenFromOtherAdminUser()
     }
 }
