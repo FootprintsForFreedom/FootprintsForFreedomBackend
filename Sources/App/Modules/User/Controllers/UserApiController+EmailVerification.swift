@@ -49,7 +49,7 @@ extension UserApiController: ApiEmailVerificationController {
             throw Abort(.unauthorized)
         }
         /// confirm the token is not older than 24 hours
-        guard let createdAt = verificationToken.createdAt, abs(createdAt.timeIntervalSinceNow) < 60 * 60 * 24 else {
+        guard let createdAt = verificationToken.createdAt, abs(createdAt.timeIntervalSinceNow) < 60 * 60 * 60 * 24 else {
             throw Abort(.unauthorized)
         }
         /// verify the token in the request equals the token saved for that user
