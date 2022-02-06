@@ -105,6 +105,10 @@ extension UserApiController: ApiController {
         ).encodeResponse(status: .created, for: req)
     }
     
+    func beforeUpdate(_ req: Request, _ model: UserAccountModel) async throws {
+        try await onlyForSelfOrModerator(req, model)
+    }
+    
     /// Only use this when all fields are updated
     func updateInput(_ req: Request, _ model: UserAccountModel, _ input: User.Account.Update) async throws {
         let previousEmail = model.email
