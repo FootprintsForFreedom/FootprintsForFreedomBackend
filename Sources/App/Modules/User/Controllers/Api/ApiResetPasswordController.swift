@@ -13,8 +13,8 @@ protocol ApiResetPasswordController: VerificationController {
     
     func requestResetPasswordValidators() -> [AsyncValidator]
     func requestResetPasswordInput(_ req: Request, _ input: ResetPasswordRequestObject) async throws -> DatabaseModel
-    func requestResetPasswordApi(_ req: Request) async throws -> Response
-    func requestResetPasswordResponse(_ req: Request, _ model: DatabaseModel) async throws -> Response
+    func requestResetPasswordApi(_ req: Request) async throws -> HTTPStatus
+    func requestResetPasswordResponse(_ req: Request, _ model: DatabaseModel) async throws -> HTTPStatus
     
     func resetPasswordValidators() -> [AsyncValidator]
     func resetPasswordInput(_ req: Request, _ model: DatabaseModel, _ input: ResetPasswordObject) async throws
@@ -42,7 +42,7 @@ extension ApiResetPasswordController {
         []
     }
     
-    func requestResetPasswordApi(_ req: Request) async throws -> Response {
+    func requestResetPasswordApi(_ req: Request) async throws -> HTTPStatus {
         try await RequestValidator(requestResetPasswordValidators()).validate(req)
         let input = try req.content.decode(ResetPasswordRequestObject.self)
 //        let model = try await findBy(identifier(req), on: req.db)

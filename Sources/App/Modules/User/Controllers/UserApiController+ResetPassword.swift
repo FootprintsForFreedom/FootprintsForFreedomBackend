@@ -28,11 +28,11 @@ extension UserApiController: ApiResetPasswordController {
         return user
     }
     
-    func requestResetPasswordResponse(_ req: Request, _ model: UserAccountModel) async throws -> Response {
+    func requestResetPasswordResponse(_ req: Request, _ model: UserAccountModel) async throws -> HTTPStatus {
         try await model.$verificationToken.load(on: req.db)
         let userRequestPasswordResetMail = try UserRequestPasswordResetMail(user: model)
         try await userRequestPasswordResetMail.send(on: req)
-        return try await detailOutput(req, model).encodeResponse(for: req)
+        return .ok
     }
     
     @AsyncValidatorBuilder
