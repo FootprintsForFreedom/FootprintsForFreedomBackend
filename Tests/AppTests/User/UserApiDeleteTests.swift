@@ -10,7 +10,7 @@ import XCTVapor
 import Fluent
 import Spec
 
-final class UserApiDeleteTests: AppTestCaseWithAdminAndNormalToken {
+final class UserApiDeleteTests: AppTestCaseWithModeratorAndNormalToken {
     let usersPath = "api/\(User.pathKey)/\(User.Account.pathKey)/"
     
     private func createNewUser(
@@ -68,7 +68,7 @@ final class UserApiDeleteTests: AppTestCaseWithAdminAndNormalToken {
         try app
             .describe("Admin should be able to delete user; Delete user should return ok")
             .delete(usersPath.appending(user.requireID().uuidString))
-            .bearerToken(adminToken)
+            .bearerToken(moderatorToken)
             .expect(.noContent)
             .test()
         
@@ -94,7 +94,7 @@ final class UserApiDeleteTests: AppTestCaseWithAdminAndNormalToken {
         try app
             .describe("Deleting a user should delte all tokens belonging to him")
             .delete(usersPath.appending(user.requireID().uuidString))
-            .bearerToken(adminToken)
+            .bearerToken(moderatorToken)
             .expect(.noContent)
             .test()
         
@@ -116,7 +116,7 @@ final class UserApiDeleteTests: AppTestCaseWithAdminAndNormalToken {
         try app
             .describe("Deleting a user which does not exist fails")
             .delete(usersPath.appending(UUID().uuidString))
-            .bearerToken(adminToken)
+            .bearerToken(moderatorToken)
             .expect(.notFound)
             .test()
     }

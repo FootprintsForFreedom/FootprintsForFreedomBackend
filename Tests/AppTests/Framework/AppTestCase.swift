@@ -65,54 +65,43 @@ open class AppTestCase: XCTestCase {
         return result
     }
     
-    func getTokenFromOtherUser() async throws -> String {
+    func getTokenFromOtherUser(role: User.Role) async throws -> String {
         let newUserPassword = "password"
-        let newUser = UserAccountModel(name: "Test User", email: "nonadmin-test-user@example.com", school: nil, password: try app.password.hash(newUserPassword), verified: false, role: .user)
+        let newUser = UserAccountModel(name: "Test User", email: "test-user\(UUID())@example.com", school: nil, password: try app.password.hash(newUserPassword), verified: false, role: role)
         try await newUser.create(on: app.db)
-
+        
         let token = try newUser.generateToken()
         try await token.create(on: app.db)
         return token.value
     }
-    
-    func getTokenFromOtherModeratorUser() async throws -> String {
-        let newAdminUserPassword = "password123"
-        let newAdminUser = UserAccountModel(name: "Test Admin User", email: "test-admin-user@example.com", school: nil, password: try app.password.hash(newAdminUserPassword), verified: false, role: .moderator)
-        try await newAdminUser.create(on: app.db)
-
-        let adminToken = try newAdminUser.generateToken()
-        try await adminToken.create(on: app.db)
-        return adminToken.value
-    }
-    
 }
 
 open class AppTestCaseWithToken: AppTestCase {
     var token: String!
-
+    
     override open func setUp() async throws {
         app = try await createTestApp()
-        token = try await getTokenFromOtherUser()
+        token = try await getTokenFromOtherUser(role: .user)
     }
 }
 
-open class AppTestCaseWithAdminToken: AppTestCase {
-    var adminToken: String!
-
+open class AppTestCaseWithModeratorToken: AppTestCase {
+    var moderatorToken: String!
+    
     override open func setUp() async throws {
         app = try await createTestApp()
-        adminToken = try await getTokenFromOtherModeratorUser()
+        moderatorToken = try await getTokenFromOtherUser(role: .moderator)
     }
 }
 
-open class AppTestCaseWithAdminAndNormalToken: AppTestCase {
+open class AppTestCaseWithModeratorAndNormalToken: AppTestCase {
     var token: String!
-    var adminToken: String!
-
+    var moderatorToken: String!
+    
     override open func setUp() async throws {
         app = try await self.createTestApp()
-
-        token = try await getTokenFromOtherUser()
-        adminToken = try await getTokenFromOtherModeratorUser()
+        
+        token = try await getTokenFromOtherUser(role: .user)
+        moderatorToken = try await getTokenFromOtherUser(role: .moderator)
     }
 }

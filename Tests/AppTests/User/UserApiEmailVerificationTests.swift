@@ -72,8 +72,8 @@ final class UserApiEmailVerificationTests: AppTestCase {
         let (user, _) = try await createNewUser()
         XCTAssertFalse(user.verified)
         
-        let token = try await getTokenFromOtherUser()
-        let adminToken = try await getTokenFromOtherModeratorUser()
+        let token = try await getTokenFromOtherUser(role: .user)
+        let moderatorToken = try await getTokenFromOtherUser(role: .moderator)
         
         try app
             .describe("Different user should not be able to request verification")
@@ -85,7 +85,7 @@ final class UserApiEmailVerificationTests: AppTestCase {
         try app
             .describe("Different admin user should not be able to request verification")
             .post(usersPath.appending(user.requireID().uuidString).appending("/requestVerification"))
-            .bearerToken(adminToken)
+            .bearerToken(moderatorToken)
             .expect(.forbidden)
             .test()
     }

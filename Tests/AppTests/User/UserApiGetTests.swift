@@ -10,7 +10,7 @@ import XCTVapor
 import Fluent
 import Spec
 
-final class UserApiGetTests: AppTestCaseWithAdminAndNormalToken {
+final class UserApiGetTests: AppTestCaseWithModeratorAndNormalToken {
     let usersPath = "api/\(User.pathKey)/\(User.Account.pathKey)/"
     
     private func createNewUser(
@@ -35,7 +35,7 @@ final class UserApiGetTests: AppTestCaseWithAdminAndNormalToken {
         try app
             .describe("List users with admin token should return ok and all saved entries")
             .get(usersPath)
-            .bearerToken(adminToken)
+            .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
             .expect(Page<User.Account.List>.self) { content in
@@ -91,7 +91,7 @@ final class UserApiGetTests: AppTestCaseWithAdminAndNormalToken {
         try app
             .describe("Get user should return ok")
             .get(usersPath.appending(user.requireID().uuidString))
-            .bearerToken(adminToken)
+            .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
             .expect(User.Account.Detail.self) { content in

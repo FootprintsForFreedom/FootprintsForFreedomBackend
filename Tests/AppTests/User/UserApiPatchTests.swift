@@ -168,15 +168,15 @@ final class UserApiPatchTests: AppTestCase {
             .test()
     }
     
-    func testSuccessfulPatchUserFromDifferentAdminUser() async throws {
+    func testSuccessfulPatchUserFromDifferentModeratorUser() async throws {
         let (user, _, patchContent) = try await getUserPatchContent(patchedName: "Patched Test User")
-        let adminToken = try await getTokenFromOtherModeratorUser()
+        let moderatorToken = try await getTokenFromOtherUser(role: .moderator)
         
         try app
             .describe("Patch username from other admin user should return ok")
             .patch(usersPath.appending(user.requireID().uuidString))
             .body(patchContent)
-            .bearerToken(adminToken)
+            .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
             .expect(User.Account.Detail.self) { content in
@@ -191,9 +191,9 @@ final class UserApiPatchTests: AppTestCase {
         
     }
     
-    func testPatchUserFromDifferentNonAdminUserFails() async throws {
+    func testPatchUserFromDifferentNormalUserFails() async throws {
         let (user, _, patchContent) = try await getUserPatchContent()
-        let token = try await getTokenFromOtherUser()
+        let token = try await getTokenFromOtherUser(role: .user)
         
         try app
             .describe("Patch user from other non admin user should fail")

@@ -116,8 +116,8 @@ final class UserApiUpdatePasswordTests: AppTestCase {
     
     func testUpdateUserPasswordFromDifferentUserFails() async throws {
         let (user, _, updatePasswordContent) = try await getUserUpdatePasswordContent()
-        let token = try await getTokenFromOtherUser()
-        let adminToken = try await getTokenFromOtherModeratorUser()
+        let token = try await getTokenFromOtherUser(role: .user)
+        let moderatorToken = try await getTokenFromOtherUser(role: .moderator)
         
         try app
             .describe("Update user password from different user fails; Update password fails")
@@ -131,7 +131,7 @@ final class UserApiUpdatePasswordTests: AppTestCase {
             .describe("Update user password from different admin user fails; Update password fails")
             .put(usersPath.appending(user.requireID().uuidString.appending("/updatePassword")))
             .body(updatePasswordContent)
-            .bearerToken(adminToken)
+            .bearerToken(moderatorToken)
             .expect(.forbidden)
             .test()
     }
