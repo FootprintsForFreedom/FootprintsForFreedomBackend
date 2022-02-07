@@ -37,6 +37,7 @@ struct UserRouter: RouteCollection {
         apiController.setupUpdatePasswordRoutes(routes)
         apiController.setupVerificationRoutes(routes)
         apiController.setupResetPasswordRoutes(routes)
+        apiController.setupChangeRoleRoutes(routes)
     }
     
 }

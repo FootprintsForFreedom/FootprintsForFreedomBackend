@@ -62,6 +62,14 @@ public extension User.Account {
         }
     }
     
+    struct ChangeRole: Codable {
+        public let newRole: User.Role
+        
+        public init(newRole: User.Role) {
+            self.newRole = newRole
+        }
+    }
+    
     /// Only for admins
     struct List: Codable {
         public let id: UUID
