@@ -69,31 +69,6 @@ final class UserApiSignInTests: AppTestCase {
             .test()
     }
     
-    func testLoginReturnsSameTokenForSameUser() async throws {
-        let (user, password) = try await createNewUser()
-        
-        let token = try user.generateToken()
-        try token.create(on: app.db).wait()
-        
-        let credentials = UserLogin(email: user.email, password: password)
-        
-        try app
-            .describe("Credentials Login should return ok and return the same token which was previously created")
-            .post(signInPath)
-            .body(credentials)
-            .expect(.ok)
-            .expect(.json)
-            .expect(User.Token.Detail.self) { content in
-                XCTAssertEqual(content.value, token.value)
-                XCTAssertEqual(content.user.email, user.email)
-            }
-            .test()
-        
-        // check that still only one token esits
-        let tokenCount = try UserTokenModel.query(on: app.db).filter(\.$user.$id, .equal, user.id!).count().wait()
-        XCTAssertEqual(tokenCount, 1)
-    }
-    
     func testLoginReturnsDifferentTokensForDifferentUser() async throws {
         let (user1, password1) = try await createNewUser()
         let (user2, password2) = try await createNewUser(email: "test-user.2@example.com")

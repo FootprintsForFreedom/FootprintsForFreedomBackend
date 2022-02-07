@@ -17,15 +17,9 @@ struct UserApiController {
         guard let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db) else {
             throw Abort(.notFound)
         }
-        /// check if a token for that user already exists
-        var token: UserTokenModel! = try await UserTokenModel.query(on: req.db)
-            .filter(\.$user.$id, .equal, user.id!)
-            .first()
-        if token == nil {
-            /// if no token for the user exists create a new one
-            token = try user.generateToken()
-            try await token.create(on: req.db)
-        }
+        /// create a token for the user
+        let token = try user.generateToken()
+        try await token.create(on: req.db)
         /// return the own detail representation of the user
         let userDetail = User.Account.Detail.ownDetail(id: user.id!, name: user.name, email: user.email, school: user.school, verified: user.verified, isModerator: user.isModerator)
         return User.Token.Detail(id: token.id!, value: token.value, user: userDetail)
