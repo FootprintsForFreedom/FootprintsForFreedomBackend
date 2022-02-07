@@ -21,7 +21,7 @@ struct UserApiController {
         let token = try user.generateToken()
         try await token.create(on: req.db)
         /// return the own detail representation of the user
-        let userDetail = User.Account.Detail.ownDetail(id: user.id!, name: user.name, email: user.email, school: user.school, verified: user.verified, isModerator: user.isModerator)
+        let userDetail = User.Account.Detail.ownDetail(id: user.id!, name: user.name, email: user.email, school: user.school, verified: user.verified, role: user.role)
         return User.Token.Detail(id: token.id!, value: token.value, user: userDetail)
     }
     

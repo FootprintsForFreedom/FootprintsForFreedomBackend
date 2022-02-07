@@ -22,7 +22,7 @@ final class UserApiEmailVerificationTests: AppTestCase {
         let email = "new-test-user\(UUID())@example.com"
         let school: String? = nil
         let password = "password7293"
-        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(password), verified: verified, isModerator: false)
+        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(password), verified: verified, role: .user)
         try await user.create(on: app.db)
         
         let token = try user.generateToken()
@@ -73,7 +73,7 @@ final class UserApiEmailVerificationTests: AppTestCase {
         XCTAssertFalse(user.verified)
         
         let token = try await getTokenFromOtherUser()
-        let adminToken = try await getTokenFromOtherAdminUser()
+        let adminToken = try await getTokenFromOtherModeratorUser()
         
         try app
             .describe("Different user should not be able to request verification")
@@ -140,7 +140,7 @@ final class UserApiEmailVerificationTests: AppTestCase {
                 XCTAssertEqual(content.email, user.email)
                 XCTAssertEqual(content.school, user.school)
                 XCTAssertEqual(content.verified, true)
-                XCTAssertEqual(content.isModerator, user.isModerator)
+                XCTAssertEqual(content.role, user.role)
         }
         .test()
         

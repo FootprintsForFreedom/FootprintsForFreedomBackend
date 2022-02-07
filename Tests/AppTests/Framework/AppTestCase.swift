@@ -67,7 +67,7 @@ open class AppTestCase: XCTestCase {
     
     func getTokenFromOtherUser() async throws -> String {
         let newUserPassword = "password"
-        let newUser = UserAccountModel(name: "Test User", email: "nonadmin-test-user@example.com", school: nil, password: try app.password.hash(newUserPassword), verified: false, isModerator: false)
+        let newUser = UserAccountModel(name: "Test User", email: "nonadmin-test-user@example.com", school: nil, password: try app.password.hash(newUserPassword), verified: false, role: .user)
         try await newUser.create(on: app.db)
 
         let token = try newUser.generateToken()
@@ -75,9 +75,9 @@ open class AppTestCase: XCTestCase {
         return token.value
     }
     
-    func getTokenFromOtherAdminUser() async throws -> String {
+    func getTokenFromOtherModeratorUser() async throws -> String {
         let newAdminUserPassword = "password123"
-        let newAdminUser = UserAccountModel(name: "Test Admin User", email: "test-admin-user@example.com", school: nil, password: try app.password.hash(newAdminUserPassword), verified: false, isModerator: true)
+        let newAdminUser = UserAccountModel(name: "Test Admin User", email: "test-admin-user@example.com", school: nil, password: try app.password.hash(newAdminUserPassword), verified: false, role: .moderator)
         try await newAdminUser.create(on: app.db)
 
         let adminToken = try newAdminUser.generateToken()
@@ -101,7 +101,7 @@ open class AppTestCaseWithAdminToken: AppTestCase {
 
     override open func setUp() async throws {
         app = try await createTestApp()
-        adminToken = try await getTokenFromOtherAdminUser()
+        adminToken = try await getTokenFromOtherModeratorUser()
     }
 }
 
@@ -113,6 +113,6 @@ open class AppTestCaseWithAdminAndNormalToken: AppTestCase {
         app = try await self.createTestApp()
 
         token = try await getTokenFromOtherUser()
-        adminToken = try await getTokenFromOtherAdminUser()
+        adminToken = try await getTokenFromOtherModeratorUser()
     }
 }

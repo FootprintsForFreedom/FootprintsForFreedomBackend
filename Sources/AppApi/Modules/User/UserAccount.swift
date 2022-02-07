@@ -68,14 +68,14 @@ public extension User.Account {
         public let name: String
         public let school: String?
         public let verified: Bool
-        public let isModerator: Bool
+        public let role: User.Role
         
-        public init(id: UUID, name: String, school: String?, verified: Bool, isModerator: Bool) {
+        public init(id: UUID, name: String, school: String?, verified: Bool, role: User.Role) {
             self.id = id
             self.name = name
             self.school = school
             self.verified = verified
-            self.isModerator = isModerator
+            self.role = role
         }
     }
     
@@ -85,7 +85,7 @@ public extension User.Account {
         public let email: String?
         public let school: String?
         public let verified: Bool?
-        public let isModerator: Bool?
+        public let role: User.Role?
         
         public static func publicDetail(id: UUID, name: String, school: String?) -> Self {
             return .init(
@@ -95,24 +95,24 @@ public extension User.Account {
             )
         }
         
-        public static func ownDetail(id: UUID, name: String, email: String, school: String?, verified: Bool, isModerator: Bool) -> Self {
+        public static func ownDetail(id: UUID, name: String, email: String, school: String?, verified: Bool, role: User.Role) -> Self {
             return .init(
                 id: id,
                 name: name,
                 email: email,
                 school: school,
                 verified: verified,
-                isModerator: isModerator
+                role: role
             )
         }
         
-        public static func adminDetail(id: UUID, name: String, school: String?, verified: Bool, isModerator: Bool) -> Self {
+        public static func adminDetail(id: UUID, name: String, school: String?, verified: Bool, role: User.Role) -> Self {
             return .init(
                 id: id,
                 name: name,
                 school: school,
                 verified: verified,
-                isModerator: isModerator
+                role: role
             )
         }
         
@@ -122,25 +122,25 @@ public extension User.Account {
             self.school = school
             self.email = nil
             self.verified = nil
-            self.isModerator = nil
+            self.role = nil
         }
         
-        private init(id: UUID, name: String, school: String?, verified: Bool, isModerator: Bool) {
+        private init(id: UUID, name: String, school: String?, verified: Bool, role: User.Role) {
             self.id = id
             self.name = name
             self.school = school
             self.verified = verified
-            self.isModerator = isModerator
+            self.role = role
             self.email = nil
         }
         
-        private init(id: UUID, name: String, email: String, school: String?, verified: Bool, isModerator: Bool) {
+        private init(id: UUID, name: String, email: String, school: String?, verified: Bool, role: User.Role) {
             self.id = id
             self.name = name
             self.email = email
             self.school = school
             self.verified = verified
-            self.isModerator = isModerator
+            self.role = role
         }
     }
     

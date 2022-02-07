@@ -13,6 +13,13 @@ enum UserMigrations {
     struct v1: AsyncMigration {
         
         func prepare(on db: Database) async throws {
+            let userRole = try await db.enum(User.Role.pathKey)
+                .case(User.Role.user.rawValue)
+                .case(User.Role.moderator.rawValue)
+                .case(User.Role.admin.rawValue)
+                .case(User.Role.superAdmin.rawValue)
+                .create()
+            
             try await db.schema(UserAccountModel.schema)
                 .id()
                 .field(UserAccountModel.FieldKeys.v1.name, .string, .required)
@@ -20,7 +27,7 @@ enum UserMigrations {
                 .field(UserAccountModel.FieldKeys.v1.school, .string)
                 .field(UserAccountModel.FieldKeys.v1.password, .string, .required)
                 .field(UserAccountModel.FieldKeys.v1.verified, .bool, .sql(.default(false)))
-                .field(UserAccountModel.FieldKeys.v1.isModerator, .bool, .sql(.default(false)))
+                .field(UserAccountModel.FieldKeys.v1.role, userRole, .required)
                 .unique(on: UserAccountModel.FieldKeys.v1.email)
                 .create()
             
@@ -55,8 +62,8 @@ enum UserMigrations {
         func prepare(on db: Database) async throws {
             let email = "root@localhost.com"
             let password = "ChangeMe1"
-            let user = UserAccountModel(name: "Test", email: email, school: "schule", password: try Bcrypt.hash(password), verified: false, isModerator: false)
-            user.isModerator = true
+            let user = UserAccountModel(name: "Test", email: email, school: "schule", password: try Bcrypt.hash(password), verified: false, role: .superAdmin)
+            user.role = .superAdmin
             try await user.create(on: db)
         }
 

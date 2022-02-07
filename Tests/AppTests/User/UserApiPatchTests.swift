@@ -25,7 +25,7 @@ final class UserApiPatchTests: AppTestCase {
         patchedSchool: String? = nil
     ) async throws -> (model: UserAccountModel, token: String, patchContent: User.Account.Patch) {
         let password = "password7293"
-        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(password), verified: false, isModerator: false)
+        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(password), verified: false, role: .user)
         try await user.create(on: app.db)
         
         let token = try user.generateToken()
@@ -51,7 +51,7 @@ final class UserApiPatchTests: AppTestCase {
                 XCTAssertEqual(content.email, user.email)
                 XCTAssertEqual(content.school, user.school)
                 XCTAssertEqual(content.verified, user.verified)
-                XCTAssertEqual(content.isModerator, user.isModerator)
+                XCTAssertEqual(content.role, user.role)
             }
             .test()
     }
@@ -72,7 +72,7 @@ final class UserApiPatchTests: AppTestCase {
                 XCTAssertEqual(content.email, user.email)
                 XCTAssertEqual(content.school, user.school)
                 XCTAssertEqual(content.verified, user.verified)
-                XCTAssertEqual(content.isModerator, user.isModerator)
+                XCTAssertEqual(content.role, user.role)
             }
             .test()
     }
@@ -93,7 +93,7 @@ final class UserApiPatchTests: AppTestCase {
                 XCTAssertEqual(content.email, patchContent.email)
                 XCTAssertEqual(content.school, user.school)
                 XCTAssertEqual(content.verified, user.verified)
-                XCTAssertEqual(content.isModerator, user.isModerator)
+                XCTAssertEqual(content.role, user.role)
             }
             .test()
     }
@@ -117,7 +117,7 @@ final class UserApiPatchTests: AppTestCase {
                 XCTAssertEqual(content.email, user.email)
                 XCTAssertEqual(content.school, patchContent.school)
                 XCTAssertEqual(content.verified, user.verified)
-                XCTAssertEqual(content.isModerator, user.isModerator)
+                XCTAssertEqual(content.role, user.role)
             }
             .test()
     }
@@ -140,7 +140,7 @@ final class UserApiPatchTests: AppTestCase {
                 XCTAssertEqual(content.email, user.email)
                 XCTAssertEqual(content.school, patchContent.school)
                 XCTAssertEqual(content.verified, user.verified)
-                XCTAssertEqual(content.isModerator, user.isModerator)
+                XCTAssertEqual(content.role, user.role)
             }
             .test()
     }
@@ -163,14 +163,14 @@ final class UserApiPatchTests: AppTestCase {
                 XCTAssertEqual(content.email, user.email)
                 XCTAssertEqual(content.school, patchContent.school)
                 XCTAssertEqual(content.verified, user.verified)
-                XCTAssertEqual(content.isModerator, user.isModerator)
+                XCTAssertEqual(content.role, user.role)
             }
             .test()
     }
     
     func testSuccessfulPatchUserFromDifferentAdminUser() async throws {
         let (user, _, patchContent) = try await getUserPatchContent(patchedName: "Patched Test User")
-        let adminToken = try await getTokenFromOtherAdminUser()
+        let adminToken = try await getTokenFromOtherModeratorUser()
         
         try app
             .describe("Patch username from other admin user should return ok")
@@ -185,7 +185,7 @@ final class UserApiPatchTests: AppTestCase {
                 XCTAssertNil(content.email)
                 XCTAssertEqual(content.school, user.school)
                 XCTAssertEqual(content.verified, user.verified)
-                XCTAssertEqual(content.isModerator, user.isModerator)
+                XCTAssertEqual(content.role, user.role)
             }
             .test()
         
@@ -289,7 +289,7 @@ final class UserApiPatchTests: AppTestCase {
                 XCTAssertEqual(content.email, user.email)
                 XCTAssertEqual(content.school, user.school)
                 XCTAssertEqual(content.verified, user.verified)
-                XCTAssertEqual(content.isModerator, user.isModerator)
+                XCTAssertEqual(content.role, user.role)
             }
             .test()
     }

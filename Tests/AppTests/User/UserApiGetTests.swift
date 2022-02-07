@@ -19,9 +19,9 @@ final class UserApiGetTests: AppTestCaseWithAdminAndNormalToken {
         school: String? = nil,
         password: String = "password",
         verified: Bool = false,
-        isModerator: Bool = false
+        role: User.Role = .user
     ) async throws -> UserAccountModel {
-        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(password), verified: verified, isModerator: isModerator)
+        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(password), verified: verified, role: role)
         try await user.create(on: app.db)
         return user
     }
@@ -80,7 +80,7 @@ final class UserApiGetTests: AppTestCaseWithAdminAndNormalToken {
                 XCTAssertEqual(content.email, user.email)
                 XCTAssertEqual(content.school, user.school)
                 XCTAssertEqual(content.verified, user.verified)
-                XCTAssertEqual(content.isModerator, user.isModerator)
+                XCTAssertEqual(content.role, user.role)
         }
         .test()
     }
@@ -100,7 +100,7 @@ final class UserApiGetTests: AppTestCaseWithAdminAndNormalToken {
                 XCTAssertNil(content.email)
                 XCTAssertEqual(content.school, user.school)
                 XCTAssertEqual(content.verified, user.verified)
-                XCTAssertEqual(content.isModerator, user.isModerator)
+                XCTAssertEqual(content.role, user.role)
         }
         .test()
 
@@ -121,7 +121,7 @@ final class UserApiGetTests: AppTestCaseWithAdminAndNormalToken {
                 XCTAssertNil(content.email)
                 XCTAssertEqual(content.school, user.school)
                 XCTAssertNil(content.verified)
-                XCTAssertNil(content.isModerator)
+                XCTAssertNil(content.role)
         }
         .test()
     }
@@ -140,7 +140,7 @@ final class UserApiGetTests: AppTestCaseWithAdminAndNormalToken {
                 XCTAssertNil(content.email)
                 XCTAssertEqual(content.school, user.school)
                 XCTAssertNil(content.verified)
-                XCTAssertNil(content.isModerator)
+                XCTAssertNil(content.role)
         }
         .test()
     }

@@ -19,9 +19,9 @@ final class UserApiGetOwnUserTests: AppTestCase {
         school: String? = nil,
         password: String = "password",
         verified: Bool = false,
-        isModerator: Bool = false
+        role: User.Role = .user
     ) async throws -> (user: UserAccountModel, token: String) {
-        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(password), verified: verified, isModerator: isModerator)
+        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(password), verified: verified, role: role)
         try await user.create(on: app.db)
         
         let token = try user.generateToken()
@@ -45,7 +45,7 @@ final class UserApiGetOwnUserTests: AppTestCase {
                 XCTAssertEqual(content.email, user.email)
                 XCTAssertEqual(content.school, user.school)
                 XCTAssertEqual(content.verified, user.verified)
-                XCTAssertEqual(content.isModerator, user.isModerator)
+                XCTAssertEqual(content.role, user.role)
         }
         .test()
     }

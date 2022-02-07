@@ -56,7 +56,7 @@ extension UserApiController: ApiResetPasswordController {
             email: model.email,
             school: model.school,
             verified: model.verified,
-            isModerator: model.isModerator
+            role: model.role
         ).encodeResponse(for: req)
     }
 }

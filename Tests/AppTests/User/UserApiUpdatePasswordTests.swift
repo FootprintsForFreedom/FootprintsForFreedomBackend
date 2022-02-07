@@ -23,7 +23,7 @@ final class UserApiUpdatePasswordTests: AppTestCase {
         let name = "New Test User"
         let email = "new-test-user\(UUID())@example.com"
         let school: String? = nil
-        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(initialPassword), verified: false, isModerator: false)
+        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(initialPassword), verified: false, role: .user)
         try await user.create(on: app.db)
         
         let token = try user.generateToken()
@@ -49,7 +49,7 @@ final class UserApiUpdatePasswordTests: AppTestCase {
                 XCTAssertEqual(content.email, user.email)
                 XCTAssertEqual(content.school, user.school)
                 XCTAssertEqual(content.verified, user.verified)
-                XCTAssertEqual(content.isModerator, user.isModerator)
+                XCTAssertEqual(content.role, user.role)
         }
         .test()
     }
@@ -117,7 +117,7 @@ final class UserApiUpdatePasswordTests: AppTestCase {
     func testUpdateUserPasswordFromDifferentUserFails() async throws {
         let (user, _, updatePasswordContent) = try await getUserUpdatePasswordContent()
         let token = try await getTokenFromOtherUser()
-        let adminToken = try await getTokenFromOtherAdminUser()
+        let adminToken = try await getTokenFromOtherModeratorUser()
         
         try app
             .describe("Update user password from different user fails; Update password fails")

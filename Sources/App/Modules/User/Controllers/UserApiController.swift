@@ -23,8 +23,8 @@ extension UserApiController: ApiController {
         guard let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db) else {
             throw Abort(.unauthorized)
         }
-        /// require the model id to be the user id or the user to be an admin
-        guard model.id == user.id || user.isModerator else {
+        /// require the model id to be the user id or the user to be an moderator
+        guard model.id == user.id || user.role >= .moderator else {
             throw Abort(.forbidden)
         }
     }
@@ -43,7 +43,7 @@ extension UserApiController: ApiController {
             throw Abort(.unauthorized)
         }
         /// require  the user to be a moderator
-        guard user.isModerator else {
+        guard user.role >= .moderator else {
             throw Abort(.forbidden)
         }
         
@@ -52,28 +52,28 @@ extension UserApiController: ApiController {
     
     func listOutput(_ req: Request, _ models: Page<UserAccountModel>) async throws -> Page<User.Account.List> {
         models.map { model in
-                .init(id: model.id!, name: model.name, school: model.school, verified: model.verified, isModerator: model.isModerator)
+                .init(id: model.id!, name: model.name, school: model.school, verified: model.verified, role: model.role)
         }
     }
     
     func detailOutput(_ req: Request, _ model: UserAccountModel) async throws -> User.Account.Detail {
         if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await DatabaseModel.find(authenticatedUser.id, on: req.db) {
-            if user.id == model.id {
+            if user.id == model.id || user.role >= .superAdmin {
                 return User.Account.Detail.ownDetail(
                     id: model.id!,
                     name: model.name,
                     email: model.email,
                     school: model.school,
                     verified: model.verified,
-                    isModerator: model.isModerator
+                    role: model.role
                 )
-            } else if user.isModerator {
+            } else if user.role >= .moderator {
                 return User.Account.Detail.adminDetail(
                     id: model.id!,
                     name: model.name,
                     school: model.school,
                     verified: model.verified,
-                    isModerator: model.isModerator
+                    role: model.role
                 )
             }
         }
@@ -91,7 +91,7 @@ extension UserApiController: ApiController {
         model.school = input.school
         try model.setPassword(to: input.password, on: req)
         model.verified = false
-        model.isModerator = false
+        model.role = .user
     }
     
     func createResponse(_ req: Request, _ model: UserAccountModel) async throws -> Response {
@@ -101,7 +101,7 @@ extension UserApiController: ApiController {
             email: model.email,
             school: model.school,
             verified: model.verified,
-            isModerator: model.isModerator
+            role: model.role
         ).encodeResponse(status: .created, for: req)
     }
     

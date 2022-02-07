@@ -19,9 +19,9 @@ final class UserApiSignOutTests: AppTestCase {
         school: String? = nil,
         password: String = "password",
         verified: Bool = false,
-        isModerator: Bool = false
+        role: User.Role = .user
     ) async throws -> (user: UserAccountModel, token: String) {
-        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(password), verified: verified, isModerator: isModerator)
+        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(password), verified: verified, role: role)
         try await user.create(on: app.db)
         
         let token = try user.generateToken()

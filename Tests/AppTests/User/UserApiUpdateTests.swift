@@ -24,7 +24,7 @@ final class UserApiUpdateTests: AppTestCase {
         updatedSchool: String? = nil
     ) async throws -> (model: UserAccountModel, token: String, updateContent: User.Account.Update) {
         let password = "password7293"
-        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(password), verified: false, isModerator: false)
+        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(password), verified: false, role: .user)
         try await user.create(on: app.db)
 
         let token = try user.generateToken()
@@ -52,7 +52,7 @@ final class UserApiUpdateTests: AppTestCase {
                 XCTAssertEqual(content.email, updateContent.email)
                 XCTAssertEqual(content.school, updateContent.school)
                 XCTAssertEqual(content.verified, user.verified)
-                XCTAssertEqual(content.isModerator, user.isModerator)
+                XCTAssertEqual(content.role, user.role)
         }
         .test()
     }
@@ -75,7 +75,7 @@ final class UserApiUpdateTests: AppTestCase {
                 XCTAssertEqual(content.email, updateContent.email)
                 XCTAssertEqual(content.school, updateContent.school)
                 XCTAssertEqual(content.verified, user.verified)
-                XCTAssertEqual(content.isModerator, user.isModerator)
+                XCTAssertEqual(content.role, user.role)
         }
         .test()
     }
@@ -98,14 +98,14 @@ final class UserApiUpdateTests: AppTestCase {
                 XCTAssertEqual(content.email, updateContent.email)
                 XCTAssertEqual(content.school, updateContent.school)
                 XCTAssertEqual(content.verified, user.verified)
-                XCTAssertEqual(content.isModerator, user.isModerator)
+                XCTAssertEqual(content.role, user.role)
         }
         .test()
     }
     
     func testSuccessfulUpdateUserFromDifferentAdminUser() async throws {
         let (user, _, updateContent) = try await getUserUpdateContent()
-        let adminToken = try await getTokenFromOtherAdminUser()
+        let adminToken = try await getTokenFromOtherModeratorUser()
         
         try app
             .describe("Update user from other admin user should return ok")
@@ -120,7 +120,7 @@ final class UserApiUpdateTests: AppTestCase {
                 XCTAssertNil(content.email)
                 XCTAssertEqual(content.school, updateContent.school)
                 XCTAssertEqual(content.verified, user.verified)
-                XCTAssertEqual(content.isModerator, user.isModerator)
+                XCTAssertEqual(content.role, user.role)
             }
             .test()
     }

@@ -18,7 +18,7 @@ final class UserAccountModel: DatabaseModelInterface {
             static var school: FieldKey { "school" }
             static var password: FieldKey { "password" }
             static var verified: FieldKey { "verified" }
-            static var isModerator: FieldKey { "is_moderator" }
+            static var role: FieldKey { "role" }
         }
     }
 
@@ -28,7 +28,7 @@ final class UserAccountModel: DatabaseModelInterface {
     @OptionalField(key: FieldKeys.v1.school) var school: String?
     @Field(key: FieldKeys.v1.password) private(set) var password: String
     @Field(key: FieldKeys.v1.verified) var verified: Bool
-    @Field(key: FieldKeys.v1.isModerator) var isModerator: Bool
+    @Enum(key: FieldKeys.v1.role) var role: User.Role
     
     @OptionalChild(for: \.$user) var verificationToken: UserVerificationTokenModel?
     
@@ -40,7 +40,7 @@ final class UserAccountModel: DatabaseModelInterface {
          school: String?,
          password: String,
          verified: Bool,
-         isModerator: Bool
+         role: User.Role
     ) {
         self.id = id
         self.name = name
@@ -48,7 +48,7 @@ final class UserAccountModel: DatabaseModelInterface {
         self.school = school
         self.password = password
         self.verified = verified
-        self.isModerator = isModerator
+        self.role = role
     }
 }
 
@@ -60,7 +60,7 @@ extension UserAccountModel {
                 newPassword.rangeOfCharacter(from: .decimalDigits) != nil &&
                 newPassword.rangeOfCharacter(from: .newlines) == nil
         else {
-            throw Abort(.badRequest)
+            throw Abort(.badRequest, reason: "Password does not meet requirements")
         }
         /// Update the password
         self.password = try req.application.password.hash(newPassword)

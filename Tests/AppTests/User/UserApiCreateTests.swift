@@ -21,7 +21,7 @@ final class UserApiCreateTests: AppTestCase {
         school: String? = nil,
         password: String = "new3Password"
     ) throws -> User.Account.Create {
-        let user = User.Account.Create(name: name, email: email, school: school, password: try app.password.hash(password))
+        let user = User.Account.Create(name: name, email: email, school: school, password: password)
         
         return user
     }
@@ -43,7 +43,7 @@ final class UserApiCreateTests: AppTestCase {
                 XCTAssertEqual(content.email, newUser.email)
                 XCTAssertEqual(content.school, newUser.school)
                 XCTAssertEqual(content.verified, false)
-                XCTAssertEqual(content.isModerator, false)
+                XCTAssertEqual(content.role, .user)
         }
         .test()
         

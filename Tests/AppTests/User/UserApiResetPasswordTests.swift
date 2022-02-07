@@ -22,9 +22,9 @@ final class UserApiResetPasswordTests: AppTestCase {
         school: String? = nil,
         password: String = "password",
         verified: Bool = false,
-        isModerator: Bool = false
+        role: User.Role = .user
     ) async throws -> UserAccountModel {
-        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(password), verified: verified, isModerator: isModerator)
+        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(password), verified: verified, role: role)
         try await user.create(on: app.db)
         return user
     }
@@ -140,7 +140,7 @@ final class UserApiResetPasswordTests: AppTestCase {
                 XCTAssertEqual(content.school, user.school)
                 // User is verified after password reset since he has access to his email
                 XCTAssertEqual(content.verified, true)
-                XCTAssertEqual(content.isModerator, user.isModerator)
+                XCTAssertEqual(content.role, user.role)
             }
             .test()
         
