@@ -11,10 +11,6 @@ extension UserApiController: ApiEmailVerificationController {
     typealias VerificationObject = User.Account.Verification
     
     func beforeCreateVerification(_ req: Request, _ model: UserAccountModel) async throws {
-        /// do not allow a verified user to request a verification token
-        guard !model.verified else {
-            throw Abort(.forbidden)
-        }
         /// load the verification token and delete it if present
         try await model.$verificationToken.load(on: req.db)
         if let oldVerificationToken = model.verificationToken {
@@ -26,6 +22,10 @@ extension UserApiController: ApiEmailVerificationController {
     }
     
     func requestVerificationInput(_ req: Request, _ model: UserAccountModel) async throws {
+        /// do not allow a verified user to request a verification token
+        guard !model.verified else {
+            throw Abort(.forbidden)
+        }
         /// Require user to be signed in
         let authenticatedUser = try req.auth.require(AuthenticatedUser.self)
         /// require the model id to be the user id
