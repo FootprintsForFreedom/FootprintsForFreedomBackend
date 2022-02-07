@@ -16,8 +16,7 @@ extension UserApiController: ApiUpdatePasswordController {
         KeyedContentValidator<String>.required("newPassword")
     }
     
-    /// Require user to be logged in
-    func updatePasswordInput(_ req: Request, _ model: UserAccountModel, _ input: User.Account.ChangePassword) async throws {
+    func beforeUpdatePassword(_ req: Request, _ model: UserAccountModel) async throws {
         guard let user = req.auth.get(AuthenticatedUser.self) else {
             throw Abort(.unauthorized)
         }
@@ -26,7 +25,10 @@ extension UserApiController: ApiUpdatePasswordController {
         guard model.id == user.id else {
             throw Abort(.forbidden)
         }
-        
+    }
+    
+    /// Require user to be logged in
+    func updatePasswordInput(_ req: Request, _ model: UserAccountModel, _ input: User.Account.ChangePassword) async throws {
         /// Verify current password
         guard try req.application.password.verify(input.currentPassword, created: model.password) else {
             throw Abort(.forbidden)
