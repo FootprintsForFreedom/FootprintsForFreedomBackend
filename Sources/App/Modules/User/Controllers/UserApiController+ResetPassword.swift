@@ -51,6 +51,13 @@ extension UserApiController: ApiResetPasswordController {
     }
     
     func resetPasswordResponse(_ req: Request, _ model: UserAccountModel) async throws -> Response {
-        try await detailOutput(req, model).encodeResponse(for: req)
+        return try await User.Account.Detail.ownDetail(
+            id: model.id!,
+            name: model.name,
+            email: model.email,
+            school: model.school,
+            verified: model.verified,
+            isModerator: model.isModerator
+        ).encodeResponse(for: req)
     }
 }
