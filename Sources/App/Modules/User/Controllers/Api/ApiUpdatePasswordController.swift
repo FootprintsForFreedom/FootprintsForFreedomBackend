@@ -33,7 +33,9 @@ extension ApiUpdatePasswordController {
     
     func setupUpdatePasswordRoutes(_ routes: RoutesBuilder) {
         let baseRoutes = getBaseRoutes(routes)
-        let existingModelRoutes = baseRoutes.grouped(ApiModel.pathIdComponent).grouped("updatePassword")
+        let existingModelRoutes = baseRoutes
+            .grouped(AuthenticatedUser.guardMiddleware())
+            .grouped(ApiModel.pathIdComponent).grouped("updatePassword")
         existingModelRoutes.put(use: updatePasswordApi)
     }
 }

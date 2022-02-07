@@ -17,17 +17,14 @@ extension UserApiController: ApiUpdatePasswordController {
     }
     
     func beforeUpdatePassword(_ req: Request, _ model: UserAccountModel) async throws {
-        guard let user = req.auth.get(AuthenticatedUser.self) else {
-            throw Abort(.unauthorized)
-        }
-        
+        /// Require user to be logged in
+        let user = try req.auth.require(AuthenticatedUser.self)
         /// Assure the user itself changes the password
         guard model.id == user.id else {
             throw Abort(.forbidden)
         }
     }
     
-    /// Require user to be logged in
     func updatePasswordInput(_ req: Request, _ model: UserAccountModel, _ input: User.Account.ChangePassword) async throws {
         /// Verify current password
         guard try req.application.password.verify(input.currentPassword, created: model.password) else {
@@ -40,12 +37,5 @@ extension UserApiController: ApiUpdatePasswordController {
     
     func updatePasswordResponse(_ req: Request, _ model: UserAccountModel) async throws -> Response {
         try await detailOutput(req, model).encodeResponse(for: req)
-    }
-    
-    func setupUpdatePasswordRoutes(_ routes: RoutesBuilder) {
-        let protectedRoutes = routes.grouped(AuthenticatedUser.guardMiddleware())
-        let baseRoutes = getBaseRoutes(protectedRoutes)
-        let existingModelRoutes = baseRoutes.grouped(ApiModel.pathIdComponent).grouped("updatePassword")
-        existingModelRoutes.put(use: updatePasswordApi)
     }
 }
