@@ -13,8 +13,7 @@ extension UserApiController: ApiResetPasswordController {
     
     @AsyncValidatorBuilder
     func requestResetPasswordValidators() -> [AsyncValidator] {
-        KeyedContentValidator<String>.required("email")
-
+        KeyedContentValidator<String>.email("email")
     }
     
     func requestResetPasswordInput(_ req: Request, _ input: User.Account.ResetPasswordRequest) async throws -> UserAccountModel {
