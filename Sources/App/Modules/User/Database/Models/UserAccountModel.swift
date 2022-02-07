@@ -26,7 +26,7 @@ final class UserAccountModel: DatabaseModelInterface {
     @Field(key: FieldKeys.v1.name) var name: String
     @Field(key: FieldKeys.v1.email) var email: String
     @OptionalField(key: FieldKeys.v1.school) var school: String?
-    @Field(key: FieldKeys.v1.password) var password: String
+    @Field(key: FieldKeys.v1.password) private(set) var password: String
     @Field(key: FieldKeys.v1.verified) var verified: Bool
     @Field(key: FieldKeys.v1.isModerator) var isModerator: Bool
     
@@ -49,5 +49,20 @@ final class UserAccountModel: DatabaseModelInterface {
         self.password = password
         self.verified = verified
         self.isModerator = isModerator
+    }
+}
+
+extension UserAccountModel {
+    func setPassword(to newPassword: String, on req: Request) throws {
+        /// Confirm new password meets conditions
+        guard newPassword.rangeOfCharacter(from: .uppercaseLetters) != nil &&
+                newPassword.rangeOfCharacter(from: .lowercaseLetters) != nil &&
+                newPassword.rangeOfCharacter(from: .decimalDigits) != nil &&
+                newPassword.rangeOfCharacter(from: .newlines) == nil
+        else {
+            throw Abort(.badRequest)
+        }
+        /// Update the password
+        self.password = try req.application.password.hash(newPassword)
     }
 }

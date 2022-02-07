@@ -46,7 +46,7 @@ extension UserApiController: ApiResetPasswordController {
         try await verificationInput(req, model, userVerificationInput)
         
         /// change the password if the user is verified and the token therefore correct
-        model.password = try req.application.password.hash(input.newPassword)
+        try model.setPassword(to: input.newPassword, on: req)
     }
     
     func resetPasswordResponse(_ req: Request, _ model: UserAccountModel) async throws -> Response {

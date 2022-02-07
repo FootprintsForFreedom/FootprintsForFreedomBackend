@@ -89,7 +89,7 @@ extension UserApiController: ApiController {
         model.name = input.name
         model.email = input.email
         model.school = input.school
-        model.password = try req.application.password.hash(input.password)
+        try model.setPassword(to: input.password, on: req)
         model.verified = false
         model.isModerator = false
     }

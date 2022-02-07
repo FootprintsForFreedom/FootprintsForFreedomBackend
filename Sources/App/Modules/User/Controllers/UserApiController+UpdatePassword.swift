@@ -32,17 +32,8 @@ extension UserApiController: ApiUpdatePasswordController {
             throw Abort(.forbidden)
         }
         
-        /// Confirm new password meets conditions
-        guard input.newPassword.rangeOfCharacter(from: .uppercaseLetters) != nil &&
-                input.newPassword.rangeOfCharacter(from: .lowercaseLetters) != nil &&
-                input.newPassword.rangeOfCharacter(from: .decimalDigits) != nil &&
-                input.newPassword.rangeOfCharacter(from: .newlines) == nil
-        else {
-            throw Abort(.badRequest)
-        }
-        
-        /// Update the password
-        model.password = try req.application.password.hash(input.newPassword)
+        /// Change the password
+        try model.setPassword(to: input.newPassword, on: req)
     }
     
     func updatePasswordResponse(_ req: Request, _ model: UserAccountModel) async throws -> Response {
