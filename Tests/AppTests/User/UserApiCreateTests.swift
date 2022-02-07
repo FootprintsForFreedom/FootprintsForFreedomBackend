@@ -19,7 +19,7 @@ final class UserApiCreateTests: AppTestCase {
         name: String = "New Test User",
         email: String = "new-test-user@example.com",
         school: String? = nil,
-        password: String = "newPassword"
+        password: String = "new3Password"
     ) throws -> User.Account.Create {
         let user = User.Account.Create(name: name, email: email, school: school, password: try app.password.hash(password))
         
@@ -50,6 +50,54 @@ final class UserApiCreateTests: AppTestCase {
         // New user count should be one more than original user count
         let newUserCount = try await UserAccountModel.query(on: app.db).count()
         XCTAssertEqual(newUserCount, userCount + 1)
+    }
+    
+    func testNewPasswordNeedsUppercasedLetter() async throws {
+        let password = "1newpassword"
+        let newUser = try getUserCreateContent(password: password)
+
+        try app
+            .describe("New user password needs at least one uppercased letter; Update password fails")
+            .post(usersPath)
+            .body(newUser)
+            .expect(.badRequest)
+            .test()
+    }
+    
+    func testNewPasswordNeedsLowercasedLetter() async throws {
+        let password = "1NEWPASSWORD"
+        let newUser = try getUserCreateContent(password: password)
+        
+        try app
+            .describe("New user password needs at least one lowercased letter; Update password fails")
+            .post(usersPath)
+            .body(newUser)
+            .expect(.badRequest)
+            .test()
+    }
+    
+    func testNewPasswordNeedsDigit() async throws {
+        let password = "newPassword"
+        let newUser = try getUserCreateContent(password: password)
+        
+        try app
+            .describe("New user password needs at least one digit; Update password fails")
+            .post(usersPath)
+            .body(newUser)
+            .expect(.badRequest)
+            .test()
+    }
+    
+    func testNewPasswordWihtNewLineFails() async throws {
+        let password = "1new\nPassword"
+        let newUser = try getUserCreateContent(password: password)
+        
+        try app
+            .describe("New user password must not contain new line; Update password fails")
+            .post(usersPath)
+            .body(newUser)
+            .expect(.badRequest)
+            .test()
     }
     
     func testCreateUserNeedsValidName() throws {
