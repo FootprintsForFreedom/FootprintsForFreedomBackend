@@ -147,7 +147,7 @@ final class UserApiUpdatePasswordTests: AppTestCase {
             .test()
     }
     
-    func testUpdateUserPasswordWihtWrongPayloadFails() async throws {
+    func testUpdateUserPasswordWithWrongPayloadFails() async throws {
         let (user, token, _) = try await getUserUpdatePasswordContent()
         
         try app
