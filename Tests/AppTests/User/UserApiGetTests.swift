@@ -103,7 +103,27 @@ final class UserApiGetTests: AppTestCaseWithModeratorAndNormalToken {
                 XCTAssertEqual(content.role, user.role)
         }
         .test()
-
+    }
+    
+    func testGetUserAsSuperAdmin() async throws {
+        let user = try await createNewUser()
+        let superAdminToken = try await getTokenFromOtherUser(role: .superAdmin)
+        
+        try app
+            .describe("Get user should return ok")
+            .get(usersPath.appending(user.requireID().uuidString))
+            .bearerToken(superAdminToken)
+            .expect(.ok)
+            .expect(.json)
+            .expect(User.Account.Detail.self) { content in
+                XCTAssertEqual(content.id, user.id)
+                XCTAssertEqual(content.name, user.name)
+                XCTAssertEqual(content.email, user.email)
+                XCTAssertEqual(content.school, user.school)
+                XCTAssertEqual(content.verified, user.verified)
+                XCTAssertEqual(content.role, user.role)
+        }
+        .test()
     }
     
     func testGetUserAsNormalUser() async throws {
