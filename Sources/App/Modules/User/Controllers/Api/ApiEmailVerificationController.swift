@@ -42,7 +42,9 @@ extension ApiEmailVerificationController {
         let baseRoutes = getBaseRoutes(routes)
         let existingModelRoutes = baseRoutes.grouped(ApiModel.pathIdComponent)
         let verificationRoutes = existingModelRoutes.grouped("verify")
-        let requestVerificationRoutes = existingModelRoutes.grouped(AuthenticatedUser.guardMiddleware()).grouped("requestVerification")
+        let requestVerificationRoutes = existingModelRoutes
+            .grouped(AuthenticatedUser.guardMiddleware())
+            .grouped("requestVerification")
         verificationRoutes.post(use: verificationApi)
         requestVerificationRoutes.post(use: requestVerificationApi)
         // TODO: request route

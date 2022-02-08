@@ -53,8 +53,9 @@ extension ApiResetPasswordController {
     
     func setupResetPasswordRoutes(_ routes: RoutesBuilder) {
         let baseRoutes = getBaseRoutes(routes)
-        let existingModelRoutes = baseRoutes.grouped(ApiModel.pathIdComponent)
-        let resetPasswordRoutes = existingModelRoutes.grouped("resetPassword")
+        let resetPasswordRoutes = baseRoutes
+            .grouped(ApiModel.pathIdComponent)
+            .grouped("resetPassword")
         let requestResetPasswordRoutes = baseRoutes.grouped("resetPassword")
         resetPasswordRoutes.post(use: resetPasswordApi)
         requestResetPasswordRoutes.post(use: requestResetPasswordApi)

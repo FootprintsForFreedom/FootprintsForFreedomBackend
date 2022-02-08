@@ -25,7 +25,9 @@ extension ApiDetailOwnUserController {
     
     func setupDetailOwnUserRoutes(_ routes: RoutesBuilder) {
         let baseRoutes = getBaseRoutes(routes)
-        let existingModelRoutes = baseRoutes.grouped(AuthenticatedUser.guardMiddleware()).grouped("me")
+        let existingModelRoutes = baseRoutes
+            .grouped(AuthenticatedUser.guardMiddleware())
+            .grouped("me")
         existingModelRoutes.get(use: detailOwnUserApi)
     }
 }

@@ -29,7 +29,8 @@ extension ApiChangeRoleController {
         let baseRoutes = getBaseRoutes(routes)
         let existingModelRoutes = baseRoutes
             .grouped(AuthenticatedUser.guardMiddleware())
-            .grouped(ApiModel.pathIdComponent).grouped("changeRole")
+            .grouped(ApiModel.pathIdComponent)
+            .grouped("changeRole")
         existingModelRoutes.put(use: changeRoleApi)
     }
 }
