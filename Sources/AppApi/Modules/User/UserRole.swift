@@ -8,7 +8,7 @@
 import Foundation
 
 public extension User {
-    enum Role: String, Codable, ApiModelInterface {
+    enum Role: String, Codable, CaseIterable, ApiModelInterface {
         public typealias Module = User
         
         case user, moderator, admin, superAdmin
