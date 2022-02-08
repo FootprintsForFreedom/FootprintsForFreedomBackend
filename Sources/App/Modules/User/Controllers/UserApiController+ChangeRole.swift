@@ -10,6 +10,11 @@ import Vapor
 extension UserApiController: ApiChangeRoleController {
     typealias ChangeRoleObject = User.Account.ChangeRole
     
+    @AsyncValidatorBuilder
+    func changeRoleValidators() -> [AsyncValidator] {
+        KeyedContentValidator<String>.required("newRole")
+    }
+    
     func changeRoleInput(_ req: Request, _ model: UserAccountModel, _ input: User.Account.ChangeRole) async throws {
         let authenticatedUser = try req.auth.require(AuthenticatedUser.self)
         /// find the user model belonging to the authenticated user
