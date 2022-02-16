@@ -26,7 +26,7 @@ final class LinkedListTests: XCTestCase {
     
     /// Linked list with minimum protocol requirements
     final class MyLinkedList: LinkedList {
-        typealias NodeType = MyNode
+        typealias NodeObject = MyNode
         
         var current: NodeObject?
         var last: NodeObject?
@@ -116,10 +116,10 @@ final class LinkedListTests: XCTestCase {
     func testUnlinkLast() {
         let linkedList = MyLinkedList()
         
-        let values = (1...100).map { $0 }
+        let values = (1...10).map { $0 }
         var nodes = values.map { linkedList.append($0) }
         
-        let removedValue = linkedList.unlink(node: nodes.last!)
+        let removedValue = linkedList.unlink(nodes.last!)
         let confirmRemovedValue = nodes.removeLast()
         XCTAssertEqual(removedValue, confirmRemovedValue.value)
         XCTAssertEqual(nodes.count, values.count - 1)
@@ -148,7 +148,7 @@ final class LinkedListTests: XCTestCase {
         let values = (1...100).map { $0 }
         var nodes = values.map { linkedList.append($0) }
         
-        let removedValue = linkedList.unlink(node: nodes.first!)
+        let removedValue = linkedList.unlink(nodes.first!)
         let confirmRemovedValue = nodes.removeFirst()
         XCTAssertEqual(removedValue, confirmRemovedValue.value)
         XCTAssertEqual(nodes.count, values.count - 1)
@@ -182,7 +182,7 @@ final class LinkedListTests: XCTestCase {
         XCTAssertEqual(linkedList.current, firstAndLastNode)
         XCTAssertEqual(linkedList.last, firstAndLastNode)
         
-        linkedList.unlink(node: firstAndLastNode)
+        linkedList.unlink(firstAndLastNode)
         XCTAssertTrue(linkedList.isEmpty)
         XCTAssertNil(linkedList.current)
         XCTAssertNil(linkedList.last)
@@ -196,7 +196,7 @@ final class LinkedListTests: XCTestCase {
         
         let indexOfElementToRemove = Int.random(in: 1...nodes.count - 2)
         
-        let removedValue = linkedList.unlink(node: nodes[indexOfElementToRemove])
+        let removedValue = linkedList.unlink(nodes[indexOfElementToRemove])
         let confirmRemovedValue = nodes.remove(at: indexOfElementToRemove)
         XCTAssertEqual(removedValue, confirmRemovedValue.value)
         XCTAssertEqual(nodes.count, values.count - 1)

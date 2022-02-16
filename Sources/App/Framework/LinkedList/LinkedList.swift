@@ -1,25 +1,24 @@
 //
 //  LinkedList.swift
-//  
+//
 //
 //  Created by niklhut on 13.02.22.
 //
 
 import Foundation
 
-protocol LinkedList: AnyObject {
-    associatedtype NodeType: Node
-    typealias Element = NodeType.Element
-    typealias NodeObject = NodeType.NodeObject
-    
+protocol LinkedList: AnyObject where NodeObject.NodeObject == NodeObject {
+    associatedtype NodeObject: Node
+    typealias Element = NodeObject.Element
+
     var current: NodeObject? { get set }
     var last: NodeObject? { get set }
-    
+
     var isEmpty: Bool { get}
     
     func append(_ value: Element) -> NodeObject
     @discardableResult
-    func unlink(node: NodeObject) -> Element
+    func unlink(_ node: NodeObject) -> Element
     func unlinkAll()
     
     func incrementCurrent() throws
@@ -44,7 +43,7 @@ extension LinkedList {
     }
     
     @discardableResult
-    func unlink(node: NodeObject) -> Element {
+    func unlink(_ node: NodeObject) -> Element {
         if let previousNode = node.previous {
             if let nextNode = node.next {
                 previousNode.next = nextNode
