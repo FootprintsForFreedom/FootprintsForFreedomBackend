@@ -11,7 +11,7 @@ import Fluent
 extension User.Account.List: Content {}
 extension User.Account.Detail: Content {}
 
-extension UserApiController: ApiController {
+struct UserApiController: ApiController {
     
     typealias ApiModel = User.Account
     typealias DatabaseModel = UserAccountModel

@@ -9,7 +9,7 @@ import Vapor
 
 extension User.Token.Detail: Content {}
 
-struct UserApiController {
+extension UserApiController {
     func signInApi(req: Request) async throws -> User.Token.Detail {
         /// Require user to be signed in
         let authenticatedUser = try req.auth.require(AuthenticatedUser.self)
