@@ -31,6 +31,11 @@ enum EditableTextMigrations {
                 .foreignKey(EditableTextObjectModel.FieldKeys.v1.lastObjectInListWithId, references: EditableTextRepositoryModel.schema, .id, onDelete: .cascade)
                 .unique(on: EditableTextObjectModel.FieldKeys.v1.lastObjectInListWithId)
             
+                .field(EditableTextObjectModel.FieldKeys.v1.userId, .uuid, .required)
+                .foreignKey(EditableTextObjectModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id)
+            
+                .field(EditableTextObjectModel.FieldKeys.v1.createdAt, .datetime, .required)
+            
                 .create()
         }
         
