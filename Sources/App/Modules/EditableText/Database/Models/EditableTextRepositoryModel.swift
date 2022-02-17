@@ -11,7 +11,9 @@ import Fluent
 final class EditableTextRepositoryModel: DatabaseModelInterface, LinkedListModel {
     typealias Module = EditableTextModule
     typealias NodeObject = EditableTextObjectModel
-
+    
+    static let identifier = "repositories"
+    
     @ID() var id: UUID?
     @OptionalChild(for: \.$currentObjectInList) var current: EditableTextObjectModel?
     @OptionalChild(for: \.$lastObjectInList) var last: EditableTextObjectModel?
@@ -20,8 +22,4 @@ final class EditableTextRepositoryModel: DatabaseModelInterface, LinkedListModel
     var lastProperty: OptionalChildProperty<EditableTextRepositoryModel, EditableTextObjectModel> { $last }
     
     init() { }
-}
-
-extension EditableTextRepositoryModel {
-    // TODO: in protocol
 }
