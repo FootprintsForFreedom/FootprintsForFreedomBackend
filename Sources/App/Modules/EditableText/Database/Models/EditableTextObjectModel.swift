@@ -49,11 +49,19 @@ final class EditableTextObjectModel: DatabaseModelInterface, NodeModel {
     }
     
     init(
+        value: String,
+        userId: UUID
+    ) {
+        self.value = value
+        self.$user.id = userId
+    }
+    
+    init(
         id: UUID? = nil,
         value: String,
         previousId: UUID?,
-        currentObjectInListId: UUID,
-        lastObjectInListId: UUID,
+        currentObjectInListId: UUID?,
+        lastObjectInListId: UUID?,
         userId: UUID
     ) {
         self.id = id
