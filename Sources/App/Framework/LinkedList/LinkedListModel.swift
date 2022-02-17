@@ -5,6 +5,7 @@
 //  Created by niklhut on 13.02.22.
 //
 
+import Vapor
 import Fluent
 
 protocol LinkedListModel: LinkedList, DatabaseModelInterface where NodeObject: NodeModel {
@@ -13,11 +14,30 @@ protocol LinkedListModel: LinkedList, DatabaseModelInterface where NodeObject: N
     
     func load(on db: Database) async throws
     
-    func append(_ value: Element, on db: Database) async throws -> NodeObject
+    func beforeAppend(_ node: NodeObject, on req: Request) async throws
+    func append(_ node: NodeObject, on req: Request) async throws -> NodeObject
+    func append(_ node: NodeObject, on db: Database) async throws -> NodeObject
+    func afterAppend(_ node: NodeObject, on req: Request) async throws
+    
+    func beforeRemove(_ node: NodeObject, on req: Request) async throws
+    func remove(_ node: NodeObject, on req: Request) async throws -> Element
     func remove(_ node: NodeObject, on db: Database) async throws -> Element
+    func afterRemove(_ node: NodeObject, on req: Request) async throws
+    
+    func beforeRemoveAll(on req: Request) async throws
+    func removeAll(on req: Request) async throws
     func removeAll(on db: Database) async throws
+    func afterRemoveAll(on req: Request) async throws
+    
+    func beforeIncrementCurrent(on req: Request) async throws
+    func incrementCurrent(on req: Request) async throws
     func incrementCurrent(on db: Database) async throws
+    func afterIncrementCurrent(on req: Request) async throws
+    
+    func beforeSwap(_ node1: inout NodeObject, _ node2: inout NodeObject, on req: Request) async throws
+    func swap(_ node1: inout NodeObject, _ node2: inout NodeObject, on req: Request) async throws
     func swap(_ node1: inout NodeObject, _ node2: inout NodeObject, on db: Database) async throws
+    func afterSwap(_ node1: inout NodeObject, _ node2: inout NodeObject, on req: Request) async throws
 }
 
 extension LinkedListModel {
@@ -31,8 +51,18 @@ extension LinkedListModel {
         try await lastProperty.load(on: db)
     }
     
-    func append(_ value: Element, on db: Database) async throws -> NodeObject {
-        let nodeObject = NodeObject(value: value)
+    // MARK: - append
+    
+    func beforeAppend(_ node: NodeObject, on req: Request) async throws { }
+    func afterAppend(_ node: NodeObject, on req: Request) async throws { }
+    func append(_ node: NodeObject, on req: Request) async throws -> NodeObject {
+        try await beforeAppend(node, on: req)
+        let node = try await append(node, on: req.db)
+        try await afterAppend(node, on: req)
+        return node
+    }
+    
+    func append(_ node: NodeObject, on db: Database) async throws -> NodeObject {
         /// load last object in list to see if list is empty
         try await self.lastProperty.load(on: db)
         /// if list is not empty
@@ -41,19 +71,31 @@ extension LinkedListModel {
             lastNode.lastObjectInListProperty.id = nil
             try await lastNode.update(on: db)
             /// set old last node to be previous node of new node
-            nodeObject.previousProperty.id = try lastNode.requireID()
+            node.previousProperty.id = try lastNode.requireID()
         } else {
             /// if the list is empty the new object is also the current object in the list
-            nodeObject.currentObjectInListProperty.id = try self.requireID()
+            node.currentObjectInListProperty.id = try self.requireID()
         }
         /// set the new node to be the last node in the list
-        nodeObject.lastObjectInListProperty.id = try self.requireID()
+        node.lastObjectInListProperty.id = try self.requireID()
         /// Create and  the node on the db
-        try await nodeObject.create(on: db)
+        try await node.create(on: db)
         /// Reload the linked list model to reflect the changes
         try await self.load(on: db)
         /// return the newly created node
-        return nodeObject
+        return node
+    }
+    
+    // MARK: - remove
+    
+    func beforeRemove(_ node: NodeObject, on req: Request) async throws { }
+    func afterRemove(_ node: NodeObject, on req: Request) async throws { }
+    @discardableResult
+    func remove(_ node: NodeObject, on req: Request) async throws -> Element {
+        try await beforeRemove(node, on: req)
+        let removedElement = try await remove(node, on: req.db)
+        try await afterRemove(node, on: req)
+        return removedElement
     }
     
     @discardableResult
@@ -101,6 +143,16 @@ extension LinkedListModel {
         return node.value
     }
     
+    // MARK: - remove all
+    
+    func beforeRemoveAll(on req: Request) async throws { }
+    func afterRemoveAll(on req: Request) async throws { }
+    func removeAll(on req: Request) async throws {
+        try await beforeRemoveAll(on: req)
+        try await removeAll(on: req.db)
+        try await afterRemoveAll(on: req)
+    }
+    
     func removeAll(on db: Database) async throws {
         /// load the last node of the list
         try await self.lastProperty.load(on: db)
@@ -117,6 +169,16 @@ extension LinkedListModel {
             /// set the node to be deleted to the one before
             nodeToDelete = nextNodeToDelete
         }
+    }
+    
+    // MARK: - increment current
+    
+    func beforeIncrementCurrent(on req: Request) async throws { }
+    func afterIncrementCurrent(on req: Request) async throws { }
+    func incrementCurrent(on req: Request) async throws {
+        try await beforeIncrementCurrent(on: req)
+        try await incrementCurrent(on: req.db)
+        try await afterIncrementCurrent(on: req)
     }
     
     func incrementCurrent(on db: Database) async throws {
@@ -138,6 +200,17 @@ extension LinkedListModel {
         try await nextNode.update(on: db)
         /// reload the linked list model to reflect the changes
         try await self.load(on: db)
+    }
+    
+    // MARK: - swap
+    
+    func beforeSwap(_ node1: inout NodeObject, _ node2: inout NodeObject, on req: Request) async throws { }
+    func afterSwap(_ node1: inout NodeObject, _ node2: inout NodeObject, on req: Request) async throws { }
+    func swap(_ node1: inout NodeObject, _ node2: inout NodeObject, on req: Request) async throws {
+        try await beforeSwap(&node1, &node2, on: req)
+        try await swap(&node1, &node2, on: req.db)
+        try await afterSwap(&node1, &node2, on: req)
+
     }
     
     func swap(_ node1: inout NodeObject, _ node2: inout NodeObject, on db: Database) async throws {

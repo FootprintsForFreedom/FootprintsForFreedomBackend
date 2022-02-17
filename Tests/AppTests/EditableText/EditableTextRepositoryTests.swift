@@ -1,6 +1,6 @@
 //
 //  EditableTextRepositoryTests.swift
-//  
+//
 //
 //  Created by niklhut on 14.02.22.
 //
@@ -9,7 +9,6 @@
 import XCTVapor
 import Fluent
 import Spec
-import XCTest
 
 extension EditableTextRepositoryModel: Equatable {
     public static func == (lhs: EditableTextRepositoryModel, rhs: EditableTextRepositoryModel) -> Bool {
@@ -18,6 +17,15 @@ extension EditableTextRepositoryModel: Equatable {
 }
 
 final class EditableTextRepositoryTests: AppTestCase {
+    var user: UserAccountModel!
+    
+    override func setUp() async throws {
+        app = try await createTestApp()
+        let user = UserAccountModel(name: "Test", email: "test@example.com", school: "Test School", password: "MySecure3", verified: false, role: .user)
+        try await user.create(on: app.db)
+        self.user = user
+    }
+    
     func testEditableTextRepositoryStartsEmpty() async throws {
         let editableTextRepository = EditableTextRepositoryModel()
         try await editableTextRepository.save(on: app.db)
@@ -39,7 +47,8 @@ final class EditableTextRepositoryTests: AppTestCase {
         XCTAssertEqual(values.count, 100)
         var editableTextObjectIds = [UUID]()
         for value in values {
-            let newEditableTextObject = try await editableTextRepository.append(value, on: app.db)
+            let node = EditableTextObjectModel(value: value, userId: user.id!)
+            let newEditableTextObject = try await editableTextRepository.append(node, on: app.db)
             editableTextObjectIds.append(newEditableTextObject.id!)
         }
         // load the editableTextObjects from the db
@@ -97,7 +106,8 @@ final class EditableTextRepositoryTests: AppTestCase {
         XCTAssertEqual(values.count, 10)
         var preliminaryEditableTextObjects = [EditableTextObjectModel]()
         for value in values {
-            let newEditableTextObject = try await editableTextRepository.append(value, on: app.db)
+            let node = EditableTextObjectModel(value: value, userId: user.id!)
+            let newEditableTextObject = try await editableTextRepository.append(node, on: app.db)
             preliminaryEditableTextObjects.append(newEditableTextObject)
         }
         
@@ -162,7 +172,8 @@ final class EditableTextRepositoryTests: AppTestCase {
         XCTAssertEqual(values.count, 10)
         var preliminaryEditableTextObjects = [EditableTextObjectModel]()
         for value in values {
-            let newEditableTextObject = try await editableTextRepository.append(value, on: app.db)
+            let node = EditableTextObjectModel(value: value, userId: user.id!)
+            let newEditableTextObject = try await editableTextRepository.append(node, on: app.db)
             preliminaryEditableTextObjects.append(newEditableTextObject)
         }
         
@@ -222,7 +233,8 @@ final class EditableTextRepositoryTests: AppTestCase {
         XCTAssertEqual(values.count, 10)
         var preliminaryEditableTextObjects = [EditableTextObjectModel]()
         for value in values {
-            let newEditableTextObject = try await editableTextRepository.append(value, on: app.db)
+            let node = EditableTextObjectModel(value: value, userId: user.id!)
+            let newEditableTextObject = try await editableTextRepository.append(node, on: app.db)
             preliminaryEditableTextObjects.append(newEditableTextObject)
         }
         
@@ -288,7 +300,8 @@ final class EditableTextRepositoryTests: AppTestCase {
         try await editableTextRepository.save(on: app.db)
         
         let firstAndLastValue = "1"
-        let firstAndLastEditableTextObject = try await editableTextRepository.append(firstAndLastValue, on: app.db)
+        let node = EditableTextObjectModel(value: firstAndLastValue, userId: user.id!)
+        let firstAndLastEditableTextObject = try await editableTextRepository.append(node, on: app.db)
         XCTAssertEqual(firstAndLastEditableTextObject.value, firstAndLastValue)
         
         // Check the list is set up correctly
@@ -312,7 +325,8 @@ final class EditableTextRepositoryTests: AppTestCase {
         XCTAssertEqual(values.count, 10)
         var preliminaryEditableTextObjects = [EditableTextObjectModel]()
         for value in values {
-            let newEditableTextObject = try await editableTextRepository.append(value, on: app.db)
+            let node = EditableTextObjectModel(value: value, userId: user.id!)
+            let newEditableTextObject = try await editableTextRepository.append(node, on: app.db)
             preliminaryEditableTextObjects.append(newEditableTextObject)
         }
         
@@ -386,7 +400,8 @@ final class EditableTextRepositoryTests: AppTestCase {
         XCTAssertEqual(values.count, 50)
         var preliminaryEditableTextObjects = [EditableTextObjectModel]()
         for value in values {
-            let newEditableTextObject = try await editableTextRepository.append(value, on: app.db)
+            let node = EditableTextObjectModel(value: value, userId: user.id!)
+            let newEditableTextObject = try await editableTextRepository.append(node, on: app.db)
             preliminaryEditableTextObjects.append(newEditableTextObject)
         }
         
@@ -430,7 +445,8 @@ final class EditableTextRepositoryTests: AppTestCase {
         XCTAssertEqual(values.count, 10)
         var preliminaryEditableTextObjects = [EditableTextObjectModel]()
         for value in values {
-            let newEditableTextObject = try await editableTextRepository.append(value, on: app.db)
+            let node = EditableTextObjectModel(value: value, userId: user.id!)
+            let newEditableTextObject = try await editableTextRepository.append(node, on: app.db)
             preliminaryEditableTextObjects.append(newEditableTextObject)
         }
         
@@ -500,7 +516,8 @@ final class EditableTextRepositoryTests: AppTestCase {
         XCTAssertEqual(values.count, 10)
         var preliminaryEditableTextObjects = [EditableTextObjectModel]()
         for value in values {
-            let newEditableTextObject = try await editableTextRepository.append(value, on: app.db)
+            let node = EditableTextObjectModel(value: value, userId: user.id!)
+            let newEditableTextObject = try await editableTextRepository.append(node, on: app.db)
             preliminaryEditableTextObjects.append(newEditableTextObject)
         }
         
@@ -549,7 +566,8 @@ final class EditableTextRepositoryTests: AppTestCase {
         XCTAssertEqual(values.count, 100)
         var preliminaryEditableTextObjects = [EditableTextObjectModel]()
         for value in values {
-            let newEditableTextObject = try await editableTextRepository.append(value, on: app.db)
+            let node = EditableTextObjectModel(value: value, userId: user.id!)
+            let newEditableTextObject = try await editableTextRepository.append(node, on: app.db)
             preliminaryEditableTextObjects.append(newEditableTextObject)
         }
         
@@ -622,7 +640,8 @@ final class EditableTextRepositoryTests: AppTestCase {
         XCTAssertEqual(values.count, 10)
         var preliminaryEditableTextObjects = [EditableTextObjectModel]()
         for value in values {
-            let newEditableTextObject = try await editableTextRepository.append(value, on: app.db)
+            let node = EditableTextObjectModel(value: value, userId: user.id!)
+            let newEditableTextObject = try await editableTextRepository.append(node, on: app.db)
             preliminaryEditableTextObjects.append(newEditableTextObject)
         }
         
