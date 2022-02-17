@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  UserApiController+GetOwnUser.swift
 //  
 //
 //  Created by niklhut on 04.02.22.
