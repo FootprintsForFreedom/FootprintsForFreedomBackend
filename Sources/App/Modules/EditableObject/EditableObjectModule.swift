@@ -7,8 +7,8 @@
 
 import Vapor
 
-struct EditableTextModule: ModuleInterface {
+struct EditableObjectModule: ModuleInterface {
     func boot(_ app: Application) throws {
-        app.migrations.add(EditableTextMigrations.v1())
+        app.migrations.add(EditableObjectMigrations.v1())
     }
 }
