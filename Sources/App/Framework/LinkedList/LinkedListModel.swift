@@ -210,7 +210,6 @@ extension LinkedListModel {
         try await beforeSwap(&node1, &node2, on: req)
         try await swap(&node1, &node2, on: req.db)
         try await afterSwap(&node1, &node2, on: req)
-
     }
     
     func swap(_ node1: inout NodeObject, _ node2: inout NodeObject, on db: Database) async throws {
@@ -255,31 +254,67 @@ extension LinkedListModel {
         try await node1.loadPreviousAndNext(on: db)
         try await node2.loadPreviousAndNext(on: db)
         
-        /// save the id of the node before node1
-        let node1PreviousId = node1.previousProperty.id
-        /// set the new node before node1 to the node currently before node2
-        node1.previousProperty.id = node2.previousProperty.id
-        /// set the node before node2 to nil so there is no conflict
-        node2.previousProperty.id = nil
-        /// save the changes on the db
-        try await node2.update(on: db)
-        try await node1.update(on: db)
-        /// set the new node before node2 to the node previously before node1
-        node2.previousProperty.id = node1PreviousId
-        /// save the changes on the db
-        try await node2.update(on: db)
-        
-        /// set the node before the node after node1 to node2
-        node1.next?.previousProperty.id = try node2.requireID()
-        /// set the node before the node after node2 to nil so there is no conflict
-        node2.next?.previousProperty.id = nil
-        /// save the changes on the db
-        try await node2.next?.update(on: db)
-        try await node1.next?.update(on: db)
-        /// set the node before the node after node2 to node1
-        node2.next?.previousProperty.id = try node1.requireID()
-        /// save the changes on the db
-        try await node2.next?.update(on: db)
+        if node1.previous == node2 {
+            /// save the id of the node before node2
+            let node2PreviousId = node2.previousProperty.id
+            /// set the node before node1 to nil so there is no conflict
+            node2.previousProperty.id = nil
+            /// save the changes on the db
+            try await node2.update(on: db)
+            /// set the node before node1 to the node previously before node1
+            node1.previousProperty.id = node2PreviousId
+            /// set the node before node2 to node1
+            node2.previousProperty.id = try node1.requireID()
+            /// set the node before the node after node1 to node2
+            node1.next?.previousProperty.id = try node2.requireID()
+            /// save the changes on the db
+            try await node1.update(on: db)
+            try await node1.next?.update(on: db)
+            try await node2.update(on: db)
+        } else if node2.previous == node1 {
+            /// save the id of the node before node1
+            let node1PreviousId = node1.previousProperty.id
+            /// set the node before node1 to nil so there is no conflict
+            node1.previousProperty.id = nil
+            /// save the changes on the db
+            try await node1.update(on: db)
+            /// set the node before node2 to the node previously before node1
+            node2.previousProperty.id = node1PreviousId
+            /// set the node before node1 to node2
+            node1.previousProperty.id = try node2.requireID()
+            /// set the node before the node after node2 to node1
+            node2.next?.previousProperty.id = try node1.requireID()
+            /// save the changes on the db
+            try await node2.update(on: db)
+            try await node2.next?.update(on: db)
+            try await node1.update(on: db)
+        } else {
+            /// save the id of the node before node1
+            let node1PreviousId = node1.previousProperty.id
+            /// set the new node before node1 to the node currently before node2
+            node1.previousProperty.id = node2.previousProperty.id
+            /// set the node before node2 to nil so there is no conflict
+            node2.previousProperty.id = nil
+            /// save the changes on the db
+            try await node2.update(on: db)
+            try await node1.update(on: db)
+            /// set the new node before node2 to the node previously before node1
+            node2.previousProperty.id = node1PreviousId
+            /// save the changes on the db
+            try await node2.update(on: db)
+            
+            /// set the node before the node after node1 to node2
+            node1.next?.previousProperty.id = try node2.requireID()
+            /// set the node before the node after node2 to nil so there is no conflict
+            node2.next?.previousProperty.id = nil
+            /// save the changes on the db
+            try await node2.next?.update(on: db)
+            try await node1.next?.update(on: db)
+            /// set the node before the node after node2 to node1
+            node2.next?.previousProperty.id = try node1.requireID()
+            /// save the changes on the db
+            try await node2.next?.update(on: db)
+        }
         
         /// reload the linked list model to reflect the changes
         try await self.load(on: db)
