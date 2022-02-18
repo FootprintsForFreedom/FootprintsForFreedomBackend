@@ -11,8 +11,8 @@ protocol LinkedList: AnyObject where NodeObject.NodeObject == NodeObject {
     associatedtype NodeObject: Node
     typealias Element = NodeObject.Element
 
-    var current: NodeObject? { get set }
-    var last: NodeObject? { get set }
+    var current: NodeObject! { get set }
+    var last: NodeObject! { get set }
 
     var isEmpty: Bool { get}
     

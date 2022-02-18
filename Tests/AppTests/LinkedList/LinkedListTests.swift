@@ -28,8 +28,8 @@ final class LinkedListTests: XCTestCase {
     final class MyLinkedList: LinkedList {
         typealias NodeObject = MyNode
         
-        var current: NodeObject?
-        var last: NodeObject?
+        var current: NodeObject!
+        var last: NodeObject!
     }
     
     func testLinkedListStartsEmpty() {
