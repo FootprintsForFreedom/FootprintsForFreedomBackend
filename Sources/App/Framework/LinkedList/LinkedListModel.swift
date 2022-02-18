@@ -12,15 +12,20 @@ protocol LinkedListModel: LinkedList, DatabaseModelInterface where NodeObject: N
     var currentProperty: OptionalChildProperty<Self, NodeObject> { get }
     var lastProperty: OptionalChildProperty<Self, NodeObject> { get }
     
+    static func createWith(_ firstValue: Element, on db: Database) async throws -> Self
+    
     func load(on db: Database) async throws
     
     func beforeAppend(_ node: NodeObject, on req: Request) async throws
     func append(_ node: NodeObject, on req: Request) async throws -> NodeObject
+    @discardableResult
     func append(_ node: NodeObject, on db: Database) async throws -> NodeObject
     func afterAppend(_ node: NodeObject, on req: Request) async throws
     
     func beforeRemove(_ node: NodeObject, on req: Request) async throws
+    @discardableResult
     func remove(_ node: NodeObject, on req: Request) async throws -> Element
+    @discardableResult
     func remove(_ node: NodeObject, on db: Database) async throws -> Element
     func afterRemove(_ node: NodeObject, on req: Request) async throws
     
@@ -49,6 +54,14 @@ extension LinkedListModel {
     func load(on db: Database) async throws {
         try await currentProperty.load(on: db)
         try await lastProperty.load(on: db)
+    }
+    
+    static func createWith(_ firstValue: Element, on db: Database) async throws -> Self {
+        let linkedListModel = Self()
+        let firstNode = NodeObject(value: firstValue)
+        try await linkedListModel.create(on: db)
+        try await linkedListModel.append(firstNode, on: db)
+        return linkedListModel
     }
     
     // MARK: - append
