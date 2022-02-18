@@ -69,29 +69,19 @@ final class EditableTextRepositoryTests: AppTestCase {
         
         // check all links are valid
         for (index, editableTextObject) in editableTextObjects.enumerated() {
-            try await editableTextObject.loadAll(on: app.db)
+            try await editableTextObject.load(on: app.db)
             if editableTextObject == editableTextObjects.first {
                 XCTAssertNil(editableTextObject.previous)
                 XCTAssertNil(editableTextObject.previousProperty.id)
-                XCTAssertNotNil(editableTextObject.currentObjectInListProperty.id)
-                XCTAssertEqual(editableTextObject.currentObjectInList, editableTextRepository)
             } else {
                 let expectedPreviousNode = editableTextObjects[index - 1]
-                try await expectedPreviousNode.loadPreviousAndNext(on: app.db)
                 XCTAssertEqual(editableTextObject.previous, expectedPreviousNode)
-                XCTAssertNil(editableTextObject.currentObjectInList)
-                XCTAssertNil(editableTextObject.currentObjectInListProperty.id)
             }
             if editableTextObject == editableTextObjects.last {
                 XCTAssertNil(editableTextObject.next)
-                XCTAssertNotNil(editableTextObject.lastObjectInListProperty.id)
-                XCTAssertEqual(editableTextObject.lastObjectInList, editableTextRepository)
             } else {
                 let expectedNextNode = editableTextObjects[index + 1]
-                try await expectedNextNode.loadPreviousAndNext(on: app.db)
                 XCTAssertEqual(editableTextObject.next, expectedNextNode)
-                XCTAssertNil(editableTextObject.lastObjectInList)
-                XCTAssertNil(editableTextObject.lastObjectInListProperty.id)
             }
         }
     }
@@ -135,29 +125,20 @@ final class EditableTextRepositoryTests: AppTestCase {
         
         // check all links are valid
         for (index, editableTextObject) in editableTextObjects.enumerated() {
-            try await editableTextObject.loadAll(on: app.db)
+            try await editableTextObject.load(on: app.db)
             if editableTextObject == editableTextObjects.first {
                 XCTAssertNil(editableTextObject.previous)
                 XCTAssertNil(editableTextObject.previousProperty.id)
-                XCTAssertNotNil(editableTextObject.currentObjectInListProperty.id)
-                XCTAssertEqual(editableTextObject.currentObjectInList, editableTextRepository)
             } else {
                 let expectedPreviousNode = editableTextObjects[index - 1]
-                try await expectedPreviousNode.loadPreviousAndNext(on: app.db)
                 XCTAssertEqual(editableTextObject.previous, expectedPreviousNode)
-                XCTAssertNil(editableTextObject.currentObjectInList)
-                XCTAssertNil(editableTextObject.currentObjectInListProperty.id)
             }
             if editableTextObject == editableTextObjects.last {
                 XCTAssertNil(editableTextObject.next)
-                XCTAssertNotNil(editableTextObject.lastObjectInListProperty.id)
-                XCTAssertEqual(editableTextObject.lastObjectInList, editableTextRepository)
+
             } else {
                 let expectedNextNode = editableTextObjects[index + 1]
-                try await expectedNextNode.loadPreviousAndNext(on: app.db)
                 XCTAssertEqual(editableTextObject.next, expectedNextNode)
-                XCTAssertNil(editableTextObject.lastObjectInList)
-                XCTAssertNil(editableTextObject.lastObjectInListProperty.id)
             }
         }
     }
@@ -196,29 +177,19 @@ final class EditableTextRepositoryTests: AppTestCase {
         
         // check all links are valid
         for (index, editableTextObject) in editableTextObjects.enumerated() {
-            try await editableTextObject.loadAll(on: app.db)
+            try await editableTextObject.load(on: app.db)
             if editableTextObject == editableTextObjects.first {
                 XCTAssertNil(editableTextObject.previous)
                 XCTAssertNil(editableTextObject.previousProperty.id)
-                XCTAssertNotNil(editableTextObject.currentObjectInListProperty.id)
-                XCTAssertEqual(editableTextObject.currentObjectInList, editableTextRepository)
             } else {
                 let expectedPreviousNode = editableTextObjects[index - 1]
-                try await expectedPreviousNode.loadPreviousAndNext(on: app.db)
                 XCTAssertEqual(editableTextObject.previous, expectedPreviousNode)
-                XCTAssertNil(editableTextObject.currentObjectInList)
-                XCTAssertNil(editableTextObject.currentObjectInListProperty.id)
             }
             if editableTextObject == editableTextObjects.last {
                 XCTAssertNil(editableTextObject.next)
-                XCTAssertNotNil(editableTextObject.lastObjectInListProperty.id)
-                XCTAssertEqual(editableTextObject.lastObjectInList, editableTextRepository)
             } else {
                 let expectedNextNode = editableTextObjects[index + 1]
-                try await expectedNextNode.loadPreviousAndNext(on: app.db)
                 XCTAssertEqual(editableTextObject.next, expectedNextNode)
-                XCTAssertNil(editableTextObject.lastObjectInList)
-                XCTAssertNil(editableTextObject.lastObjectInListProperty.id)
             }
         }
     }
@@ -238,11 +209,9 @@ final class EditableTextRepositoryTests: AppTestCase {
             preliminaryEditableTextObjects.append(newEditableTextObject)
         }
         
-        // change the current node to be the last one
-        preliminaryEditableTextObjects.first!.currentObjectInListProperty.id = nil
-        try await preliminaryEditableTextObjects.first!.update(on: app.db)
-        preliminaryEditableTextObjects.last!.currentObjectInListProperty.id = try editableTextRepository.requireID()
-        try await preliminaryEditableTextObjects.last!.update(on: app.db)
+        // set the last node to also be the current node
+        editableTextRepository.currentProperty.id = editableTextRepository.lastProperty.id
+        try await editableTextRepository.update(on: app.db)
         
         // remove a value from the db and the confirmation array
         let removedValue = try await editableTextRepository.remove(preliminaryEditableTextObjects.last!, on: app.db)
@@ -268,29 +237,19 @@ final class EditableTextRepositoryTests: AppTestCase {
         
         // check all links are valid
         for (index, editableTextObject) in editableTextObjects.enumerated() {
-            try await editableTextObject.loadAll(on: app.db)
+            try await editableTextObject.load(on: app.db)
             if editableTextObject == editableTextObjects.first {
                 XCTAssertNil(editableTextObject.previous)
                 XCTAssertNil(editableTextObject.previousProperty.id)
             } else {
                 let expectedPreviousNode = editableTextObjects[index - 1]
-                try await expectedPreviousNode.loadPreviousAndNext(on: app.db)
                 XCTAssertEqual(editableTextObject.previous, expectedPreviousNode)
             }
             if editableTextObject == editableTextObjects.last {
                 XCTAssertNil(editableTextObject.next)
-                XCTAssertNotNil(editableTextObject.lastObjectInListProperty.id)
-                XCTAssertEqual(editableTextObject.lastObjectInList, editableTextRepository)
-                XCTAssertNotNil(editableTextObject.currentObjectInListProperty.id)
-                XCTAssertEqual(editableTextObject.currentObjectInList, editableTextRepository)
             } else {
                 let expectedNextNode = editableTextObjects[index + 1]
-                try await expectedNextNode.loadPreviousAndNext(on: app.db)
                 XCTAssertEqual(editableTextObject.next, expectedNextNode)
-                XCTAssertNil(editableTextObject.lastObjectInList)
-                XCTAssertNil(editableTextObject.lastObjectInListProperty.id)
-                XCTAssertNil(editableTextObject.currentObjectInList)
-                XCTAssertNil(editableTextObject.currentObjectInListProperty.id)
             }
         }
     }
@@ -358,29 +317,19 @@ final class EditableTextRepositoryTests: AppTestCase {
         
         // check all links are valid
         for (index, editableTextObject) in editableTextObjects.enumerated() {
-            try await editableTextObject.loadAll(on: app.db)
+            try await editableTextObject.load(on: app.db)
             if editableTextObject == editableTextObjects.first {
                 XCTAssertNil(editableTextObject.previous)
                 XCTAssertNil(editableTextObject.previousProperty.id)
-                XCTAssertNotNil(editableTextObject.currentObjectInListProperty.id)
-                XCTAssertEqual(editableTextObject.currentObjectInList, editableTextRepository)
             } else {
                 let expectedPreviousNode = editableTextObjects[index - 1]
-                try await expectedPreviousNode.loadPreviousAndNext(on: app.db)
                 XCTAssertEqual(editableTextObject.previous, expectedPreviousNode)
-                XCTAssertNil(editableTextObject.currentObjectInList)
-                XCTAssertNil(editableTextObject.currentObjectInListProperty.id)
             }
             if editableTextObject == editableTextObjects.last {
                 XCTAssertNil(editableTextObject.next)
-                XCTAssertNotNil(editableTextObject.lastObjectInListProperty.id)
-                XCTAssertEqual(editableTextObject.lastObjectInList, editableTextRepository)
             } else {
                 let expectedNextNode = editableTextObjects[index + 1]
-                try await expectedNextNode.loadPreviousAndNext(on: app.db)
                 XCTAssertEqual(editableTextObject.next, expectedNextNode)
-                XCTAssertNil(editableTextObject.lastObjectInList)
-                XCTAssertNil(editableTextObject.lastObjectInListProperty.id)
             }
         }
     }
@@ -406,11 +355,9 @@ final class EditableTextRepositoryTests: AppTestCase {
         }
         
         // change the current node to be in the middle
-        preliminaryEditableTextObjects.first!.currentObjectInListProperty.id = nil
-        try await preliminaryEditableTextObjects.first!.update(on: app.db)
-        let objectInMiddle = Int(preliminaryEditableTextObjects.count / 2)
-        preliminaryEditableTextObjects[objectInMiddle].currentObjectInListProperty.id = try editableTextRepository.requireID()
-        try await preliminaryEditableTextObjects[objectInMiddle].update(on: app.db)
+        let objectInMiddleIndex = Int(preliminaryEditableTextObjects.count / 2)
+        editableTextRepository.currentProperty.id = try preliminaryEditableTextObjects[objectInMiddleIndex].requireID()
+        try await editableTextRepository.update(on: app.db)
         
         // Check the new objects were created on the db
         let intermediateEditableObjectsCount = try await EditableTextObjectModel
@@ -476,32 +423,19 @@ final class EditableTextRepositoryTests: AppTestCase {
         
         // check all links are valid
         for (index, editableTextObject) in editableTextObjects.enumerated() {
-            try await editableTextObject.loadAll(on: app.db)
+            try await editableTextObject.load(on: app.db)
             if editableTextObject == editableTextObjects.first {
                 XCTAssertNil(editableTextObject.previous)
                 XCTAssertNil(editableTextObject.previousProperty.id)
-                XCTAssertNil(editableTextObject.currentObjectInList)
-                XCTAssertNil(editableTextObject.currentObjectInListProperty.id)
-            } else if editableTextObject == editableTextObjects[1] {
-                XCTAssertNotNil(editableTextObject.currentObjectInListProperty.id)
-                XCTAssertEqual(editableTextObject.currentObjectInList, editableTextRepository)
             } else {
                 let expectedPreviousNode = editableTextObjects[index - 1]
-                try await expectedPreviousNode.loadPreviousAndNext(on: app.db)
                 XCTAssertEqual(editableTextObject.previous, expectedPreviousNode)
-                XCTAssertNil(editableTextObject.currentObjectInList)
-                XCTAssertNil(editableTextObject.currentObjectInListProperty.id)
             }
             if editableTextObject == editableTextObjects.last {
                 XCTAssertNil(editableTextObject.next)
-                XCTAssertNotNil(editableTextObject.lastObjectInListProperty.id)
-                XCTAssertEqual(editableTextObject.lastObjectInList, editableTextRepository)
             } else {
                 let expectedNextNode = editableTextObjects[index + 1]
-                try await expectedNextNode.loadPreviousAndNext(on: app.db)
                 XCTAssertEqual(editableTextObject.next, expectedNextNode)
-                XCTAssertNil(editableTextObject.lastObjectInList)
-                XCTAssertNil(editableTextObject.lastObjectInListProperty.id)
             }
         }
     }
@@ -521,11 +455,9 @@ final class EditableTextRepositoryTests: AppTestCase {
             preliminaryEditableTextObjects.append(newEditableTextObject)
         }
         
-        // change the current node to be the last one
-        preliminaryEditableTextObjects.first!.currentObjectInListProperty.id = nil
-        try await preliminaryEditableTextObjects.first!.update(on: app.db)
-        preliminaryEditableTextObjects.last!.currentObjectInListProperty.id = try editableTextRepository.requireID()
-        try await preliminaryEditableTextObjects.last!.update(on: app.db)
+        // set the last node to also be the current node
+        editableTextRepository.currentProperty.id = editableTextRepository.lastProperty.id
+        try await editableTextRepository.update(on: app.db)
         
         // Check the list is set up correctly
         try await editableTextRepository.load(on: app.db)
@@ -603,29 +535,19 @@ final class EditableTextRepositoryTests: AppTestCase {
         
         // check all links are valid
         for (index, editableTextObject) in editableTextObjects.enumerated() {
-            try await editableTextObject.loadAll(on: app.db)
+            try await editableTextObject.load(on: app.db)
             if editableTextObject == editableTextObjects.first {
                 XCTAssertNil(editableTextObject.previous)
                 XCTAssertNil(editableTextObject.previousProperty.id)
-                XCTAssertNotNil(editableTextObject.currentObjectInListProperty.id)
-                XCTAssertEqual(editableTextObject.currentObjectInList, editableTextRepository)
             } else {
                 let expectedPreviousNode = editableTextObjects[index - 1]
-                try await expectedPreviousNode.loadPreviousAndNext(on: app.db)
                 XCTAssertEqual(editableTextObject.previous, expectedPreviousNode)
-                XCTAssertNil(editableTextObject.currentObjectInList)
-                XCTAssertNil(editableTextObject.currentObjectInListProperty.id)
             }
             if editableTextObject == editableTextObjects.last {
                 XCTAssertNil(editableTextObject.next)
-                XCTAssertNotNil(editableTextObject.lastObjectInListProperty.id)
-                XCTAssertEqual(editableTextObject.lastObjectInList, editableTextRepository)
             } else {
                 let expectedNextNode = editableTextObjects[index + 1]
-                try await expectedNextNode.loadPreviousAndNext(on: app.db)
                 XCTAssertEqual(editableTextObject.next, expectedNextNode)
-                XCTAssertNil(editableTextObject.lastObjectInList)
-                XCTAssertNil(editableTextObject.lastObjectInListProperty.id)
             }
         }
     }
@@ -675,29 +597,19 @@ final class EditableTextRepositoryTests: AppTestCase {
         
         // check all links are valid
         for (index, editableTextObject) in editableTextObjects.enumerated() {
-            try await editableTextObject.loadAll(on: app.db)
+            try await editableTextObject.load(on: app.db)
             if editableTextObject == editableTextObjects.first {
                 XCTAssertNil(editableTextObject.previous)
                 XCTAssertNil(editableTextObject.previousProperty.id)
-                XCTAssertNotNil(editableTextObject.currentObjectInListProperty.id)
-                XCTAssertEqual(editableTextObject.currentObjectInList, editableTextRepository)
             } else {
                 let expectedPreviousNode = editableTextObjects[index - 1]
-                try await expectedPreviousNode.loadPreviousAndNext(on: app.db)
                 XCTAssertEqual(editableTextObject.previous, expectedPreviousNode)
-                XCTAssertNil(editableTextObject.currentObjectInList)
-                XCTAssertNil(editableTextObject.currentObjectInListProperty.id)
             }
             if editableTextObject == editableTextObjects.last {
                 XCTAssertNil(editableTextObject.next)
-                XCTAssertNotNil(editableTextObject.lastObjectInListProperty.id)
-                XCTAssertEqual(editableTextObject.lastObjectInList, editableTextRepository)
             } else {
                 let expectedNextNode = editableTextObjects[index + 1]
-                try await expectedNextNode.loadPreviousAndNext(on: app.db)
                 XCTAssertEqual(editableTextObject.next, expectedNextNode)
-                XCTAssertNil(editableTextObject.lastObjectInList)
-                XCTAssertNil(editableTextObject.lastObjectInListProperty.id)
             }
         }
     }
@@ -745,29 +657,19 @@ final class EditableTextRepositoryTests: AppTestCase {
         
         // check all links are valid
         for (index, editableTextObject) in editableTextObjects.enumerated() {
-            try await editableTextObject.loadAll(on: app.db)
+            try await editableTextObject.load(on: app.db)
             if editableTextObject == editableTextObjects.first {
                 XCTAssertNil(editableTextObject.previous)
                 XCTAssertNil(editableTextObject.previousProperty.id)
-                XCTAssertNotNil(editableTextObject.currentObjectInListProperty.id)
-                XCTAssertEqual(editableTextObject.currentObjectInList, editableTextRepository)
             } else {
                 let expectedPreviousNode = editableTextObjects[index - 1]
-                try await expectedPreviousNode.loadPreviousAndNext(on: app.db)
                 XCTAssertEqual(editableTextObject.previous, expectedPreviousNode)
-                XCTAssertNil(editableTextObject.currentObjectInList)
-                XCTAssertNil(editableTextObject.currentObjectInListProperty.id)
             }
             if editableTextObject == editableTextObjects.last {
                 XCTAssertNil(editableTextObject.next)
-                XCTAssertNotNil(editableTextObject.lastObjectInListProperty.id)
-                XCTAssertEqual(editableTextObject.lastObjectInList, editableTextRepository)
             } else {
                 let expectedNextNode = editableTextObjects[index + 1]
-                try await expectedNextNode.loadPreviousAndNext(on: app.db)
                 XCTAssertEqual(editableTextObject.next, expectedNextNode)
-                XCTAssertNil(editableTextObject.lastObjectInList)
-                XCTAssertNil(editableTextObject.lastObjectInListProperty.id)
             }
         }
         
@@ -800,29 +702,19 @@ final class EditableTextRepositoryTests: AppTestCase {
         
         // check all links are valid
         for (index, editableTextObject) in editableTextObjects.enumerated() {
-            try await editableTextObject.loadAll(on: app.db)
+            try await editableTextObject.load(on: app.db)
             if editableTextObject == editableTextObjects.first {
                 XCTAssertNil(editableTextObject.previous)
                 XCTAssertNil(editableTextObject.previousProperty.id)
-                XCTAssertNotNil(editableTextObject.currentObjectInListProperty.id)
-                XCTAssertEqual(editableTextObject.currentObjectInList, editableTextRepository)
             } else {
                 let expectedPreviousNode = editableTextObjects[index - 1]
-                try await expectedPreviousNode.loadPreviousAndNext(on: app.db)
                 XCTAssertEqual(editableTextObject.previous, expectedPreviousNode)
-                XCTAssertNil(editableTextObject.currentObjectInList)
-                XCTAssertNil(editableTextObject.currentObjectInListProperty.id)
             }
             if editableTextObject == editableTextObjects.last {
                 XCTAssertNil(editableTextObject.next)
-                XCTAssertNotNil(editableTextObject.lastObjectInListProperty.id)
-                XCTAssertEqual(editableTextObject.lastObjectInList, editableTextRepository)
             } else {
                 let expectedNextNode = editableTextObjects[index + 1]
-                try await expectedNextNode.loadPreviousAndNext(on: app.db)
                 XCTAssertEqual(editableTextObject.next, expectedNextNode)
-                XCTAssertNil(editableTextObject.lastObjectInList)
-                XCTAssertNil(editableTextObject.lastObjectInListProperty.id)
             }
         }
     }

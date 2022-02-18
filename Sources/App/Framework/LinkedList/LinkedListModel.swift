@@ -9,8 +9,8 @@ import Vapor
 import Fluent
 
 protocol LinkedListModel: LinkedList, DatabaseModelInterface where NodeObject: NodeModel {
-    var currentProperty: OptionalChildProperty<Self, NodeObject> { get }
-    var lastProperty: OptionalChildProperty<Self, NodeObject> { get }
+    var currentProperty: OptionalParentProperty<Self, NodeObject> { get }
+    var lastProperty: OptionalParentProperty<Self, NodeObject> { get }
     
     static func createWith(_ firstValue: Element, on db: Database) async throws -> Self
     
@@ -77,22 +77,22 @@ extension LinkedListModel {
     
     func append(_ node: NodeObject, on db: Database) async throws -> NodeObject {
         /// load last object in list to see if list is empty
-        try await self.lastProperty.load(on: db)
+        try await self.load(on: db)
         /// if list is not empty
         if let lastNode = last {
-            /// unlink old last node
-            lastNode.lastObjectInListProperty.id = nil
-            try await lastNode.update(on: db)
             /// set old last node to be previous node of new node
             node.previousProperty.id = try lastNode.requireID()
-        } else {
-            /// if the list is empty the new object is also the current object in the list
-            node.currentObjectInListProperty.id = try self.requireID()
         }
-        /// set the new node to be the last node in the list
-        node.lastObjectInListProperty.id = try self.requireID()
-        /// Create and  the node on the db
+        /// Create the node on the db
         try await node.create(on: db)
+        ///Set the node to be the last node of the list
+        self.lastProperty.id = try node.requireID()
+        ///If the list is empty (there is no current node) set the new node to be the current one
+        if self.current == nil {
+            self.currentProperty.id = try node.requireID()
+        }
+        /// Update the repository on the db
+        try await self.update(on: db)
         /// Reload the linked list model to reflect the changes
         try await self.load(on: db)
         /// return the newly created node
@@ -114,7 +114,7 @@ extension LinkedListModel {
     @discardableResult
     func remove(_ node: NodeObject, on db: Database) async throws -> Element {
         /// load the node
-        try await node.loadPreviousAndNext(on: db)
+        try await node.load(on: db)
         /// if the node has a next node
         /// if the node is **not** the last node
         if let nextNode = node.next {
@@ -132,18 +132,23 @@ extension LinkedListModel {
         /// if the node to be removed is the current node
         if node == current {
             if let previousNode = node.previous {
-                /// if the node to be removed has previous node set it to be the new current node
-                previousNode.currentObjectInListProperty.id = try self.requireID()
+                /// if the node to be removed has previous node, set it to be the new current node
+                self.currentProperty.id = try previousNode.requireID()
             } else if let nextNode = node.next {
                 /// if the node has no previous node / if the node is the first node
-                /// set the possible next node as current object or current object will be nil
-                nextNode.currentObjectInListProperty.id = try self.requireID()
+                /// set the next node as current object
+                self.currentProperty.id = try nextNode.requireID()
+            } else {
+                /// if the list is empty after removing the node set the current property to nil
+                self.currentProperty.id = nil
             }
+            try await self.update(on: db)
         }
         /// if the node is the last node
         if node == last {
             /// set the possibly available previous node as last node or the list is empty and therefore the last object nil
-            node.previous?.lastObjectInListProperty.id = try self.requireID()
+            self.lastProperty.id = try node.previous?.requireID()
+            try await self.update(on: db)
         }
         /// remove the node on the db
         try await node.delete(on: db)
@@ -182,6 +187,12 @@ extension LinkedListModel {
             /// set the node to be deleted to the one before
             nodeToDelete = nextNodeToDelete
         }
+        /// Set the list properties to nil
+        self.lastProperty.id = nil
+        self.currentProperty.id = nil
+        /// Save the changes on the db
+        try await self.update(on: db)
+        try await self.load(on: db)
     }
     
     // MARK: - increment current
@@ -204,13 +215,9 @@ extension LinkedListModel {
             /// otherwise abort and throw error
             throw LinkedListError.noNextValue
         }
-        /// set the current node to no longer be the current node
-        current?.currentObjectInListProperty.id = nil
-        /// set the next node to be the current node
-        nextNode.currentObjectInListProperty.id = try self.requireID()
-        // save the changes on the db
-        try await current?.update(on: db)
-        try await nextNode.update(on: db)
+        /// update the current node
+        self.currentProperty.id = try nextNode.requireID()
+        try await self.update(on: db)
         /// reload the linked list model to reflect the changes
         try await self.load(on: db)
     }
@@ -234,38 +241,30 @@ extension LinkedListModel {
         try await self.load(on: db)
         if node1 == current {
             /// if node1 is the current node
-            /// make it no longer the current node and save the change on the db so there is no conflict
-            node1.currentObjectInListProperty.id = nil
-            try await node1.update(on: db)
-            /// make node2 the current node
-            node2.currentObjectInListProperty.id = try self.requireID()
+            /// set node2 to be the next current node and update on db
+            self.currentProperty.id = try node2.requireID()
+            try await self.update(on: db)
         } else if node2 == current {
             /// else if node2 is the current node
-            /// make it no longer the current node and save the change on the db so there is no conflict
-            node2.currentObjectInListProperty.id = nil
-            try await node2.update(on: db)
-            /// make node1 the current node
-            node1.currentObjectInListProperty.id = try self.requireID()
+            /// set node1 to be the next current node and update on db
+            self.currentProperty.id = try node1.requireID()
+            try await self.update(on: db)
         }
         if node1 == last {
             /// if node1 is the last node
-            /// make it no longer the last node and save the change on the db so there is no conflict
-            node1.lastObjectInListProperty.id = nil
-            try await node1.update(on: db)
-            /// make node2 the last node
-            node2.lastObjectInListProperty.id = try self.requireID()
+            /// set node2 to be the next last node and update on db
+            self.lastProperty.id = try node2.requireID()
+            try await self.update(on: db)
         } else if node2 == last {
             /// else if node2 is the last node
-            /// make it no longer the last node and save the change on the db so there is no conflict
-            node2.lastObjectInListProperty.id = nil
-            try await node2.update(on: db)
-            /// make node1 the last node
-            node1.lastObjectInListProperty.id = try self.requireID()
+            /// set node1 to be the next last node and update on db
+            self.lastProperty.id = try node1.requireID()
+            try await self.update(on: db)
         }
         
         /// load the two nodes
-        try await node1.loadPreviousAndNext(on: db)
-        try await node2.loadPreviousAndNext(on: db)
+        try await node1.load(on: db)
+        try await node2.load(on: db)
         
         if node1.previous == node2 {
             /// save the id of the node before node2

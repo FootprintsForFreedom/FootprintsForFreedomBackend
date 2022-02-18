@@ -17,8 +17,6 @@ final class EditableTextObjectModel: DatabaseModelInterface, NodeModel {
         struct v1 {
             static var value: FieldKey { "value" }
             static var previousId: FieldKey { "previous_id" }
-            static var currentObjectInListWithId: FieldKey { "current_object_in_list_with_id" }
-            static var lastObjectInListWithId: FieldKey { "last_object_in_list_with_id" }
             static var userId: FieldKey { "user_id" }
             static var createdAt: FieldKey { "created_at" }
         }
@@ -31,13 +29,6 @@ final class EditableTextObjectModel: DatabaseModelInterface, NodeModel {
     
     var nextProperty: OptionalChildProperty<EditableTextObjectModel, EditableTextObjectModel> { $next }
     var previousProperty: OptionalParentProperty<EditableTextObjectModel, EditableTextObjectModel> { $previous }
-    
-    @OptionalParent(key: FieldKeys.v1.currentObjectInListWithId) var currentObjectInList: EditableTextRepositoryModel?
-    @OptionalParent(key: FieldKeys.v1.lastObjectInListWithId) var lastObjectInList: EditableTextRepositoryModel?
-    
-    var currentObjectInListProperty: OptionalParentProperty<EditableTextObjectModel, EditableTextRepositoryModel> { $currentObjectInList }
-    var lastObjectInListProperty: OptionalParentProperty<EditableTextObjectModel, EditableTextRepositoryModel> { $lastObjectInList }
-    
     
     @Parent(key: FieldKeys.v1.userId) var user: UserAccountModel
     @Timestamp(key: FieldKeys.v1.createdAt, on: .create) var createdAt: Date?
@@ -60,15 +51,11 @@ final class EditableTextObjectModel: DatabaseModelInterface, NodeModel {
         id: UUID? = nil,
         value: String,
         previousId: UUID?,
-        currentObjectInListId: UUID?,
-        lastObjectInListId: UUID?,
         userId: UUID
     ) {
         self.id = id
         self.value = value
         self.$previous.id = previousId
-        self.$currentObjectInList.id = currentObjectInListId
-        self.$lastObjectInList.id = lastObjectInListId
         self.$user.id = userId
     }
 }
