@@ -33,6 +33,10 @@ final class WaypointWaypointModel: DatabaseModelInterface {
     
     init() { }
     
+    init(verified: Bool) {
+        self.verified = verified
+    }
+    
     init(
         id: UUID? = nil,
         titleId: UUID,
