@@ -41,3 +41,14 @@ final class WaypointWaypointModel: DatabaseModelInterface {
 //        self.text = text
     }
 }
+
+extension WaypointWaypointModel {
+    func load(on db: Database) async throws {
+        try await self.$location.load(on: db)
+        try await self.location.load(on: db)
+        try await self.$title.load(on: db)
+        try await self.title.load(on: db)
+        try await self.$description.load(on: db)
+        try await self.description.load(on: db)
+    }
+}
