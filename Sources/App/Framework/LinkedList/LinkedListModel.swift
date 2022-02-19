@@ -12,7 +12,7 @@ protocol LinkedListModel: LinkedList, DatabaseModelInterface where NodeObject: N
     var currentProperty: OptionalParentProperty<Self, NodeObject> { get }
     var lastProperty: OptionalParentProperty<Self, NodeObject> { get }
     
-    static func createWith(_ firstValue: Element, on db: Database) async throws -> Self
+    static func createWith(_ firstValue: Element, on req: Request) async throws -> Self
     
     func load(on db: Database) async throws
     
@@ -54,14 +54,6 @@ extension LinkedListModel {
     func load(on db: Database) async throws {
         try await currentProperty.load(on: db)
         try await lastProperty.load(on: db)
-    }
-    
-    static func createWith(_ firstValue: Element, on db: Database) async throws -> Self {
-        let linkedListModel = Self()
-        let firstNode = NodeObject(value: firstValue)
-        try await linkedListModel.create(on: db)
-        try await linkedListModel.append(firstNode, on: db)
-        return linkedListModel
     }
     
     // MARK: - append
