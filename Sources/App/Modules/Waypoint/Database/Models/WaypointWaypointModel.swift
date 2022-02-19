@@ -23,8 +23,7 @@ final class WaypointWaypointModel: DatabaseModelInterface {
     @ID() var id: UUID?
     @Field(key: FieldKeys.v1.verified) var verified: Bool
     
-    @Field(key: FieldKeys.v1.locationId) var location: EditableObjectRepositoryModel<Waypoint.Location>
-    
+    @Parent(key: FieldKeys.v1.locationId) var location: EditableObjectRepositoryModel<Waypoint.Location>
     @Parent(key: FieldKeys.v1.titleId) var title: EditableObjectRepositoryModel<String>
     @Parent(key: FieldKeys.v1.descriptionId) var description: EditableObjectRepositoryModel<String>
     
