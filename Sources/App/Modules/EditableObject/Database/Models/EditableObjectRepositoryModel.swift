@@ -37,4 +37,12 @@ extension EditableObjectRepositoryModel {
         let newNode = NodeObject(value: value, userId: userId)
         return try await self.append(newNode, on: req)
     }
+    
+    static func createWith(_ firstValue: Element, on req: Request) async throws -> Self {
+        let user = try req.auth.require(AuthenticatedUser.self)
+        let linkedListModel = Self()
+        try await linkedListModel.create(on: req.db)
+        try await linkedListModel.append(firstValue, submittedBy: user.id, on: req)
+        return linkedListModel
+    }
 }
