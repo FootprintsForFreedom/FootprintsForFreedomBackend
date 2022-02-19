@@ -16,6 +16,10 @@ struct WaypointApiController: ApiController {
     typealias ApiModel = Waypoint.Waypoint
     typealias DatabaseModel = WaypointWaypointModel
     
+    func getBaseRoutes(_ routes: RoutesBuilder) -> RoutesBuilder {
+        routes.grouped("waypoints")
+    }
+    
     @AsyncValidatorBuilder
     func validators(optional: Bool) -> [AsyncValidator] {
         KeyedContentValidator<String>.required("title", optional: optional)
