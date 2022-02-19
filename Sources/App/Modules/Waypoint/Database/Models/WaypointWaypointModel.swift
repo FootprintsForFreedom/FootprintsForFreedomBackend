@@ -35,10 +35,16 @@ final class WaypointWaypointModel: DatabaseModelInterface {
     
     init(
         id: UUID? = nil,
-        text: String
+        titleId: UUID,
+        descriptionId: UUID,
+        locationId: UUID,
+        verified: Bool
     ) {
         self.id = id
-//        self.text = text
+        self.$title.id = titleId
+        self.$description.id = descriptionId
+        self.$location.id = locationId
+        self.verified = verified
     }
 }
 
