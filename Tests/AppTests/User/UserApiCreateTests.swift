@@ -39,6 +39,7 @@ final class UserApiCreateTests: AppTestCase {
             .expect(.created)
             .expect(.json)
             .expect(User.Account.Detail.self) { content in
+                XCTAssertNotNil(content.id)
                 XCTAssertEqual(content.name, newUser.name)
                 XCTAssertEqual(content.email, newUser.email)
                 XCTAssertEqual(content.school, newUser.school)
