@@ -7,8 +7,6 @@
 
 import Vapor
 import Fluent
-import Foundation
-import CloudKit
 
 final class EditableObjectModel<T>: DatabaseModelInterface, NodeModel where T: Codable, T: Equatable {
     typealias Module = EditableObjectModule
