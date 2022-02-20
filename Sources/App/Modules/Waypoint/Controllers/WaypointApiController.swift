@@ -48,14 +48,21 @@ struct WaypointApiController: ApiController {
     func detailOutput(_ req: Request, _ model: WaypointRepositoryModel) async throws -> Waypoint.Waypoint.Detail {
         try await model.currentProperty.load(on: req.db)
         try await model.current.load(on: req.db)
-        if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db), user.role >= .moderator {
-            return .moderatorDetail(
-                id: model.id!,
-                title: model.current.title.value,
-                description: model.current.description.value,
-                location: model.current.location.value,
-                verified: model.verified
-            )
+        if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db) {
+            if user.role >= .moderator {
+                return .moderatorDetail(
+                    id: model.id!,
+                    title: model.current.title.value,
+                    description: model.current.description.value,
+                    location: model.current.location.value,
+                    verified: model.verified
+                )
+            } else if !model.verified {
+                throw Abort(.forbidden)
+            }
+        }
+        guard model.verified else {
+            throw Abort(.unauthorized)
         }
         return .publicDetail(
             id: model.id!,
