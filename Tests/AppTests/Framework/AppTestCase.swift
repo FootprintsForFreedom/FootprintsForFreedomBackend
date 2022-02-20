@@ -48,7 +48,7 @@ open class AppTestCase: XCTestCase {
         app.shutdown()
     }
     
-    func getApiToken(_ user: UserLogin, _ app: Application) throws -> User.Token.Detail {
+    func getApiToken(_ user: UserLogin) throws -> User.Token.Detail {
         var token: User.Token.Detail?
         
         try app.test(.POST, "/api/sign-in/", beforeRequest: { req in
@@ -65,11 +65,15 @@ open class AppTestCase: XCTestCase {
         return result
     }
     
-    func getTokenFromOtherUser(role: User.Role) async throws -> String {
+    func getUser(role: User.Role) async throws -> UserAccountModel {
         let newUserPassword = "password"
         let newUser = UserAccountModel(name: "Test User", email: "test-user\(UUID())@example.com", school: nil, password: try app.password.hash(newUserPassword), verified: false, role: role)
         try await newUser.create(on: app.db)
-        
+        return newUser
+    }
+    
+    func getTokenFromOtherUser(role: User.Role) async throws -> String {
+        let newUser = try await getUser(role: role)
         let token = try newUser.generateToken()
         try await token.create(on: app.db)
         return token.value
