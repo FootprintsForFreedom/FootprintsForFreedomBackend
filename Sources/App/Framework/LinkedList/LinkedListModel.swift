@@ -8,15 +8,19 @@
 import Vapor
 import Fluent
 
-protocol LinkedListModel: LinkedList, DatabaseModelInterface where NodeObject: NodeModel {
-    var currentProperty: OptionalParentProperty<Self, NodeObject> { get }
-    var lastProperty: OptionalParentProperty<Self, NodeObject> { get }
+protocol LinkedListModel: DatabaseModelInterface {
+    associatedtype NodeObject: NodeModel
     
-    static func createWith(_ firstValue: Element, on req: Request) async throws -> Self
+    var current: NodeObject { get set }
+    var last: NodeObject { get set }
+    
+    var currentProperty: ParentProperty<Self, NodeObject> { get }
+    var lastProperty: ParentProperty<Self, NodeObject> { get }
     
     func load(on db: Database) async throws
     
     func beforeAppend(_ node: NodeObject, on req: Request) async throws
+    @discardableResult
     func append(_ node: NodeObject, on req: Request) async throws -> NodeObject
     @discardableResult
     func append(_ node: NodeObject, on db: Database) async throws -> NodeObject
@@ -24,9 +28,9 @@ protocol LinkedListModel: LinkedList, DatabaseModelInterface where NodeObject: N
     
     func beforeRemove(_ node: NodeObject, on req: Request) async throws
     @discardableResult
-    func remove(_ node: NodeObject, on req: Request) async throws -> Element
+    func remove(_ node: NodeObject, on req: Request) async throws -> NodeObject
     @discardableResult
-    func remove(_ node: NodeObject, on db: Database) async throws -> Element
+    func remove(_ node: NodeObject, on db: Database) async throws -> NodeObject
     func afterRemove(_ node: NodeObject, on req: Request) async throws
     
     func beforeRemoveAll(on req: Request) async throws
@@ -45,11 +49,7 @@ protocol LinkedListModel: LinkedList, DatabaseModelInterface where NodeObject: N
     func afterSwap(_ node1: inout NodeObject, _ node2: inout NodeObject, on req: Request) async throws
 }
 
-extension LinkedListModel {
-    var isEmpty: Bool {
-        current == nil
-    }
-    
+extension LinkedListModel {    
     // TODO: perform in transactions so nothing is changed if one fails
     func load(on db: Database) async throws {
         try await currentProperty.load(on: db)
@@ -60,6 +60,7 @@ extension LinkedListModel {
     
     func beforeAppend(_ node: NodeObject, on req: Request) async throws { }
     func afterAppend(_ node: NodeObject, on req: Request) async throws { }
+    @discardableResult
     func append(_ node: NodeObject, on req: Request) async throws -> NodeObject {
         try await beforeAppend(node, on: req)
         let node = try await append(node, on: req.db)
@@ -67,22 +68,16 @@ extension LinkedListModel {
         return node
     }
     
+    @discardableResult
     func append(_ node: NodeObject, on db: Database) async throws -> NodeObject {
         /// load last object in list to see if list is empty
         try await self.load(on: db)
-        /// if list is not empty
-        if let lastNode = last {
-            /// set old last node to be previous node of new node
-            node.previousProperty.id = try lastNode.requireID()
-        }
+        /// set old last node to be previous node of new node
+        node.previousProperty.id = try self.last.requireID()
         /// Create the node on the db
         try await node.create(on: db)
         ///Set the node to be the last node of the list
         self.lastProperty.id = try node.requireID()
-        ///If the list is empty (there is no current node) set the new node to be the current one
-        if self.current == nil {
-            self.currentProperty.id = try node.requireID()
-        }
         /// Update the repository on the db
         try await self.update(on: db)
         /// Reload the linked list model to reflect the changes
@@ -96,7 +91,7 @@ extension LinkedListModel {
     func beforeRemove(_ node: NodeObject, on req: Request) async throws { }
     func afterRemove(_ node: NodeObject, on req: Request) async throws { }
     @discardableResult
-    func remove(_ node: NodeObject, on req: Request) async throws -> Element {
+    func remove(_ node: NodeObject, on req: Request) async throws -> NodeObject {
         try await beforeRemove(node, on: req)
         let removedElement = try await remove(node, on: req.db)
         try await afterRemove(node, on: req)
@@ -104,7 +99,7 @@ extension LinkedListModel {
     }
     
     @discardableResult
-    func remove(_ node: NodeObject, on db: Database) async throws -> Element {
+    func remove(_ node: NodeObject, on db: Database) async throws -> NodeObject {
         /// load the node
         try await node.load(on: db)
         /// if the node has a next node
@@ -130,16 +125,13 @@ extension LinkedListModel {
                 /// if the node has no previous node / if the node is the first node
                 /// set the next node as current object
                 self.currentProperty.id = try nextNode.requireID()
-            } else {
-                /// if the list is empty after removing the node set the current property to nil
-                self.currentProperty.id = nil
             }
             try await self.update(on: db)
         }
         /// if the node is the last node
-        if node == last {
+        if node == last, let previousId = try node.previous?.requireID() {
             /// set the possibly available previous node as last node or the list is empty and therefore the last object nil
-            self.lastProperty.id = try node.previous?.requireID()
+            self.lastProperty.id = previousId
             try await self.update(on: db)
         }
         /// remove the node on the db
@@ -150,7 +142,7 @@ extension LinkedListModel {
         /// reload the linked list model to reflect the changes
         try await self.load(on: db)
         /// return the value of the deleted node
-        return node.value
+        return node
     }
     
     // MARK: - remove all
@@ -167,7 +159,7 @@ extension LinkedListModel {
         /// load the last node of the list
         try await self.lastProperty.load(on: db)
         /// set the item to delete to the last node of the list
-        var nodeToDelete = last
+        var nodeToDelete: NodeObject? = self.last
         /// while there is an node to delete
         while nodeToDelete != nil {
             /// load the previous node of the node to delete
@@ -179,12 +171,10 @@ extension LinkedListModel {
             /// set the node to be deleted to the one before
             nodeToDelete = nextNodeToDelete
         }
+    // TODO: call delete?
         /// Set the list properties to nil
-        self.lastProperty.id = nil
-        self.currentProperty.id = nil
-        /// Save the changes on the db
-        try await self.update(on: db)
-        try await self.load(on: db)
+//        self.lastProperty.id = nil
+//        self.currentProperty.id = nil
     }
     
     // MARK: - increment current
@@ -201,9 +191,9 @@ extension LinkedListModel {
         /// load the current property of the list
         try await self.currentProperty.load(on: db)
         /// load the next node after the current node
-        try await self.current?.nextProperty.load(on: db)
+        try await self.current.nextProperty.load(on: db)
         /// confirm there actually is a next node
-        guard let nextNode = current?.next else {
+        guard let nextNode = current.next else {
             /// otherwise abort and throw error
             throw LinkedListError.noNextValue
         }
