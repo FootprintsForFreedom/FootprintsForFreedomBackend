@@ -16,7 +16,7 @@ protocol LinkedList: AnyObject where NodeObject.NodeObject == NodeObject {
 
     var isEmpty: Bool { get}
     
-    func append(_ value: Element) -> NodeObject
+    func append(_ value: Element) throws -> NodeObject
     @discardableResult
     func unlink(_ node: NodeObject) -> Element
     func unlinkAll()
@@ -30,8 +30,8 @@ extension LinkedList {
         current == nil
     }
     
-    func append(_ value: Element) -> NodeObject {
-        let newNode = NodeObject(value: value)
+    func append(_ value: Element) throws -> NodeObject {
+        let newNode = try NodeObject(value: value)
         if let lastNode = last {
             newNode.previous = lastNode
             lastNode.next = newNode

@@ -15,5 +15,5 @@ protocol Node: AnyObject, Equatable where NodeObject.NodeObject == NodeObject, N
     var next: NodeObject? { get set }
     var previous: NodeObject? { get set }
     
-    init(value: Element)
+    init(value: Element) throws
 }

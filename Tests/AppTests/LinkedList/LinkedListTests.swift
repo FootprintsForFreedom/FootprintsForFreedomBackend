@@ -32,7 +32,7 @@ final class LinkedListTests: XCTestCase {
         var last: NodeObject!
     }
     
-    func testLinkedListStartsEmpty() {
+    func testLinkedListStartsEmpty() throws {
         let linkedList = MyLinkedList()
         
         XCTAssertTrue(linkedList.isEmpty)
@@ -40,11 +40,11 @@ final class LinkedListTests: XCTestCase {
         XCTAssertNil(linkedList.last)
     }
     
-    func testAppend() {
+    func testAppend() throws {
         let linkedList = MyLinkedList()
         
         let firstValue = 1
-        let firstNode = linkedList.append(firstValue)
+        let firstNode = try linkedList.append(firstValue)
         XCTAssertFalse(linkedList.isEmpty)
         XCTAssertEqual(firstNode.value, firstValue)
         
@@ -57,7 +57,7 @@ final class LinkedListTests: XCTestCase {
         XCTAssertNil(firstNode.next)
         
         let secondValue = 2
-        let secondNode = linkedList.append(secondValue)
+        let secondNode = try linkedList.append(secondValue)
         XCTAssertEqual(secondNode.value, secondValue)
         
         // Check the list is set up correctly
@@ -71,7 +71,7 @@ final class LinkedListTests: XCTestCase {
         XCTAssertNil(secondNode.next)
         
         let thirdValue = 3
-        let thirdNode = linkedList.append(thirdValue)
+        let thirdNode = try linkedList.append(thirdValue)
         XCTAssertEqual(thirdNode.value, thirdValue)
         
         // Check the list is set up correctly
@@ -87,12 +87,12 @@ final class LinkedListTests: XCTestCase {
         XCTAssertNil(thirdNode.next)
     }
     
-    func testMultipleAppends() {
+    func testMultipleAppends() throws {
         let linkedList = MyLinkedList()
         
         let values = (1...100).map { $0 }
         XCTAssertEqual(values.count, 100)
-        let nodes = values.map { linkedList.append($0) }
+        let nodes = try values.map { try linkedList.append($0) }
         
         // Check the list is set up correctly
         XCTAssertFalse(linkedList.isEmpty)
@@ -113,11 +113,11 @@ final class LinkedListTests: XCTestCase {
         }
     }
     
-    func testUnlinkLast() {
+    func testUnlinkLast() throws {
         let linkedList = MyLinkedList()
         
         let values = (1...10).map { $0 }
-        var nodes = values.map { linkedList.append($0) }
+        var nodes = try values.map { try linkedList.append($0) }
         
         let removedValue = linkedList.unlink(nodes.last!)
         let confirmRemovedValue = nodes.removeLast()
@@ -142,11 +142,11 @@ final class LinkedListTests: XCTestCase {
         }
     }
     
-    func testUnlinkCurrent() {
+    func testUnlinkCurrent() throws {
         let linkedList = MyLinkedList()
         
         let values = (1...100).map { $0 }
-        var nodes = values.map { linkedList.append($0) }
+        var nodes = try values.map { try linkedList.append($0) }
         
         let removedValue = linkedList.unlink(nodes.first!)
         let confirmRemovedValue = nodes.removeFirst()
@@ -171,11 +171,11 @@ final class LinkedListTests: XCTestCase {
         }
     }
     
-    func testUnlinkCurrentAndLastNode() {
+    func testUnlinkCurrentAndLastNode() throws {
         let linkedList = MyLinkedList()
         
         let firstAndLastValue = 1
-        let firstAndLastNode = linkedList.append(firstAndLastValue)
+        let firstAndLastNode = try linkedList.append(firstAndLastValue)
         XCTAssertEqual(firstAndLastNode.value, firstAndLastValue)
         
         // Check the list is set up correctly
@@ -188,11 +188,11 @@ final class LinkedListTests: XCTestCase {
         XCTAssertNil(linkedList.last)
     }
     
-    func testUnlinkMiddleNode() {
+    func testUnlinkMiddleNode() throws {
         let linkedList = MyLinkedList()
         
         let values = (1...100).map { $0 }
-        var nodes = values.map { linkedList.append($0) }
+        var nodes = try values.map { try linkedList.append($0) }
         
         let indexOfElementToRemove = Int.random(in: 1...nodes.count - 2)
         
@@ -219,11 +219,11 @@ final class LinkedListTests: XCTestCase {
         }
     }
     
-    func testUnlinkAll() {
+    func testUnlinkAll() throws {
         let linkedList = MyLinkedList()
         
         let values = (1...100).map { $0 }
-        var _ = values.map { linkedList.append($0) }
+        var _ = try values.map { try linkedList.append($0) }
         
         linkedList.unlinkAll()
         XCTAssertTrue(linkedList.isEmpty)
@@ -235,7 +235,7 @@ final class LinkedListTests: XCTestCase {
         let linkedList = MyLinkedList()
         
         let values = (1...100).map { $0 }
-        let nodes = values.map { linkedList.append($0) }
+        let nodes = try values.map { try linkedList.append($0) }
         
         XCTAssertNotNil(linkedList.current)
         XCTAssertEqual(linkedList.current, nodes.first)
@@ -244,11 +244,11 @@ final class LinkedListTests: XCTestCase {
         XCTAssertEqual(linkedList.current, nodes[1])
     }
     
-    func testIncrementCurrentFailsWhenCurrentIsLast() {
+    func testIncrementCurrentFailsWhenCurrentIsLast() throws {
         let linkedList = MyLinkedList()
         
         let values = (1...100).map { $0 }
-        let nodes = values.map { linkedList.append($0) }
+        let nodes = try values.map { try linkedList.append($0) }
         linkedList.current = nodes.last
         
         XCTAssertNotNil(linkedList.current)
@@ -268,11 +268,11 @@ final class LinkedListTests: XCTestCase {
         }
     }
     
-    func testSwap() {
+    func testSwap() throws {
         let linkedList = MyLinkedList()
         
         let values = (1...100).map { $0 }
-        var nodes = values.map { linkedList.append($0) }
+        var nodes = try values.map { try linkedList.append($0) }
         
         let firstIndexToSwap = nodes.firstIndex(of: nodes.randomElement()!)!
         var firstNodeToSwap = nodes[firstIndexToSwap]
@@ -314,11 +314,11 @@ final class LinkedListTests: XCTestCase {
         }
     }
     
-    func testSwapFirstAndLast() {
+    func testSwapFirstAndLast() throws {
         let linkedList = MyLinkedList()
         
         let values = (1...100).map { $0 }
-        var nodes = values.map { linkedList.append($0) }
+        var nodes = try values.map { try linkedList.append($0) }
         
         let firstIndexToSwap = 0
         var firstNodeToSwap = nodes[firstIndexToSwap]
