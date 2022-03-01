@@ -22,15 +22,12 @@ enum WaypointMigrations {
             
                 .field(WaypointWaypointModel.FieldKeys.v1.titleId, .uuid , .required)
                 .foreignKey(WaypointWaypointModel.FieldKeys.v1.titleId, references: EditableObjectModel<String>.schema, .id, onDelete: .cascade)
-                .unique(on: WaypointWaypointModel.FieldKeys.v1.titleId)
             
                 .field(WaypointWaypointModel.FieldKeys.v1.descriptionId, .uuid , .required)
                 .foreignKey(WaypointWaypointModel.FieldKeys.v1.descriptionId, references: EditableObjectModel<String>.schema, .id, onDelete: .cascade)
-                .unique(on: WaypointWaypointModel.FieldKeys.v1.descriptionId)
             
                 .field(WaypointWaypointModel.FieldKeys.v1.locationId, .uuid, .required)
                 .foreignKey(WaypointWaypointModel.FieldKeys.v1.locationId, references: EditableObjectModel<Waypoint.Location>.schema, .id, onDelete: .cascade)
-                .unique(on: WaypointWaypointModel.FieldKeys.v1.locationId)
             
                 .field(WaypointWaypointModel.FieldKeys.v1.previousId, .uuid)
                 .foreignKey(WaypointWaypointModel.FieldKeys.v1.previousId, references: WaypointWaypointModel.schema, .id)
