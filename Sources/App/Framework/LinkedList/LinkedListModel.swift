@@ -38,11 +38,6 @@ protocol LinkedListModel: DatabaseModelInterface {
     func removeAll(on db: Database) async throws
     func afterRemoveAll(on req: Request) async throws
     
-    func beforeIncrementCurrent(on req: Request) async throws
-    func incrementCurrent(on req: Request) async throws
-    func incrementCurrent(on db: Database) async throws
-    func afterIncrementCurrent(on req: Request) async throws
-    
     func beforeSwap(_ node1: inout NodeObject, _ node2: inout NodeObject, on req: Request) async throws
     func swap(_ node1: inout NodeObject, _ node2: inout NodeObject, on req: Request) async throws
     func swap(_ node1: inout NodeObject, _ node2: inout NodeObject, on db: Database) async throws
@@ -175,33 +170,6 @@ extension LinkedListModel {
         /// Set the list properties to nil
 //        self.lastProperty.id = nil
 //        self.currentProperty.id = nil
-    }
-    
-    // MARK: - increment current
-    
-    func beforeIncrementCurrent(on req: Request) async throws { }
-    func afterIncrementCurrent(on req: Request) async throws { }
-    func incrementCurrent(on req: Request) async throws {
-        try await beforeIncrementCurrent(on: req)
-        try await incrementCurrent(on: req.db)
-        try await afterIncrementCurrent(on: req)
-    }
-    
-    func incrementCurrent(on db: Database) async throws {
-        /// load the current property of the list
-        try await self.currentProperty.load(on: db)
-        /// load the next node after the current node
-        try await self.current.nextProperty.load(on: db)
-        /// confirm there actually is a next node
-        guard let nextNode = current.next else {
-            /// otherwise abort and throw error
-            throw LinkedListError.noNextValue
-        }
-        /// update the current node
-        self.currentProperty.id = try nextNode.requireID()
-        try await self.update(on: db)
-        /// reload the linked list model to reflect the changes
-        try await self.load(on: db)
     }
     
     // MARK: - swap
