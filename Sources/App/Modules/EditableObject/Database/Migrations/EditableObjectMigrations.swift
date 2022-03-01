@@ -25,25 +25,10 @@ enum EditableObjectMigrations {
                 .field(EditableObjectModel<String>.FieldKeys.v1.createdAt, .datetime, .required)
             
                 .create()
-            
-            try await db.schema(EditableObjectRepositoryModel<String>.schema)
-                .id()
-            
-                .field(EditableObjectRepositoryModel<String>.FieldKeys.v1.currentId, .uuid)
-                .foreignKey(EditableObjectRepositoryModel<String>.FieldKeys.v1.currentId, references: EditableObjectModel<String>.schema, .id, onDelete: .setNull)
-                .unique(on: EditableObjectRepositoryModel<String>.FieldKeys.v1.currentId)
-            
-                .field(EditableObjectRepositoryModel<String>.FieldKeys.v1.lastId, .uuid)
-                .foreignKey(EditableObjectRepositoryModel<String>.FieldKeys.v1.lastId, references: EditableObjectModel<String>.schema, .id, onDelete: .setNull)
-                .unique(on: EditableObjectRepositoryModel<String>.FieldKeys.v1.lastId)
-            
-                .create()
-            
         }
         
         func revert(on db: Database) async throws {
             try await db.schema(EditableObjectModel<String>.schema).delete()
-            try await db.schema(EditableObjectRepositoryModel<String>.schema).delete()
         }
     }
 }
