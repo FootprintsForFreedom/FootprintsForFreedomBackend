@@ -67,8 +67,10 @@ extension WaypointWaypointModel: Equatable {
 }
 
 extension WaypointWaypointModel {
-    func last<NodeObject: NodeModel>(for keyPath: KeyPath<WaypointWaypointModel, NodeObject>, on db: Database) async throws -> NodeObject {
-        var node = self[keyPath: keyPath]
+    func last<T>(for keyPath: KeyPath<WaypointWaypointModel, ParentProperty<WaypointWaypointModel, EditableObjectModel<T>>>, on db: Database) async throws -> EditableObjectModel<T> {
+        let nodeProperty = self[keyPath: keyPath]
+        try await nodeProperty.load(on: db)
+        var node = nodeProperty.wrappedValue
         try await node.nextProperty.load(on: db)
         while let nextNode = node.next {
             try await nextNode.nextProperty.load(on: db)
@@ -77,11 +79,11 @@ extension WaypointWaypointModel {
         return node
     }
     
-    func append<T>(_ keyPath: KeyPath<WaypointWaypointModel, EditableObjectModel<T>>, _ newValue: T, on req: Request) async throws -> EditableObjectModel<T> {
+    func append<T>(_ keyPath: KeyPath<WaypointWaypointModel, ParentProperty<WaypointWaypointModel, EditableObjectModel<T>>>, _ newValue: T, on req: Request) async throws -> EditableObjectModel<T> {
         let user = try req.auth.require(AuthenticatedUser.self)
         let lastNode = try await last(for: keyPath, on: req.db)
         let newNode = EditableObjectModel<T>(value: newValue, userId: user.id)
-        try await lastNode.$next.create(lastNode, on: req.db)
+        try await lastNode.$next.create(newNode, on: req.db)
         return newNode
     }
 }
