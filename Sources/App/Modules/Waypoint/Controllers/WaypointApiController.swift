@@ -34,15 +34,15 @@ struct WaypointApiController: ApiController {
                 $0.verified ? $0 : nil
             }
             .concurrentMap { model in
-            try await model.currentProperty.load(on: req.db)
-            try await model.current.loadTitle(on: req.db)
-            try await model.current.loadLocation(on: req.db)
-            return .init(
-                id: model.id!,
-                title: model.current.title.value,
-                location: model.current.location.value
-            )
-        }
+                try await model.currentProperty.load(on: req.db)
+                try await model.current.loadTitle(on: req.db)
+                try await model.current.loadLocation(on: req.db)
+                return .init(
+                    id: model.id!,
+                    title: model.current.title.value,
+                    location: model.current.location.value
+                )
+            }
     }
     
     func detailOutput(_ req: Request, _ model: WaypointRepositoryModel) async throws -> Waypoint.Waypoint.Detail {
@@ -56,6 +56,14 @@ struct WaypointApiController: ApiController {
                     description: model.current.description.value,
                     location: model.current.location.value,
                     verified: model.verified
+                )
+            } else if req.method == .POST || req.method == .PUT || req.method == .PATCH {
+                /// return public detail after create, update or patch regardless of model verification
+                return .publicDetail(
+                    id: model.id!,
+                    title: model.current.title.value,
+                    description: model.current.description.value,
+                    location: model.current.location.value
                 )
             } else if !model.verified {
                 throw Abort(.forbidden)
@@ -85,15 +93,16 @@ struct WaypointApiController: ApiController {
         let user = try req.auth.require(AuthenticatedUser.self)
         try await model.currentProperty.load(on: req.db)
         
-        let newTitle = try await model.current.append(\.title, input.title, on: req)
-        let newDescription = try await model.current.append(\.description, input.description, on: req)
-        let newLocation = try await model.current.append(\.location, input.location, on: req)
+        let newTitle = try await model.current.append(\.$title, input.title, on: req)
+        let newDescription = try await model.current.append(\.$description, input.description, on: req)
+        let newLocation = try await model.current.append(\.$location, input.location, on: req)
         
         let newWaypointModel = try WaypointWaypointModel(
             titleId: newTitle.requireID(),
             descriptionId: newDescription.requireID(),
             locationId: newLocation.requireID(),
-            userId: user.id)
+            userId: user.id
+        )
         try await model.append(newWaypointModel, on: req)
     }
     
@@ -104,15 +113,32 @@ struct WaypointApiController: ApiController {
     func patchInput(_ req: Request, _ model: WaypointRepositoryModel, _ input: Waypoint.Waypoint.Patch) async throws {
         /// Require user to be signed in
         let user = try req.auth.require(AuthenticatedUser.self)
-//        if let newTitle = input.title {
-//            try await model.title.append(newTitle, submittedBy: user.id, on: req)
-//        }
-//        if let newDescription = input.description {
-//            try await model.description.append(newDescription, submittedBy: user.id, on: req)
-//        }
-//        if let newLocation = input.location {
-//            try await model.location.append(newLocation, submittedBy: user.id, on: req)
-//        }
+        try await model.currentProperty.load(on: req.db)
+        
+        var patchedTitle: EditableObjectModel<String>?
+        var patchedDesctiption: EditableObjectModel<String>?
+        var patchedLocation: EditableObjectModel<Waypoint.Location>?
+        
+        if let newTitle = input.title {
+            patchedTitle = try await model.current.append(\.$title, newTitle, on: req)
+        }
+        if let newDescription = input.description {
+            patchedDesctiption = try await model.current.append(\.$description, newDescription, on: req)
+        }
+        if let newLocation = input.location {
+            patchedLocation = try await model.current.append(\.$location, newLocation, on: req)
+        }
+        
+        /// only create a new waypoint model if something changed
+        if patchedTitle != nil || patchedDesctiption != nil || patchedLocation != nil {
+            let newWaypointModel = try WaypointWaypointModel(
+                titleId: patchedTitle?.requireID() ?? model.current.$title.id,
+                descriptionId: patchedDesctiption?.requireID() ?? model.current.$description.id,
+                locationId: patchedLocation?.requireID() ?? model.current.$location.id,
+                userId: user.id
+            )
+            try await model.append(newWaypointModel, on: req)
+        }
     }
     
     func beforeDelete(_ req: Request, _ model: WaypointRepositoryModel) async throws {
@@ -134,7 +160,7 @@ struct WaypointApiController: ApiController {
         try await model.current.title.deleteAll(on: req.db)
         try await model.current.description.deleteAll(on: req.db)
         try await model.current.location.deleteAll(on: req.db)
-//        try await model.removeAll(on: req)
+        //        try await model.removeAll(on: req)
     }
     
     func setupRoutes(_ routes: RoutesBuilder) {
