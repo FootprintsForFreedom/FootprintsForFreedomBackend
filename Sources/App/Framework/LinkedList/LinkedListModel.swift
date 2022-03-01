@@ -33,11 +33,6 @@ protocol LinkedListModel: DatabaseModelInterface {
     func remove(_ node: NodeObject, on db: Database) async throws -> NodeObject
     func afterRemove(_ node: NodeObject, on req: Request) async throws
     
-    func beforeRemoveAll(on req: Request) async throws
-    func removeAll(on req: Request) async throws
-    func removeAll(on db: Database) async throws
-    func afterRemoveAll(on req: Request) async throws
-    
     func beforeSwap(_ node1: inout NodeObject, _ node2: inout NodeObject, on req: Request) async throws
     func swap(_ node1: inout NodeObject, _ node2: inout NodeObject, on req: Request) async throws
     func swap(_ node1: inout NodeObject, _ node2: inout NodeObject, on db: Database) async throws
@@ -138,38 +133,6 @@ extension LinkedListModel {
         try await self.load(on: db)
         /// return the value of the deleted node
         return node
-    }
-    
-    // MARK: - remove all
-    
-    func beforeRemoveAll(on req: Request) async throws { }
-    func afterRemoveAll(on req: Request) async throws { }
-    func removeAll(on req: Request) async throws {
-        try await beforeRemoveAll(on: req)
-        try await removeAll(on: req.db)
-        try await afterRemoveAll(on: req)
-    }
-    
-    func removeAll(on db: Database) async throws {
-        /// load the last node of the list
-        try await self.lastProperty.load(on: db)
-        /// set the item to delete to the last node of the list
-        var nodeToDelete: NodeObject? = self.last
-        /// while there is an node to delete
-        while nodeToDelete != nil {
-            /// load the previous node of the node to delete
-            try await nodeToDelete!.previousProperty.load(on: db)
-            /// set the next node to be deleted to the previous node of the one that will now be deleted
-            let nextNodeToDelete = nodeToDelete!.previous
-            /// delete the node on the db
-            try await nodeToDelete!.delete(on: db)
-            /// set the node to be deleted to the one before
-            nodeToDelete = nextNodeToDelete
-        }
-    // TODO: call delete?
-        /// Set the list properties to nil
-//        self.lastProperty.id = nil
-//        self.currentProperty.id = nil
     }
     
     // MARK: - swap
