@@ -64,7 +64,7 @@ final class WaypointApiDeleteTests: AppTestCase {
         return waypointRepository
     }
     
-    func testSuccessfullDeleteUnverifiedWaypointAsModerator() async throws {
+    func testSuccessfulDeleteUnverifiedWaypointAsModerator() async throws {
         // Get original waypoint count
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
         
@@ -83,7 +83,7 @@ final class WaypointApiDeleteTests: AppTestCase {
         XCTAssertEqual(newWaypointCount, waypointCount)
     }
     
-    func testSuccessfullDeleteVerifiedWaypointAsModerator() async throws {
+    func testSuccessfulDeleteVerifiedWaypointAsModerator() async throws {
         // Get original waypoint count
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
         

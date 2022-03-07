@@ -64,7 +64,7 @@ final class WaypointApiGetTests: AppTestCase {
         return (waypointRepository, waypointModel)
     }
     
-    func testSuccessfullListVerifiedWaypointsWithPreferredLanguageReturnsVerifiedModelsForAllLanguagesButPrefersSpecifiedLanguage() async throws {
+    func testSuccessfulListVerifiedWaypointsWithPreferredLanguageReturnsVerifiedModelsForAllLanguagesButPrefersSpecifiedLanguage() async throws {
         let language = try await createLanguage()
         let language2 = try await createLanguage(languageCode: "de", name: "Deutsch", isRTL: false)
         XCTAssertLessThan(language.priority, language2.priority)
