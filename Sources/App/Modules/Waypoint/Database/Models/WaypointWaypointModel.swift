@@ -8,54 +8,69 @@
 import Vapor
 import Fluent
 
-final class WaypointWaypointModel: NodeModel {
+final class WaypointWaypointModel: DatabaseModelInterface {
     typealias Module = WaypointModule
     
     struct FieldKeys {
         struct v1 {
-            static var locationId: FieldKey { "location_id" }
+            static var verified: FieldKey { "verified" }
             static var titleId: FieldKey { "title_id" }
             static var descriptionId: FieldKey { "description_id" }
-            static var previousId: FieldKey { "previous_id" }
+            static var locationId: FieldKey { "location_id" }
+            static var languageId: FieldKey { "language_id" }
+            static var repositoryId: FieldKey { "repository_id" }
             static var userId: FieldKey { "user_id" }
             static var createdAt: FieldKey { "created_at" }
+            static var updatedAt: FieldKey { "updated_at" }
+            static var deletedAt: FieldKey { "deleted_at" }
         }
     }
     
     @ID() var id: UUID?
+    @Field(key: FieldKeys.v1.verified) var verified: Bool
     
-    @Parent(key: FieldKeys.v1.titleId) var title: EditableObjectModel<String>
-    @Parent(key: FieldKeys.v1.descriptionId) var description: EditableObjectModel<String>
-    @Parent(key: FieldKeys.v1.locationId) var location: EditableObjectModel<Waypoint.Location>
+    @Parent(key: FieldKeys.v1.titleId) var title: StorableObjectModel<String>
+    @Parent(key: FieldKeys.v1.descriptionId) var description: StorableObjectModel<String>
+    @Parent(key: FieldKeys.v1.locationId) var location: StorableObjectModel<Waypoint.Location>
+    
+    // TODO: language!
     
     @Children(for: \.$waypoint) var media: [WaypointMediaModel]
     
     // TODO: likes as sibling?
     
-    @OptionalChild(for: \.$previous) var next: WaypointWaypointModel?
-    @OptionalParent(key: FieldKeys.v1.previousId) var previous: WaypointWaypointModel?
+    @Parent(key: FieldKeys.v1.languageId) var language: LanguageModel
     
-    var nextProperty: OptionalChildProperty<WaypointWaypointModel, WaypointWaypointModel> { $next }
-    var previousProperty: OptionalParentProperty<WaypointWaypointModel, WaypointWaypointModel> { $previous }
-    
+    @Parent(key: FieldKeys.v1.repositoryId) var repository: WaypointRepositoryModel
     @Parent(key: FieldKeys.v1.userId) var user: UserAccountModel
+
     @Timestamp(key: FieldKeys.v1.createdAt, on: .create) var createdAt: Date?
+    @Timestamp(key: FieldKeys.v1.updatedAt, on: .update) var updatedAt: Date?
     
+    // MARK: soft delete
+    @Timestamp(key: FieldKeys.v1.deletedAt, on: .delete) var deletedAt: Date?
+
     init() { }
     
     init(
         id: UUID? = nil,
+        verified: Bool = false,
         titleId: UUID,
         descriptionId: UUID,
         locationId: UUID,
-        previousId: UUID? = nil,
+        languageId: UUID,
+        repositoryId: UUID? = nil,
         userId: UUID
     ) {
         self.id = id
+        self.verified = verified
         self.$title.id = titleId
         self.$description.id = descriptionId
         self.$location.id = locationId
-        self.$previous.id = previousId
+        self.$language.id = languageId
+        if let repositoryId = repositoryId {
+            self.$repository.id = repositoryId
+        }
         self.$user.id = userId
     }
 }
@@ -67,46 +82,56 @@ extension WaypointWaypointModel: Equatable {
 }
 
 extension WaypointWaypointModel {
-    func last<T>(for keyPath: KeyPath<WaypointWaypointModel, ParentProperty<WaypointWaypointModel, EditableObjectModel<T>>>, on db: Database) async throws -> EditableObjectModel<T> {
-        let nodeProperty = self[keyPath: keyPath]
-        try await nodeProperty.load(on: db)
-        var node = nodeProperty.wrappedValue
-        try await node.nextProperty.load(on: db)
-        while let nextNode = node.next {
-            try await nextNode.nextProperty.load(on: db)
-            node = nextNode
-        }
-        return node
+    func set<T>(_ keyPath: KeyPath<WaypointWaypointModel, ParentProperty<WaypointWaypointModel, StorableObjectModel<T>>>, to newValue: T, _ userId: UUID, on db: Database) async throws {
+        let newObject = StorableObjectModel<T>(value: newValue, userId: userId)
+        try await newObject.create(on: db)
+        let property = self[keyPath: keyPath]
+        property.id = try newObject.requireID()
     }
     
-    func append<T>(_ keyPath: KeyPath<WaypointWaypointModel, ParentProperty<WaypointWaypointModel, EditableObjectModel<T>>>, _ newValue: T, on req: Request) async throws -> EditableObjectModel<T> {
-        let user = try req.auth.require(AuthenticatedUser.self)
-        let lastNode = try await last(for: keyPath, on: req.db)
-        let newNode = EditableObjectModel<T>(value: newValue, userId: user.id)
-        try await lastNode.$next.create(newNode, on: req.db)
-        return newNode
+    func with(
+        title: String,
+        description: String,
+        location: Waypoint.Location,
+        repositoryId: UUID,
+        languageId: UUID,
+        userId: UUID,
+        verified: Bool,
+        on db: Database
+    ) async throws {
+        try await self.set(\.$title, to: title, userId, on: db)
+        try await self.set(\.$description, to: description, userId, on: db)
+        try await self.set(\.$location, to: location, userId, on: db)
+        self.$repository.id = repositoryId
+        self.$language.id = languageId
+        self.$user.id = userId
+        self.verified = verified
     }
-}
-
-extension WaypointWaypointModel {
+    
     static func createWith(
         title: String,
         description: String,
         location: Waypoint.Location,
+        repositoryId: UUID,
+        languageId: UUID,
         userId: UUID,
+        verified: Bool,
         on db: Database
     ) async throws -> Self {
-        let title = EditableObjectModel<String>(value: title, userId: userId)
+        let title = StorableObjectModel<String>(value: title, userId: userId)
         try await title.create(on: db)
-        let description = EditableObjectModel<String>(value: description, userId: userId)
+        let description = StorableObjectModel<String>(value: description, userId: userId)
         try await description.create(on: db)
-        let location = EditableObjectModel<Waypoint.Location>(value: location, userId: userId)
+        let location = StorableObjectModel<Waypoint.Location>(value: location, userId: userId)
         try await location.create(on: db)
         
         let waypoint = try self.init(
+            verified: verified,
             titleId: title.requireID(),
             descriptionId: description.requireID(),
             locationId: location.requireID(),
+            languageId: languageId,
+            repositoryId: repositoryId,
             userId: userId
         )
         try await waypoint.create(on: db)
@@ -116,23 +141,9 @@ extension WaypointWaypointModel {
 
 extension WaypointWaypointModel {
     func load(on db: Database) async throws {
-        try await self.loadTitle(on: db)
-        try await self.loadDescription(on: db)
-        try await self.loadLocation(on: db)
-    }
-    
-    func loadTitle(on db: Database) async throws {
         try await self.$title.load(on: db)
-        try await self.title.load(on: db)
-    }
-    
-    func loadDescription(on db: Database) async throws {
         try await self.$description.load(on: db)
-        try await self.description.load(on: db)
-    }
-    
-    func loadLocation(on db: Database) async throws {
         try await self.$location.load(on: db)
-        try await self.location.load(on: db)
+        try await self.$language.load(on: db)
     }
 }

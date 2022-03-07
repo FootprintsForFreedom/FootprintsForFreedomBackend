@@ -13,24 +13,54 @@ import Spec
 final class WaypointApiDeleteTests: AppTestCase {
     let waypointsPath = "api/waypoints/"
     
+    private func createLanguage(
+        languageCode: String = "en",
+        name: String = "English",
+        isRTL: Bool = false
+    ) async throws -> LanguageModel {
+        let highestPriority = try await LanguageModel
+            .query(on: app.db)
+            .sort(\.$priority, .descending)
+            .first()?.priority ?? 0
+        
+        let language = LanguageModel(languageCode: languageCode, name: name, isRTL: isRTL, priority: highestPriority + 1)
+        try await language.create(on: app.db)
+        return language
+    }
+    
     private func createNewWaypoint(
         title: String = "New Waypoint Title",
         description: String = "New Waypoint Description",
         location: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
         verified: Bool = false,
+        languageId: UUID? = nil,
         userId: UUID? = nil
     ) async throws -> WaypointRepositoryModel {
         var userId: UUID! = userId
         if userId == nil {
             userId = try await getUser(role: .user).requireID()
         }
-        
-        let waypointModel = try await WaypointWaypointModel.createWith(title: title, description: description, location: location, userId: userId, on: app.db)
         let waypointRepository = WaypointRepositoryModel()
-        waypointRepository.verified = false
-        waypointRepository.currentProperty.id = try waypointModel.requireID()
-        waypointRepository.lastProperty.id = try waypointModel.requireID()
         try await waypointRepository.create(on: app.db)
+        
+        let languageId: UUID = try await {
+            if let languageId = languageId {
+                return languageId
+            } else {
+                return try await createLanguage().requireID()
+            }
+        }()
+        
+        let _ = try await WaypointWaypointModel.createWith(
+            title: title,
+            description: description,
+            location: location,
+            repositoryId: waypointRepository.requireID(),
+            languageId: languageId,
+            userId: userId,
+            verified: verified,
+            on: app.db
+        )
         return waypointRepository
     }
     
@@ -76,7 +106,7 @@ final class WaypointApiDeleteTests: AppTestCase {
         // Get original waypoint repository and model count
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
         let waypointModelCount = try await WaypointWaypointModel.query(on: app.db).count()
-        let editableObjectCount = try await EditableObjectModel<String>.query(on: app.db).count()
+        let editableObjectCount = try await StorableObjectModel<String>.query(on: app.db).count()
         
         let waypoint = try await createNewWaypoint(verified: true)
         let moderatorToken = try await getTokenFromOtherUser(role: .moderator)
@@ -91,7 +121,7 @@ final class WaypointApiDeleteTests: AppTestCase {
         // New waypoint count should be one less than original waypoint count
         let newWaypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
         let newWaypointModelCount = try await WaypointWaypointModel.query(on: app.db).count()
-        let newEditableObjectCount = try await EditableObjectModel<String>.query(on: app.db).count()
+        let newEditableObjectCount = try await StorableObjectModel<String>.query(on: app.db).count()
         XCTAssertEqual(newWaypointCount, waypointCount)
         XCTAssertEqual(newWaypointModelCount, waypointModelCount)
         XCTAssertEqual(newEditableObjectCount, editableObjectCount)

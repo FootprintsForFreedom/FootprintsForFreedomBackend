@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DiffMatchPatch
 
 public extension Waypoint {
     enum Waypoint: ApiModelInterface {
@@ -31,40 +32,45 @@ public extension Waypoint.Waypoint {
         public let title: String
         public let description: String
         public let location: Waypoint.Location
+        public let languageCode: String
         public let verified: Bool?
         
-        public static func publicDetail(id: UUID, title: String, description: String, location: Waypoint.Location) -> Self {
-            return .init(
-                id: id,
-                title: title,
-                description: description,
-                location: location
-            )
-        }
-        
-        public static func moderatorDetail(id: UUID, title: String, description: String, location: Waypoint.Location, verified: Bool) -> Self {
+        public static func publicDetail(id: UUID, title: String, description: String, location: Waypoint.Location, languageCode: String) -> Self {
             return .init(
                 id: id,
                 title: title,
                 description: description,
                 location: location,
+                languageCode: languageCode
+            )
+        }
+        
+        public static func moderatorDetail(id: UUID, title: String, description: String, location: Waypoint.Location, languageCode: String, verified: Bool) -> Self {
+            return .init(
+                id: id,
+                title: title,
+                description: description,
+                location: location,
+                languageCode: languageCode,
                 verified: verified
             )
         }
         
-        private init(id: UUID, title: String, description: String, location: Waypoint.Location) {
+        private init(id: UUID, title: String, description: String, location: Waypoint.Location, languageCode: String) {
             self.id = id
             self.title = title
             self.description = description
             self.location = location
+            self.languageCode = languageCode
             self.verified = nil
         }
         
-        private init(id: UUID, title: String, description: String, location: Waypoint.Location, verified: Bool) {
+        private init(id: UUID, title: String, description: String, location: Waypoint.Location, languageCode: String, verified: Bool) {
             self.id = id
             self.title = title
             self.description = description
             self.location = location
+            self.languageCode = languageCode
             self.verified = verified
         }
     }
@@ -73,11 +79,13 @@ public extension Waypoint.Waypoint {
         public let title: String
         public let description: String
         public let location: Waypoint.Location
+        public let languageCode: String
         
-        public init(title: String, description: String, location: Waypoint.Location) {
+        public init(title: String, description: String, location: Waypoint.Location, languageCode: String) {
             self.title = title
             self.description = description
             self.location = location
+            self.languageCode = languageCode
         }
     }
     
@@ -85,11 +93,13 @@ public extension Waypoint.Waypoint {
         public let title: String
         public let description: String
         public let location: Waypoint.Location
+        public let languageCode: String
         
-        public init(title: String, description: String, location: Waypoint.Location) {
+        public init(title: String, description: String, location: Waypoint.Location, languageCode: String) {
             self.title = title
             self.description = description
             self.location = location
+            self.languageCode = languageCode
         }
     }
     
@@ -97,11 +107,13 @@ public extension Waypoint.Waypoint {
         public let title: String?
         public let description: String?
         public let location: Waypoint.Location?
+        public let languageCode: String
         
-        public init(title: String?, description: String?, location: Waypoint.Location?) {
+        public init(title: String?, description: String?, location: Waypoint.Location?, languageCode: String) {
             self.title = title
             self.description = description
             self.location = location
+            self.languageCode = languageCode
         }
     }
 }
