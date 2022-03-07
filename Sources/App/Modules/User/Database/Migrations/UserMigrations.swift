@@ -11,7 +11,6 @@ import Fluent
 enum UserMigrations {
     
     struct v1: AsyncMigration {
-        
         func prepare(on db: Database) async throws {
             let userRole = try await db.enum(User.Role.pathKey)
                 .case(User.Role.user.rawValue)
@@ -49,7 +48,7 @@ enum UserMigrations {
                 .unique(on: UserVerificationTokenModel.FieldKeys.v1.userId)
                 .create()
         }
-
+        
         func revert(on db: Database) async throws  {
             try await db.schema(UserTokenModel.schema).delete()
             try await db.schema(UserVerificationTokenModel.schema).delete()
@@ -59,7 +58,6 @@ enum UserMigrations {
     }
     
     struct seed: AsyncMigration {
-        
         func prepare(on db: Database) async throws {
             let email = "root@localhost.com"
             let password = "ChangeMe1"
@@ -67,7 +65,7 @@ enum UserMigrations {
             user.role = .superAdmin
             try await user.create(on: db)
         }
-
+        
         func revert(on db: Database) async throws {
             try await UserAccountModel.query(on: db).delete()
         }
