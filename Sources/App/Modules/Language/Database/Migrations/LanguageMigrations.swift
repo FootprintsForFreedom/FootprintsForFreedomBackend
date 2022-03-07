@@ -32,4 +32,24 @@ enum LanguageMigrations {
             try await db.schema(LanguageModel.schema).delete()
         }
     }
+    
+    struct seed: AsyncMigration {
+        func prepare(on db: Database) async throws {
+            let languageCode = "de"
+            let name = "Deutsch"
+            let isRTL = false
+            let priority = 1
+            let language = LanguageModel(
+                languageCode: languageCode,
+                name: name,
+                isRTL: isRTL,
+                priority: priority
+            )
+            try await language.create(on: db)
+        }
+        
+        func revert(on db: Database) async throws {
+            try await LanguageModel.query(on: db).delete()
+        }
+    }
 }

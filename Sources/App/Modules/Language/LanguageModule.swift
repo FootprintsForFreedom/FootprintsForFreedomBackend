@@ -13,6 +13,7 @@ struct LanguageModule: ModuleInterface {
     
     func boot(_ app: Application) throws {
         app.migrations.add(LanguageMigrations.v1())
+        app.migrations.add(LanguageMigrations.seed())
         
         app.middleware.use(UserTokenAuthenticator())
         

@@ -115,7 +115,7 @@ final class WaypointApiUpdateTests: AppTestCaseWithToken {
     
     func testSuccessfulUpdateWithNewLanguage() async throws {
         let (waypointRepository, _) = try await createNewWaypoint()
-        let secondLanguage = try await createLanguage(languageCode: "de", name: "Deutsch", isRTL: false)
+        let secondLanguage = try await createLanguage(languageCode: "ab", name: "Language", isRTL: false)
         
         let updateContent = Waypoint.Waypoint.Update(
             title: "Language 2",

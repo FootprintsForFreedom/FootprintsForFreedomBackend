@@ -110,7 +110,12 @@ final class LanguageApiCreateTests: AppTestCase {
     
     func testCreateLanguageNeedsUniqueLanguageCode() async throws  {
         let token = try await getTokenFromOtherUser(role: .admin)
-        let createdLanguage = LanguageModel(languageCode: "en", name: "English", isRTL: false, priority: 1)
+        
+        let highestPriority = try await LanguageModel
+            .query(on: app.db)
+            .sort(\.$priority, .descending)
+            .first()?.priority ?? 0
+        let createdLanguage = LanguageModel(languageCode: "en", name: "English", isRTL: false, priority: highestPriority + 1)
         try await createdLanguage.create(on: app.db)
         let newLanguage = getLanguageCreateContent(languageCode: "en")
         

@@ -66,7 +66,7 @@ final class WaypointApiGetTests: AppTestCase {
     
     func testSuccessfulListVerifiedWaypointsWithPreferredLanguageReturnsVerifiedModelsForAllLanguagesButPrefersSpecifiedLanguage() async throws {
         let language = try await createLanguage()
-        let language2 = try await createLanguage(languageCode: "de", name: "Deutsch", isRTL: false)
+        let language2 = try await createLanguage(languageCode: "ab", name: "Language", isRTL: false)
         XCTAssertLessThan(language.priority, language2.priority)
         
         let userId = try await getUser(role: .user).requireID()
@@ -131,7 +131,7 @@ final class WaypointApiGetTests: AppTestCase {
     
     func testSuccessfullListVerifiedWaypointsWithoutPreferredLanguageReturnsVerifiedModlesForAllLanguagesAccordingToTheirPriority() async throws {
         let language = try await createLanguage()
-        let language2 = try await createLanguage(languageCode: "de", name: "Deutsch", isRTL: false)
+        let language2 = try await createLanguage(languageCode: "ab", name: "Language", isRTL: false)
         XCTAssertLessThan(language.priority, language2.priority)
         
         let userId = try await getUser(role: .user).requireID()
