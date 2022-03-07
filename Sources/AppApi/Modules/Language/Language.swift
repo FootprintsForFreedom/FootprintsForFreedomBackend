@@ -45,36 +45,36 @@ public extension Language.Language {
     }
     
     struct Create: Codable {
-        public let lanuageCode: String
+        public let languageCode: String
         public let name: String
         public let isRTL: Bool
         
         public init(languageCode: String, name: String, isRTL: Bool) {
-            self.lanuageCode = languageCode
+            self.languageCode = languageCode
             self.name = name
             self.isRTL = isRTL
         }
     }
     
     struct Update: Codable {
-        public let lanuageCode: String
+        public let languageCode: String
         public let name: String
         public let isRTL: Bool
         
         public init(languageCode: String, name: String, isRTL: Bool) {
-            self.lanuageCode = languageCode
+            self.languageCode = languageCode
             self.name = name
             self.isRTL = isRTL
         }
     }
     
     struct Patch: Codable {
-        public let lanuageCode: String?
+        public let languageCode: String?
         public let name: String?
         public let isRTL: Bool?
         
         public init(languageCode: String?, name: String?, isRTL: Bool?) {
-            self.lanuageCode = languageCode
+            self.languageCode = languageCode
             self.name = name
             self.isRTL = isRTL
         }

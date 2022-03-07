@@ -74,20 +74,20 @@ struct LanguageApiController: ApiController {
             .sort(\.$priority, .descending)
             .first()?.priority ?? 0
         
-        model.languageCode = input.lanuageCode
+        model.languageCode = input.languageCode
         model.name = input.name
         model.isRTL = input.isRTL
         model.priority = currentHighestPriority + 1
     }
     
     func updateInput(_ req: Request, _ model: LanguageModel, _ input: Language.Language.Update) async throws {
-        model.languageCode = input.lanuageCode
+        model.languageCode = input.languageCode
         model.name = input.name
         model.isRTL = input.isRTL
     }
     
     func patchInput(_ req: Request, _ model: LanguageModel, _ input: Language.Language.Patch) async throws {
-        model.languageCode = input.lanuageCode ?? model.languageCode
+        model.languageCode = input.languageCode ?? model.languageCode
         model.name = input.name ?? model.name
         model.isRTL = input.isRTL ?? model.isRTL
     }
