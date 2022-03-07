@@ -55,3 +55,10 @@ public extension KeyedContentValidator where T == UUID {
         .init(key, message ?? "\(key.capitalized) is required", optional: optional) { _, _ in true }
     }
 }
+
+public extension KeyedContentValidator where T == Bool {
+    
+    static func required(_ key: String, _ message: String? = nil, optional: Bool = false) -> KeyedContentValidator<T> {
+        .init(key, message ?? "\(key.capitalized) is required", optional: optional) { _, _ in true }
+    }
+}
