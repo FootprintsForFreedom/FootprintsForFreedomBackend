@@ -141,6 +141,26 @@ final class LanguageApiCreateTests: AppTestCase {
             .test()
     }
     
+    func testCreateLanguageNeedsUniqueName() async throws {
+        let token = try await getTokenFromOtherUser(role: .admin)
+        
+        let highestPriority = try await LanguageModel
+            .query(on: app.db)
+            .sort(\.$priority, .descending)
+            .first()?.priority ?? 0
+        let createdLanguage = LanguageModel(languageCode: "en", name: "English", isRTL: false, priority: highestPriority + 1)
+        try await createdLanguage.create(on: app.db)
+        let newLanguage = getLanguageCreateContent(name: "English")
+        
+        try app
+            .describe("Create language with already present name should fail")
+            .post(languagesPath)
+            .body(newLanguage)
+            .bearerToken(token)
+            .expect(.badRequest)
+            .test()
+    }
+    
     func testCreateLanguageNeedsIsRTL() async throws {
         let token = try await getTokenFromOtherUser(role: .admin)
         struct Create: Content {

@@ -38,6 +38,16 @@ struct LanguageApiController: ApiController {
         }
     }
     
+    func requireUniqueName(_ req: Request, _ model: LanguageModel) async throws {
+        guard try await LanguageModel
+                .query(on: req.db)
+                .filter(\.$name == model.name)
+                .count() == 0
+        else {
+            throw Abort(.badRequest)
+        }
+    }
+    
     func getBaseRoutes(_ routes: RoutesBuilder) -> RoutesBuilder {
         routes.grouped("languages")
     }
@@ -105,6 +115,7 @@ struct LanguageApiController: ApiController {
     func beforeCreate(_ req: Request, _ model: LanguageModel) async throws {
         try await onlyForAdmin(req)
         try await requireUniqueLanguageCode(req, model)
+        try await requireUniqueName(req, model)
     }
     
     func createInput(_ req: Request, _ model: LanguageModel, _ input: Language.Language.Create) async throws {
@@ -121,7 +132,15 @@ struct LanguageApiController: ApiController {
     
     func beforeUpdate(_ req: Request, _ model: LanguageModel) async throws {
         try await onlyForAdmin(req)
-        try await requireUniqueLanguageCode(req, model)
+        guard let savedLanguage = try await LanguageModel.find(model.requireID(), on: req.db) else {
+            throw Abort(.badRequest)
+        }
+        if savedLanguage.languageCode != model.languageCode {
+            try await requireUniqueLanguageCode(req, model)
+        }
+        if savedLanguage.name != model.name {
+            try await requireUniqueName(req, model)
+        }
     }
     
     func updateInput(_ req: Request, _ model: LanguageModel, _ input: Language.Language.Update) async throws {
@@ -132,8 +151,14 @@ struct LanguageApiController: ApiController {
     
     func beforePatch(_ req: Request, _ model: LanguageModel) async throws {
         try await onlyForAdmin(req)
-        if try await LanguageModel.find(model.requireID(), on: req.db)?.languageCode != model.languageCode {
+        guard let savedLanguage = try await LanguageModel.find(model.requireID(), on: req.db) else {
+            throw Abort(.badRequest)
+        }
+        if savedLanguage.languageCode != model.languageCode {
             try await requireUniqueLanguageCode(req, model)
+        }
+        if savedLanguage.name != model.name {
+            try await requireUniqueName(req, model)
         }
     }
     

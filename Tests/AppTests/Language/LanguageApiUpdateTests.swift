@@ -148,6 +148,27 @@ final class LanguageApiUpdateTests: AppTestCase {
             .test()
     }
     
+    func testUpdateLanguageNeedsUniqueName() async throws {
+        let token = try await getTokenFromOtherUser(role: .admin)
+        let language = try await createLanguage()
+        
+        let highestPriority = try await LanguageModel
+            .query(on: app.db)
+            .sort(\.$priority, .descending)
+            .first()?.priority ?? 0
+        let createdLanguage = LanguageModel(languageCode: "en", name: "English", isRTL: false, priority: highestPriority + 1)
+        try await createdLanguage.create(on: app.db)
+        let updatedLanguage = getLanguageUpdateContent(name: "English")
+        
+        try app
+            .describe("Update language with already present name should fail")
+            .put(languagesPath.appending(language.requireID().uuidString))
+            .body(updatedLanguage)
+            .bearerToken(token)
+            .expect(.badRequest)
+            .test()
+    }
+    
     func testUpdateLanguageNeedsIsRTL() async throws {
         let token = try await getTokenFromOtherUser(role: .admin)
         let language = try await createLanguage()

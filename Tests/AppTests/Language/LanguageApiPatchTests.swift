@@ -201,4 +201,25 @@ final class LanguageApiPatchTests: AppTestCase {
             .expect(.badRequest)
             .test()
     }
+    
+    func testPatchLanguageNeedsUniqueName() async throws {
+        let token = try await getTokenFromOtherUser(role: .admin)
+        let language = try await createLanguage()
+        
+        let highestPriority = try await LanguageModel
+            .query(on: app.db)
+            .sort(\.$priority, .descending)
+            .first()?.priority ?? 0
+        let createdLanguage = LanguageModel(languageCode: "en", name: "English", isRTL: false, priority: highestPriority + 1)
+        try await createdLanguage.create(on: app.db)
+        let patchedLanguage = getLanguagePatchContent(name: "English")
+        
+        try app
+            .describe("Create language with already present name should fail")
+            .patch(languagesPath.appending(language.requireID().uuidString))
+            .body(patchedLanguage)
+            .bearerToken(token)
+            .expect(.badRequest)
+            .test()
+    }
 }
