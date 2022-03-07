@@ -54,6 +54,7 @@ enum UserMigrations {
             try await db.schema(UserTokenModel.schema).delete()
             try await db.schema(UserVerificationTokenModel.schema).delete()
             try await db.schema(UserAccountModel.schema).delete()
+            try await db.enum(User.Role.pathKey).delete()
         }
     }
     
