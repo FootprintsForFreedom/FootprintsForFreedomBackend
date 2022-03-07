@@ -42,7 +42,8 @@ public func configure(_ app: Application) throws {
     let modules: [ModuleInterface] = [
 //        WebModule(),
         UserModule(),
-        EditableObjectModule(),
+        LanguageModule(),
+        StorableModule(),
         WaypointModule(),
 //        AdminModule(),
         ApiModule(),
