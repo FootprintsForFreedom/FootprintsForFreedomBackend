@@ -50,7 +50,7 @@ extension LanguageModel {
     static func languageCodesByPriority(preferredLanguageCode: String? = nil, on db: Database) async throws -> [String] {
         return try await self
             .query(on: db)
-            .sort(\.$priority, .ascending)
+            .sort(\.$priority, .ascending) // Lowest value first
             .all()
             .map { $0.languageCode }
             .inserting(preferredLanguageCode, at: 0)
