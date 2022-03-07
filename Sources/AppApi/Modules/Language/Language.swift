@@ -32,13 +32,13 @@ public extension Language.Language {
     
     struct Detail: Codable {
         public let id: UUID
-        public let lanuageCode: String
+        public let languageCode: String
         public let name: String
         public let isRTL: Bool
         
         public init(id: UUID, languageCode: String, name: String, isRTL: Bool) {
             self.id = id
-            self.lanuageCode = languageCode
+            self.languageCode = languageCode
             self.name = name
             self.isRTL = isRTL
         }
