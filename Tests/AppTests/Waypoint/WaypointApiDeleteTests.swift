@@ -170,7 +170,7 @@ final class WaypointApiDeleteTests: AppTestCase {
         let moderatorToken = try await getTokenFromOtherUser(role: .moderator)
         
         try app
-            .describe("Delete waypoint without token fails")
+            .describe("Delete non-existant waypoint fails")
             .delete(waypointsPath.appending(UUID().uuidString))
             .bearerToken(moderatorToken)
             .expect(.notFound)
