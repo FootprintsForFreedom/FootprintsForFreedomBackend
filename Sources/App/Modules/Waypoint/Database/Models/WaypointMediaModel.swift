@@ -27,9 +27,9 @@ final class WaypointMediaModel: DatabaseModelInterface {
     @ID() var id: UUID?
     @Field(key: FieldKeys.v1.verified) var verified: Bool
     
-    @Parent(key: FieldKeys.v1.titleId) var title: EditableObjectModel<String>
-    @Parent(key: FieldKeys.v1.descriptionId) var description: EditableObjectModel<String>
-    @Parent(key: FieldKeys.v1.sourceId) var source: EditableObjectModel<String>
+    @Parent(key: FieldKeys.v1.titleId) var title: StorableObjectModel<String>
+    @Parent(key: FieldKeys.v1.descriptionId) var description: StorableObjectModel<String>
+    @Parent(key: FieldKeys.v1.sourceId) var source: StorableObjectModel<String>
     
     @Enum(key: FieldKeys.v1.group) var group: Waypoint.Media.Group
     
