@@ -107,7 +107,7 @@ final class UserApiGetTests: AppTestCaseWithModeratorAndNormalToken {
     
     func testGetUserAsSuperAdmin() async throws {
         let user = try await createNewUser()
-        let superAdminToken = try await getTokenFromOtherUser(role: .superAdmin)
+        let superAdminToken = try await getToken(for: .superAdmin)
         
         try app
             .describe("Get user should return ok")

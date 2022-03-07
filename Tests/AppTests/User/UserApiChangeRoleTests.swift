@@ -39,7 +39,7 @@ final class UserApiChangeRoleTests: AppTestCase {
                 XCTAssertNotEqual(changingUserRole, .user)
                 XCTAssertGreaterThanOrEqual(changingUserRole, userRole)
                 
-                let changingUserToken = try await getTokenFromOtherUser(role: changingUserRole)
+                let changingUserToken = try await getToken(for: changingUserRole)
                 let possibleNewRoleForUser = allRoles.filter { $0 <= changingUserRole }
                 
                 for newRole in possibleNewRoleForUser {
@@ -83,7 +83,7 @@ final class UserApiChangeRoleTests: AppTestCase {
                 XCTAssertNotEqual(changingUserRole, .user)
                 XCTAssertGreaterThanOrEqual(changingUserRole, userRole)
                 
-                let changingUserToken = try await getTokenFromOtherUser(role: changingUserRole)
+                let changingUserToken = try await getToken(for: changingUserRole)
                 let rolesHigherThanChangingUser = allRoles.filter { $0 > changingUserRole }
                 
                 for newRole in rolesHigherThanChangingUser {
@@ -114,7 +114,7 @@ final class UserApiChangeRoleTests: AppTestCase {
             for changingUserRole in rolesToNotBeAbleToChangeUserRole {
                 XCTAssertLessThan(changingUserRole, userRole)
                 
-                let changingUserToken = try await getTokenFromOtherUser(role: changingUserRole)
+                let changingUserToken = try await getToken(for: changingUserRole)
                 let rolesHigherThanChangingUser = allRoles.filter { $0 > changingUserRole }
                 
                 for newRole in rolesHigherThanChangingUser {
@@ -154,7 +154,7 @@ final class UserApiChangeRoleTests: AppTestCase {
     
     func testChangeUserRoleWithWrongPayloadFails() async throws {
         let user = try await createNewUser()
-        let changingUserToken = try await getTokenFromOtherUser(role: .superAdmin)
+        let changingUserToken = try await getToken(for: .superAdmin)
         
         try app
             .describe("Changing user role with wrong payload fails")

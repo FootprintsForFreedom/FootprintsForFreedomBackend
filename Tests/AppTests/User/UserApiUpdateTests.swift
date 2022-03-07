@@ -105,7 +105,7 @@ final class UserApiUpdateTests: AppTestCase {
     
     func testSuccessfulUpdateUserFromDifferentModeratorUser() async throws {
         let (user, _, updateContent) = try await getUserUpdateContent()
-        let moderatorToken = try await getTokenFromOtherUser(role: .moderator)
+        let moderatorToken = try await getToken(for: .moderator)
         
         try app
             .describe("Update user from other admin user should return ok")
@@ -127,7 +127,7 @@ final class UserApiUpdateTests: AppTestCase {
     
     func testUpdateUserFromDifferentUserFails() async throws {
         let (user, _, updateContent) = try await getUserUpdateContent()
-        let token = try await getTokenFromOtherUser(role: .user)
+        let token = try await getToken(for: .user)
         
         try app
             .describe("Update user from other non admin user should fail")

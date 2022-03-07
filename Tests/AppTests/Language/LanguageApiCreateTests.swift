@@ -24,7 +24,7 @@ final class LanguageApiCreateTests: AppTestCase {
     }
     
     func testSuccessfulCreateLanguageAsAdmin() async throws {
-        let token = try await getTokenFromOtherUser(role: .admin)
+        let token = try await getToken(for: .admin)
         for _ in 0...3 {
             let newLanguage = getLanguageCreateContent()
             
@@ -59,7 +59,7 @@ final class LanguageApiCreateTests: AppTestCase {
     }
     
     func testCreateLanguageAsModeratorFails() async throws {
-        let token = try await getTokenFromOtherUser(role: .moderator)
+        let token = try await getToken(for: .moderator)
         let newLanguage = getLanguageCreateContent()
         
         try app
@@ -72,7 +72,7 @@ final class LanguageApiCreateTests: AppTestCase {
     }
     
     func testCreateLanguageAsUserFails() async throws {
-        let token = try await getTokenFromOtherUser(role: .user)
+        let token = try await getToken(for: .user)
         let newLanguage = getLanguageCreateContent()
         
         try app
@@ -96,7 +96,7 @@ final class LanguageApiCreateTests: AppTestCase {
     }
     
     func testCreateLanguageNeedsValidLanguageCode() async throws {
-        let token = try await getTokenFromOtherUser(role: .admin)
+        let token = try await getToken(for: .admin)
         let newLanguage = getLanguageCreateContent(languageCode: "")
         
         try app
@@ -109,7 +109,7 @@ final class LanguageApiCreateTests: AppTestCase {
     }
     
     func testCreateLanguageNeedsUniqueLanguageCode() async throws  {
-        let token = try await getTokenFromOtherUser(role: .admin)
+        let token = try await getToken(for: .admin)
         
         let highestPriority = try await LanguageModel
             .query(on: app.db)
@@ -129,7 +129,7 @@ final class LanguageApiCreateTests: AppTestCase {
     }
     
     func testCreateLanguageNeedsValidName() async throws {
-        let token = try await getTokenFromOtherUser(role: .admin)
+        let token = try await getToken(for: .admin)
         let newLanguage = getLanguageCreateContent(name: "")
         
         try app
@@ -142,7 +142,7 @@ final class LanguageApiCreateTests: AppTestCase {
     }
     
     func testCreateLanguageNeedsUniqueName() async throws {
-        let token = try await getTokenFromOtherUser(role: .admin)
+        let token = try await getToken(for: .admin)
         
         let highestPriority = try await LanguageModel
             .query(on: app.db)
@@ -162,7 +162,7 @@ final class LanguageApiCreateTests: AppTestCase {
     }
     
     func testCreateLanguageNeedsIsRTL() async throws {
-        let token = try await getTokenFromOtherUser(role: .admin)
+        let token = try await getToken(for: .admin)
         struct Create: Content {
             public let languageCode: String
             public let name: String

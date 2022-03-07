@@ -83,7 +83,7 @@ final class WaypointApiCreateTests: AppTestCaseWithToken  {
     }
     
     func testSuccessfulCreateWaypointAsModerator() async throws {
-        let moderatorToken = try await getTokenFromOtherUser(role: .moderator)
+        let moderatorToken = try await getToken(for: .moderator)
         let newWaypoint = try await getWaypointCreateContent()
         
         // Get original waypoint count

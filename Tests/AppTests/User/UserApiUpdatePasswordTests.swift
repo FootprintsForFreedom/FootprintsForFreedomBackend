@@ -116,8 +116,8 @@ final class UserApiUpdatePasswordTests: AppTestCase {
     
     func testUpdateUserPasswordFromDifferentUserFails() async throws {
         let (user, _, updatePasswordContent) = try await getUserUpdatePasswordContent()
-        let token = try await getTokenFromOtherUser(role: .user)
-        let moderatorToken = try await getTokenFromOtherUser(role: .moderator)
+        let token = try await getToken(for: .user)
+        let moderatorToken = try await getToken(for: .moderator)
         
         try app
             .describe("Update user password from different user fails; Update password fails")

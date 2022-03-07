@@ -72,8 +72,8 @@ final class UserApiEmailVerificationTests: AppTestCase {
         let (user, _) = try await createNewUser()
         XCTAssertFalse(user.verified)
         
-        let token = try await getTokenFromOtherUser(role: .user)
-        let moderatorToken = try await getTokenFromOtherUser(role: .moderator)
+        let token = try await getToken(for: .user)
+        let moderatorToken = try await getToken(for: .moderator)
         
         try app
             .describe("Different user should not be able to request verification")

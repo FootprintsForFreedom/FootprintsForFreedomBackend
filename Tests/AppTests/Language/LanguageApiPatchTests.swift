@@ -39,7 +39,7 @@ final class LanguageApiPatchTests: AppTestCase {
     }
     
     func testSuccessfulPatchLanguageCodeAsAdmin() async throws {
-        let token = try await getTokenFromOtherUser(role: .admin)
+        let token = try await getToken(for: .admin)
         let language = try await createLanguage()
         let patchedLanguage = getLanguagePatchContent(languageCode: "en")
         
@@ -59,7 +59,7 @@ final class LanguageApiPatchTests: AppTestCase {
     }
     
     func testSuccessfulPatchLanguageNameAsAdmin() async throws {
-        let token = try await getTokenFromOtherUser(role: .admin)
+        let token = try await getToken(for: .admin)
         let language = try await createLanguage()
         let patchedLanguage = getLanguagePatchContent(name: "English")
         
@@ -79,7 +79,7 @@ final class LanguageApiPatchTests: AppTestCase {
     }
     
     func testSuccessfulPatchLanguageRTLAsAdmin() async throws {
-        let token = try await getTokenFromOtherUser(role: .admin)
+        let token = try await getToken(for: .admin)
         let language = try await createLanguage()
         let patchedLanguage = getLanguagePatchContent(isRTL: true)
         
@@ -99,7 +99,7 @@ final class LanguageApiPatchTests: AppTestCase {
     }
     
     func testEmptyPatchFails() async throws {
-        let token = try await getTokenFromOtherUser(role: .admin)
+        let token = try await getToken(for: .admin)
         let language = try await createLanguage()
         let patchedLanguage = getLanguagePatchContent()
         
@@ -113,7 +113,7 @@ final class LanguageApiPatchTests: AppTestCase {
     }
     
     func testPatchLanguageAsModeratorFails() async throws {
-        let token = try await getTokenFromOtherUser(role: .moderator)
+        let token = try await getToken(for: .moderator)
         let language = try await createLanguage()
         let patchedLanguage = getLanguagePatchContent(name: "English")
 
@@ -127,7 +127,7 @@ final class LanguageApiPatchTests: AppTestCase {
     }
     
     func testPatchLanguageAsUserFails() async throws {
-        let token = try await getTokenFromOtherUser(role: .user)
+        let token = try await getToken(for: .user)
         let language = try await createLanguage()
         let patchedLanguage = getLanguagePatchContent(name: "English")
 
@@ -153,7 +153,7 @@ final class LanguageApiPatchTests: AppTestCase {
     }
         
     func testPatchLanguageNeedsValidLanguageCode() async throws {
-        let token = try await getTokenFromOtherUser(role: .admin)
+        let token = try await getToken(for: .admin)
         let language = try await createLanguage()
         let patchedLanguage = getLanguagePatchContent(languageCode: "")
         
@@ -167,7 +167,7 @@ final class LanguageApiPatchTests: AppTestCase {
     }
     
     func testPatchLanguageNeedsUniqueLanguageCode() async throws  {
-        let token = try await getTokenFromOtherUser(role: .admin)
+        let token = try await getToken(for: .admin)
         let language = try await createLanguage()
         
         let highestPriority = try await LanguageModel
@@ -189,7 +189,7 @@ final class LanguageApiPatchTests: AppTestCase {
     }
     
     func testPatchLanguageNeedsValidName() async throws {
-        let token = try await getTokenFromOtherUser(role: .admin)
+        let token = try await getToken(for: .admin)
         let language = try await createLanguage()
         let patchedLanguage = getLanguagePatchContent(name: "")
         
@@ -203,7 +203,7 @@ final class LanguageApiPatchTests: AppTestCase {
     }
     
     func testPatchLanguageNeedsUniqueName() async throws {
-        let token = try await getTokenFromOtherUser(role: .admin)
+        let token = try await getToken(for: .admin)
         let language = try await createLanguage()
         
         let highestPriority = try await LanguageModel

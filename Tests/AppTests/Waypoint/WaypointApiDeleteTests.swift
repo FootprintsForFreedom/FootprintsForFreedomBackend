@@ -69,7 +69,7 @@ final class WaypointApiDeleteTests: AppTestCase {
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
         
         let waypoint = try await createNewWaypoint()
-        let moderatorToken = try await getTokenFromOtherUser(role: .moderator)
+        let moderatorToken = try await getToken(for: .moderator)
         
         try app
             .describe("A moderator should be able to delete a unverified waypoint")
@@ -88,7 +88,7 @@ final class WaypointApiDeleteTests: AppTestCase {
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
         
         let waypoint = try await createNewWaypoint(verified: true)
-        let moderatorToken = try await getTokenFromOtherUser(role: .moderator)
+        let moderatorToken = try await getToken(for: .moderator)
         
         try app
             .describe("A moderator should be able to delete a verified waypoint")
@@ -109,7 +109,7 @@ final class WaypointApiDeleteTests: AppTestCase {
         let editableObjectCount = try await StorableObjectModel<String>.query(on: app.db).count()
         
         let waypoint = try await createNewWaypoint(verified: true)
-        let moderatorToken = try await getTokenFromOtherUser(role: .moderator)
+        let moderatorToken = try await getToken(for: .moderator)
         
         try app
             .describe("A moderator should be able to delete a verified waypoint")
@@ -146,7 +146,7 @@ final class WaypointApiDeleteTests: AppTestCase {
     
     func testDeleteWaypointAsUserFails() async throws {
         let waypoint = try await createNewWaypoint()
-        let userToken = try await getTokenFromOtherUser(role: .user)
+        let userToken = try await getToken(for: .user)
         
         try app
             .describe("A user should not be able to delete a waypoint")
@@ -167,7 +167,7 @@ final class WaypointApiDeleteTests: AppTestCase {
     }
     
     func testDeleteNonExistingWaypointFails() async throws {
-        let moderatorToken = try await getTokenFromOtherUser(role: .moderator)
+        let moderatorToken = try await getToken(for: .moderator)
         
         try app
             .describe("Delete non-existant waypoint fails")

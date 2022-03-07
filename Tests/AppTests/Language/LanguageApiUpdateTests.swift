@@ -39,7 +39,7 @@ final class LanguageApiUpdateTests: AppTestCase {
     }
     
     func testSuccessfulUpdateLanguageAsAdmin() async throws {
-        let token = try await getTokenFromOtherUser(role: .admin)
+        let token = try await getToken(for: .admin)
         let language = try await createLanguage()
         let updatedLanguage = getLanguageUpdateContent()
         
@@ -59,7 +59,7 @@ final class LanguageApiUpdateTests: AppTestCase {
     }
     
     func testUpdateLanguageAsModeratorFails() async throws {
-        let token = try await getTokenFromOtherUser(role: .moderator)
+        let token = try await getToken(for: .moderator)
         let language = try await createLanguage()
         let updatedLanguage = getLanguageUpdateContent()
         
@@ -73,7 +73,7 @@ final class LanguageApiUpdateTests: AppTestCase {
     }
     
     func testUpdateLanguageAsUserFails() async throws {
-        let token = try await getTokenFromOtherUser(role: .user)
+        let token = try await getToken(for: .user)
         let language = try await createLanguage()
         let updatedLanguage = getLanguageUpdateContent()
         
@@ -99,7 +99,7 @@ final class LanguageApiUpdateTests: AppTestCase {
     }
     
     func testUpdateLanguageNeedsValidLanguageCode() async throws {
-        let token = try await getTokenFromOtherUser(role: .admin)
+        let token = try await getToken(for: .admin)
         let language = try await createLanguage()
         let updatedLanguage = getLanguageUpdateContent(languageCode: "")
         
@@ -113,7 +113,7 @@ final class LanguageApiUpdateTests: AppTestCase {
     }
     
     func testUpdateLanguageNeedsUniqueLanguageCode() async throws  {
-        let token = try await getTokenFromOtherUser(role: .admin)
+        let token = try await getToken(for: .admin)
         let language = try await createLanguage()
         
         let highestPriority = try await LanguageModel
@@ -135,7 +135,7 @@ final class LanguageApiUpdateTests: AppTestCase {
     }
     
     func testUpdateLanguageNeedsValidName() async throws {
-        let token = try await getTokenFromOtherUser(role: .admin)
+        let token = try await getToken(for: .admin)
         let language = try await createLanguage()
         let updatedLanguage = getLanguageUpdateContent(name: "")
         
@@ -149,7 +149,7 @@ final class LanguageApiUpdateTests: AppTestCase {
     }
     
     func testUpdateLanguageNeedsUniqueName() async throws {
-        let token = try await getTokenFromOtherUser(role: .admin)
+        let token = try await getToken(for: .admin)
         let language = try await createLanguage()
         
         let highestPriority = try await LanguageModel
@@ -170,7 +170,7 @@ final class LanguageApiUpdateTests: AppTestCase {
     }
     
     func testUpdateLanguageNeedsIsRTL() async throws {
-        let token = try await getTokenFromOtherUser(role: .admin)
+        let token = try await getToken(for: .admin)
         let language = try await createLanguage()
         struct Update: Content {
             public let languageCode: String

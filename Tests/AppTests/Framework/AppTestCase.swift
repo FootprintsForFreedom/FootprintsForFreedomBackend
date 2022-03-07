@@ -72,8 +72,8 @@ open class AppTestCase: XCTestCase {
         return newUser
     }
     
-    func getTokenFromOtherUser(role: User.Role) async throws -> String {
-        let newUser = try await getUser(role: role)
+    func getToken(for userRole: User.Role) async throws -> String {
+        let newUser = try await getUser(role: userRole)
         let token = try newUser.generateToken()
         try await token.create(on: app.db)
         return token.value
@@ -85,7 +85,7 @@ open class AppTestCaseWithToken: AppTestCase {
     
     override open func setUp() async throws {
         app = try await createTestApp()
-        token = try await getTokenFromOtherUser(role: .user)
+        token = try await getToken(for: .user)
     }
 }
 
@@ -94,7 +94,7 @@ open class AppTestCaseWithModeratorToken: AppTestCase {
     
     override open func setUp() async throws {
         app = try await createTestApp()
-        moderatorToken = try await getTokenFromOtherUser(role: .moderator)
+        moderatorToken = try await getToken(for: .moderator)
     }
 }
 
@@ -105,7 +105,7 @@ open class AppTestCaseWithModeratorAndNormalToken: AppTestCase {
     override open func setUp() async throws {
         app = try await self.createTestApp()
         
-        token = try await getTokenFromOtherUser(role: .user)
-        moderatorToken = try await getTokenFromOtherUser(role: .moderator)
+        token = try await getToken(for: .user)
+        moderatorToken = try await getToken(for: .moderator)
     }
 }

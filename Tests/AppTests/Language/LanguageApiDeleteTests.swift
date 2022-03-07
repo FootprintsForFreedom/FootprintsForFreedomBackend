@@ -29,7 +29,7 @@ final class LanguageApiDeleteTests: AppTestCase {
     }
     
     func testDeleteLanguageFails() async throws {
-        let token = try await getTokenFromOtherUser(role: .superAdmin)
+        let token = try await getToken(for: .superAdmin)
         let language = try await createLanguage()
         
         try app

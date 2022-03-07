@@ -222,7 +222,7 @@ final class WaypointApiGetTests: AppTestCase {
         let (waypointRepository, waypoint) = try await createNewWaypoint(verified: true, languageId: language.requireID())
         try await waypoint.load(on: app.db)
         
-        let moderatorToken = try await getTokenFromOtherUser(role: .moderator)
+        let moderatorToken = try await getToken(for: .moderator)
         
         try app
             .describe("Get unverified waypoint as moderator should return ok")
@@ -244,7 +244,7 @@ final class WaypointApiGetTests: AppTestCase {
     
     func testGetUnverifiedWaypointAsUserFails() async throws {
         let (waypointRepository, _) = try await createNewWaypoint(verified: false)
-        let userToken = try await getTokenFromOtherUser(role: .user)
+        let userToken = try await getToken(for: .user)
         
         try app
             .describe("Get unverified waypoint as moderator should return ok")
