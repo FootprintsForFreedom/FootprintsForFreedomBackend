@@ -26,7 +26,7 @@ final class LanguageModel: DatabaseModelInterface {
     @Field(key: FieldKeys.v1.languageCode) var languageCode: String
     @Field(key: FieldKeys.v1.name) var name: String
     @Field(key: FieldKeys.v1.isRTL) var isRTL: Bool
-    @Field(key: FieldKeys.v1.priority) var priority: Int
+    @OptionalField(key: FieldKeys.v1.priority) var priority: Int?
     
     init() { }
     
@@ -46,10 +46,10 @@ final class LanguageModel: DatabaseModelInterface {
 }
 
 extension LanguageModel {
-    // TODO: test this function
     static func languageCodesByPriority(preferredLanguageCode: String? = nil, on db: Database) async throws -> [String] {
         return try await self
             .query(on: db)
+            .filter(\.$priority != nil)
             .sort(\.$priority, .ascending) // Lowest value first
             .all()
             .map { $0.languageCode }

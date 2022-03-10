@@ -11,7 +11,7 @@ import Fluent
 extension Language.Language.List: Content { }
 extension Language.Language.Detail: Content { }
 
-struct LanguageApiController: ApiController {
+struct LanguageApiController: UnpagedApiController {
     typealias ApiModel = Language.Language
     typealias DatabaseModel = LanguageModel
     
@@ -59,18 +59,13 @@ struct LanguageApiController: ApiController {
         KeyedContentValidator<Bool>.required("isRTL", optional: optional)
     }
     
-    func list(_ req: Request) async throws -> Page<LanguageModel> {
-        let queryBuilder = LanguageModel.query(on: req.db)
-        let numberOfLanguages = try await queryBuilder.count()
-        let list = try await beforeList(req, queryBuilder).paginate(PageRequest(page: 1, per: numberOfLanguages))
-        return try await afterList(req, list)
-    }
-    
     func beforeList(_ req: Request, _ queryBuilder: QueryBuilder<LanguageModel>) async throws -> QueryBuilder<LanguageModel> {
-        queryBuilder.sort(\.$priority, .ascending) // Lowest value first
+        queryBuilder
+            .filter(\.$priority != nil)
+            .sort(\.$priority, .ascending) // Lowest value first
     }
     
-    func listOutput(_ req: Request, _ models: Page<LanguageModel>) async throws -> Page<Language.Language.List> {
+    func listOutput(_ req: Request, _ models: [LanguageModel]) async throws -> [Language.Language.List] {
         models.map { model in
             return .init(
                 id: model.id!,
@@ -101,6 +96,13 @@ struct LanguageApiController: ApiController {
             throw Abort(.notFound)
         }
         return try await afterDetail(req, model)
+    }
+    
+    func afterDetail(_ req: Request, _ model: LanguageModel) async throws -> LanguageModel {
+        if model.priority == nil {
+            try await onlyForAdmin(req)
+        }
+        return model
     }
     
     func detailOutput(_ req: Request, _ model: LanguageModel) async throws -> Language.Language.Detail {

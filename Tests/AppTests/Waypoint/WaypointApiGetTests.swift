@@ -67,7 +67,7 @@ final class WaypointApiGetTests: AppTestCase {
     func testSuccessfulListVerifiedWaypointsWithPreferredLanguageReturnsVerifiedModelsForAllLanguagesButPrefersSpecifiedLanguage() async throws {
         let language = try await createLanguage()
         let language2 = try await createLanguage(languageCode: "ab", name: "Language", isRTL: false)
-        XCTAssertLessThan(language.priority, language2.priority)
+        XCTAssertLessThan(language.priority!, language2.priority!)
         
         let userId = try await getUser(role: .user).requireID()
         
@@ -132,7 +132,7 @@ final class WaypointApiGetTests: AppTestCase {
     func testSuccessfullListVerifiedWaypointsWithoutPreferredLanguageReturnsVerifiedModlesForAllLanguagesAccordingToTheirPriority() async throws {
         let language = try await createLanguage()
         let language2 = try await createLanguage(languageCode: "ab", name: "Language", isRTL: false)
-        XCTAssertLessThan(language.priority, language2.priority)
+        XCTAssertLessThan(language.priority!, language2.priority!)
         
         let userId = try await getUser(role: .user).requireID()
         
@@ -194,6 +194,33 @@ final class WaypointApiGetTests: AppTestCase {
             .test()
     }
     
+    func testSuccessfullListVerifiedWaypointsDoesNotReturnModelsForDeactivatedLanguages() async throws {
+        let language = try await createLanguage()
+        let deactivatedLanguage = try await createLanguage(languageCode: "ab", name: "Language", isRTL: false)
+        deactivatedLanguage.priority = nil
+        try await deactivatedLanguage.update(on: app.db)
+        
+        let userId = try await getUser(role: .user).requireID()
+        
+        // Create a verified waypoint
+        let (verifiedWaypointRepository, createdVerifiedWaypoint) = try await createNewWaypoint(verified: true, languageId: language.requireID(), userId: userId)
+        try await createdVerifiedWaypoint.load(on: app.db)
+        
+        // Create a waypoint for a deactivated language
+        let (verifiedWaypointRepositoryForDeactivatedLanguage, _) = try await createNewWaypoint(verified: true, languageId: deactivatedLanguage.requireID(), userId: userId)
+        
+        try app
+            .describe("List waypoints should return ok")
+            .get(waypointsPath)
+            .expect(.ok)
+            .expect(.json)
+            .expect(Page<Waypoint.Waypoint.List>.self) { content in
+                XCTAssert(content.items.contains { $0.id == verifiedWaypointRepository.id })
+                XCTAssertFalse(content.items.contains { $0.id == verifiedWaypointRepositoryForDeactivatedLanguage.id })
+            }
+            .test()
+    }
+    
     // TODO: if unverified, require user to be creator or moderator
     // but there is no crator?!
     func testSuccessfullGetVerifiedWaypoint() async throws {
@@ -239,6 +266,24 @@ final class WaypointApiGetTests: AppTestCase {
                 XCTAssertNotNil(content.verified)
                 XCTAssertEqual(content.verified, waypoint.verified)
             }
+            .test()
+    }
+    
+    func testGetWaypointForDeactivatedLanguageAsModeratorFails() async throws {
+        let deactivatedLanguage = try await createLanguage(languageCode: "ab", name: "Language", isRTL: false)
+        deactivatedLanguage.priority = nil
+        try await deactivatedLanguage.update(on: app.db)
+        
+        let (waypointRepositoryForDeactivatedLanguage, waypointForDeactivatedLanguage) = try await createNewWaypoint(verified: true, languageId: deactivatedLanguage.requireID())
+        try await waypointForDeactivatedLanguage.load(on: app.db)
+        
+        let adminToken = try await getToken(for: .admin)
+        
+        try app
+            .describe("Get waypoint for deactivated language as should always fail; instead request the model direct.y")
+            .get(waypointsPath.appending(waypointRepositoryForDeactivatedLanguage.requireID().uuidString))
+            .bearerToken(adminToken)
+            .expect(.notFound)
             .test()
     }
     
