@@ -7,7 +7,7 @@
 
 import Vapor
 
-protocol ApiRepositoryController: ApiListController,
+protocol ApiRepositoryController: ApiPagedListController,
                                   ApiRepositoryDetailController,
                                   ApiRepositoryCreateController,
                                   ApiRepositoryUpdateController,
