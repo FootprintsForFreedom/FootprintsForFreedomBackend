@@ -78,7 +78,7 @@ final class UserApiPatchTests: AppTestCase {
     }
     
     func testSuccessfulPatchUserEmail() async throws {
-        let (user, token, patchContent) = try await getUserPatchContent(patchedEmail: "patched.test-user@example.com")
+        let (user, token, patchContent) = try await getUserPatchContent(patchedEmail: "patched.test-user\(UUID())@example.com")
         
         try app
             .describe("Patch user email should return ok")

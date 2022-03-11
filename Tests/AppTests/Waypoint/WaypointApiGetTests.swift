@@ -14,12 +14,13 @@ final class WaypointApiGetTests: AppTestCase {
     let waypointsPath = "api/waypoints/"
     
     private func createLanguage(
-        languageCode: String = "en",
-        name: String = "English",
+        languageCode: String = UUID().uuidString,
+        name: String = UUID().uuidString,
         isRTL: Bool = false
     ) async throws -> LanguageModel {
         let highestPriority = try await LanguageModel
             .query(on: app.db)
+            .filter(\.$priority != nil)
             .sort(\.$priority, .descending)
             .first()?.priority ?? 0
         
@@ -66,7 +67,7 @@ final class WaypointApiGetTests: AppTestCase {
     
     func testSuccessfulListVerifiedWaypointsWithPreferredLanguageReturnsVerifiedModelsForAllLanguagesButPrefersSpecifiedLanguage() async throws {
         let language = try await createLanguage()
-        let language2 = try await createLanguage(languageCode: "ab", name: "Language", isRTL: false)
+        let language2 = try await createLanguage()
         XCTAssertLessThan(language.priority!, language2.priority!)
         
         let userId = try await getUser(role: .user).requireID()
@@ -88,23 +89,28 @@ final class WaypointApiGetTests: AppTestCase {
         try await createdVerifiedWaypointInLanguage1.load(on: app.db)
         
         // Get verified waypoint count
-        let verifiedWaypointCount = try await WaypointRepositoryModel
+        let waypoints = try await WaypointRepositoryModel
             .query(on: app.db)
-            .with(\.$waypoints)
+            .with(\.$waypoints) { $0.with(\.$language) }
             .all()
-            .compactMap { model in
-                model.waypoints.contains { $0.verified } ? model
-                : nil
-            }
+        
+        let waypointCount = waypoints.count
+        
+        let verifiedWaypointCount = waypoints
+            .filter { $0.waypoints.contains { $0.verified && $0.language.priority != nil } }
             .count
         
         try app
             .describe("List waypoints with perferred language should return ok and verified models for all languages. However, it should prefer the specified language")
-            .get(waypointsPath.appending("?preferredLanguage=\(language.languageCode)"))
+            .get(waypointsPath.appending("?preferredLanguage=\(language.languageCode)&per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)
             .expect(Page<Waypoint.Waypoint.List>.self) { content in
+                XCTAssertEqual(content.metadata.total, content.items.count)
                 XCTAssertEqual(content.items.count, verifiedWaypointCount)
+                XCTAssertEqual(content.items.map { $0.id }.uniqued().count, verifiedWaypointCount)
+                XCTAssert(content.items.map { $0.id }.uniqued().count == content.items.count)
+                XCTAssertEqual(content.metadata.total, verifiedWaypointCount)
                 
                 XCTAssert(content.items.contains { $0.id == verifiedWaypointRepository.id })
                 let verifiedWaypoint = content.items.first { $0.id == verifiedWaypointRepository.id }!
@@ -131,7 +137,7 @@ final class WaypointApiGetTests: AppTestCase {
     
     func testSuccessfullListVerifiedWaypointsWithoutPreferredLanguageReturnsVerifiedModlesForAllLanguagesAccordingToTheirPriority() async throws {
         let language = try await createLanguage()
-        let language2 = try await createLanguage(languageCode: "ab", name: "Language", isRTL: false)
+        let language2 = try await createLanguage()
         XCTAssertLessThan(language.priority!, language2.priority!)
         
         let userId = try await getUser(role: .user).requireID()
@@ -153,19 +159,20 @@ final class WaypointApiGetTests: AppTestCase {
         try await createdVerifiedWaypointInLanguage1.load(on: app.db)
         
         // Get verified waypoint count
-        let verifiedWaypointCount = try await WaypointRepositoryModel
+        let waypoints = try await WaypointRepositoryModel
             .query(on: app.db)
-            .with(\.$waypoints)
+            .with(\.$waypoints) { $0.with(\.$language) }
             .all()
-            .compactMap { model in
-                model.waypoints.contains { $0.verified } ? model
-                : nil
-            }
+        
+        let waypointCount = waypoints.count
+        
+        let verifiedWaypointCount = waypoints
+            .filter { $0.waypoints.contains { $0.verified && $0.language.priority != nil } }
             .count
         
         try app
             .describe("List waypoints should return ok")
-            .get(waypointsPath)
+            .get(waypointsPath.appending("?per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)
             .expect(Page<Waypoint.Waypoint.List>.self) { content in
@@ -196,7 +203,7 @@ final class WaypointApiGetTests: AppTestCase {
     
     func testSuccessfullListVerifiedWaypointsDoesNotReturnModelsForDeactivatedLanguages() async throws {
         let language = try await createLanguage()
-        let deactivatedLanguage = try await createLanguage(languageCode: "ab", name: "Language", isRTL: false)
+        let deactivatedLanguage = try await createLanguage()
         deactivatedLanguage.priority = nil
         try await deactivatedLanguage.update(on: app.db)
         
@@ -209,9 +216,17 @@ final class WaypointApiGetTests: AppTestCase {
         // Create a waypoint for a deactivated language
         let (verifiedWaypointRepositoryForDeactivatedLanguage, _) = try await createNewWaypoint(verified: true, languageId: deactivatedLanguage.requireID(), userId: userId)
         
+        // Get waypoint count
+        let waypoints = try await WaypointRepositoryModel
+            .query(on: app.db)
+            .with(\.$waypoints) { $0.with(\.$language) }
+            .all()
+        
+        let waypointCount = waypoints.count
+        
         try app
             .describe("List waypoints should return ok")
-            .get(waypointsPath)
+            .get(waypointsPath.appending("?per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)
             .expect(Page<Waypoint.Waypoint.List>.self) { content in
@@ -270,7 +285,7 @@ final class WaypointApiGetTests: AppTestCase {
     }
     
     func testGetWaypointForDeactivatedLanguageAsModeratorFails() async throws {
-        let deactivatedLanguage = try await createLanguage(languageCode: "ab", name: "Language", isRTL: false)
+        let deactivatedLanguage = try await createLanguage()
         deactivatedLanguage.priority = nil
         try await deactivatedLanguage.update(on: app.db)
         

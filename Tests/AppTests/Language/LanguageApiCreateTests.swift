@@ -16,8 +16,8 @@ final class LanguageApiCreateTests: AppTestCase {
     let languagesPath = "api/languages/"
     
     private func getLanguageCreateContent(
-        languageCode: String = "\(UUID().uuidString)",
-        name: String = "\(UUID().uuidString)",
+        languageCode: String = UUID().uuidString,
+        name: String = UUID().uuidString,
         isRTL: Bool = false
     ) -> Language.Language.Create {
         return .init(languageCode: languageCode, name: name, isRTL: isRTL)
@@ -52,6 +52,7 @@ final class LanguageApiCreateTests: AppTestCase {
             // Check the priority has the highest value and is therefore the last important
             let languageWithLowestPriority = try await LanguageModel
                 .query(on: app.db)
+                .filter(\.$priority != nil)
                 .sort(\.$priority, .descending) // Highest value first
                 .first()
             XCTAssertEqual(languageWithLowestPriority?.languageCode, newLanguage.languageCode)
@@ -113,11 +114,12 @@ final class LanguageApiCreateTests: AppTestCase {
         
         let highestPriority = try await LanguageModel
             .query(on: app.db)
+            .filter(\.$priority != nil)
             .sort(\.$priority, .descending)
             .first()?.priority ?? 0
-        let createdLanguage = LanguageModel(languageCode: "en", name: "English", isRTL: false, priority: highestPriority + 1)
+        let createdLanguage = LanguageModel(languageCode: UUID().uuidString, name: UUID().uuidString, isRTL: false, priority: highestPriority + 1)
         try await createdLanguage.create(on: app.db)
-        let newLanguage = getLanguageCreateContent(languageCode: "en")
+        let newLanguage = getLanguageCreateContent(languageCode: "de")
         
         try app
             .describe("Create language with already present language code should fail")
@@ -146,11 +148,12 @@ final class LanguageApiCreateTests: AppTestCase {
         
         let highestPriority = try await LanguageModel
             .query(on: app.db)
+            .filter(\.$priority != nil)
             .sort(\.$priority, .descending)
             .first()?.priority ?? 0
-        let createdLanguage = LanguageModel(languageCode: "en", name: "English", isRTL: false, priority: highestPriority + 1)
+        let createdLanguage = LanguageModel(languageCode: UUID().uuidString, name: UUID().uuidString, isRTL: false, priority: highestPriority + 1)
         try await createdLanguage.create(on: app.db)
-        let newLanguage = getLanguageCreateContent(name: "English")
+        let newLanguage = getLanguageCreateContent(name: "Deutsch")
         
         try app
             .describe("Create language with already present name should fail")

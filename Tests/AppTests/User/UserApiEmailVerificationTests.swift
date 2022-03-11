@@ -49,12 +49,16 @@ final class UserApiEmailVerificationTests: AppTestCase {
         let (user, token) = try await createNewUser()
         XCTAssertFalse(user.verified)
         
+        // Get original verification token count
+        let verificationTokenCount = try await UserVerificationTokenModel.query(on: app.db).count()
+        
         let verificationToken = try user.generateVerificationToken()
         try await verificationToken.save(on: app.db)
         
         let verificationTokens = try await UserVerificationTokenModel.query(on: app.db).all()
-        XCTAssertEqual(verificationTokens.count, 1)
-        XCTAssertEqual(verificationTokens.first!.value, verificationToken.value)
+        XCTAssertEqual(verificationTokens.count, verificationTokenCount + 1)
+        XCTAssert(verificationTokens.contains { $0.$user.id == user.id })
+        XCTAssertEqual(verificationTokens.first { $0.$user.id == user.id }!.value, verificationToken.value)
         
         try app
             .describe("User should successfully request verification")
@@ -64,7 +68,7 @@ final class UserApiEmailVerificationTests: AppTestCase {
             .test()
         
         let newVerificationTokens = try await UserVerificationTokenModel.query(on: app.db).all()
-        XCTAssertEqual(newVerificationTokens.count, 1)
+        XCTAssertEqual(newVerificationTokens.count, verificationTokenCount + 1)
         XCTAssertNotEqual(newVerificationTokens.first!.value, verificationToken.value)
     }
     
@@ -124,6 +128,10 @@ final class UserApiEmailVerificationTests: AppTestCase {
     func testSuccessfulUserVerificationWhenSignedIn() async throws {
         let (user, token) = try await createNewUser()
         XCTAssertFalse(user.verified)
+        
+        // Get original verification token count
+        let verificationTokenCount = try await UserVerificationTokenModel.query(on: app.db).count()
+        
         let verificationToken = try await verificationToken(for: user)
         
         let urlQuery = "?token=\(verificationToken.value)"
@@ -146,12 +154,16 @@ final class UserApiEmailVerificationTests: AppTestCase {
         
         // check token is deleted after verification
         let verificationTokens = try await UserVerificationTokenModel.query(on: app.db).all()
-        XCTAssertEqual(verificationTokens.count, 0)
+        XCTAssertEqual(verificationTokens.count, verificationTokenCount)
     }
     
     func testSuccessfulUserVerificationWithoutBearerToken() async throws {
         let (user, _) = try await createNewUser()
         XCTAssertFalse(user.verified)
+        
+        // Get original verification token count
+        let verificationTokenCount = try await UserVerificationTokenModel.query(on: app.db).count()
+        
         let verificationToken = try await verificationToken(for: user)
         
         let urlQuery = "?token=\(verificationToken.value)"
@@ -170,7 +182,7 @@ final class UserApiEmailVerificationTests: AppTestCase {
         
         // check token is deleted after verification
         let verificationTokens = try await UserVerificationTokenModel.query(on: app.db).all()
-        XCTAssertEqual(verificationTokens.count, 0)
+        XCTAssertEqual(verificationTokens.count, verificationTokenCount)
     }
     
     func testVerificationWithWrongVerificationTokenFails() async throws {

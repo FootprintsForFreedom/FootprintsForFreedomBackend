@@ -16,12 +16,13 @@ final class WaypointApiCreateTests: AppTestCaseWithToken  {
     let waypointsPath = "api/waypoints/"
     
     private func createLanguage(
-        languageCode: String = "en",
-        name: String = "English",
+        languageCode: String = UUID().uuidString,
+        name: String = UUID().uuidString,
         isRTL: Bool = false
     ) async throws -> LanguageModel {
         let highestPriority = try await LanguageModel
             .query(on: app.db)
+            .filter(\.$priority != nil)
             .sort(\.$priority, .descending)
             .first()?.priority ?? 0
         
@@ -73,13 +74,17 @@ final class WaypointApiCreateTests: AppTestCaseWithToken  {
         XCTAssertEqual(newWaypointCount, waypointCount + 1)
         
         // check the new model is unverified
-        let waypoint = try await WaypointRepositoryModel
-            .find(newRepositoryId, on: app.db)!
-            .$waypoints
-            .query(on: app.db)
-            .sort(\.$createdAt, .descending)
-            .first()!
-        XCTAssertFalse(waypoint.verified)
+        if let newRepositoryId = newRepositoryId {
+            let waypoint = try await WaypointRepositoryModel
+                .find(newRepositoryId, on: app.db)!
+                .$waypoints
+                .query(on: app.db)
+                .sort(\.$createdAt, .descending)
+                .first()!
+            XCTAssertFalse(waypoint.verified)
+        } else {
+            XCTFail("Could not find repository on db")
+        }
     }
     
     func testSuccessfulCreateWaypointAsModerator() async throws {
@@ -113,13 +118,17 @@ final class WaypointApiCreateTests: AppTestCaseWithToken  {
         XCTAssertEqual(newWaypointCount, waypointCount + 1)
         
         // check the new model is unverified
-        let waypoint = try await WaypointRepositoryModel
-            .find(newRepositoryId, on: app.db)!
-            .$waypoints
-            .query(on: app.db)
-            .sort(\.$createdAt, .descending)
-            .first()!
-        XCTAssertFalse(waypoint.verified)
+        if let newRepositoryId = newRepositoryId {
+            let waypoint = try await WaypointRepositoryModel
+                .find(newRepositoryId, on: app.db)!
+                .$waypoints
+                .query(on: app.db)
+                .sort(\.$createdAt, .descending)
+                .first()!
+            XCTAssertFalse(waypoint.verified)
+        } else {
+            XCTFail("Could not find repository on db")
+        }
     }
     
     func testCreateWaypointWithoutTokenFails() async throws {

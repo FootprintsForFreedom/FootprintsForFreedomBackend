@@ -16,12 +16,13 @@ final class WaypointApiUpdateTests: AppTestCaseWithToken {
     let waypointsPath = "api/waypoints/"
     
     private func createLanguage(
-        languageCode: String = "en",
-        name: String = "English",
+        languageCode: String = UUID().uuidString,
+        name: String = UUID().uuidString,
         isRTL: Bool = false
     ) async throws -> LanguageModel {
         let highestPriority = try await LanguageModel
             .query(on: app.db)
+            .filter(\.$priority != nil)
             .sort(\.$priority, .descending)
             .first()?.priority ?? 0
         
@@ -74,7 +75,7 @@ final class WaypointApiUpdateTests: AppTestCaseWithToken {
         location: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
         updatedLocation: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
         languageId: UUID? = nil,
-        updateLangugageCode: String = "en",
+        updateLangugageCode: String = "de",
         verified: Bool = false,
         userId: UUID? = nil
     ) async throws -> (repository: WaypointRepositoryModel, updateContent: Waypoint.Waypoint.Update) {
@@ -115,7 +116,7 @@ final class WaypointApiUpdateTests: AppTestCaseWithToken {
     
     func testSuccessfulUpdateWithNewLanguage() async throws {
         let (waypointRepository, _) = try await createNewWaypoint()
-        let secondLanguage = try await createLanguage(languageCode: "ab", name: "Language", isRTL: false)
+        let secondLanguage = try await createLanguage(languageCode: UUID().uuidString, name: UUID().uuidString, isRTL: false)
         
         let updateContent = Waypoint.Waypoint.Update(
             title: "Language 2",

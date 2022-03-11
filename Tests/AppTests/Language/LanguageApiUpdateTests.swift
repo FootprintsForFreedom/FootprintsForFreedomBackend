@@ -16,12 +16,13 @@ final class LanguageApiUpdateTests: AppTestCase {
     let languagesPath = "api/languages/"
     
     private func createLanguage(
-        languageCode: String = "\(UUID().uuidString)",
-        name: String = "\(UUID().uuidString)",
+        languageCode: String = UUID().uuidString,
+        name: String = UUID().uuidString,
         isRTL: Bool = false
     ) async throws -> LanguageModel {
         let highestPriority = try await LanguageModel
             .query(on: app.db)
+            .filter(\.$priority != nil)
             .sort(\.$priority, .descending)
             .first()?.priority ?? 0
         
@@ -31,8 +32,8 @@ final class LanguageApiUpdateTests: AppTestCase {
     }
     
     private func getLanguageUpdateContent(
-        languageCode: String = "\(UUID().uuidString)",
-        name: String = "\(UUID().uuidString)",
+        languageCode: String = UUID().uuidString,
+        name: String = UUID().uuidString,
         isRTL: Bool = false
     ) -> Language.Language.Update {
         return .init(languageCode: languageCode, name: name, isRTL: isRTL)
@@ -118,12 +119,13 @@ final class LanguageApiUpdateTests: AppTestCase {
         
         let highestPriority = try await LanguageModel
             .query(on: app.db)
+            .filter(\.$priority != nil)
             .sort(\.$priority, .descending)
             .first()?.priority ?? 0
-        let createdLanguage = LanguageModel(languageCode: "en", name: "English", isRTL: false, priority: highestPriority + 1)
+        let createdLanguage = LanguageModel(languageCode: UUID().uuidString, name: UUID().uuidString, isRTL: false, priority: highestPriority + 1)
         try await createdLanguage.create(on: app.db)
         
-        let updatedLanguage = getLanguageUpdateContent(languageCode: "en")
+        let updatedLanguage = getLanguageUpdateContent(languageCode: createdLanguage.languageCode)
         
         try app
             .describe("Update language with already present language code should fail")
@@ -154,11 +156,12 @@ final class LanguageApiUpdateTests: AppTestCase {
         
         let highestPriority = try await LanguageModel
             .query(on: app.db)
+            .filter(\.$priority != nil)
             .sort(\.$priority, .descending)
             .first()?.priority ?? 0
-        let createdLanguage = LanguageModel(languageCode: "en", name: "English", isRTL: false, priority: highestPriority + 1)
+        let createdLanguage = LanguageModel(languageCode: UUID().uuidString, name: UUID().uuidString, isRTL: false, priority: highestPriority + 1)
         try await createdLanguage.create(on: app.db)
-        let updatedLanguage = getLanguageUpdateContent(name: "English")
+        let updatedLanguage = getLanguageUpdateContent(name: createdLanguage.name)
         
         try app
             .describe("Update language with already present name should fail")

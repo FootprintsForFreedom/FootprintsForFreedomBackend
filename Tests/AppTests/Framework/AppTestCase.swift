@@ -26,15 +26,15 @@ open class AppTestCase: XCTestCase {
         
         try configure(app)
         app.databases.reinitialize()
-        app.databases.use(.sqlite(.memory), as: .sqlite)
-        app.databases.default(to: .sqlite)
-//        app.databases.use(.postgres(
-//            hostname: Environment.dbHost,
-//            username: Environment.pgUser,
-//            password: Environment.pgPassword,
-//            database: Environment.pgTestDbName
-//        ), as: .psql)
-//        app.databases.default(to: .psql)
+//        app.databases.use(.sqlite(.memory), as: .sqlite)
+//        app.databases.default(to: .sqlite)
+        app.databases.use(.postgres(
+            hostname: Environment.dbHost,
+            username: Environment.pgUser,
+            password: Environment.pgPassword,
+            database: Environment.pgTestDbName
+        ), as: .psql)
+        app.databases.default(to: .psql)
         app.passwords.use(.plaintext)
         try await app.autoMigrate()
         return app
@@ -45,6 +45,9 @@ open class AppTestCase: XCTestCase {
     }
     
     open override func tearDown() async throws {
+        if try await WaypointRepositoryModel.query(on: app.db).count() > 50 {
+            try await app.autoRevert()
+        }
         app.shutdown()
     }
     

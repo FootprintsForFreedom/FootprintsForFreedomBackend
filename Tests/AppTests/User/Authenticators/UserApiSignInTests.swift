@@ -15,7 +15,7 @@ final class UserApiSignInTests: AppTestCase {
     
     private func createNewUser(
         name: String = "New Test User",
-        email: String = "test-user@example.com",
+        email: String = "test-user\(UUID())@example.com",
         school: String? = nil,
         password: String = "password",
         verified: Bool = false,
@@ -71,7 +71,7 @@ final class UserApiSignInTests: AppTestCase {
     
     func testLoginReturnsDifferentTokensForDifferentUser() async throws {
         let (user1, password1) = try await createNewUser()
-        let (user2, password2) = try await createNewUser(email: "test-user.2@example.com")
+        let (user2, password2) = try await createNewUser(email: "test-user.\(UUID())@example.com")
         
         let credentials1 = UserLogin(email: user1.email, password: password1)
         let credentials2 = UserLogin(email: user2.email, password: password2)

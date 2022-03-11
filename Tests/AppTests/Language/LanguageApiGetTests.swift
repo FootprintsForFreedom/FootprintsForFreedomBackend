@@ -14,12 +14,13 @@ final class LanguageApiGetTests: AppTestCase {
     let languagesPath = "api/languages/"
     
     private func createLanguage(
-        languageCode: String = "\(UUID().uuidString)",
-        name: String = "\(UUID().uuidString)",
+        languageCode: String = UUID().uuidString,
+        name: String = (UUID().uuidString),
         isRTL: Bool = false
     ) async throws -> LanguageModel {
         let highestPriority = try await LanguageModel
             .query(on: app.db)
+            .filter(\.$priority != nil)
             .sort(\.$priority, .descending)
             .first()?.priority ?? 0
         
@@ -33,7 +34,7 @@ final class LanguageApiGetTests: AppTestCase {
             let language = try await createLanguage()
             
             // Get languages count
-            let languagesCount = try await LanguageModel.query(on: app.db).count()
+            let languagesCount = try await LanguageModel.query(on: app.db).filter(\.$priority != nil).count()
             
             try app
                 .describe("List languages should return all languages sorted by their priority")

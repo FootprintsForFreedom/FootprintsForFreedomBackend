@@ -16,12 +16,13 @@ final class LanguageApiPatchTests: AppTestCase {
     let languagesPath = "api/languages/"
     
     private func createLanguage(
-        languageCode: String = "\(UUID().uuidString)",
-        name: String = "\(UUID().uuidString)",
+        languageCode: String = UUID().uuidString,
+        name: String = UUID().uuidString,
         isRTL: Bool = false
     ) async throws -> LanguageModel {
         let highestPriority = try await LanguageModel
             .query(on: app.db)
+            .filter(\.$priority != nil)
             .sort(\.$priority, .descending)
             .first()?.priority ?? 0
         
@@ -41,7 +42,7 @@ final class LanguageApiPatchTests: AppTestCase {
     func testSuccessfulPatchLanguageCodeAsAdmin() async throws {
         let token = try await getToken(for: .admin)
         let language = try await createLanguage()
-        let patchedLanguage = getLanguagePatchContent(languageCode: "en")
+        let patchedLanguage = getLanguagePatchContent(languageCode: UUID().uuidString)
         
         try app
             .describe("Patch language code should return ok and the created language")
@@ -61,7 +62,7 @@ final class LanguageApiPatchTests: AppTestCase {
     func testSuccessfulPatchLanguageNameAsAdmin() async throws {
         let token = try await getToken(for: .admin)
         let language = try await createLanguage()
-        let patchedLanguage = getLanguagePatchContent(name: "English")
+        let patchedLanguage = getLanguagePatchContent(name: UUID().uuidString)
         
         try app
             .describe("Patch language name should return ok and the created language")
@@ -172,12 +173,13 @@ final class LanguageApiPatchTests: AppTestCase {
         
         let highestPriority = try await LanguageModel
             .query(on: app.db)
+            .filter(\.$priority != nil)
             .sort(\.$priority, .descending)
             .first()?.priority ?? 0
-        let createdLanguage = LanguageModel(languageCode: "en", name: "English", isRTL: false, priority: highestPriority + 1)
+        let createdLanguage = LanguageModel(languageCode: UUID().uuidString, name: UUID().uuidString, isRTL: false, priority: highestPriority + 1)
         try await createdLanguage.create(on: app.db)
         
-        let patchedLanguage = getLanguagePatchContent(languageCode: "en")
+        let patchedLanguage = getLanguagePatchContent(languageCode: createdLanguage.languageCode)
         
         try app
             .describe("Patch language with already present language code should fail")
@@ -208,11 +210,12 @@ final class LanguageApiPatchTests: AppTestCase {
         
         let highestPriority = try await LanguageModel
             .query(on: app.db)
+            .filter(\.$priority != nil)
             .sort(\.$priority, .descending)
             .first()?.priority ?? 0
-        let createdLanguage = LanguageModel(languageCode: "en", name: "English", isRTL: false, priority: highestPriority + 1)
+        let createdLanguage = LanguageModel(languageCode: UUID().uuidString, name: UUID().uuidString, isRTL: false, priority: highestPriority + 1)
         try await createdLanguage.create(on: app.db)
-        let patchedLanguage = getLanguagePatchContent(name: "English")
+        let patchedLanguage = getLanguagePatchContent(name: createdLanguage.name)
         
         try app
             .describe("Create language with already present name should fail")

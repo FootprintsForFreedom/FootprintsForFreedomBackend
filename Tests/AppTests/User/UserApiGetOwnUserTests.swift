@@ -15,7 +15,7 @@ final class UserApiGetOwnUserTests: AppTestCase {
     
     private func createNewUserWithToken(
         name: String = "New Test User",
-        email: String = "test-user@example.com",
+        email: String = "test-user\(UUID())@example.com",
         school: String? = nil,
         password: String = "password",
         verified: Bool = false,

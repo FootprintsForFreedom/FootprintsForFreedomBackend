@@ -15,7 +15,7 @@ final class UserApiGetTests: AppTestCaseWithModeratorAndNormalToken {
     
     private func createNewUser(
         name: String = "New Test User",
-        email: String = "test-user@example.com",
+        email: String = "test-user\(UUID())@example.com",
         school: String? = nil,
         password: String = "password",
         verified: Bool = false,
@@ -39,8 +39,10 @@ final class UserApiGetTests: AppTestCaseWithModeratorAndNormalToken {
             .expect(.ok)
             .expect(.json)
             .expect(Page<User.Account.List>.self) { content in
-                XCTAssertEqual(content.items.count, userCount)
-                XCTAssert(content.items.contains { $0.id == user.id })
+                XCTAssertEqual(content.metadata.total, userCount)
+                if userCount < content.items.count {
+                    XCTAssert(content.items.contains { $0.id == user.id })
+                }
         }
         .test()
     }

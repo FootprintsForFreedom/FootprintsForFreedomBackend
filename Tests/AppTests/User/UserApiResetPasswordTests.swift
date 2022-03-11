@@ -18,7 +18,7 @@ final class UserApiResetPasswordTests: AppTestCase {
     
     private func createNewUser(
         name: String = "New Test User",
-        email: String = "test-user@example.com",
+        email: String = "test-use\(UUID())r@example.com",
         school: String? = nil,
         password: String = "password",
         verified: Bool = false,
@@ -50,13 +50,17 @@ final class UserApiResetPasswordTests: AppTestCase {
     func testRequestResetPasswordDeletesOldTokens() async throws {
         let user = try await createNewUser()
         let resetPasswordRequest = resetPasswordRequest(for: user)
-
+        
+        // Get original verification token count
+        let verificationTokenCount = try await UserVerificationTokenModel.query(on: app.db).count()
+        
         let verificationToken = try user.generateVerificationToken()
         try await verificationToken.save(on: app.db)
         
         let verificationTokens = try await UserVerificationTokenModel.query(on: app.db).all()
-        XCTAssertEqual(verificationTokens.count, 1)
-        XCTAssertEqual(verificationTokens.first!.value, verificationToken.value)
+        XCTAssertEqual(verificationTokens.count, verificationTokenCount + 1)
+        XCTAssert(verificationTokens.contains { $0.$user.id == user.id })
+        XCTAssertEqual(verificationTokens.first { $0.$user.id == user.id }!.value, verificationToken.value)
         
         try app
             .describe("User should successfully request verification")
@@ -66,7 +70,7 @@ final class UserApiResetPasswordTests: AppTestCase {
             .test()
         
         let newVerificationTokens = try await UserVerificationTokenModel.query(on: app.db).all()
-        XCTAssertEqual(newVerificationTokens.count, 1)
+        XCTAssertEqual(newVerificationTokens.count, verificationTokenCount + 1)
         XCTAssertNotEqual(newVerificationTokens.first!.value, verificationToken.value)
     }
     

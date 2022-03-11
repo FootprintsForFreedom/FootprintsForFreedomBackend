@@ -17,7 +17,7 @@ final class UserApiCreateTests: AppTestCase {
     
     private func getUserCreateContent(
         name: String = "New Test User",
-        email: String = "new-test-user@example.com",
+        email: String = "new-test-user\(UUID())@example.com",
         school: String? = nil,
         password: String = "new3Password"
     ) throws -> User.Account.Create {

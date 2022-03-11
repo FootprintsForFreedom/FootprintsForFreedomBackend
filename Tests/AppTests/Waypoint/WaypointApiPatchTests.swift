@@ -16,12 +16,13 @@ final class WaypointApiPatchTests: AppTestCaseWithToken {
     let waypointsPath = "api/waypoints/"
     
     private func createLanguage(
-        languageCode: String = "en",
-        name: String = "English",
+        languageCode: String = UUID().uuidString,
+        name: String = UUID().uuidString,
         isRTL: Bool = false
     ) async throws -> LanguageModel {
         let highestPriority = try await LanguageModel
             .query(on: app.db)
+            .filter(\.$priority != nil)
             .sort(\.$priority, .descending)
             .first()?.priority ?? 0
         
@@ -35,9 +36,9 @@ final class WaypointApiPatchTests: AppTestCaseWithToken {
         description: String = "New Waypoint Description",
         location: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
         verified: Bool = false,
-        languageId: UUID? = nil,
+        language: LanguageModel? = nil,
         userId: UUID? = nil
-    ) async throws -> (repository: WaypointRepositoryModel, model: WaypointWaypointModel) {
+    ) async throws -> (repository: WaypointRepositoryModel, model: WaypointWaypointModel, language: LanguageModel) {
         var userId: UUID! = userId
         if userId == nil {
             userId = try await getUser(role: .user).requireID()
@@ -45,11 +46,11 @@ final class WaypointApiPatchTests: AppTestCaseWithToken {
         let waypointRepository = WaypointRepositoryModel()
         try await waypointRepository.create(on: app.db)
         
-        let languageId: UUID = try await {
-            if let languageId = languageId {
-                return languageId
+        let language: LanguageModel = try await {
+            if let language = language {
+                return language
             } else {
-                return try await createLanguage().requireID()
+                return try await createLanguage()
             }
         }()
         
@@ -58,12 +59,12 @@ final class WaypointApiPatchTests: AppTestCaseWithToken {
             description: description,
             location: location,
             repositoryId: waypointRepository.requireID(),
-            languageId: languageId,
+            languageId: language.requireID(),
             userId: userId,
             verified: verified,
             on: app.db
         )
-        return (waypointRepository, waypointModel)
+        return (waypointRepository, waypointModel, language)
     }
     
     private func getWaypointPatchContent(
@@ -73,13 +74,13 @@ final class WaypointApiPatchTests: AppTestCaseWithToken {
         patchedDescription: String? = nil,
         location: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
         patchedLocation: Waypoint.Location? = nil,
-        languageId: UUID? = nil,
-        patchLangugageCode: String = "en",
+        language: LanguageModel? = nil,
+        patchLangugageCode: String? = nil,
         verified: Bool = false,
         userId: UUID? = nil
     ) async throws -> (waypointRepository: WaypointRepositoryModel, createdModel: WaypointWaypointModel, patchContent: Waypoint.Waypoint.Patch) {
-        let (waypointRepository, createdModel) = try await createNewWaypoint(title: title, description: description, location: location, verified: verified, languageId: languageId, userId: userId)
-        let updateContent = Waypoint.Waypoint.Patch(title: patchedTitle, description: patchedDescription, location: patchedLocation, languageCode: patchLangugageCode)
+        let (waypointRepository, createdModel, language) = try await createNewWaypoint(title: title, description: description, location: location, verified: verified, language: language, userId: userId)
+        let updateContent = Waypoint.Waypoint.Patch(title: patchedTitle, description: patchedDescription, location: patchedLocation, languageCode: patchLangugageCode ?? language.languageCode)
         return (waypointRepository, createdModel, updateContent)
     }
     
@@ -255,8 +256,8 @@ final class WaypointApiPatchTests: AppTestCaseWithToken {
     
     func testUpdateWaypointNeedsValidLanguageCode() async throws {
         let language = try await createLanguage()
-        let (waypointRepository1, _, updateContent1) = try await getWaypointPatchContent(languageId: language.requireID(), patchLangugageCode: "")
-        let (waypointRepository2, _, updateContent2) = try await getWaypointPatchContent(languageId: language.requireID(), patchLangugageCode: "hi")
+        let (waypointRepository1, _, updateContent1) = try await getWaypointPatchContent(language: language, patchLangugageCode: "")
+        let (waypointRepository2, _, updateContent2) = try await getWaypointPatchContent(language: language, patchLangugageCode: "hi")
         
         try app
             .describe("Patch waypoint with empty language code should fail")
