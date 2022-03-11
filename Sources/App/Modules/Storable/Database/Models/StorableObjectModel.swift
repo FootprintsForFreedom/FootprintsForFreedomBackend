@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import Foundation
 
 final class StorableObjectModel<T>: DatabaseModelInterface where T: Codable, T: Equatable {
     typealias Module = StorableModule
@@ -22,10 +23,20 @@ final class StorableObjectModel<T>: DatabaseModelInterface where T: Codable, T: 
     }
     
     @ID() var id: UUID?
-    @Field(key: FieldKeys.v1.value) var value: T
+    @Field(key: FieldKeys.v1.value) private var data: Data
     
     @Parent(key: FieldKeys.v1.userId) var user: UserAccountModel
     @Timestamp(key: FieldKeys.v1.createdAt, on: .create) var createdAt: Date?
+    
+    var value: T {
+        get {
+            try! JSONDecoder().decode(T.self, from: data)
+        }
+        set {
+            let data = try! JSONEncoder().encode(newValue)
+            self.data = data
+        }
+    }
     
     init() { }
     
