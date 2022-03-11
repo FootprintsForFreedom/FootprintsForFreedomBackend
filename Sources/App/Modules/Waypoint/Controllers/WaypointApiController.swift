@@ -47,7 +47,7 @@ struct WaypointApiController: ApiRepositoryController {
             .join(LanguageModel.self, on: \WaypointWaypointModel.$language.$id == \LanguageModel.$id)
             .filter(LanguageModel.self, \.$languageCode == languageCode)
         if needsToBeVerified {
-            query = query.filter(\.$verified == true).with(\.$title)
+            query = query.filter(\.$verified == true)
         }
         query = query
             .sort(\.$updatedAt, .descending) // newest first
@@ -77,20 +77,34 @@ struct WaypointApiController: ApiRepositoryController {
         return nil
     }
     
+    func beforeList(_ req: Request, _ queryBuilder: QueryBuilder<WaypointRepositoryModel>) async throws -> QueryBuilder<WaypointRepositoryModel> {
+        queryBuilder
+            .join(WaypointWaypointModel.self, on: \WaypointWaypointModel.$repository.$id == \WaypointRepositoryModel.$id)
+            .filter(WaypointWaypointModel.self, \.$verified == true)
+            .join(LanguageModel.self, on: \WaypointWaypointModel.$language.$id == \LanguageModel.$id)
+            .filter(LanguageModel.self, \.$priority != nil)
+            .field(\.$id)
+            .unique()
+    }
+    
     func listOutput(_ req: Request, _ models: Page<WaypointRepositoryModel>) async throws -> Page<Waypoint.Waypoint.List> {
         let preferredLanguageCode = try req.query.decode(PreferredLanguageQuery.self).preferredLanguage
+        
         let allLanguageCodesByPriority = try await LanguageModel.languageCodesByPriority(preferredLanguageCode: preferredLanguageCode, on: req.db)
         
         return try await models
             .concurrentMap { model in
+                /// this should not fail since the beforeList only loads repositories which fullfill this criteria
+                /// however, to ensure the list works return nil otherwise and use compact map to ensure all other waypoints are returned
                 if let waypoint = try await latestWaypointModel(for: allLanguageCodesByPriority, from: model, needsToBeVerified: true, on: req.db, loadDescription: false) {
-                    return .init(
-                        id: model.id!,
+                    return try .init(
+                        id: model.requireID(),
                         title: waypoint.title.value,
                         location: waypoint.location.value
                     )
+                } else {
+                    return nil
                 }
-                return nil
             }
             .compactMap { $0 }
     }
