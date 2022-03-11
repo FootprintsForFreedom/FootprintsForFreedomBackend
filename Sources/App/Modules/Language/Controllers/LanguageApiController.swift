@@ -123,6 +123,7 @@ struct LanguageApiController: UnpagedApiController {
     func createInput(_ req: Request, _ model: LanguageModel, _ input: Language.Language.Create) async throws {
         let currentHighestPriority = try await LanguageModel
             .query(on: req.db)
+            .filter(\.$priority != nil)
             .sort(\.$priority, .descending)
             .first()?.priority ?? 0
         
