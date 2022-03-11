@@ -22,7 +22,7 @@ enum LanguageMigrations {
             
                 .field(LanguageModel.FieldKeys.v1.isRTL, .bool, .required)
             
-                .field(LanguageModel.FieldKeys.v1.priority, .int8)
+                .field(LanguageModel.FieldKeys.v1.priority, .int64)
                 .unique(on: LanguageModel.FieldKeys.v1.priority)
             
                 .create()
