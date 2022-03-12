@@ -46,6 +46,7 @@ struct WaypointApiController: ApiRepositoryController {
             .query(on: db)
             .join(LanguageModel.self, on: \WaypointWaypointModel.$language.$id == \LanguageModel.$id)
             .filter(LanguageModel.self, \.$languageCode == languageCode)
+            .filter(LanguageModel.self, \.$priority != nil)
         if needsToBeVerified {
             query = query.filter(\.$verified == true)
         }

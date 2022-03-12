@@ -284,7 +284,7 @@ final class WaypointApiGetTests: AppTestCase {
             .test()
     }
     
-    func testGetWaypointForDeactivatedLanguageAsModeratorFails() async throws {
+    func testGetWaypointForDeactivatedLanguageFails() async throws {
         let deactivatedLanguage = try await createLanguage()
         deactivatedLanguage.priority = nil
         try await deactivatedLanguage.update(on: app.db)
@@ -295,7 +295,7 @@ final class WaypointApiGetTests: AppTestCase {
         let adminToken = try await getToken(for: .admin)
         
         try app
-            .describe("Get waypoint for deactivated language as should always fail; instead request the model direct.y")
+            .describe("Get waypoint for deactivated language should always fail; instead request the model directly")
             .get(waypointsPath.appending(waypointRepositoryForDeactivatedLanguage.requireID().uuidString))
             .bearerToken(adminToken)
             .expect(.notFound)
