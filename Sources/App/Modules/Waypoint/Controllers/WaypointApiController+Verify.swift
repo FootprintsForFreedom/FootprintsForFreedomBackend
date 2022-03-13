@@ -45,6 +45,7 @@ extension WaypointApiController {
                 .with(\.$title)
                 .with(\.$description)
                 .with(\.$location)
+                .with(\.$user)
                 .first(),
               let model2 = try await WaypointWaypointModel
                 .query(on: req.db)
@@ -53,6 +54,7 @@ extension WaypointApiController {
                 .with(\.$title)
                 .with(\.$description)
                 .with(\.$location)
+                .with(\.$user)
                 .first()
         else {
             throw Abort(.notFound)
@@ -67,7 +69,17 @@ extension WaypointApiController {
             .converted()
         /// only set the new location if it has changed
         let newLocation = model1.location.value == model2.location.value ? nil : model2.location.value
-        return .init(titleDiff: titleDiff, descriptionDiff: descriptionDiff, oldLocation: model1.location.value, newLocation: newLocation)
+        
+        let model1User = try User.Account.Detail.publicDetail(id: model1.user.requireID(), name: model1.user.name, school: model1.user.school)
+        let model2User = try User.Account.Detail.publicDetail(id: model2.user.requireID(), name: model2.user.name, school: model2.user.school)
+        return .init(
+            titleDiff: titleDiff,
+            descriptionDiff: descriptionDiff,
+            oldLocation: model1.location.value,
+            newLocation: newLocation,
+            fromUser: model1User,
+            toUser: model2User
+        )
         // TODO: also return users who created models
     }
     

@@ -94,6 +94,8 @@ final class WaypointApiDetailChangesTests: AppTestCase {
             .expect(Waypoint.Waypoint.Changes.self) { content in
                 XCTAssertEqual(content.oldLocation, waypointModel.location.value)
                 XCTAssertEqual(content.newLocation, secondWaypointModel.location.value)
+                XCTAssertEqual(content.fromUser.id, waypointModel.user.id)
+                XCTAssertEqual(content.toUser.id, secondWaypointModel.user.id)
             }
             .test()
     }
@@ -127,6 +129,8 @@ final class WaypointApiDetailChangesTests: AppTestCase {
             .expect(Waypoint.Waypoint.Changes.self) { content in
                 XCTAssertEqual(content.oldLocation, waypointModel.location.value)
                 XCTAssertNil(content.newLocation)
+                XCTAssertEqual(content.fromUser.id, waypointModel.user.id)
+                XCTAssertEqual(content.toUser.id, secondWaypointModel.user.id)
             }
             .test()
     }

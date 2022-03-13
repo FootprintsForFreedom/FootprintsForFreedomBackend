@@ -138,12 +138,16 @@ public extension Waypoint.Waypoint {
         public let descriptionDiff: [Diff]
         public let oldLocation: Waypoint.Location
         public let newLocation: Waypoint.Location?
+        public let fromUser: User.Account.Detail
+        public let toUser: User.Account.Detail
         
-        public init(titleDiff: [Diff], descriptionDiff: [Diff], oldLocation: Waypoint.Location, newLocation: Waypoint.Location?) {
+        public init(titleDiff: [Diff], descriptionDiff: [Diff], oldLocation: Waypoint.Location, newLocation: Waypoint.Location?, fromUser: User.Account.Detail, toUser: User.Account.Detail) {
             self.titleDiff = titleDiff
             self.descriptionDiff = descriptionDiff
             self.oldLocation = oldLocation
             self.newLocation = newLocation
+            self.fromUser = fromUser
+            self.toUser = toUser
         }
     }
 }
