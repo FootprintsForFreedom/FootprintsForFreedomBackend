@@ -38,6 +38,8 @@ extension WaypointApiController {
             throw Abort(.badRequest)
         }
         
+        // TODO: same language
+        
         guard let model1 = try await WaypointWaypointModel
                 .query(on: req.db)
                 .filter(\.$repository.$id == repository.requireID())
@@ -80,7 +82,32 @@ extension WaypointApiController {
             fromUser: model1User,
             toUser: model2User
         )
-        // TODO: also return users who created models
+    }
+    
+    func listUnverified(_ req: Request) async throws -> Page<Waypoint.Waypoint.ListUnverified> {
+        try await onlyForModerator(req)
+        
+        let repository = try await detail(req)
+        
+        let unverifiedWaypoints = try await repository.$waypoints
+            .query(on: req.db)
+            .filter(\.$verified == false)
+            .join(LanguageModel.self, on: \WaypointWaypointModel.$language.$id == \LanguageModel.$id)
+            .filter(LanguageModel.self, \.$priority != nil)
+            .sort(\.$updatedAt, .ascending) // oldest first
+            .with(\.$title)
+            .with(\.$description)
+            .with(\.$language)
+            .paginate(for: req)
+        
+        return try unverifiedWaypoints.map { waypoint in
+            return try .init(
+                modelId: waypoint.requireID(),
+                title: waypoint.title.value,
+                description: waypoint.description.value,
+                languageCode: waypoint.language.languageCode
+            )
+        }
     }
     
     var newWaypointModelPathIdKey: String { "newWaypointModel" }
@@ -134,8 +161,9 @@ extension WaypointApiController {
             .grouped(newWaypointModelPathIdComponent)
             .post(use: verifyChanges)
         
-        existingModelRoutes
-            .get("changes", use: detailChanges)
+        existingModelRoutes.get("changes", use: detailChanges)
+        
+        existingModelRoutes.get("unverified", use: listUnverified)
     }
 }
 

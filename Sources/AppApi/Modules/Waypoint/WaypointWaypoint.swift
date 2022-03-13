@@ -133,6 +133,20 @@ public extension Waypoint.Waypoint {
         }
     }
     
+    struct ListUnverified: Codable {
+        public let modelId: UUID
+        public let title: String
+        public let description: String
+        public let languageCode: String
+        
+        public init(modelId: UUID, title: String, description: String, languageCode: String) {
+            self.modelId = modelId
+            self.title = title
+            self.description = description
+            self.languageCode = languageCode
+        }
+    }
+    
     struct Changes: Codable {
         public let titleDiff: [Diff]
         public let descriptionDiff: [Diff]
