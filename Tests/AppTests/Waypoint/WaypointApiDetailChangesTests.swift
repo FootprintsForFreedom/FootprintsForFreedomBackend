@@ -172,7 +172,7 @@ final class WaypointApiDetailChangesTests: AppTestCase {
         )
         
         try app
-            .describe("Detail changes as user should fail")
+            .describe("Detail wihtout token should fail")
             .get(waypointsPath.appending("\(waypointRepository.requireID())/changes/?from=\(waypointModel.requireID())&to=\(secondWaypointModel.requireID())"))
             .expect(.unauthorized)
             .test()
@@ -198,7 +198,7 @@ final class WaypointApiDetailChangesTests: AppTestCase {
         let (waypointRepository2, waypointModel2) = try await createNewWaypoint(languageId: language.requireID())
         
         try app
-            .describe("Detail changes as user should fail")
+            .describe("Detail changes should fail when from model is from other repository")
             .get(waypointsPath.appending("\(waypointRepository2.requireID())/changes/?from=\(waypointModel.requireID())&to=\(waypointModel2.requireID())"))
             .bearerToken(moderatorToken)
             .expect(.notFound)
@@ -213,7 +213,7 @@ final class WaypointApiDetailChangesTests: AppTestCase {
         let (_, waypointModel2) = try await createNewWaypoint(languageId: language.requireID())
         
         try app
-            .describe("Detail changes as user should fail")
+            .describe("Detail changes should fail when to model is from other repository")
             .get(waypointsPath.appending("\(waypointRepository.requireID())/changes/?from=\(waypointModel.requireID())&to=\(waypointModel2.requireID())"))
             .bearerToken(moderatorToken)
             .expect(.notFound)
