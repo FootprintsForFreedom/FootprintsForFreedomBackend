@@ -28,8 +28,6 @@ struct WaypointApiController: ApiRepositoryController {
         KeyedContentValidator<String>.required("languageCode", optional: false)
     }
     
-    // TODO: verification route
-    
     struct PreferredLanguageQuery: Codable {
         let preferredLanguage: String?
     }

@@ -22,7 +22,14 @@ let package = Package(
         .package(url: "https://github.com/binarybirds/spec", from: "1.2.0"),
     ],
     targets: [
-        .target(name: "AppApi", dependencies: []),
+        .target(name: "diff_match_patch"),
+        .target(name: "DiffMatchPatch", dependencies: [
+            .target(name: "diff_match_patch"),
+        ]),
+        .target(name: "AppApi", dependencies: [
+            .product(name: "Vapor", package: "vapor"),
+            .target(name: "DiffMatchPatch")
+        ]),
         .target(
             name: "App",
             dependencies: [
@@ -34,6 +41,7 @@ let package = Package(
                 .product(name: "LiquidLocalDriver", package: "liquid-local-driver"),
                 .product(name: "SwiftHtml", package: "swift-html"),
                 
+                .target(name: "DiffMatchPatch"),
                 .target(name: "AppApi")
             ],
             swiftSettings: [

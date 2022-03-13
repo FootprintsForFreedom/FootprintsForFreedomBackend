@@ -117,3 +117,29 @@ public extension Waypoint.Waypoint {
         }
     }
 }
+
+public extension Waypoint.Waypoint {
+    struct DetailChangesRequest: Codable {
+        public let from: UUID?
+        public let to: UUID?
+        
+        public init(from: UUID?, to: UUID?) {
+            self.from = from
+            self.to = to
+        }
+    }
+    
+    struct Changes: Codable {
+        public let titleDiff: [Diff]
+        public let descriptionDiff: [Diff]
+        public let oldLocation: Waypoint.Location
+        public let newLocation: Waypoint.Location?
+        
+        public init(titleDiff: [Diff], descriptionDiff: [Diff], oldLocation: Waypoint.Location, newLocation: Waypoint.Location?) {
+            self.titleDiff = titleDiff
+            self.descriptionDiff = descriptionDiff
+            self.oldLocation = oldLocation
+            self.newLocation = newLocation
+        }
+    }
+}
