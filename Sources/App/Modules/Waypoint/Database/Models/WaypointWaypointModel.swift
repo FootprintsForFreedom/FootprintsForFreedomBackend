@@ -145,5 +145,6 @@ extension WaypointWaypointModel {
         try await self.$description.load(on: db)
         try await self.$location.load(on: db)
         try await self.$language.load(on: db)
+        try await self.$user.load(on: db)
     }
 }
