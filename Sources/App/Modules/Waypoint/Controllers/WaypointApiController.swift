@@ -119,13 +119,14 @@ struct WaypointApiController: ApiRepositoryController {
             }
             
             if user.role >= .moderator {
-                return .moderatorDetail(
+                return try .moderatorDetail(
                     id: repository.id!,
                     title: waypoint.title.value,
                     description: waypoint.description.value,
                     location: waypoint.location.value,
                     languageCode: waypoint.language.languageCode,
-                    verified: waypoint.verified
+                    verified: waypoint.verified,
+                    modelId: waypoint.requireID()
                 )
             } else if !waypoint.verified {
                 throw Abort(.forbidden)

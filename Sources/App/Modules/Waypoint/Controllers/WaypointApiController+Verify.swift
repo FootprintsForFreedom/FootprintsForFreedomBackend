@@ -103,13 +103,14 @@ extension WaypointApiController {
         waypoint.verified = true
         try await waypoint.update(on: req.db)
         try await waypoint.load(on: req.db)
-        return .moderatorDetail(
+        return try .moderatorDetail(
             id: repository.id!,
             title: waypoint.title.value,
             description: waypoint.description.value,
             location: waypoint.location.value,
             languageCode: waypoint.language.languageCode,
-            verified: waypoint.verified
+            verified: waypoint.verified,
+            modelId: waypoint.requireID()
         )
     }
     

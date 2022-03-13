@@ -34,6 +34,7 @@ public extension Waypoint.Waypoint {
         public let location: Waypoint.Location
         public let languageCode: String
         public let verified: Bool?
+        public let modelId: UUID?
         
         public static func publicDetail(id: UUID, title: String, description: String, location: Waypoint.Location, languageCode: String) -> Self {
             return .init(
@@ -45,14 +46,15 @@ public extension Waypoint.Waypoint {
             )
         }
         
-        public static func moderatorDetail(id: UUID, title: String, description: String, location: Waypoint.Location, languageCode: String, verified: Bool) -> Self {
+        public static func moderatorDetail(id: UUID, title: String, description: String, location: Waypoint.Location, languageCode: String, verified: Bool, modelId: UUID) -> Self {
             return .init(
                 id: id,
                 title: title,
                 description: description,
                 location: location,
                 languageCode: languageCode,
-                verified: verified
+                verified: verified,
+                modelId: modelId
             )
         }
         
@@ -63,15 +65,17 @@ public extension Waypoint.Waypoint {
             self.location = location
             self.languageCode = languageCode
             self.verified = nil
+            self.modelId = nil
         }
         
-        private init(id: UUID, title: String, description: String, location: Waypoint.Location, languageCode: String, verified: Bool) {
+        private init(id: UUID, title: String, description: String, location: Waypoint.Location, languageCode: String, verified: Bool, modelId: UUID) {
             self.id = id
             self.title = title
             self.description = description
             self.location = location
             self.languageCode = languageCode
             self.verified = verified
+            self.modelId = modelId
         }
     }
     
