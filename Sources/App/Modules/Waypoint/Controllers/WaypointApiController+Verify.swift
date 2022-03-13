@@ -12,9 +12,23 @@ import DiffMatchPatch
 extension Waypoint.Waypoint.Changes: Content { }
 
 extension WaypointApiController {
+    func onlyForModerator(_ req: Request) async throws {
+        /// Require user to be signed in
+        let authenticatedUser = try req.auth.require(AuthenticatedUser.self)
+        /// find the user model belonging to the authenticated user
+        guard let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db) else {
+            throw Abort(.unauthorized)
+        }
+        /// require  the user to be a admin or higher
+        guard user.role >= .moderator else {
+            throw Abort(.forbidden)
+        }
+    }
     
     // GET: api/wayponts/:repositoryID/changes/?from=model1ID&to=model2ID
     func detailChanges(_ req: Request) async throws -> Waypoint.Waypoint.Changes {
+        try await onlyForModerator(req)
+        
         let repository = try await detail(req)
         let detailChangesRequest = try req.query.decode(Waypoint.Waypoint.DetailChangesRequest.self)
         
@@ -44,6 +58,7 @@ extension WaypointApiController {
             throw Abort(.notFound)
         }
         
+        /// compute the diffs
         let titleDiff = computeDiff(model1.title.value, model2.title.value)
             .cleaningUpSemantics()
             .converted()
@@ -53,13 +68,16 @@ extension WaypointApiController {
         /// only set the new location if it has changed
         let newLocation = model1.location.value == model2.location.value ? nil : model2.location.value
         return .init(titleDiff: titleDiff, descriptionDiff: descriptionDiff, oldLocation: model1.location.value, newLocation: newLocation)
+        // TODO: also return users who created models
     }
     
     var newWaypointModelPathIdKey: String { "newWaypointModel" }
     var newWaypointModelPathIdComponent: PathComponent { .init(stringLiteral: ":" + newWaypointModelPathIdKey) }
     
-    // POST: api/wayponts/:repositoryID/verify/:waypointModelId
+    // POST: api/waypoints/:repositoryID/verify/:waypointModelId
     func verifyChanges(_ req: Request) async throws -> Waypoint.Waypoint.Detail {
+        try await onlyForModerator(req)
+        
         let repository = try await detail(req)
         guard
             let waypointIdString = req.parameters.get(newWaypointModelPathIdKey),
@@ -85,7 +103,14 @@ extension WaypointApiController {
         waypoint.verified = true
         try await waypoint.update(on: req.db)
         try await waypoint.load(on: req.db)
-        return detailOutput(repository, waypoint)
+        return .moderatorDetail(
+            id: repository.id!,
+            title: waypoint.title.value,
+            description: waypoint.description.value,
+            location: waypoint.location.value,
+            languageCode: waypoint.language.languageCode,
+            verified: waypoint.verified
+        )
     }
     
     func setupVerificationRoutes(_ routes: RoutesBuilder) {
