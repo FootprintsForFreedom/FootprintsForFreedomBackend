@@ -38,8 +38,6 @@ extension WaypointApiController {
             throw Abort(.badRequest)
         }
         
-        // TODO: same language
-        
         guard let model1 = try await WaypointWaypointModel
                 .query(on: req.db)
                 .filter(\.$repository.$id == repository.requireID())
@@ -60,6 +58,10 @@ extension WaypointApiController {
                 .first()
         else {
             throw Abort(.notFound)
+        }
+        
+        guard model1.$language.id == model2.$language.id else {
+            throw Abort(.badRequest, reason: "The models need to be of the same language")
         }
         
         /// compute the diffs

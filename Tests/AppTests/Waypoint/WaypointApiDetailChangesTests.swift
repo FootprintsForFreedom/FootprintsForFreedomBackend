@@ -224,4 +224,29 @@ final class WaypointApiDetailChangesTests: AppTestCase {
             .test()
     }
     
+    func testDetailChangesWithModelsFromDifferntLanguagesFails() async throws {
+        let moderatorToken = try await getToken(for: .moderator)
+        
+        let user = try await getUser(role: .user)
+        let language =  try await createLanguage()
+        let secondLanguage =  try await createLanguage()
+        let (waypointRepository, waypointModel) = try await createNewWaypoint(languageId: language.requireID())
+        let secondWaypointModel = try await WaypointWaypointModel.createWith(
+            title: "Another different title",
+            description: "This is a new description",
+            location: .init(latitude: 9, longitude: 20),
+            repositoryId: waypointRepository.requireID(),
+            languageId: secondLanguage.requireID(),
+            userId: user.requireID(),
+            verified: false,
+            on: app.db
+        )
+        
+        try app
+            .describe("Detail changes should fail when models have different languages")
+            .get(waypointsPath.appending("\(waypointRepository.requireID())/changes/?from=\(waypointModel.requireID())&to=\(secondWaypointModel.requireID())"))
+            .bearerToken(moderatorToken)
+            .expect(.badRequest)
+            .test()
+    }
 }
