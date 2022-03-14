@@ -32,50 +32,6 @@ struct WaypointApiController: ApiRepositoryController {
         let preferredLanguage: String?
     }
     
-    // TODO: test this function
-    private func latestWaypointModel(
-        for languageCode: String,
-        from repository: WaypointRepositoryModel,
-        needsToBeVerified: Bool,
-        on db: Database,
-        loadDescription: Bool
-    ) async throws -> WaypointWaypointModel? {
-        var query = repository.$waypoints
-            .query(on: db)
-            .join(LanguageModel.self, on: \WaypointWaypointModel.$language.$id == \LanguageModel.$id)
-            .filter(LanguageModel.self, \.$languageCode == languageCode)
-            .filter(LanguageModel.self, \.$priority != nil)
-        if needsToBeVerified {
-            query = query.filter(\.$verified == true)
-        }
-        query = query
-            .sort(\.$updatedAt, .descending) // newest first
-            .with(\.$title)
-            .with(\.$location)
-            .with(\.$language)
-        
-        if loadDescription {
-            query = query.with(\.$description)
-        }
-        
-        return try await query.first()
-    }
-    
-    private func latestWaypointModel(
-        for languageCodesByPriority: [String],
-        from repository: WaypointRepositoryModel,
-        needsToBeVerified: Bool,
-        on db: Database,
-        loadDescription: Bool
-    ) async throws -> WaypointWaypointModel? {
-        for languageCode in languageCodesByPriority {
-            if let waypoint = try await latestWaypointModel(for: languageCode, from: repository, needsToBeVerified: needsToBeVerified, on: db, loadDescription: loadDescription){
-                return waypoint
-            }
-        }
-        return nil
-    }
-    
     func beforeList(_ req: Request, _ queryBuilder: QueryBuilder<WaypointRepositoryModel>) async throws -> QueryBuilder<WaypointRepositoryModel> {
         queryBuilder
             .join(WaypointWaypointModel.self, on: \WaypointWaypointModel.$repository.$id == \WaypointRepositoryModel.$id)
@@ -95,7 +51,7 @@ struct WaypointApiController: ApiRepositoryController {
             .concurrentMap { model in
                 /// this should not fail since the beforeList only loads repositories which fullfill this criteria
                 /// however, to ensure the list works return nil otherwise and use compact map to ensure all other waypoints are returned
-                if let waypoint = try await latestWaypointModel(for: allLanguageCodesByPriority, from: model, needsToBeVerified: true, on: req.db, loadDescription: false) {
+                if let waypoint = try await model.latestWaypointModel(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db, loadDescription: false) {
                     return try .init(
                         id: model.requireID(),
                         title: waypoint.title.value,
@@ -114,7 +70,7 @@ struct WaypointApiController: ApiRepositoryController {
         
         if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db) {
             
-            guard let waypoint = try await latestWaypointModel(for: allLanguageCodesByPriority, from: repository, needsToBeVerified: false, on: req.db, loadDescription: true) else {
+            guard let waypoint = try await repository.latestWaypointModel(for: allLanguageCodesByPriority, needsToBeVerified: false, on: req.db, loadDescription: true) else {
                 throw Abort(.notFound)
             }
             
@@ -132,7 +88,7 @@ struct WaypointApiController: ApiRepositoryController {
                 throw Abort(.forbidden)
             }
         }
-        guard let waypoint = try await latestWaypointModel(for: allLanguageCodesByPriority, from: repository, needsToBeVerified: true, on: req.db, loadDescription: true) else {
+        guard let waypoint = try await repository.latestWaypointModel(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db, loadDescription: true) else {
             throw Abort(.unauthorized)
         }
         return detailOutput(repository, waypoint)
@@ -176,6 +132,9 @@ struct WaypointApiController: ApiRepositoryController {
             on: req.db
         )
     }
+    
+    // TODO: dont update location / or store it in repository --> this way it also is the same for all languages
+    // mabye also store medias in repository --> store media repositories --> one media per language and fallback for others like with waypoints
     
     func updateInput(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointWaypointModel, _ input: Waypoint.Waypoint.Update) async throws {
         /// Require user to be signed in
@@ -230,7 +189,7 @@ struct WaypointApiController: ApiRepositoryController {
             try await waypoint.set(\.$description, to: newDescription, user.id, on: req.db)
             try await waypoint.set(\.$location, to: newLocation, user.id, on: req.db)
         } else {
-            guard let latestVerifiedWaypointForPatchLanguage = try await latestWaypointModel(for: input.languageCode, from: repository, needsToBeVerified: true, on: req.db, loadDescription: false) else {
+            guard let latestVerifiedWaypointForPatchLanguage = try await repository.latestWaypointModel(for: input.languageCode, needsToBeVerified: true, on: req.db, loadDescription: false) else {
                 throw Abort(.badRequest)
             }
             try await latestVerifiedWaypointForPatchLanguage.load(on: req.db)
