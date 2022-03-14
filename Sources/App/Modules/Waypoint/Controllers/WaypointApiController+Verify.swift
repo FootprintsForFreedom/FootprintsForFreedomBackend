@@ -86,6 +86,42 @@ extension WaypointApiController {
         )
     }
     
+    func listRepositoriesWithUnverifiedModels(_ req: Request) async throws -> Page<Waypoint.Waypoint.List> {
+        try await onlyForModerator(req)
+        
+        let preferredLanguageCode = try req.query.decode(PreferredLanguageQuery.self).preferredLanguage
+        
+        let allLanguageCodesByPriority = try await LanguageModel.languageCodesByPriority(preferredLanguageCode: preferredLanguageCode, on: req.db)
+        
+        let repositoriesWithUnverifiedModels = try await WaypointRepositoryModel
+            .query(on: req.db)
+            .join(WaypointWaypointModel.self, on: \WaypointWaypointModel.$repository.$id == \WaypointRepositoryModel.$id)
+            .filter(WaypointWaypointModel.self, \.$verified == false)
+            .join(LanguageModel.self, on: \WaypointWaypointModel.$language.$id == \LanguageModel.$id)
+            .filter(LanguageModel.self, \.$priority != nil)
+            .field(\.$id)
+            .unique()
+            .paginate(for: req)
+        
+        return try await repositoriesWithUnverifiedModels.concurrentMap { repository in
+            let latestVerifiedWaypointModel = try await repository.waypointModel(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db, loadDescription: false, sort: .ascending)
+            var waypointModel: WaypointWaypointModel! = latestVerifiedWaypointModel
+            
+            if waypointModel == nil {
+                guard let oldestWaypointModel = try await repository.waypointModel(for: allLanguageCodesByPriority, needsToBeVerified: false, on: req.db, loadDescription: false, sort: .ascending) else {
+                    throw Abort(.internalServerError)
+                }
+                waypointModel = oldestWaypointModel
+            }
+            
+            return try .init(
+                id: repository.requireID(),
+                title: waypointModel.title.value,
+                location: waypointModel.location.value
+            )
+        }
+    }
+    
     func listUnverified(_ req: Request) async throws -> Page<Waypoint.Waypoint.ListUnverified> {
         try await onlyForModerator(req)
         
@@ -165,6 +201,7 @@ extension WaypointApiController {
         
         existingModelRoutes.get("changes", use: detailChanges)
         
+        baseRoutes.get("unverified", use: listRepositoriesWithUnverifiedModels)
         existingModelRoutes.get("unverified", use: listUnverified)
     }
 }
