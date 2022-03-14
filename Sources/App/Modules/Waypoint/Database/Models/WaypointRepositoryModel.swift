@@ -20,11 +20,12 @@ final class WaypointRepositoryModel: DatabaseModelInterface {
 }
 
 extension WaypointRepositoryModel {
-    func latestWaypointModel(
+    func waypointModel(
         for languageCode: String,
         needsToBeVerified: Bool,
         on db: Database,
-        loadDescription: Bool
+        loadDescription: Bool,
+        sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
     ) async throws -> WaypointWaypointModel? {
         var query = self.$waypoints
             .query(on: db)
@@ -35,7 +36,7 @@ extension WaypointRepositoryModel {
             query = query.filter(\.$verified == true)
         }
         query = query
-            .sort(\.$updatedAt, .descending) // newest first
+            .sort(\.$updatedAt, sortDirection)
             .with(\.$title)
             .with(\.$location)
             .with(\.$language)
@@ -47,14 +48,15 @@ extension WaypointRepositoryModel {
         return try await query.first()
     }
     
-    func latestWaypointModel(
+    func waypointModel(
         for languageCodesByPriority: [String],
         needsToBeVerified: Bool,
         on db: Database,
-        loadDescription: Bool
+        loadDescription: Bool,
+        sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
     ) async throws -> WaypointWaypointModel? {
         for languageCode in languageCodesByPriority {
-            if let waypoint = try await latestWaypointModel(for: languageCode, needsToBeVerified: needsToBeVerified, on: db, loadDescription: loadDescription){
+            if let waypoint = try await waypointModel(for: languageCode, needsToBeVerified: needsToBeVerified, on: db, loadDescription: loadDescription, sort: sortDirection){
                 return waypoint
             }
         }

@@ -51,7 +51,7 @@ struct WaypointApiController: ApiRepositoryController {
             .concurrentMap { model in
                 /// this should not fail since the beforeList only loads repositories which fullfill this criteria
                 /// however, to ensure the list works return nil otherwise and use compact map to ensure all other waypoints are returned
-                if let waypoint = try await model.latestWaypointModel(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db, loadDescription: false) {
+                if let waypoint = try await model.waypointModel(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db, loadDescription: false) {
                     return try .init(
                         id: model.requireID(),
                         title: waypoint.title.value,
@@ -70,7 +70,7 @@ struct WaypointApiController: ApiRepositoryController {
         
         if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db) {
             
-            guard let waypoint = try await repository.latestWaypointModel(for: allLanguageCodesByPriority, needsToBeVerified: false, on: req.db, loadDescription: true) else {
+            guard let waypoint = try await repository.waypointModel(for: allLanguageCodesByPriority, needsToBeVerified: false, on: req.db, loadDescription: true) else {
                 throw Abort(.notFound)
             }
             
@@ -88,7 +88,7 @@ struct WaypointApiController: ApiRepositoryController {
                 throw Abort(.forbidden)
             }
         }
-        guard let waypoint = try await repository.latestWaypointModel(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db, loadDescription: true) else {
+        guard let waypoint = try await repository.waypointModel(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db, loadDescription: true) else {
             throw Abort(.unauthorized)
         }
         return detailOutput(repository, waypoint)
@@ -189,7 +189,7 @@ struct WaypointApiController: ApiRepositoryController {
             try await waypoint.set(\.$description, to: newDescription, user.id, on: req.db)
             try await waypoint.set(\.$location, to: newLocation, user.id, on: req.db)
         } else {
-            guard let latestVerifiedWaypointForPatchLanguage = try await repository.latestWaypointModel(for: input.languageCode, needsToBeVerified: true, on: req.db, loadDescription: false) else {
+            guard let latestVerifiedWaypointForPatchLanguage = try await repository.waypointModel(for: input.languageCode, needsToBeVerified: true, on: req.db, loadDescription: false) else {
                 throw Abort(.badRequest)
             }
             try await latestVerifiedWaypointForPatchLanguage.load(on: req.db)
