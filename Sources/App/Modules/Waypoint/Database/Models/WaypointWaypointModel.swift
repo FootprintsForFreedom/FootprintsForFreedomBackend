@@ -14,8 +14,8 @@ final class WaypointWaypointModel: DatabaseModelInterface {
     struct FieldKeys {
         struct v1 {
             static var verified: FieldKey { "verified" }
-            static var titleId: FieldKey { "title_id" }
-            static var descriptionId: FieldKey { "description_id" }
+            static var title: FieldKey { "title" }
+            static var description: FieldKey { "description" }
             static var locationId: FieldKey { "location_id" }
             static var languageId: FieldKey { "language_id" }
             static var repositoryId: FieldKey { "repository_id" }
@@ -28,12 +28,8 @@ final class WaypointWaypointModel: DatabaseModelInterface {
     
     @ID() var id: UUID?
     @Field(key: FieldKeys.v1.verified) var verified: Bool
-    
-    @Parent(key: FieldKeys.v1.titleId) var title: StorableObjectModel<String>
-    @Parent(key: FieldKeys.v1.descriptionId) var description: StorableObjectModel<String>
-    @Parent(key: FieldKeys.v1.locationId) var location: StorableObjectModel<Waypoint.Location>
-    
-    // TODO: language!
+    @Field(key: FieldKeys.v1.title) var title: String
+    @Field(key: FieldKeys.v1.description) var description: String
     
     @Children(for: \.$waypoint) var media: [WaypointMediaModel]
     
@@ -55,22 +51,18 @@ final class WaypointWaypointModel: DatabaseModelInterface {
     init(
         id: UUID? = nil,
         verified: Bool = false,
-        titleId: UUID,
-        descriptionId: UUID,
-        locationId: UUID,
+        title: String,
+        description: String,
         languageId: UUID,
-        repositoryId: UUID? = nil,
+        repositoryId: UUID,
         userId: UUID
     ) {
         self.id = id
         self.verified = verified
-        self.$title.id = titleId
-        self.$description.id = descriptionId
-        self.$location.id = locationId
+        self.title = title
+        self.description = description
         self.$language.id = languageId
-        if let repositoryId = repositoryId {
-            self.$repository.id = repositoryId
-        }
+        self.$repository.id = repositoryId
         self.$user.id = userId
     }
 }
@@ -81,70 +73,70 @@ extension WaypointWaypointModel: Equatable {
     }
 }
 
-extension WaypointWaypointModel {
-    func set<T>(_ keyPath: KeyPath<WaypointWaypointModel, ParentProperty<WaypointWaypointModel, StorableObjectModel<T>>>, to newValue: T, _ userId: UUID, on db: Database) async throws {
-        let newObject = StorableObjectModel<T>(value: newValue, userId: userId)
-        try await newObject.create(on: db)
-        let property = self[keyPath: keyPath]
-        property.id = try newObject.requireID()
-    }
-    
-    func with(
-        title: String,
-        description: String,
-        location: Waypoint.Location,
-        repositoryId: UUID,
-        languageId: UUID,
-        userId: UUID,
-        verified: Bool,
-        on db: Database
-    ) async throws {
-        try await self.set(\.$title, to: title, userId, on: db)
-        try await self.set(\.$description, to: description, userId, on: db)
-        try await self.set(\.$location, to: location, userId, on: db)
-        self.$repository.id = repositoryId
-        self.$language.id = languageId
-        self.$user.id = userId
-        self.verified = verified
-    }
-    
-    static func createWith(
-        title: String,
-        description: String,
-        location: Waypoint.Location,
-        repositoryId: UUID,
-        languageId: UUID,
-        userId: UUID,
-        verified: Bool,
-        on db: Database
-    ) async throws -> Self {
-        let title = StorableObjectModel<String>(value: title, userId: userId)
-        try await title.create(on: db)
-        let description = StorableObjectModel<String>(value: description, userId: userId)
-        try await description.create(on: db)
-        let location = StorableObjectModel<Waypoint.Location>(value: location, userId: userId)
-        try await location.create(on: db)
-        
-        let waypoint = try self.init(
-            verified: verified,
-            titleId: title.requireID(),
-            descriptionId: description.requireID(),
-            locationId: location.requireID(),
-            languageId: languageId,
-            repositoryId: repositoryId,
-            userId: userId
-        )
-        try await waypoint.create(on: db)
-        return waypoint
-    }
-}
-
-extension WaypointWaypointModel {
-    func load(on db: Database) async throws {
-        try await self.$title.load(on: db)
-        try await self.$description.load(on: db)
-        try await self.$location.load(on: db)
-        try await self.$language.load(on: db)
-        try await self.$user.load(on: db)
-    }
-}
+//extension WaypointWaypointModel {
+//    func set<T>(_ keyPath: KeyPath<WaypointWaypointModel, ParentProperty<WaypointWaypointModel, StorableObjectModel<T>>>, to newValue: T, _ userId: UUID, on db: Database) async throws {
+//        let newObject = StorableObjectModel<T>(value: newValue, userId: userId)
+//        try await newObject.create(on: db)
+//        let property = self[keyPath: keyPath]
+//        property.id = try newObject.requireID()
+//    }
+//
+//    func with(
+//        title: String,
+//        description: String,
+//        location: Waypoint.Location,
+//        repositoryId: UUID,
+//        languageId: UUID,
+//        userId: UUID,
+//        verified: Bool,
+//        on db: Database
+//    ) async throws {
+//        try await self.set(\.$title, to: title, userId, on: db)
+//        try await self.set(\.$description, to: description, userId, on: db)
+//        try await self.set(\.$location, to: location, userId, on: db)
+//        self.$repository.id = repositoryId
+//        self.$language.id = languageId
+//        self.$user.id = userId
+//        self.verified = verified
+//    }
+//
+//    static func createWith(
+//        title: String,
+//        description: String,
+//        location: Waypoint.Location,
+//        repositoryId: UUID,
+//        languageId: UUID,
+//        userId: UUID,
+//        verified: Bool,
+//        on db: Database
+//    ) async throws -> Self {
+//        let title = StorableObjectModel<String>(value: title, userId: userId)
+//        try await title.create(on: db)
+//        let description = StorableObjectModel<String>(value: description, userId: userId)
+//        try await description.create(on: db)
+//        let location = StorableObjectModel<Waypoint.Location>(value: location, userId: userId)
+//        try await location.create(on: db)
+//
+//        let waypoint = try self.init(
+//            verified: verified,
+//            titleId: title.requireID(),
+//            descriptionId: description.requireID(),
+//            locationId: location.requireID(),
+//            languageId: languageId,
+//            repositoryId: repositoryId,
+//            userId: userId
+//        )
+//        try await waypoint.create(on: db)
+//        return waypoint
+//    }
+//}
+//
+//extension WaypointWaypointModel {
+//    func load(on db: Database) async throws {
+//        try await self.$title.load(on: db)
+//        try await self.$description.load(on: db)
+//        try await self.$location.load(on: db)
+//        try await self.$language.load(on: db)
+//        try await self.$user.load(on: db)
+//    }
+//}

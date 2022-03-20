@@ -96,13 +96,11 @@ public extension Waypoint.Waypoint {
     struct Update: Codable {
         public let title: String
         public let description: String
-        public let location: Waypoint.Location
         public let languageCode: String
         
-        public init(title: String, description: String, location: Waypoint.Location, languageCode: String) {
+        public init(title: String, description: String, languageCode: String) {
             self.title = title
             self.description = description
-            self.location = location
             self.languageCode = languageCode
         }
     }
@@ -150,16 +148,16 @@ public extension Waypoint.Waypoint {
     struct Changes: Codable {
         public let titleDiff: [Diff]
         public let descriptionDiff: [Diff]
-        public let oldLocation: Waypoint.Location
-        public let newLocation: Waypoint.Location?
+//        public let oldLocation: Waypoint.Location
+//        public let newLocation: Waypoint.Location?
         public let fromUser: User.Account.Detail
         public let toUser: User.Account.Detail
         
-        public init(titleDiff: [Diff], descriptionDiff: [Diff], oldLocation: Waypoint.Location, newLocation: Waypoint.Location?, fromUser: User.Account.Detail, toUser: User.Account.Detail) {
+        public init(titleDiff: [Diff], descriptionDiff: [Diff], fromUser: User.Account.Detail, toUser: User.Account.Detail) {
             self.titleDiff = titleDiff
             self.descriptionDiff = descriptionDiff
-            self.oldLocation = oldLocation
-            self.newLocation = newLocation
+//            self.oldLocation = oldLocation
+//            self.newLocation = newLocation
             self.fromUser = fromUser
             self.toUser = toUser
         }

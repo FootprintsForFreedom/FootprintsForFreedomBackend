@@ -15,16 +15,29 @@ final class WaypointRepositoryModel: DatabaseModelInterface {
     
     @ID() var id: UUID?
     @Children(for: \.$repository) var waypoints: [WaypointWaypointModel]
+    @Children(for: \.$repository) var locations: [WaypointLocationModel]
     
     init() { }
 }
 
 extension WaypointRepositoryModel {
+    func location(
+        needsToBeVerified: Bool,
+        on db: Database,
+        sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
+    ) async throws -> WaypointLocationModel? {
+        var query = self.$locations.query(on: db)
+        if needsToBeVerified {
+            query = query.filter(\.$verified == true)
+        }
+        query = query.sort(\.$updatedAt, sortDirection)
+        return try await query.first()
+    }
+    
     func waypointModel(
         for languageCode: String,
         needsToBeVerified: Bool,
         on db: Database,
-        loadDescription: Bool,
         sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
     ) async throws -> WaypointWaypointModel? {
         var query = self.$waypoints
@@ -35,15 +48,7 @@ extension WaypointRepositoryModel {
         if needsToBeVerified {
             query = query.filter(\.$verified == true)
         }
-        query = query
-            .sort(\.$updatedAt, sortDirection)
-            .with(\.$title)
-            .with(\.$location)
-            .with(\.$language)
-        
-        if loadDescription {
-            query = query.with(\.$description)
-        }
+        query = query.sort(\.$updatedAt, sortDirection)
         
         return try await query.first()
     }
@@ -52,11 +57,10 @@ extension WaypointRepositoryModel {
         for languageCodesByPriority: [String],
         needsToBeVerified: Bool,
         on db: Database,
-        loadDescription: Bool,
         sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
     ) async throws -> WaypointWaypointModel? {
         for languageCode in languageCodesByPriority {
-            if let waypoint = try await waypointModel(for: languageCode, needsToBeVerified: needsToBeVerified, on: db, loadDescription: loadDescription, sort: sortDirection){
+            if let waypoint = try await waypointModel(for: languageCode, needsToBeVerified: needsToBeVerified, on: db, sort: sortDirection){
                 return waypoint
             }
         }

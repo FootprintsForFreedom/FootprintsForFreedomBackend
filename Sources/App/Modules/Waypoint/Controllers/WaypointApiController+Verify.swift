@@ -42,18 +42,12 @@ extension WaypointApiController {
                 .query(on: req.db)
                 .filter(\.$repository.$id == repository.requireID())
                 .filter(\._$id == fromId)
-                .with(\.$title)
-                .with(\.$description)
-                .with(\.$location)
                 .with(\.$user)
                 .first(),
               let model2 = try await WaypointWaypointModel
                 .query(on: req.db)
                 .filter(\.$repository.$id == repository.requireID())
                 .filter(\._$id == toId)
-                .with(\.$title)
-                .with(\.$description)
-                .with(\.$location)
                 .with(\.$user)
                 .first()
         else {
@@ -65,22 +59,22 @@ extension WaypointApiController {
         }
         
         /// compute the diffs
-        let titleDiff = computeDiff(model1.title.value, model2.title.value)
+        let titleDiff = computeDiff(model1.title, model2.title)
             .cleaningUpSemantics()
             .converted()
-        let descriptionDiff = computeDiff(model1.description.value, model2.description.value)
+        let descriptionDiff = computeDiff(model1.description, model2.description)
             .cleaningUpSemantics()
             .converted()
         /// only set the new location if it has changed
-        let newLocation = model1.location.value == model2.location.value ? nil : model2.location.value
+//        let newLocation = model1.location.value == model2.location.value ? nil : model2.location.value
         
         let model1User = try User.Account.Detail.publicDetail(id: model1.user.requireID(), name: model1.user.name, school: model1.user.school)
         let model2User = try User.Account.Detail.publicDetail(id: model2.user.requireID(), name: model2.user.name, school: model2.user.school)
         return .init(
             titleDiff: titleDiff,
             descriptionDiff: descriptionDiff,
-            oldLocation: model1.location.value,
-            newLocation: newLocation,
+//            oldLocation: model1.location.value,
+//            newLocation: newLocation,
             fromUser: model1User,
             toUser: model2User
         )
@@ -104,20 +98,24 @@ extension WaypointApiController {
             .paginate(for: req)
         
         return try await repositoriesWithUnverifiedModels.concurrentMap { repository in
-            let latestVerifiedWaypointModel = try await repository.waypointModel(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db, loadDescription: false, sort: .ascending)
+            let latestVerifiedWaypointModel = try await repository.waypointModel(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db, sort: .ascending)
             var waypointModel: WaypointWaypointModel! = latestVerifiedWaypointModel
             
             if waypointModel == nil {
-                guard let oldestWaypointModel = try await repository.waypointModel(for: allLanguageCodesByPriority, needsToBeVerified: false, on: req.db, loadDescription: false, sort: .ascending) else {
+                guard let oldestWaypointModel = try await repository.waypointModel(for: allLanguageCodesByPriority, needsToBeVerified: false, on: req.db, sort: .ascending) else {
                     throw Abort(.internalServerError)
                 }
                 waypointModel = oldestWaypointModel
             }
             
+            guard let location = repository.locations.first else {
+                throw Abort(.internalServerError)
+            }
+            
             return try .init(
                 id: repository.requireID(),
-                title: waypointModel.title.value,
-                location: waypointModel.location.value
+                title: waypointModel.title,
+                location: .init(latitude: location.latitude, longitude: location.longitude)
             )
         }
     }
@@ -133,16 +131,14 @@ extension WaypointApiController {
             .join(LanguageModel.self, on: \WaypointWaypointModel.$language.$id == \LanguageModel.$id)
             .filter(LanguageModel.self, \.$priority != nil)
             .sort(\.$updatedAt, .ascending) // oldest first
-            .with(\.$title)
-            .with(\.$description)
             .with(\.$language)
             .paginate(for: req)
         
         return try unverifiedWaypoints.map { waypoint in
             return try .init(
                 modelId: waypoint.requireID(),
-                title: waypoint.title.value,
-                description: waypoint.description.value,
+                title: waypoint.title,
+                description: waypoint.description,
                 languageCode: waypoint.language.languageCode
             )
         }
@@ -168,6 +164,7 @@ extension WaypointApiController {
                 .join(WaypointRepositoryModel.self, on: \WaypointWaypointModel.$repository.$id == \WaypointRepositoryModel.$id)
                 .filter(WaypointRepositoryModel.self, \._$id == repository.requireID())
                 .filter(\._$id == waypointId)
+                .with(\.$language)
                 .first()
         else {
             throw Abort(.badRequest)
@@ -177,14 +174,18 @@ extension WaypointApiController {
             throw Abort(.badRequest, reason: "Waypoint Model is already verified")
         }
         
+        try await repository.$locations.load(on: req.db)
+        guard let location = repository.locations.first else {
+            throw Abort(.internalServerError)
+        }
+        
         waypoint.verified = true
         try await waypoint.update(on: req.db)
-        try await waypoint.load(on: req.db)
         return try .moderatorDetail(
             id: repository.id!,
-            title: waypoint.title.value,
-            description: waypoint.description.value,
-            location: waypoint.location.value,
+            title: waypoint.title,
+            description: waypoint.description,
+            location: .init(latitude: location.latitude, longitude: location.longitude),
             languageCode: waypoint.language.languageCode,
             verified: waypoint.verified,
             modelId: waypoint.requireID()

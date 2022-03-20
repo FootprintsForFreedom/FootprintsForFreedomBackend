@@ -43,7 +43,6 @@ public func configure(_ app: Application) throws {
 //        WebModule(),
         UserModule(),
         LanguageModule(),
-        StorableModule(),
         WaypointModule(),
 //        AdminModule(),
         ApiModule(),

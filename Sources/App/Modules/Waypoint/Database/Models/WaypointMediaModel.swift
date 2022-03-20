@@ -14,9 +14,9 @@ final class WaypointMediaModel: DatabaseModelInterface {
     struct FieldKeys {
         struct v1 {
             static var verified: FieldKey { "verified" }
-            static var titleId: FieldKey { "title_id" }
-            static var descriptionId: FieldKey { "description_id" }
-            static var sourceId: FieldKey { "source_id" }
+            static var title: FieldKey { "title" }
+            static var description: FieldKey { "description" }
+            static var source: FieldKey { "source" }
             static var group: FieldKey { "group" }
             static var waypointId: FieldKey { "waypoint_id" }
             static var userId: FieldKey { "user_id" }
@@ -27,9 +27,9 @@ final class WaypointMediaModel: DatabaseModelInterface {
     @ID() var id: UUID?
     @Field(key: FieldKeys.v1.verified) var verified: Bool
     
-    @Parent(key: FieldKeys.v1.titleId) var title: StorableObjectModel<String>
-    @Parent(key: FieldKeys.v1.descriptionId) var description: StorableObjectModel<String>
-    @Parent(key: FieldKeys.v1.sourceId) var source: StorableObjectModel<String>
+    @Field(key: FieldKeys.v1.title) var title: String
+    @Field(key: FieldKeys.v1.description) var description: String
+    @Field(key: FieldKeys.v1.source) var source: String
     
     @Enum(key: FieldKeys.v1.group) var group: Waypoint.Media.Group
     
