@@ -4,7 +4,7 @@
 //
 //  Created by niklhut on 17.02.22.
 //
-ç
+
 import Vapor
 import Fluent
 
@@ -144,10 +144,10 @@ struct WaypointApiController: ApiController {
         let user = try req.auth.require(AuthenticatedUser.self)
         
         guard let languageId = try await LanguageModel
-                .query(on: req.db)
-                .filter(\.$languageCode == input.languageCode)
-                .first()?
-                .requireID()
+            .query(on: req.db)
+            .filter(\.$languageCode == input.languageCode)
+            .first()?
+            .requireID()
         else {
             throw Abort(.badRequest)
         }
@@ -185,10 +185,10 @@ struct WaypointApiController: ApiController {
         let user = try req.auth.require(AuthenticatedUser.self)
         
         guard let languageId = try await LanguageModel
-                .query(on: req.db)
-                .filter(\.$languageCode == input.languageCode)
-                .first()?
-                .requireID()
+            .query(on: req.db)
+            .filter(\.$languageCode == input.languageCode)
+            .first()?
+            .requireID()
         else {
             throw Abort(.badRequest)
         }
@@ -225,10 +225,10 @@ struct WaypointApiController: ApiController {
         let user = try req.auth.require(AuthenticatedUser.self)
         
         guard let languageId = try await LanguageModel
-                .query(on: req.db)
-                .filter(\.$languageCode == input.languageCode)
-                .first()?
-                .requireID()
+            .query(on: req.db)
+            .filter(\.$languageCode == input.languageCode)
+            .first()?
+            .requireID()
         else {
             throw Abort(.badRequest)
         }

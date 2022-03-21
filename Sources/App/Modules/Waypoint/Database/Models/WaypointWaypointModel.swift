@@ -39,13 +39,13 @@ final class WaypointWaypointModel: DatabaseModelInterface {
     
     @Parent(key: FieldKeys.v1.repositoryId) var repository: WaypointRepositoryModel
     @Parent(key: FieldKeys.v1.userId) var user: UserAccountModel
-
+    
     @Timestamp(key: FieldKeys.v1.createdAt, on: .create) var createdAt: Date?
     @Timestamp(key: FieldKeys.v1.updatedAt, on: .update) var updatedAt: Date?
     
     // MARK: soft delete
     @Timestamp(key: FieldKeys.v1.deletedAt, on: .delete) var deletedAt: Date?
-
+    
     init() { }
     
     init(
