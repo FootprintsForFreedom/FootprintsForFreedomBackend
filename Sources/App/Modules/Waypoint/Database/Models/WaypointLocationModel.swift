@@ -57,3 +57,9 @@ final class WaypointLocationModel: DatabaseModelInterface {
         self.$user.id = userId
     }
 }
+
+extension WaypointLocationModel {
+    var location: Waypoint.Location {
+        .init(latitude: self.latitude, longitude: self.longitude)
+    }
+}

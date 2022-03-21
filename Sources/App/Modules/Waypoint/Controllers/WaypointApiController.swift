@@ -69,7 +69,7 @@ struct WaypointApiController: ApiController {
                     return try .init(
                         id: model.requireID(),
                         title: waypoint.title,
-                        location: .init(latitude: location.latitude, longitude: location.longitude)
+                        location: location.location
                     )
                 } else {
                     return nil
@@ -98,7 +98,7 @@ struct WaypointApiController: ApiController {
                     id: repository.id!,
                     title: waypoint.title,
                     description: waypoint.description,
-                    location: .init(latitude: location.latitude, longitude: location.longitude),
+                    location: location.location,
                     languageCode: waypoint.language.languageCode,
                     verified: waypoint.verified,
                     modelId: waypoint.requireID(),
@@ -127,7 +127,7 @@ struct WaypointApiController: ApiController {
             id: repository.id!,
             title: waypoint.title,
             description: waypoint.description,
-            location: .init(latitude: location.latitude, longitude: location.longitude),
+            location: location.location,
             languageCode: waypoint.language.languageCode
         )
     }

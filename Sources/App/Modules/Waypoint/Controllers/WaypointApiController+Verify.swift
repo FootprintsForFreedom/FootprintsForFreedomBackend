@@ -121,7 +121,7 @@ extension WaypointApiController {
             return try .init(
                 id: repository.requireID(),
                 title: waypointModel.title,
-                location: .init(latitude: location.latitude, longitude: location.longitude)
+                location: location.location
             )
         }
     }
@@ -166,7 +166,7 @@ extension WaypointApiController {
         return try unverifiedLocations.map { location in
             return try .init(
                 locationId: location.requireID(),
-                location: .init(latitude: location.latitude, longitude: location.longitude)
+                location: location.location
             )
         }
     }
@@ -212,7 +212,7 @@ extension WaypointApiController {
             id: repository.id!,
             title: waypoint.title,
             description: waypoint.description,
-            location: .init(latitude: location.latitude, longitude: location.longitude),
+            location: location.location,
             languageCode: waypoint.language.languageCode,
             verified: waypoint.verified,
             modelId: waypoint.requireID(),
@@ -261,7 +261,7 @@ extension WaypointApiController {
             id: repository.id!,
             title: waypoint.title,
             description: waypoint.description,
-            location: .init(latitude: location.latitude, longitude: location.longitude),
+            location: location.location,
             languageCode: waypoint.language.languageCode,
             verified: waypoint.verified,
             modelId: waypoint.requireID(),
