@@ -17,6 +17,7 @@ final class WaypointLocationModel: DatabaseModelInterface {
             static var latitude: FieldKey { "latitude" }
             static var longitude: FieldKey { "longitude" }
             static var repositoryId: FieldKey { "repository_id" }
+            static var userId: FieldKey { "user_id" }
             static var createdAt: FieldKey { "created_at" }
             static var updatedAt: FieldKey { "updated_at" }
             static var deletedAt: FieldKey { "deleted_at" }
@@ -30,6 +31,7 @@ final class WaypointLocationModel: DatabaseModelInterface {
     @Field(key: FieldKeys.v1.longitude) var longitude: Double
     
     @Parent(key: FieldKeys.v1.repositoryId) var repository: WaypointRepositoryModel
+    @Parent(key: FieldKeys.v1.userId) var user: UserAccountModel
     
     @Timestamp(key: FieldKeys.v1.createdAt, on: .create) var createdAt: Date?
     @Timestamp(key: FieldKeys.v1.updatedAt, on: .update) var updatedAt: Date?
@@ -44,12 +46,14 @@ final class WaypointLocationModel: DatabaseModelInterface {
         verified: Bool = false,
         latitude: Double,
         longitude: Double,
-        repositoryId: UUID
+        repositoryId: UUID,
+        userId: UUID
     ) {
         self.id = id
         self.verified = verified
         self.latitude = latitude
         self.longitude = longitude
         self.$repository.id = repositoryId
+        self.$user.id = userId
     }
 }

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import DiffMatchPatch
 
 public extension Waypoint {
     enum Waypoint: ApiModelInterface {
@@ -35,6 +34,7 @@ public extension Waypoint.Waypoint {
         public let languageCode: String
         public let verified: Bool?
         public let modelId: UUID?
+        public let locationId: UUID?
         
         public static func publicDetail(id: UUID, title: String, description: String, location: Waypoint.Location, languageCode: String) -> Self {
             return .init(
@@ -46,7 +46,7 @@ public extension Waypoint.Waypoint {
             )
         }
         
-        public static func moderatorDetail(id: UUID, title: String, description: String, location: Waypoint.Location, languageCode: String, verified: Bool, modelId: UUID) -> Self {
+        public static func moderatorDetail(id: UUID, title: String, description: String, location: Waypoint.Location, languageCode: String, verified: Bool, modelId: UUID, locationId: UUID) -> Self {
             return .init(
                 id: id,
                 title: title,
@@ -54,7 +54,8 @@ public extension Waypoint.Waypoint {
                 location: location,
                 languageCode: languageCode,
                 verified: verified,
-                modelId: modelId
+                modelId: modelId,
+                locationId: locationId
             )
         }
         
@@ -66,9 +67,10 @@ public extension Waypoint.Waypoint {
             self.languageCode = languageCode
             self.verified = nil
             self.modelId = nil
+            self.locationId = nil
         }
         
-        private init(id: UUID, title: String, description: String, location: Waypoint.Location, languageCode: String, verified: Bool, modelId: UUID) {
+        private init(id: UUID, title: String, description: String, location: Waypoint.Location, languageCode: String, verified: Bool, modelId: UUID, locationId: UUID) {
             self.id = id
             self.title = title
             self.description = description
@@ -76,6 +78,7 @@ public extension Waypoint.Waypoint {
             self.languageCode = languageCode
             self.verified = verified
             self.modelId = modelId
+            self.locationId = locationId
         }
     }
     
@@ -116,50 +119,6 @@ public extension Waypoint.Waypoint {
             self.description = description
             self.location = location
             self.languageCode = languageCode
-        }
-    }
-}
-
-public extension Waypoint.Waypoint {
-    struct DetailChangesRequest: Codable {
-        public let from: UUID?
-        public let to: UUID?
-        
-        public init(from: UUID?, to: UUID?) {
-            self.from = from
-            self.to = to
-        }
-    }
-    
-    struct ListUnverified: Codable {
-        public let modelId: UUID
-        public let title: String
-        public let description: String
-        public let languageCode: String
-        
-        public init(modelId: UUID, title: String, description: String, languageCode: String) {
-            self.modelId = modelId
-            self.title = title
-            self.description = description
-            self.languageCode = languageCode
-        }
-    }
-    
-    struct Changes: Codable {
-        public let titleDiff: [Diff]
-        public let descriptionDiff: [Diff]
-//        public let oldLocation: Waypoint.Location
-//        public let newLocation: Waypoint.Location?
-        public let fromUser: User.Account.Detail
-        public let toUser: User.Account.Detail
-        
-        public init(titleDiff: [Diff], descriptionDiff: [Diff], fromUser: User.Account.Detail, toUser: User.Account.Detail) {
-            self.titleDiff = titleDiff
-            self.descriptionDiff = descriptionDiff
-//            self.oldLocation = oldLocation
-//            self.newLocation = newLocation
-            self.fromUser = fromUser
-            self.toUser = toUser
         }
     }
 }

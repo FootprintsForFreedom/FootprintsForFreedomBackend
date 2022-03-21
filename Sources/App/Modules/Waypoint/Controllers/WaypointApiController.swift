@@ -101,7 +101,8 @@ struct WaypointApiController: ApiController {
                     location: .init(latitude: location.latitude, longitude: location.longitude),
                     languageCode: waypoint.language.languageCode,
                     verified: waypoint.verified,
-                    modelId: waypoint.requireID()
+                    modelId: waypoint.requireID(),
+                    locationId: location.requireID()
                 )
             } else if !waypoint.verified {
                 throw Abort(.forbidden)
@@ -162,7 +163,8 @@ struct WaypointApiController: ApiController {
         let location = try WaypointLocationModel(
             latitude: input.location.latitude,
             longitude: input.location.longitude,
-            repositoryId: model.requireID()
+            repositoryId: model.requireID(),
+            userId: user.id
         )
         try await waypoint.create(on: req.db)
         try await location.create(on: req.db)
@@ -261,7 +263,8 @@ struct WaypointApiController: ApiController {
             let location = try WaypointLocationModel(
                 latitude: location.latitude,
                 longitude: location.longitude,
-                repositoryId: model.requireID()
+                repositoryId: model.requireID(),
+                userId: user.id
             )
             try await location.create(on: req.db)
         }
