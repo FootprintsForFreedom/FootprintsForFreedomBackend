@@ -12,24 +12,9 @@ import Spec
 
 extension Language.Language.Update: Content { }
 
-final class LanguageApiUpdateTests: AppTestCase {
+final class LanguageApiUpdateTests: AppTestCase, LanguageTest {
     let languagesPath = "api/languages/"
-    
-    private func createLanguage(
-        languageCode: String = UUID().uuidString,
-        name: String = UUID().uuidString,
-        isRTL: Bool = false
-    ) async throws -> LanguageModel {
-        let highestPriority = try await LanguageModel
-            .query(on: app.db)
-            .filter(\.$priority != nil)
-            .sort(\.$priority, .descending)
-            .first()?.priority ?? 0
-        
-        let language = LanguageModel(languageCode: languageCode, name: name, isRTL: isRTL, priority: highestPriority + 1)
-        try await language.create(on: app.db)
-        return language
-    }
+    var db: Database { app.db }
     
     private func getLanguageUpdateContent(
         languageCode: String = UUID().uuidString,

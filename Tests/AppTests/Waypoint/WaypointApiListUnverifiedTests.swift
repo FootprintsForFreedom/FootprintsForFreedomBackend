@@ -10,60 +10,8 @@ import XCTVapor
 import Fluent
 import Spec
 
-final class WaypointApiListUnverifiedTests: AppTestCase {
+final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
     let waypointsPath = "api/waypoints/"
-    
-    private func createLanguage(
-        languageCode: String = UUID().uuidString,
-        name: String = UUID().uuidString,
-        isRTL: Bool = false
-    ) async throws -> LanguageModel {
-        let highestPriority = try await LanguageModel
-            .query(on: app.db)
-            .filter(\.$priority != nil)
-            .sort(\.$priority, .descending)
-            .first()?.priority ?? 0
-        
-        let language = LanguageModel(languageCode: languageCode, name: name, isRTL: isRTL, priority: highestPriority + 1)
-        try await language.create(on: app.db)
-        return language
-    }
-    
-    private func createNewWaypoint(
-        title: String = "New Waypoint Title",
-        description: String = "New Waypoint Description",
-        location: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
-        verified: Bool = false,
-        languageId: UUID? = nil,
-        userId: UUID? = nil
-    ) async throws -> (repository: WaypointRepositoryModel, model: WaypointWaypointModel) {
-        var userId: UUID! = userId
-        if userId == nil {
-            userId = try await getUser(role: .user).requireID()
-        }
-        let waypointRepository = WaypointRepositoryModel()
-        try await waypointRepository.create(on: app.db)
-        
-        let languageId: UUID = try await {
-            if let languageId = languageId {
-                return languageId
-            } else {
-                return try await createLanguage().requireID()
-            }
-        }()
-        
-        let waypointModel = try await WaypointWaypointModel.createWith(
-            title: title,
-            description: description,
-            location: location,
-            repositoryId: waypointRepository.requireID(),
-            languageId: languageId,
-            userId: userId,
-            verified: verified,
-            on: app.db
-        )
-        return (waypointRepository, waypointModel)
-    }
     
     func testSuccessfulListRepositoriesWithUnverifiedModels() async throws {
         let moderatorToken = try await getToken(for: .moderator)
@@ -74,15 +22,21 @@ final class WaypointApiListUnverifiedTests: AppTestCase {
         let userId = try await getUser(role: .user).requireID()
         
         // Create an unverified waypoint
-        let (unverifiedWaypointRepository, createdUnverifiedWaypoint) = try await createNewWaypoint(languageId: language.requireID(), userId: userId)
-        try await createdUnverifiedWaypoint.load(on: app.db)
+        let (unverifiedWaypointRepository, createdUnverifiedWaypoint, _) = try await createNewWaypoint(languageId: language.requireID(), userId: userId)
         // Create a verified waypoint
-        let (verifiedWaypointRepository, createdVerifiedWaypoint) = try await createNewWaypoint(verified: true, languageId: language.requireID(), userId: userId)
-        try await createdVerifiedWaypoint.load(on: app.db)
+        let (verifiedWaypointRepository, createdVerifiedWaypoint, _) = try await createNewWaypoint(verified: true, languageId: language.requireID(), userId: userId)
         // Create a second not verified model for the verified waypoint
-        let _ = try await WaypointWaypointModel.createWith(title: "Not visible", description: "Not visible", location: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)), repositoryId: verifiedWaypointRepository.requireID(), languageId: language.requireID(), userId: userId, verified: false, on: app.db)
+        let _ = try await WaypointWaypointModel.createWith(
+            title: "Not visible",
+            description: "Not visible",
+            repositoryId: verifiedWaypointRepository.requireID(),
+            languageId: language.requireID(),
+            userId: userId,
+            verified: false,
+            on: app.db
+        )
         // Create a waypoint in the other language
-        let (verifiedWaypointRepositoryInDifferentLanguage, _) = try await createNewWaypoint(verified: true, languageId: language2.requireID(), userId: userId)
+        let (verifiedWaypointRepositoryInDifferentLanguage, _, _) = try await createNewWaypoint(verified: true, languageId: language2.requireID(), userId: userId)
         
         // Get unverified waypoint count
         let waypoints = try await WaypointRepositoryModel
@@ -110,18 +64,21 @@ final class WaypointApiListUnverifiedTests: AppTestCase {
                 XCTAssertEqual(content.metadata.total, verifiedWaypointCount)
                 
                 XCTAssert(content.items.contains { $0.id == unverifiedWaypointRepository.id })
-                let unverifiedWaypoint = content.items.first { $0.id == unverifiedWaypointRepository.id }!
-                XCTAssertEqual(unverifiedWaypoint.id, unverifiedWaypointRepository.id)
-                XCTAssertEqual(unverifiedWaypoint.title, createdUnverifiedWaypoint.title.value)
-                XCTAssertEqual(unverifiedWaypoint.location, createdUnverifiedWaypoint.location.value)
+                if let unverifiedWaypoint = content.items.first(where: { $0.id == unverifiedWaypointRepository.id }) {
+                    XCTAssertEqual(unverifiedWaypoint.id, unverifiedWaypointRepository.id)
+                    XCTAssertEqual(unverifiedWaypoint.title, createdUnverifiedWaypoint.title)
+                    //                XCTAssertEqual(unverifiedWaypoint.location, createdUnverifiedWaypoint.location.value)
+                }
+                
                 
                 // contains the verified waypoint repository because it has a second unverified waypoint model
                 // here it should also return the verified model in the list for preview to see which waypoint was edited
                 XCTAssert(content.items.contains { $0.id == verifiedWaypointRepository.id })
-                let verifiedWaypoint = content.items.first { $0.id == verifiedWaypointRepository.id }!
-                XCTAssertEqual(verifiedWaypoint.id, verifiedWaypointRepository.id)
-                XCTAssertEqual(verifiedWaypoint.title, createdVerifiedWaypoint.title.value)
-                XCTAssertEqual(verifiedWaypoint.location, createdVerifiedWaypoint.location.value)
+                if let verifiedWaypoint = content.items.first(where: { $0.id == verifiedWaypointRepository.id }) {
+                    XCTAssertEqual(verifiedWaypoint.id, verifiedWaypointRepository.id)
+                    XCTAssertEqual(verifiedWaypoint.title, createdVerifiedWaypoint.title)
+                    //                XCTAssertEqual(verifiedWaypoint.location, createdVerifiedWaypoint.location.value)
+                }
                 
                 XCTAssertFalse(content.items.contains { $0.id == verifiedWaypointRepositoryInDifferentLanguage.id })
             }
@@ -147,7 +104,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase {
             .test()
     }
     
-    func testSuccessfulListUnverifiedModelsForRepository() async throws {
+    func testSuccessfulListUnverifiedWaypointsForRepository() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         
         let language = try await createLanguage()
@@ -156,18 +113,42 @@ final class WaypointApiListUnverifiedTests: AppTestCase {
         let userId = try await getUser(role: .user).requireID()
         
         // Create an unverified waypoint
-        let (waypointRepository, createdUnverifiedWaypoint) = try await createNewWaypoint(languageId: language.requireID(), userId: userId)
-        try await createdUnverifiedWaypoint.load(on: app.db)
+        let (waypointRepository, createdUnverifiedWaypoint, _) = try await createNewWaypoint(languageId: language.requireID(), userId: userId)
+        try await createdUnverifiedWaypoint.$language.load(on: app.db)
         // Create a verified waypoint for the same repository
-        let verifiedWaypoint = try await WaypointWaypointModel.createWith(title: "Verified Waypoint", description: "This is text", location: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)), repositoryId: waypointRepository.requireID(), languageId: language.requireID(), userId: userId, verified: true, on: app.db)
+        let verifiedWaypoint = try await WaypointWaypointModel.createWith(
+            title: "Verified Waypoint",
+            description: "This is text",
+            repositoryId: waypointRepository.requireID(),
+            languageId: language.requireID(),
+            userId: userId,
+            verified: true,
+            on: app.db
+        )
         // Create a second not verified waypoint for the same repository
-        let secondCreatedUnverifiedWaypoint = try await WaypointWaypointModel.createWith(title: "Not visible", description: "Not visible", location: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)), repositoryId: waypointRepository.requireID(), languageId: language.requireID(), userId: userId, verified: false, on: app.db)
-        try await secondCreatedUnverifiedWaypoint.load(on: app.db)
+        let secondCreatedUnverifiedWaypoint = try await WaypointWaypointModel.createWith(
+            title: "Not visible",
+            description: "Not visible",
+            repositoryId: waypointRepository.requireID(),
+            languageId: language.requireID(),
+            userId: userId,
+            verified: false,
+            on: app.db
+        )
+        try await secondCreatedUnverifiedWaypoint.$language.load(on: app.db)
         // Create a second not verified waypoint for the same repository in another language
-        let createdUnverifiedWaypointInDifferentLanguage = try await WaypointWaypointModel.createWith(title: "Different Language", description: "Not visible, other language", location: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)), repositoryId: waypointRepository.requireID(), languageId: language2.requireID(), userId: userId, verified: false, on: app.db)
-        try await createdUnverifiedWaypointInDifferentLanguage.load(on: app.db)
+        let createdUnverifiedWaypointInDifferentLanguage = try await WaypointWaypointModel.createWith(
+            title: "Different Language",
+            description: "Not visible, other language",
+            repositoryId: waypointRepository.requireID(),
+            languageId: language2.requireID(),
+            userId: userId,
+            verified: false,
+            on: app.db
+        )
+        try await createdUnverifiedWaypointInDifferentLanguage.$language.load(on: app.db)
         // Create a not verified waypoint for another repository
-        let (_, unverifiedWaypointForDifferentRepository) = try await createNewWaypoint(verified: true, languageId: language.requireID(), userId: userId)
+        let (_, unverifiedWaypointForDifferentRepository, _) = try await createNewWaypoint(languageId: language.requireID(), userId: userId)
         
         // Get unverified and verified waypoint count
         let waypointCount = try await WaypointWaypointModel
@@ -181,12 +162,12 @@ final class WaypointApiListUnverifiedTests: AppTestCase {
             .count()
         
         try app
-            .describe("List unverified should return ok and unverified models for all languages")
-            .get(waypointsPath.appending("\(waypointRepository.requireID())/unverified/?per=\(waypointCount)"))
+            .describe("List unverified waypoints should return ok and unverified models for all languages")
+            .get(waypointsPath.appending("\(waypointRepository.requireID())/waypoints/unverified/?per=\(waypointCount)"))
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Waypoint.ListUnverified>.self) { content in
+            .expect(Page<Waypoint.Repository.ListUnverifiedWaypoints>.self) { content in
                 XCTAssertEqual(content.metadata.total, content.items.count)
                 XCTAssertEqual(content.items.count, unverifiedWaypointForRepositoryCount)
                 XCTAssertEqual(content.items.map { $0.modelId }.uniqued().count, unverifiedWaypointForRepositoryCount)
@@ -194,54 +175,151 @@ final class WaypointApiListUnverifiedTests: AppTestCase {
                 XCTAssertEqual(content.metadata.total, unverifiedWaypointForRepositoryCount)
                 
                 XCTAssert(content.items.contains { $0.modelId == createdUnverifiedWaypoint.id })
-                let unverifiedWaypoint = content.items.first { $0.modelId == createdUnverifiedWaypoint.id }!
-                XCTAssertEqual(unverifiedWaypoint.modelId, createdUnverifiedWaypoint.id)
-                XCTAssertEqual(unverifiedWaypoint.title, createdUnverifiedWaypoint.title.value)
-                XCTAssertEqual(unverifiedWaypoint.description, createdUnverifiedWaypoint.description.value)
-                XCTAssertEqual(unverifiedWaypoint.languageCode, createdUnverifiedWaypoint.language.languageCode)
+                if let unverifiedWaypoint = content.items.first(where: { $0.modelId == createdUnverifiedWaypoint.id }) {
+                    XCTAssertEqual(unverifiedWaypoint.modelId, createdUnverifiedWaypoint.id)
+                    XCTAssertEqual(unverifiedWaypoint.title, createdUnverifiedWaypoint.title)
+                    XCTAssertEqual(unverifiedWaypoint.description, createdUnverifiedWaypoint.description)
+                    XCTAssertEqual(unverifiedWaypoint.languageCode, createdUnverifiedWaypoint.language.languageCode)
+                }
                 
                 XCTAssertFalse(content.items.contains { $0.modelId == verifiedWaypoint.id })
                 
                 XCTAssert(content.items.contains { $0.modelId == secondCreatedUnverifiedWaypoint.id })
-                let secondUnverifiedWaypoint = content.items.first { $0.modelId == secondCreatedUnverifiedWaypoint.id }!
-                XCTAssertEqual(secondUnverifiedWaypoint.modelId, secondCreatedUnverifiedWaypoint.id)
-                XCTAssertEqual(secondUnverifiedWaypoint.title, secondCreatedUnverifiedWaypoint.title.value)
-                XCTAssertEqual(secondUnverifiedWaypoint.description, secondCreatedUnverifiedWaypoint.description.value)
-                XCTAssertEqual(secondUnverifiedWaypoint.languageCode, secondCreatedUnverifiedWaypoint.language.languageCode)
+                if let secondUnverifiedWaypoint = content.items.first(where: { $0.modelId == secondCreatedUnverifiedWaypoint.id }) {
+                    XCTAssertEqual(secondUnverifiedWaypoint.modelId, secondCreatedUnverifiedWaypoint.id)
+                    XCTAssertEqual(secondUnverifiedWaypoint.title, secondCreatedUnverifiedWaypoint.title)
+                    XCTAssertEqual(secondUnverifiedWaypoint.description, secondCreatedUnverifiedWaypoint.description)
+                    XCTAssertEqual(secondUnverifiedWaypoint.languageCode, secondCreatedUnverifiedWaypoint.language.languageCode)
+                }
                 
                 XCTAssert(content.items.contains { $0.modelId == createdUnverifiedWaypointInDifferentLanguage.id })
-                let unverifiedWaypointInDifferentLanguage = content.items.first { $0.modelId == createdUnverifiedWaypointInDifferentLanguage.id }!
-                XCTAssertEqual(unverifiedWaypointInDifferentLanguage.modelId, createdUnverifiedWaypointInDifferentLanguage.id)
-                XCTAssertEqual(unverifiedWaypointInDifferentLanguage.title, createdUnverifiedWaypointInDifferentLanguage.title.value)
-                XCTAssertEqual(unverifiedWaypointInDifferentLanguage.description, createdUnverifiedWaypointInDifferentLanguage.description.value)
-                XCTAssertEqual(unverifiedWaypointInDifferentLanguage.languageCode, createdUnverifiedWaypointInDifferentLanguage.language.languageCode)
+                if let unverifiedWaypointInDifferentLanguage = content.items.first(where: { $0.modelId == createdUnverifiedWaypointInDifferentLanguage.id }) {
+                    XCTAssertEqual(unverifiedWaypointInDifferentLanguage.modelId, createdUnverifiedWaypointInDifferentLanguage.id)
+                    XCTAssertEqual(unverifiedWaypointInDifferentLanguage.title, createdUnverifiedWaypointInDifferentLanguage.title)
+                    XCTAssertEqual(unverifiedWaypointInDifferentLanguage.description, createdUnverifiedWaypointInDifferentLanguage.description)
+                    XCTAssertEqual(unverifiedWaypointInDifferentLanguage.languageCode, createdUnverifiedWaypointInDifferentLanguage.language.languageCode)
+                }
                 
                 XCTAssertFalse(content.items.contains { $0.modelId == unverifiedWaypointForDifferentRepository.id })
             }
             .test()
     }
     
-    func testListUnverifiedModelsForRepositoryAsUserFails() async throws {
+    func testListUnverifiedWaypointsForRepositoryAsUserFails() async throws {
         let userToken = try await getToken(for: .user)
         
         // Create an unverified waypoint
-        let (waypointRepository, _) = try await createNewWaypoint()
+        let (waypointRepository, _, _) = try await createNewWaypoint()
         
         try app
-            .describe("List unverified should return ok and unverified models for all languages")
-            .get(waypointsPath.appending("\(waypointRepository.requireID())/unverified/"))
+            .describe("List unverified waypoints as user should fail")
+            .get(waypointsPath.appending("\(waypointRepository.requireID())/waypoints/unverified/"))
             .bearerToken(userToken)
             .expect(.forbidden)
             .test()
     }
     
-    func testListUnverifiedModelsForRepositoryWithoutTokenFails() async throws {
+    func testListUnverifiedWaypointsForRepositoryWithoutTokenFails() async throws {
         // Create an unverified waypoint
-        let (waypointRepository, _) = try await createNewWaypoint()
+        let (waypointRepository, _, _) = try await createNewWaypoint()
         
         try app
-            .describe("List unverified should return ok and unverified models for all languages")
-            .get(waypointsPath.appending("\(waypointRepository.requireID())/unverified/"))
+            .describe("List unverified waypoints wihtout token should fail")
+            .get(waypointsPath.appending("\(waypointRepository.requireID())/waypoints/unverified/"))
+            .expect(.unauthorized)
+            .test()
+    }
+    
+    func testSuccessfulListUnverifiedLocationsForRepository() async throws {
+        let moderatorToken = try await getToken(for: .moderator)
+        
+        let userId = try await getUser(role: .user).requireID()
+        
+        // Create an unverified location
+        let (waypointRepository, _, createdUnverifiedLocation) = try await createNewWaypoint(userId: userId)
+        // Create a verified location for the same repository
+        let verifiedLocation = try await WaypointLocationModel.createWith(
+            location: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
+            repositoryId: waypointRepository.requireID(),
+            userId: userId,
+            verified: true,
+            on: app.db
+        )
+        // Create a second not verified location for the same repository
+        let secondCreatedUnverifiedLocation = try await WaypointLocationModel.createWith(
+            location: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
+            repositoryId: waypointRepository.requireID(),
+            userId: userId,
+            verified: false,
+            on: app.db
+        )
+        // Create a not verified location for another repository
+        let (_, _, unverifiedLocationForDifferentRepository) = try await createNewWaypoint(userId: userId)
+        
+        // Get unverified and verified location count
+        let locationCount = try await WaypointLocationModel
+            .query(on: app.db)
+            .count()
+        
+        let unverifiedLocationForRepositoryCount = try await WaypointLocationModel
+            .query(on: app.db)
+            .filter(\.$verified == false)
+            .filter(\.$repository.$id == waypointRepository.requireID())
+            .count()
+        
+        try app
+            .describe("List unverified locations should return ok and unverified models for all languages")
+            .get(waypointsPath.appending("\(waypointRepository.requireID())/locations/unverified/?per=\(locationCount)"))
+            .bearerToken(moderatorToken)
+            .expect(.ok)
+            .expect(.json)
+            .expect(Page<Waypoint.Repository.ListUnverifiedLocations>.self) { content in
+                XCTAssertEqual(content.metadata.total, content.items.count)
+                XCTAssertEqual(content.items.count, unverifiedLocationForRepositoryCount)
+                XCTAssertEqual(content.items.map { $0.locationId }.uniqued().count, unverifiedLocationForRepositoryCount)
+                XCTAssertEqual(content.items.map { $0.locationId }.uniqued().count, content.items.count)
+                XCTAssertEqual(content.metadata.total, unverifiedLocationForRepositoryCount)
+                
+                XCTAssert(content.items.contains { $0.locationId == createdUnverifiedLocation.id })
+                if let unverifiedWaypoint = content.items.first(where: { $0.locationId == createdUnverifiedLocation.id }) {
+                    XCTAssertEqual(unverifiedWaypoint.locationId, createdUnverifiedLocation.id)
+                    XCTAssertEqual(unverifiedWaypoint.location, createdUnverifiedLocation.location)
+                }
+                
+                XCTAssertFalse(content.items.contains { $0.locationId == verifiedLocation.id })
+                
+                XCTAssert(content.items.contains { $0.locationId == secondCreatedUnverifiedLocation.id })
+                if let secondUnverifiedWaypoint = content.items.first(where: { $0.locationId == secondCreatedUnverifiedLocation.id }) {
+                    XCTAssertEqual(secondUnverifiedWaypoint.locationId, secondCreatedUnverifiedLocation.id)
+                    XCTAssertEqual(secondUnverifiedWaypoint.location, secondCreatedUnverifiedLocation.location)
+                }
+                
+                XCTAssertFalse(content.items.contains { $0.locationId == unverifiedLocationForDifferentRepository.id })
+            }
+            .test()
+    }
+    
+    func testListUnverifiedLocationsForReposiotryAsUserFails() async throws {
+        let userToken = try await getToken(for: .user)
+        
+        // Create an unverified waypoint
+        let (waypointRepository, _, _) = try await createNewWaypoint()
+        
+        try app
+            .describe("List unverified locations as user should fail")
+            .get(waypointsPath.appending("\(waypointRepository.requireID())/locations/unverified/"))
+            .bearerToken(userToken)
+            .expect(.forbidden)
+            .test()
+    }
+    
+    func testListUnverifiedLocationsForReposiotryWithoutTokenFails() async throws {
+        // Create an unverified waypoint
+        let (waypointRepository, _, _) = try await createNewWaypoint()
+        
+        try app
+            .describe("List unverified locations wihtout token should fail")
+            .get(waypointsPath.appending("\(waypointRepository.requireID())/locations/unverified/"))
             .expect(.unauthorized)
             .test()
     }

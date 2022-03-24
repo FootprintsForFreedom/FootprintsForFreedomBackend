@@ -97,6 +97,7 @@ extension WaypointApiController {
                     }
             }
             .field(\.$id)
+            .unique()
             .paginate(for: req)
         
         return try await repositoriesWithUnverifiedModels.concurrentMap { repository in
@@ -214,7 +215,7 @@ extension WaypointApiController {
             description: waypoint.description,
             location: location.location,
             languageCode: waypoint.language.languageCode,
-            verified: waypoint.verified,
+            verified: waypoint.verified && location.verified,
             modelId: waypoint.requireID(),
             locationId: location.requireID()
         )
@@ -256,6 +257,7 @@ extension WaypointApiController {
             }
             waypoint = oldestWaypointModel
         }
+        try await waypoint.$language.load(on: req.db)
         
         return try .moderatorDetail(
             id: repository.id!,
@@ -263,7 +265,7 @@ extension WaypointApiController {
             description: waypoint.description,
             location: location.location,
             languageCode: waypoint.language.languageCode,
-            verified: waypoint.verified,
+            verified: waypoint.verified && location.verified,
             modelId: waypoint.requireID(),
             locationId: location.requireID()
         )

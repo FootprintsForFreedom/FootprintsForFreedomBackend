@@ -12,24 +12,9 @@ import Spec
 
 extension Waypoint.Waypoint.Create: Content { }
 
-final class WaypointApiCreateTests: AppTestCaseWithToken  {
+final class WaypointApiCreateTests: AppTestCaseWithToken, LanguageTest {
     let waypointsPath = "api/waypoints/"
-    
-    private func createLanguage(
-        languageCode: String = UUID().uuidString,
-        name: String = UUID().uuidString,
-        isRTL: Bool = false
-    ) async throws -> LanguageModel {
-        let highestPriority = try await LanguageModel
-            .query(on: app.db)
-            .filter(\.$priority != nil)
-            .sort(\.$priority, .descending)
-            .first()?.priority ?? 0
-        
-        let language = LanguageModel(languageCode: languageCode, name: name, isRTL: isRTL, priority: highestPriority + 1)
-        try await language.create(on: app.db)
-        return language
-    }
+    var db: Database { app.db }
     
     private func getWaypointCreateContent(
         title: String = "New Waypoint Title \(UUID())",
