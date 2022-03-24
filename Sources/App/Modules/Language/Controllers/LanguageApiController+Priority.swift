@@ -68,4 +68,10 @@ extension LanguageApiController {
                 )
             }
     }
+    
+    func setupPriorityRoutes(_ routes: RoutesBuilder) {
+        let baseRoutes = getBaseRoutes(routes)
+        
+        baseRoutes.put("priorities", use: setLanguagePriorities)
+    }
 }

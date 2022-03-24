@@ -18,5 +18,6 @@ struct LanguageRouter: RouteCollection {
         let routes = args["routes"] as! RoutesBuilder
         
         apiController.setupRoutes(routes)
+        apiController.setupPriorityRoutes(routes)
     }
 }
