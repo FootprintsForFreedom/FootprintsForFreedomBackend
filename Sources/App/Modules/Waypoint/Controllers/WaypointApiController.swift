@@ -47,7 +47,7 @@ struct WaypointApiController: ApiController {
             .join(LanguageModel.self, on: \WaypointWaypointModel.$language.$id == \LanguageModel.$id)
             .filter(LanguageModel.self, \.$priority != nil)
         //            .sort(WaypointWaypointModel.self, \.$updatedAt, .descending) // newest first
-//            .sort(WaypointWaypointModel.self, \.$title, .ascending) // from a to z
+        //            .sort(WaypointWaypointModel.self, \.$title, .ascending) // from a to z
             .field(\.$id)
             .unique()
     }
@@ -83,36 +83,25 @@ struct WaypointApiController: ApiController {
         let preferredLanguageCode = try req.query.decode(PreferredLanguageQuery.self).preferredLanguage
         let allLanguageCodesByPriority = try await LanguageModel.languageCodesByPriority(preferredLanguageCode: preferredLanguageCode, on: req.db)
         
-        if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db) {
-            // TODO: is this correct - this way a moderator always gets other details for a waypoint
-            guard
-                let waypoint = try await repository.waypointModel(for: allLanguageCodesByPriority, needsToBeVerified: false, on: req.db),
-                let location = try await repository.location(needsToBeVerified: false, on: req.db)
-            else {
-                throw Abort(.notFound)
-            }
-            try await waypoint.$language.load(on: req.db)
-            
-            if user.role >= .moderator {
-                return try .moderatorDetail(
-                    id: repository.id!,
-                    title: waypoint.title,
-                    description: waypoint.description,
-                    location: location.location,
-                    languageCode: waypoint.language.languageCode,
-                    verified: waypoint.verified && location.verified,
-                    modelId: waypoint.requireID(),
-                    locationId: location.requireID()
-                )
-            } else if !waypoint.verified {
-                throw Abort(.forbidden)
-            }
-        }
         guard
             let waypoint = try await repository.waypointModel(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db),
             let location = try await repository.location(needsToBeVerified: true, on: req.db)
         else {
-            throw Abort(.unauthorized)
+            throw Abort(.notFound)
+        }
+        try await waypoint.$language.load(on: req.db)
+        
+        if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db), user.role >= .moderator {
+            return try .moderatorDetail(
+                id: repository.id!,
+                title: waypoint.title,
+                description: waypoint.description,
+                location: location.location,
+                languageCode: waypoint.language.languageCode,
+                verified: waypoint.verified && location.verified,
+                modelId: waypoint.requireID(),
+                locationId: location.requireID()
+            )
         }
         return try await detailOutput(req, repository, waypoint, location)
     }

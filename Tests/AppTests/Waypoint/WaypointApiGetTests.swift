@@ -237,7 +237,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
             .test()
     }
     
-    func testSuccessfullGetUnverifiedWaypointAsModerator() async throws {
+    func testSuccessfullGetVerifiedWaypointAsModerator() async throws {
         let language = try await createLanguage()
         let (waypointRepository, waypoint, location) = try await createNewWaypoint(verified: true, languageId: language.requireID())
         try await waypoint.$language.load(on: app.db)
@@ -245,7 +245,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
         let moderatorToken = try await getToken(for: .moderator)
         
         try app
-            .describe("Get unverified waypoint as moderator should return ok")
+            .describe("Get verified waypoint as moderator should return ok and more details")
             .get(waypointsPath.appending(waypointRepository.requireID().uuidString))
             .bearerToken(moderatorToken)
             .expect(.ok)
@@ -281,25 +281,15 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
             .test()
     }
     
-    func testGetUnverifiedWaypointAsUserFails() async throws {
+    func testGetUnverifiedWaypointFails() async throws {
         let (waypointRepository, _, _) = try await createNewWaypoint(verified: false)
         let userToken = try await getToken(for: .user)
         
         try app
-            .describe("Get unverified waypoint as moderator should return ok")
+            .describe("Get unverified waypoint should return not found")
             .get(waypointsPath.appending(waypointRepository.requireID().uuidString))
             .bearerToken(userToken)
-            .expect(.forbidden)
-            .test()
-    }
-    
-    func testGetUnverifiedWaypointWithoutTokenFails() async throws {
-        let (waypointRepository, _, _) = try await createNewWaypoint(verified: false)
-        
-        try app
-            .describe("Get unverified waypoint as moderator should return ok")
-            .get(waypointsPath.appending(waypointRepository.requireID().uuidString))
-            .expect(.unauthorized)
+            .expect(.notFound)
             .test()
     }
 }
