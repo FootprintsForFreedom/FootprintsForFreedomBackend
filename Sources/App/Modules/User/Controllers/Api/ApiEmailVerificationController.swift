@@ -47,6 +47,5 @@ extension ApiEmailVerificationController {
             .grouped("requestVerification")
         verificationRoutes.post(use: verificationApi)
         requestVerificationRoutes.post(use: requestVerificationApi)
-        // TODO: request route
     }
 }

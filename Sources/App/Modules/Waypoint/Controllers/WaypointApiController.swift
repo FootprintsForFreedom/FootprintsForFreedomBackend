@@ -64,8 +64,7 @@ struct WaypointApiController: ApiController {
                 /// however, to ensure the list works return nil otherwise and use compact map to ensure all other waypoints are returned
                 if
                     let waypoint = try await model.waypointModel(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db),
-                    // TODO: make verified true
-                    let location = try await model.location(needsToBeVerified: false, on: req.db)
+                    let location = try await model.location(needsToBeVerified: true, on: req.db)
                 {
                     return try .init(
                         id: model.requireID(),
@@ -165,9 +164,6 @@ struct WaypointApiController: ApiController {
         try await detailOutput(req, repository, waypoint, location).encodeResponse(status: .created, for: req)
     }
     
-    // TODO: dont update location / or store it in repository --> this way it also is the same for all languages
-    // mabye also store medias in repository --> store media repositories --> one media per language and fallback for others like with waypoints
-    
     func updateApi(_ req: Request) async throws -> Response {
         try await RequestValidator(updateValidators()).validate(req)
         let repository = try await findBy(identifier(req), on: req.db)
@@ -252,7 +248,6 @@ struct WaypointApiController: ApiController {
                 newWaypoint.title = newTitle
                 newWaypoint.description = newDescription
             } else {
-                // TODO: do better query
                 guard let latestVerifiedWaypointForPatchLanguage = try await repository.waypointModel(for: input.languageCode, needsToBeVerified: true, on: req.db) else {
                     throw Abort(.badRequest)
                 }
@@ -311,7 +306,6 @@ struct WaypointApiController: ApiController {
         guard user.role >= .moderator else {
             throw Abort(.forbidden)
         }
-        // TODO: test deletes locations and models
     }
     
     func setupRoutes(_ routes: RoutesBuilder) {

@@ -40,3 +40,5 @@ final class WaypointMediaModel: DatabaseModelInterface {
     
     init() { }
 }
+
+// mabye also store medias in repository --> store media repositories --> one media per language and fallback for others like with waypoints

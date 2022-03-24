@@ -175,10 +175,6 @@ struct LanguageApiController: UnpagedApiController {
         model.isRTL = input.isRTL ?? model.isRTL
     }
     
-    // TODO: maybe archive or deactivate language --> just remove the priority; then it does not get indexed anymore
-    
-    // TODO: reorder language priorities
-    
     func setupRoutes(_ routes: RoutesBuilder) {
         let protectedRoutes = routes.grouped(AuthenticatedUser.guardMiddleware())
         setupListRoutes(routes)

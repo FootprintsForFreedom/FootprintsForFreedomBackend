@@ -42,7 +42,6 @@ extension UserApiController: ApiEmailVerificationController {
     }
         
     func verificationInput(_ req: Request, _ model: UserAccountModel, _ input: User.Account.Verification) async throws {
-        // TODO: test that verified user does not work
         try await model.$verificationToken.load(on: req.db)
         /// confirm a token is saved for the user
         guard let verificationToken = model.verificationToken else {
