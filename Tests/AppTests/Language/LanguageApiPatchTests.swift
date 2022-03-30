@@ -14,7 +14,6 @@ extension Language.Language.Patch: Content { }
 
 final class LanguageApiPatchTests: AppTestCase, LanguageTest {
     let languagesPath = "api/languages/"
-    var db: Database { app.db }
     
     private func getLanguagePatchContent(
         languageCode: String? = nil,

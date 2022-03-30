@@ -14,8 +14,6 @@ extension Waypoint.Waypoint.Create: Content { }
 
 final class WaypointApiCreateTests: AppTestCase, LanguageTest {
     let waypointsPath = "api/waypoints/"
-    // TODO: remove db { ... }
-    var db: Database { app.db }
     
     private func getWaypointCreateContent(
         title: String = "New Waypoint Title \(UUID())",

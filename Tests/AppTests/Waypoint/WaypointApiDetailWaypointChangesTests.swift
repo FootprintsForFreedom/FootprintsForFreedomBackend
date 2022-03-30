@@ -12,7 +12,6 @@ import Spec
 
 final class WaypointApiDetailWaypointChangesTests: AppTestCase, WaypointTest {
     let waypointsPath = "api/waypoints/"
-    var db: Database { app.db }
     
     func testSuccessfulDetailChanges() async throws {
         let moderatorToken = try await getToken(for: .moderator)

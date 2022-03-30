@@ -12,7 +12,6 @@ import Spec
 
 final class LanguageApiDeleteTests: AppTestCase, LanguageTest {
     let languagesPath = "api/languages/"
-    var db: Database { app.db }
         
     func testDeleteLanguageFails() async throws {
         let token = try await getToken(for: .superAdmin)

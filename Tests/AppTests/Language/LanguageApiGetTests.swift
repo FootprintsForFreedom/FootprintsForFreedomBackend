@@ -12,7 +12,6 @@ import Spec
 
 final class LanguageApiGetTests: AppTestCase, LanguageTest {
     let languagesPath = "api/languages/"
-    var db: Database { app.db }
     
     func testSuccessfulListLanguagesReturnsLanguagesByPriority() async throws {
         for _ in 0...4 {

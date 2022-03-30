@@ -12,7 +12,6 @@ import Spec
 
 final class WaypointApiDeleteTests: AppTestCase, WaypointTest {
     let waypointsPath = "api/waypoints/"
-    var db: Database { app.db }
     
     func testSuccessfulDeleteUnverifiedWaypointAsModerator() async throws {
         // Get original waypoint count

@@ -14,7 +14,6 @@ extension Language.Language.Update: Content { }
 
 final class LanguageApiUpdateTests: AppTestCase, LanguageTest {
     let languagesPath = "api/languages/"
-    var db: Database { app.db }
     
     private func getLanguageUpdateContent(
         languageCode: String = UUID().uuidString,
