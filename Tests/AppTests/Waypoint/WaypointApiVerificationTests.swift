@@ -1,5 +1,5 @@
 //
-//  WaypointApiVerifyTests.swift
+//  WaypointApiVerificationTests.swift
 //  
 //
 //  Created by niklhut on 13.03.22.
@@ -10,7 +10,7 @@ import XCTVapor
 import Fluent
 import Spec
 
-final class WaypointApiVerifyTests: AppTestCase, WaypointTest {
+final class WaypointApiVerificationTests: AppTestCase, WaypointTest {
     let waypointsPath = "api/waypoints/"
     
     func testSuccessfulVerifyWaypoint() async throws {
