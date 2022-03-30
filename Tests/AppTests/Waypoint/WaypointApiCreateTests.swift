@@ -12,8 +12,9 @@ import Spec
 
 extension Waypoint.Waypoint.Create: Content { }
 
-final class WaypointApiCreateTests: AppTestCaseWithToken, LanguageTest {
+final class WaypointApiCreateTests: AppTestCase, LanguageTest {
     let waypointsPath = "api/waypoints/"
+    // TODO: remove db { ... }
     var db: Database { app.db }
     
     private func getWaypointCreateContent(
@@ -30,6 +31,7 @@ final class WaypointApiCreateTests: AppTestCaseWithToken, LanguageTest {
     }
     
     func testSuccessfulCreateWaypoint() async throws {
+        let token = try await getToken(for: .user, verified: true)
         let newWaypoint = try await getWaypointCreateContent()
         
         // Get original waypoint count
@@ -73,7 +75,7 @@ final class WaypointApiCreateTests: AppTestCaseWithToken, LanguageTest {
     }
     
     func testSuccessfulCreateWaypointAsModerator() async throws {
-        let moderatorToken = try await getToken(for: .moderator)
+        let moderatorToken = try await getToken(for: .moderator, verified: true)
         let newWaypoint = try await getWaypointCreateContent()
         
         // Get original waypoint count
@@ -116,6 +118,8 @@ final class WaypointApiCreateTests: AppTestCaseWithToken, LanguageTest {
         }
     }
     
+    // TODO: test unverified user fails
+    
     func testCreateWaypointWithoutTokenFails() async throws {
         let newWaypoint = try await getWaypointCreateContent()
         
@@ -128,6 +132,7 @@ final class WaypointApiCreateTests: AppTestCaseWithToken, LanguageTest {
     }
     
     func testCreateWaypointNeedsValidTitle() async throws {
+        let token = try await getToken(for: .user, verified: true)
         let newWaypoint = try await getWaypointCreateContent(title: "")
         
         try app
@@ -140,6 +145,7 @@ final class WaypointApiCreateTests: AppTestCaseWithToken, LanguageTest {
     }
     
     func testCreateWaypointNeedsValidDescription() async throws {
+        let token = try await getToken(for: .user, verified: true)
         let newWaypoint = try await getWaypointCreateContent(description: "")
         
         try app
@@ -152,6 +158,7 @@ final class WaypointApiCreateTests: AppTestCaseWithToken, LanguageTest {
     }
     
     func testCreateWaypointNeedsValidLanguageCode() async throws {
+        let token = try await getToken(for: .user, verified: true)
         let newWaypoint1 = try await getWaypointCreateContent(languageCode: "")
         let newWaypoint2 = try await getWaypointCreateContent(languageCode: "hi")
         
@@ -177,6 +184,7 @@ final class WaypointApiCreateTests: AppTestCaseWithToken, LanguageTest {
             let title: String
             let description: String
         }
+        let token = try await getToken(for: .user, verified: true)
         let newWaypoint = Create(title: "New Title", description: "New Description")
         
         try app
@@ -189,6 +197,7 @@ final class WaypointApiCreateTests: AppTestCaseWithToken, LanguageTest {
     }
     
     func testCreateWaypointNeedsValidLatitude() async throws {
+        let token = try await getToken(for: .user, verified: true)
         let newWaypoint = try await getWaypointCreateContent(location: .init(latitude: 91, longitude: 20))
         
         try app
@@ -201,6 +210,7 @@ final class WaypointApiCreateTests: AppTestCaseWithToken, LanguageTest {
     }
     
     func testCreateWaypointNeedsValidLongitude() async throws {
+        let token = try await getToken(for: .user, verified: true)
         let newWaypoint = try await getWaypointCreateContent(location: .init(latitude: 20, longitude: 181))
         
         try app
@@ -212,7 +222,9 @@ final class WaypointApiCreateTests: AppTestCaseWithToken, LanguageTest {
             .test()
     }
     
-    func testCreateWaypointWithWrongPayloadFails() throws {
+    func testCreateWaypointWithWrongPayloadFails() async throws {
+        let token = try await getToken(for: .user, verified: true)
+        
         try app
             .describe("Creating a user with wrong payload fails")
             .post(waypointsPath)

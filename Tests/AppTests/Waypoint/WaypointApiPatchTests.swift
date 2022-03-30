@@ -12,7 +12,7 @@ import Spec
 
 extension Waypoint.Waypoint.Patch: Content { }
 
-final class WaypointApiPatchTests: AppTestCaseWithToken, WaypointTest {
+final class WaypointApiPatchTests: AppTestCase, WaypointTest {
     let waypointsPath = "api/waypoints/"
     
     private func getWaypointPatchContent(
@@ -40,6 +40,7 @@ final class WaypointApiPatchTests: AppTestCaseWithToken, WaypointTest {
     }
     
     func testSuccessfulPatchWaypointTitle() async throws {
+        let token = try await getToken(for: .user)
         let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(patchedTitle: "The patched title")
         createdModel.verified = true
         try await createdModel.update(on: app.db)
@@ -72,6 +73,7 @@ final class WaypointApiPatchTests: AppTestCaseWithToken, WaypointTest {
     }
     
     func testSuccessfulPatchWaypointDescription() async throws {
+        let token = try await getToken(for: .user)
         let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(patchedDescription: "The patched description")
         createdModel.verified = true
         try await createdModel.update(on: app.db)
@@ -104,6 +106,7 @@ final class WaypointApiPatchTests: AppTestCaseWithToken, WaypointTest {
     }
     
     func testSuccessfulPatchWaypointLocation() async throws {
+        let token = try await getToken(for: .user)
         let (waypointRepository, createdModel, _, patchContent) = try await getWaypointPatchContent(patchedLocation: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)))
         createdModel.verified = true
         try await createdModel.update(on: app.db)
@@ -136,6 +139,7 @@ final class WaypointApiPatchTests: AppTestCaseWithToken, WaypointTest {
     }
     
     func testSuccessfulPatchWithoutVerifiedModelInSpecifiedLanguageWhenAllParametersAreSet() async throws {
+        let token = try await getToken(for: .user)
         let (waypointRepository, _, _, patchContent) = try await getWaypointPatchContent(patchedTitle: "The patched title", patchedDescription: "The patched description", patchedLocation: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)))
         
         try app
@@ -157,6 +161,7 @@ final class WaypointApiPatchTests: AppTestCaseWithToken, WaypointTest {
     }
     
     func testPatchWithoutVerifiedModelInSpecifiedLanguageFails() async throws {
+        let token = try await getToken(for: .user)
         let (waypointRepository, _, _, patchContent) = try await getWaypointPatchContent(patchedTitle: "The patched title")
         
         try app
@@ -169,6 +174,7 @@ final class WaypointApiPatchTests: AppTestCaseWithToken, WaypointTest {
     }
     
     func testEmptyPatchWaypointFails() async throws {
+        let token = try await getToken(for: .user)
         let (waypointRepository, _, _, patchContent) = try await getWaypointPatchContent()
         
         try app
@@ -181,6 +187,7 @@ final class WaypointApiPatchTests: AppTestCaseWithToken, WaypointTest {
     }
     
     func testPatchWaypointNeedsValidTitle() async throws {
+        let token = try await getToken(for: .user)
         let (waypointRepository, _, _, patchContent) = try await getWaypointPatchContent(patchedTitle: "")
         
         try app
@@ -193,6 +200,7 @@ final class WaypointApiPatchTests: AppTestCaseWithToken, WaypointTest {
     }
     
     func testPatchWaypointNeedsValidDescription() async throws {
+        let token = try await getToken(for: .user)
         let (waypointRepository, _, _, patchContent) = try await getWaypointPatchContent(patchedDescription: "")
         
         try app
@@ -206,6 +214,7 @@ final class WaypointApiPatchTests: AppTestCaseWithToken, WaypointTest {
     
     func testUpdateWaypointNeedsValidLanguageCode() async throws {
         let language = try await createLanguage()
+        let token = try await getToken(for: .user)
         let (waypointRepository1, _, _, updateContent1) = try await getWaypointPatchContent(languageId: language.requireID(), patchLangugageCode: "")
         let (waypointRepository2, _, _, updateContent2) = try await getWaypointPatchContent(languageId: language.requireID(), patchLangugageCode: "hi")
         
@@ -227,6 +236,7 @@ final class WaypointApiPatchTests: AppTestCaseWithToken, WaypointTest {
     }
     
     func testPatchWaypointNeedsValidLatitude() async throws {
+        let token = try await getToken(for: .user)
         let (waypointRepository, _, _, patchContent) = try await getWaypointPatchContent(patchedLocation: .init(latitude: 91, longitude: 20))
         
         try app
@@ -239,6 +249,7 @@ final class WaypointApiPatchTests: AppTestCaseWithToken, WaypointTest {
     }
     
     func testPatchWaypointNeedsValidLongitude() async throws {
+        let token = try await getToken(for: .user)
         let (waypointRepository, _, _, patchContent) = try await getWaypointPatchContent(patchedLocation: .init(latitude: 20, longitude: 181))
         
         try app

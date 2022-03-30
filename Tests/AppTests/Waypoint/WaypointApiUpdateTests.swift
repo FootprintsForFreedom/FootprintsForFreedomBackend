@@ -12,7 +12,7 @@ import Spec
 
 extension Waypoint.Waypoint.Update: Content { }
 
-final class WaypointApiUpdateTests: AppTestCaseWithToken, WaypointTest {
+final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
     let waypointsPath = "api/waypoints/"
     
     private func getWaypointUpdateContent(
@@ -44,6 +44,7 @@ final class WaypointApiUpdateTests: AppTestCaseWithToken, WaypointTest {
     }
     
     func testSucessfulUpdateWaypoint() async throws {
+        let token = try await getToken(for: .user)
         let (waypointRepository, createdLocation, updateContent) = try await getWaypointUpdateContent()
         
         let locationCount = try await WaypointLocationModel
@@ -84,6 +85,7 @@ final class WaypointApiUpdateTests: AppTestCaseWithToken, WaypointTest {
     }
     
     func testSuccessfulUpdateWithNewLanguage() async throws {
+        let token = try await getToken(for: .user)
         let (waypointRepository, _, createdLocation) = try await createNewWaypoint()
         let secondLanguage = try await createLanguage(languageCode: UUID().uuidString, name: UUID().uuidString, isRTL: false)
         
@@ -132,6 +134,7 @@ final class WaypointApiUpdateTests: AppTestCaseWithToken, WaypointTest {
     }
     
     func testUpdateWaypointNeedsValidTitle() async throws {
+        let token = try await getToken(for: .user)
         let (waypointRepository, _, updateContent) = try await getWaypointUpdateContent(updatedTitle: "")
         
         try app
@@ -144,6 +147,7 @@ final class WaypointApiUpdateTests: AppTestCaseWithToken, WaypointTest {
     }
     
     func testUpdateWaypointNeedsValidDescription() async throws {
+        let token = try await getToken(for: .user)
         let (waypointRepository, _, updateContent) = try await getWaypointUpdateContent(updatedDescription: "")
         
         try app
@@ -157,6 +161,7 @@ final class WaypointApiUpdateTests: AppTestCaseWithToken, WaypointTest {
     
     func testUpdateWaypointNeedsValidLanguageCode() async throws {
         let language = try await createLanguage()
+        let token = try await getToken(for: .user)
         let (waypointRepository1, _, updateContent1) = try await getWaypointUpdateContent(languageId: language.requireID(), updateLangugageCode: "")
         let (waypointRepository2, _, updateContent2) = try await getWaypointUpdateContent(languageId: language.requireID(), updateLangugageCode: "hi")
         

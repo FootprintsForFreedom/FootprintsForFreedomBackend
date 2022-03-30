@@ -68,30 +68,22 @@ open class AppTestCase: XCTestCase {
         return result
     }
     
-    func getUser(role: User.Role) async throws -> UserAccountModel {
+    func getUser(role: User.Role, verified: Bool = false) async throws -> UserAccountModel {
         let newUserPassword = "password"
-        let newUser = UserAccountModel(name: "Test User", email: "test-user\(UUID())@example.com", school: nil, password: try app.password.hash(newUserPassword), verified: false, role: role)
+        let newUser = UserAccountModel(name: "Test User", email: "test-user\(UUID())@example.com", school: nil, password: try app.password.hash(newUserPassword), verified: verified, role: role)
         try await newUser.create(on: app.db)
         return newUser
     }
     
-    func getToken(for userRole: User.Role) async throws -> String {
-        let newUser = try await getUser(role: userRole)
+    func getToken(for userRole: User.Role, verified: Bool = false) async throws -> String {
+        let newUser = try await getUser(role: userRole, verified: verified)
         let token = try newUser.generateToken()
         try await token.create(on: app.db)
         return token.value
     }
 }
 
-open class AppTestCaseWithToken: AppTestCase {
-    var token: String!
-    
-    override open func setUp() async throws {
-        app = try await createTestApp()
-        token = try await getToken(for: .user)
-    }
-}
-
+// TODO: remove?
 open class AppTestCaseWithModeratorToken: AppTestCase {
     var moderatorToken: String!
     
