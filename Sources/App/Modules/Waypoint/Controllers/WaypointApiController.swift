@@ -34,6 +34,19 @@ struct WaypointApiController: ApiController {
         KeyedContentValidator<String>.required("languageCode")
     }
     
+    func onlyForVerifiedUser(_ req: Request) async throws {
+        /// Require user to be signed in
+        let authenticatedUser = try req.auth.require(AuthenticatedUser.self)
+        /// find the user model belonging to the authenticated user
+        guard let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db) else {
+            throw Abort(.unauthorized)
+        }
+        /// require  the user to be a admin or higher
+        guard user.verified else {
+            throw Abort(.forbidden)
+        }
+    }
+    
     struct PreferredLanguageQuery: Codable {
         let preferredLanguage: String?
     }
@@ -129,6 +142,10 @@ struct WaypointApiController: ApiController {
         return try await createResponse(req, repository, waypoint, location)
     }
     
+    func beforeCreate(_ req: Request, _ model: WaypointRepositoryModel) async throws {
+        try await onlyForVerifiedUser(req)
+    }
+    
     // not implemented, instead function below is used, however this function is required by the protocol
     func createInput(_ req: Request, _ model: WaypointRepositoryModel, _ input: Waypoint.Waypoint.Create) async throws {
         fatalError()
@@ -169,8 +186,10 @@ struct WaypointApiController: ApiController {
         let repository = try await findBy(identifier(req), on: req.db)
         let input = try req.content.decode(UpdateObject.self)
         let waypoint = WaypointWaypointModel()
+        try await beforeUpdate(req, repository)
         try await updateInput(req, repository, waypoint, input)
         try await waypoint.create(on: req.db)
+        try await afterUpdate(req, repository)
         let latestVerifiedLocation = try await repository.location(needsToBeVerified: true, on: req.db)
         var location: WaypointLocationModel! = latestVerifiedLocation
         if location == nil {
@@ -180,6 +199,10 @@ struct WaypointApiController: ApiController {
             location = oldestLocation
         }
         return try await updateResponse(req, repository, waypoint, location)
+    }
+    
+    func beforeUpdate(_ req: Request, _ model: WaypointRepositoryModel) async throws {
+        try await onlyForVerifiedUser(req)
     }
     
     func updateInput(_ req: Request, _ model: WaypointRepositoryModel, _ input: Waypoint.Waypoint.Update) async throws {
@@ -216,8 +239,14 @@ struct WaypointApiController: ApiController {
         try await RequestValidator(patchValidators()).validate(req)
         let repository = try await findBy(identifier(req), on: req.db)
         let input = try req.content.decode(PatchObject.self)
+        try await beforePatch(req, repository)
         let (waypoint, location) = try await patchInput(req, repository, input)
+        try await afterPatch(req, repository)
         return try await patchResponse(req, repository, waypoint, location)
+    }
+    
+    func beforePatch(_ req: Request, _ model: WaypointRepositoryModel) async throws {
+        try await onlyForVerifiedUser(req)
     }
     
     func patchInput(_ req: Request, _ model: WaypointRepositoryModel, _ input: Waypoint.Waypoint.Patch) async throws {

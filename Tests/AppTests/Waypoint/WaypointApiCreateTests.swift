@@ -118,7 +118,18 @@ final class WaypointApiCreateTests: AppTestCase, LanguageTest {
         }
     }
     
-    // TODO: test unverified user fails
+    func testCreateWaypointAsUnverifiedUserFails() async throws {
+        let token = try await getToken(for: .user, verified: false)
+        let newWaypoint = try await getWaypointCreateContent()
+        
+        try app
+            .describe("Create waypoint as unverified user should fail")
+            .post(waypointsPath)
+            .body(newWaypoint)
+            .bearerToken(token)
+            .expect(.forbidden)
+            .test()
+    }
     
     func testCreateWaypointWithoutTokenFails() async throws {
         let newWaypoint = try await getWaypointCreateContent()

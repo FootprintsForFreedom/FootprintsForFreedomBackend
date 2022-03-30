@@ -44,7 +44,7 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
     }
     
     func testSucessfulUpdateWaypoint() async throws {
-        let token = try await getToken(for: .user)
+        let token = try await getToken(for: .user, verified: true)
         let (waypointRepository, createdLocation, updateContent) = try await getWaypointUpdateContent()
         
         let locationCount = try await WaypointLocationModel
@@ -85,7 +85,7 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
     }
     
     func testSuccessfulUpdateWithNewLanguage() async throws {
-        let token = try await getToken(for: .user)
+        let token = try await getToken(for: .user, verified: true)
         let (waypointRepository, _, createdLocation) = try await createNewWaypoint()
         let secondLanguage = try await createLanguage(languageCode: UUID().uuidString, name: UUID().uuidString, isRTL: false)
         
@@ -122,6 +122,19 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
         XCTAssertFalse(newWaypointModel.verified)
     }
     
+    func testUpdateWaypointAsUnverifiedUserFails() async throws {
+        let token = try await getToken(for: .user)
+        let (waypointRepository, _, updateContent) = try await getWaypointUpdateContent()
+        
+        try app
+            .describe("Update waypoint as unverified user should fail")
+            .put(waypointsPath.appending(waypointRepository.requireID().uuidString))
+            .body(updateContent)
+            .bearerToken(token)
+            .expect(.forbidden)
+            .test()
+    }
+    
     func testUpdateWaypointWithoutTokenFails() async throws {
         let (waypointRepository, _, updateContent) = try await getWaypointUpdateContent()
         
@@ -134,7 +147,7 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
     }
     
     func testUpdateWaypointNeedsValidTitle() async throws {
-        let token = try await getToken(for: .user)
+        let token = try await getToken(for: .user, verified: true)
         let (waypointRepository, _, updateContent) = try await getWaypointUpdateContent(updatedTitle: "")
         
         try app
@@ -147,7 +160,7 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
     }
     
     func testUpdateWaypointNeedsValidDescription() async throws {
-        let token = try await getToken(for: .user)
+        let token = try await getToken(for: .user, verified: true)
         let (waypointRepository, _, updateContent) = try await getWaypointUpdateContent(updatedDescription: "")
         
         try app
@@ -161,7 +174,7 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
     
     func testUpdateWaypointNeedsValidLanguageCode() async throws {
         let language = try await createLanguage()
-        let token = try await getToken(for: .user)
+        let token = try await getToken(for: .user, verified: true)
         let (waypointRepository1, _, updateContent1) = try await getWaypointUpdateContent(languageId: language.requireID(), updateLangugageCode: "")
         let (waypointRepository2, _, updateContent2) = try await getWaypointUpdateContent(languageId: language.requireID(), updateLangugageCode: "hi")
         
