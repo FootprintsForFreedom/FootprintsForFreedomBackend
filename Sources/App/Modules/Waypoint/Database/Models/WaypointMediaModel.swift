@@ -41,4 +41,5 @@ final class WaypointMediaModel: DatabaseModelInterface {
     init() { }
 }
 
+// TODO: maybe hash the file contents to verify the file was not edited in the filesystem --> data integrity
 // mabye also store medias in repository --> store media repositories --> one media per language and fallback for others like with waypoints
