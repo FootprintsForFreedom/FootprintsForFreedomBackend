@@ -6,6 +6,7 @@
 //
 
 @testable import App
+import XCTVapor
 import Fluent
 
 protocol LanguageTest: AppTestCase { }
