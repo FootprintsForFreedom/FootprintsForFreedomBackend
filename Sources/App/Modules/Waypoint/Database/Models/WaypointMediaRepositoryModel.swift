@@ -26,3 +26,38 @@ final class WaypointMediaRepositoryModel: DatabaseModelInterface {
     
     init() { }
 }
+
+extension WaypointMediaRepositoryModel {
+    func media(
+        for languageCode: String,
+        needsToBeVerified: Bool,
+        on db: Database,
+        sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
+    ) async throws -> WaypointMediaDescriptionModel? {
+        var query = self.$media
+            .query(on: db)
+            .join(LanguageModel.self, on: \WaypointWaypointModel.$language.$id == \LanguageModel.$id)
+            .filter(LanguageModel.self, \.$languageCode == languageCode)
+            .filter(LanguageModel.self, \.$priority != nil)
+        if needsToBeVerified {
+            query = query.filter(\.$verified == true)
+        }
+        query = query.sort(\.$updatedAt, sortDirection)
+        
+        return try await query.first()
+    }
+    
+    func media(
+        for languageCodesByPriority: [String],
+        needsToBeVerified: Bool,
+        on db: Database,
+        sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
+    ) async throws -> WaypointMediaDescriptionModel? {
+        for languageCode in languageCodesByPriority {
+            if let waypoint = try await media(for: languageCode, needsToBeVerified: needsToBeVerified, on: db, sort: sortDirection){
+                return waypoint
+            }
+        }
+        return nil
+    }
+}
