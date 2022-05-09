@@ -73,7 +73,6 @@ enum WaypointMigrations {
             
             try await db.schema(WaypointMediaModel.schema)
                 .id()
-                .field(WaypointMediaModel.FieldKeys.v1.verified, .bool, .required)
                 .field(WaypointMediaModel.FieldKeys.v1.mediaDirectory, .string, .required)
                 .unique(on: WaypointMediaModel.FieldKeys.v1.mediaDirectory)
             

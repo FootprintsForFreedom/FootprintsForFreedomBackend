@@ -13,7 +13,6 @@ final class WaypointMediaModel: DatabaseModelInterface {
     
     struct FieldKeys {
         struct v1 {
-            static var verified: FieldKey { "verified" }
             static var mediaDirectory: FieldKey { "media_directory" }
             static var group: FieldKey { "group" }
             static var userId: FieldKey { "user_id" }
@@ -22,7 +21,6 @@ final class WaypointMediaModel: DatabaseModelInterface {
     }
     
     @ID() var id: UUID?
-    @Field(key: FieldKeys.v1.verified) var verified: Bool
     @Field(key: FieldKeys.v1.mediaDirectory) var mediaDirectory: String
     
     @Children(for: \.$media) var descriptions: [WaypointMediaDescriptionModel]
