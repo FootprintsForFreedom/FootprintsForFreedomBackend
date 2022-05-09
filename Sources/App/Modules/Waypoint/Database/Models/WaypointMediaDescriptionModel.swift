@@ -22,6 +22,8 @@ final class WaypointMediaDescriptionModel: DatabaseModelInterface {
             static var languageId: FieldKey { "language_id" }
             static var userId: FieldKey { "user_id" }
             static var createdAt: FieldKey { "created_at" }
+            static var updatedAt: FieldKey { "updated_at" }
+            static var deletedAt: FieldKey { "deleted_at" }
         }
     }
     
@@ -40,7 +42,11 @@ final class WaypointMediaDescriptionModel: DatabaseModelInterface {
     @Parent(key: FieldKeys.v1.userId) var user: UserAccountModel
     
     @Timestamp(key: FieldKeys.v1.createdAt, on: .create) var createdAt: Date?
+    @Timestamp(key: FieldKeys.v1.updatedAt, on: .update) var updatedAt: Date?
     
+    // MARK: soft delete
+    @Timestamp(key: FieldKeys.v1.deletedAt, on: .delete) var deletedAt: Date?
+
     init() { }
 }
 

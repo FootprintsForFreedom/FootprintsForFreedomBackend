@@ -105,6 +105,8 @@ enum WaypointMigrations {
                 .foreignKey(WaypointMediaDescriptionModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
             
                 .field(WaypointMediaDescriptionModel.FieldKeys.v1.createdAt, .datetime, .required)
+                .field(WaypointLocationModel.FieldKeys.v1.updatedAt, .datetime, .required)
+                .field(WaypointLocationModel.FieldKeys.v1.deletedAt, .datetime)
             
                 .create()
         }
