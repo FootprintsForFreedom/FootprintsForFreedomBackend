@@ -5,8 +5,7 @@
 //  Created by niklhut on 09.05.22.
 //
 
-// TODO: remove Vapor, instead use own File struct (don't forget to remove it form Package.swift as well)
-import Vapor
+import Foundation
 
 public extension Media {
     enum Media: ApiModelInterface {
@@ -84,9 +83,9 @@ public extension Media.Media {
         public let title: String
         public let description: String
         public let source: String
-        public let file: File
+        public let file: Media.File
         
-        public init(title: String, description: String, source: String, file: File) {
+        public init(title: String, description: String, source: String, file: Media.File) {
             self.title = title
             self.description = description
             self.source = source

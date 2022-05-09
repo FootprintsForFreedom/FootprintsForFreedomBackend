@@ -27,7 +27,6 @@ let package = Package(
             .target(name: "diff_match_patch"),
         ]),
         .target(name: "AppApi", dependencies: [
-            .product(name: "Vapor", package: "vapor"),
             .target(name: "DiffMatchPatch")
         ]),
         .target(
