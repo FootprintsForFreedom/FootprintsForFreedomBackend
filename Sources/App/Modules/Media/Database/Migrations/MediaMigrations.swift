@@ -11,10 +11,10 @@ import Fluent
 enum MediaMigrations {
     struct v1: AsyncMigration {
         func prepare(on db: Database) async throws {
-            let mediaGroup = try await db.enum(Waypoint.Media.Group.pathKey)
-                .case(Waypoint.Media.Group.video.rawValue)
-                .case(Waypoint.Media.Group.audio.rawValue)
-                .case(Waypoint.Media.Group.document.rawValue)
+            let mediaGroup = try await db.enum(Media.Media.Group.pathKey)
+                .case(Media.Media.Group.video.rawValue)
+                .case(Media.Media.Group.audio.rawValue)
+                .case(Media.Media.Group.document.rawValue)
                 .create()
             
             try await db.schema(MediaRepositoryModel.schema)
@@ -69,7 +69,7 @@ enum MediaMigrations {
             try await db.schema(MediaDescriptionModel.schema).delete()
             try await db.schema(MediaFileModel.schema).delete()
             try await db.schema(MediaRepositoryModel.schema).delete()
-            try await db.enum(Waypoint.Media.Group.pathKey).delete()
+            try await db.enum(Media.Media.Group.pathKey).delete()
         }
     }
 }

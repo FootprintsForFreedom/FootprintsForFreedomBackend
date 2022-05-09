@@ -1,20 +1,20 @@
 //
-//  File.swift
+//  MediaMedia.swift
 //  
 //
-//  Created by niklhut on 16.02.22.
+//  Created by niklhut on 09.05.22.
 //
 
+// TODO: remove Vapor, instead use own File struct (don't forget to remove it form Package.swift as well)
 import Vapor
-import Foundation
 
-public extension Waypoint {
+public extension Media {
     enum Media: ApiModelInterface {
-        public typealias Module = AppApi.Waypoint
+        public typealias Module = AppApi.Media
     }
 }
 
-public extension Waypoint.Media {
+public extension Media.Media {
     struct List: Codable {
         public let id: UUID
         public let title: String

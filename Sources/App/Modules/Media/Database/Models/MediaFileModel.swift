@@ -25,7 +25,7 @@ final class MediaFileModel: DatabaseModelInterface {
     
     @Children(for: \.$media) var descriptions: [MediaDescriptionModel]
     
-    @Enum(key: FieldKeys.v1.group) var group: Waypoint.Media.Group
+    @Enum(key: FieldKeys.v1.group) var group: Media.Media.Group
     
     @Parent(key: FieldKeys.v1.userId) var user: UserAccountModel
     
