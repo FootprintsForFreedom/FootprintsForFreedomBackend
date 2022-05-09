@@ -11,6 +11,8 @@ import Fluent
 final class WaypointMediaDescriptionModel: DatabaseModelInterface {
     typealias Module = WaypointModule
     
+    static var identifier: String { "media_descriptions" }
+    
     struct FieldKeys {
         struct v1 {
             static var verified: FieldKey { "verified" }
