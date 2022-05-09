@@ -15,8 +15,6 @@ struct LanguageModule: ModuleInterface {
         app.migrations.add(LanguageMigrations.v1())
         app.migrations.add(LanguageMigrations.seed())
         
-        app.middleware.use(UserTokenAuthenticator())
-        
         app.hooks.register("api-routes", use: router.apiRoutesHook)
         
         try router.boot(routes: app.routes)
