@@ -15,9 +15,7 @@ struct WaypointApiController: ApiController {
     typealias ApiModel = Waypoint.Waypoint
     typealias DatabaseModel = WaypointRepositoryModel
     
-    func getBaseRoutes(_ routes: RoutesBuilder) -> RoutesBuilder {
-        routes.grouped("waypoints")
-    }
+    // MARK: - Validators
     
     @AsyncValidatorBuilder
     func validators(optional: Bool) -> [AsyncValidator] {
@@ -34,6 +32,12 @@ struct WaypointApiController: ApiController {
         KeyedContentValidator<String>.required("languageCode")
     }
     
+    // MARK: - Routes
+    
+    func getBaseRoutes(_ routes: RoutesBuilder) -> RoutesBuilder {
+        routes.grouped("waypoints")
+    }
+    
     func onlyForVerifiedUser(_ req: Request) async throws {
         /// Require user to be signed in
         let authenticatedUser = try req.auth.require(AuthenticatedUser.self)
@@ -46,6 +50,8 @@ struct WaypointApiController: ApiController {
             throw Abort(.forbidden)
         }
     }
+    
+    // MARK: - List
     
     func beforeList(_ req: Request, _ queryBuilder: QueryBuilder<WaypointRepositoryModel>) async throws -> QueryBuilder<WaypointRepositoryModel> {
         queryBuilder
@@ -87,6 +93,8 @@ struct WaypointApiController: ApiController {
             .compactMap { $0 }
     }
     
+    // MARK: - Detail
+    
     func detailOutput(_ req: Request, _ repository: WaypointRepositoryModel) async throws -> Waypoint.Waypoint.Detail {
         let preferredLanguageCode = try req.query.decode(PreferredLanguageQuery.self).preferredLanguage
         let allLanguageCodesByPriority = try await LanguageModel.languageCodesByPriority(preferredLanguageCode: preferredLanguageCode, on: req.db)
@@ -124,6 +132,8 @@ struct WaypointApiController: ApiController {
             languageCode: waypoint.language.languageCode
         )
     }
+    
+    // MARK: - Create
     
     func createApi(_ req: Request) async throws -> Response {
         try await RequestValidator(createValidators()).validate(req)
@@ -176,6 +186,8 @@ struct WaypointApiController: ApiController {
     func createResponse(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointWaypointModel, _ location: WaypointLocationModel) async throws -> Response {
         try await detailOutput(req, repository, waypoint, location).encodeResponse(status: .created, for: req)
     }
+    
+    // MARK: - Update
     
     func updateApi(_ req: Request) async throws -> Response {
         try await RequestValidator(updateValidators()).validate(req)
@@ -230,6 +242,8 @@ struct WaypointApiController: ApiController {
     func updateResponse(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointWaypointModel, _ location: WaypointLocationModel) async throws -> Response {
         try await detailOutput(req, repository, waypoint, location).encodeResponse(for: req)
     }
+    
+    // MARK: - Patch
     
     func patchApi(_ req: Request) async throws -> Response {
         try await RequestValidator(patchValidators()).validate(req)
@@ -315,6 +329,8 @@ struct WaypointApiController: ApiController {
     func patchResponse(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointWaypointModel, _ location: WaypointLocationModel) async throws -> Response {
         try await detailOutput(req, repository, waypoint, location).encodeResponse(for: req)
     }
+    
+    // MARK: - Delete
     
     // TODO: make sure cannot delete first location or waypoint model since then it would be empty
     // Instead prompt the user to sumbmit a change and verify subsequently
