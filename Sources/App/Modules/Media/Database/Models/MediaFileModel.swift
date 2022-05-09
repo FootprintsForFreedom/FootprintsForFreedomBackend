@@ -1,5 +1,5 @@
 //
-//  WaypointMediaModel.swift
+//  MediaFileModel.swift
 //  
 //
 //  Created by niklhut on 08.05.22.
@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class WaypointMediaModel: DatabaseModelInterface {
+final class MediaFileModel: DatabaseModelInterface {
     typealias Module = WaypointModule
     
     struct FieldKeys {
@@ -23,7 +23,7 @@ final class WaypointMediaModel: DatabaseModelInterface {
     @ID() var id: UUID?
     @Field(key: FieldKeys.v1.mediaDirectory) var mediaDirectory: String
     
-    @Children(for: \.$media) var descriptions: [WaypointMediaDescriptionModel]
+    @Children(for: \.$media) var descriptions: [MediaDescriptionModel]
     
     @Enum(key: FieldKeys.v1.group) var group: Waypoint.Media.Group
     

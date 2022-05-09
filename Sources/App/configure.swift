@@ -44,6 +44,7 @@ public func configure(_ app: Application) throws {
         UserModule(),
         LanguageModule(),
         WaypointModule(),
+        MediaModule(),
 //        AdminModule(),
         ApiModule(),
 //        BlogModule(),

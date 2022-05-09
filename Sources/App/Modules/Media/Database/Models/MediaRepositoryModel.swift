@@ -1,5 +1,5 @@
 //
-//  WaypointMediaRepositoryModel.swift
+//  MediaRepositoryModel.swift
 //  
 //
 //  Created by niklhut on 09.05.22.
@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class WaypointMediaRepositoryModel: DatabaseModelInterface {
+final class MediaRepositoryModel: DatabaseModelInterface {
     typealias Module = WaypointModule
     
     static var identifier: String { "media_repositories" }
@@ -20,20 +20,20 @@ final class WaypointMediaRepositoryModel: DatabaseModelInterface {
     }
     
     @ID() var id: UUID?
-    @Children(for: \.$mediaRepository) var media: [WaypointMediaDescriptionModel]
+    @Children(for: \.$mediaRepository) var media: [MediaDescriptionModel]
     
     @Parent(key: FieldKeys.v1.waypointId) var waypoint: WaypointWaypointModel
     
     init() { }
 }
 
-extension WaypointMediaRepositoryModel {
+extension MediaRepositoryModel {
     func media(
         for languageCode: String,
         needsToBeVerified: Bool,
         on db: Database,
         sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
-    ) async throws -> WaypointMediaDescriptionModel? {
+    ) async throws -> MediaDescriptionModel? {
         var query = self.$media
             .query(on: db)
             .join(LanguageModel.self, on: \WaypointWaypointModel.$language.$id == \LanguageModel.$id)
@@ -52,7 +52,7 @@ extension WaypointMediaRepositoryModel {
         needsToBeVerified: Bool,
         on db: Database,
         sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
-    ) async throws -> WaypointMediaDescriptionModel? {
+    ) async throws -> MediaDescriptionModel? {
         for languageCode in languageCodesByPriority {
             if let waypoint = try await media(for: languageCode, needsToBeVerified: needsToBeVerified, on: db, sort: sortDirection){
                 return waypoint

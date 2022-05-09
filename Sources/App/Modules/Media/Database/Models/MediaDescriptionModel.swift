@@ -1,5 +1,5 @@
 //
-//  WaypointMediaModel.swift
+//  MediaDescriptionModel.swift
 //  
 //
 //  Created by niklhut on 16.02.22.
@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class WaypointMediaDescriptionModel: DatabaseModelInterface {
+final class MediaDescriptionModel: DatabaseModelInterface {
     typealias Module = WaypointModule
     
     static var identifier: String { "media_descriptions" }
@@ -39,8 +39,8 @@ final class WaypointMediaDescriptionModel: DatabaseModelInterface {
     
     @Parent(key: FieldKeys.v1.languageId) var language: LanguageModel
     
-    @Parent(key: FieldKeys.v1.mediaRepositoryId) var mediaRepository: WaypointMediaRepositoryModel
-    @Parent(key: FieldKeys.v1.mediaId) var media: WaypointMediaModel
+    @Parent(key: FieldKeys.v1.mediaRepositoryId) var mediaRepository: MediaRepositoryModel
+    @Parent(key: FieldKeys.v1.mediaId) var media: MediaFileModel
     @Parent(key: FieldKeys.v1.userId) var user: UserAccountModel
     
     @Timestamp(key: FieldKeys.v1.createdAt, on: .create) var createdAt: Date?
