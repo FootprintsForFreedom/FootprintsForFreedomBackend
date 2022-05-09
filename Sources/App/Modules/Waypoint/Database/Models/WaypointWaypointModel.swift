@@ -31,7 +31,7 @@ final class WaypointWaypointModel: DatabaseModelInterface {
     @Field(key: FieldKeys.v1.title) var title: String
     @Field(key: FieldKeys.v1.description) var description: String
     
-    @Children(for: \.$waypoint) var media: [WaypointMediaModel]
+    @Children(for: \.$waypoint) var media: [WaypointMediaRepositoryModel]
     
     // TODO: likes as sibling?
     
