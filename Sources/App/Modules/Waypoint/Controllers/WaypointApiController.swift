@@ -47,10 +47,6 @@ struct WaypointApiController: ApiController {
         }
     }
     
-    struct PreferredLanguageQuery: Codable {
-        let preferredLanguage: String?
-    }
-    
     func beforeList(_ req: Request, _ queryBuilder: QueryBuilder<WaypointRepositoryModel>) async throws -> QueryBuilder<WaypointRepositoryModel> {
         queryBuilder
             .join(WaypointWaypointModel.self, on: \WaypointWaypointModel.$repository.$id == \WaypointRepositoryModel.$id)
