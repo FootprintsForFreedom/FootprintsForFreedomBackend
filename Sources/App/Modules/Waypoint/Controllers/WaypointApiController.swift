@@ -97,9 +97,9 @@ struct WaypointApiController: ApiController {
         else {
             throw Abort(.notFound)
         }
-        try await waypoint.$language.load(on: req.db)
         
         if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db), user.role >= .moderator {
+            try await waypoint.$language.load(on: req.db)
             return try .moderatorDetail(
                 id: repository.id!,
                 title: waypoint.title,
