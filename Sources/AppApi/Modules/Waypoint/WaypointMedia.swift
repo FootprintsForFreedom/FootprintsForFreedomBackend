@@ -34,7 +34,6 @@ public extension Waypoint.Media {
         public let source: String
         public let group: Group
         public let filePath: String
-        public let createdAt: Date?
         public let verified: Bool?
         
         public static func publicDetail(id: UUID, title: String, description: String, source: String, group: Group, filePath: String) -> Self {
@@ -48,7 +47,7 @@ public extension Waypoint.Media {
             )
         }
         
-        public static func moderatorDetail(id: UUID, title: String, description: String, source: String, group: Group, filePath: String, createdAt: Date, verified: Bool) -> Self {
+        public static func moderatorDetail(id: UUID, title: String, description: String, source: String, group: Group, filePath: String, verified: Bool) -> Self {
             return .init(
                 id: id,
                 title: title,
@@ -56,7 +55,6 @@ public extension Waypoint.Media {
                 source: source,
                 group: group,
                 filePath: filePath,
-                createdAt: createdAt,
                 verified: verified
             )
         }
@@ -68,18 +66,16 @@ public extension Waypoint.Media {
             self.source = source
             self.group = group
             self.filePath = filePath
-            self.createdAt = nil
             self.verified = nil
         }
         
-        private init(id: UUID, title: String, description: String, source: String, group: Group, filePath: String, createdAt: Date, verified: Bool) {
+        private init(id: UUID, title: String, description: String, source: String, group: Group, filePath: String, verified: Bool) {
             self.id = id
             self.title = title
             self.description = description
             self.source = source
             self.group = group
             self.filePath = filePath
-            self.createdAt = createdAt
             self.verified = verified
         }
     }
