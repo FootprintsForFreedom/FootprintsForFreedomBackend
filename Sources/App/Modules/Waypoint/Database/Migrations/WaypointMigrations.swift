@@ -113,6 +113,8 @@ enum WaypointMigrations {
         
         func revert(on db: Database) async throws {
             try await db.schema(WaypointMediaDescriptionModel.schema).delete()
+            try await db.schema(WaypointMediaModel.schema).delete()
+            try await db.schema(WaypointMediaRepositoryModel.schema).delete()
             try await db.schema(WaypointWaypointModel.schema).delete()
             try await db.schema(WaypointLocationModel.schema).delete()
             try await db.schema(WaypointRepositoryModel.schema).delete()
