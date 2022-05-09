@@ -19,6 +19,7 @@ final class WaypointMediaDescriptionModel: DatabaseModelInterface {
             static var source: FieldKey { "source" }
             static var mediaRepositoryId: FieldKey { "media_repository_id" }
             static var mediaId: FieldKey { "media_id" }
+            static var languageId: FieldKey { "language_id" }
             static var userId: FieldKey { "user_id" }
             static var createdAt: FieldKey { "created_at" }
         }
@@ -31,6 +32,8 @@ final class WaypointMediaDescriptionModel: DatabaseModelInterface {
     // TODO: rename description (not only here but also in waypoint) to detailText or something similar to avoid coercion form CusotmStringConvertible
     @Field(key: FieldKeys.v1.description) var description: String
     @Field(key: FieldKeys.v1.source) var source: String
+    
+    @Parent(key: FieldKeys.v1.languageId) var language: LanguageModel
     
     @Parent(key: FieldKeys.v1.mediaRepositoryId) var mediaRepository: WaypointMediaRepositoryModel
     @Parent(key: FieldKeys.v1.mediaId) var media: WaypointMediaModel

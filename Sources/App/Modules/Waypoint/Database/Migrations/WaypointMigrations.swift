@@ -92,9 +92,11 @@ enum WaypointMigrations {
                 .field(WaypointMediaDescriptionModel.FieldKeys.v1.description, .string, .required)
                 .field(WaypointMediaDescriptionModel.FieldKeys.v1.source, .string, .required)
             
+                .field(WaypointMediaDescriptionModel.FieldKeys.v1.languageId, .uuid, .required)
+                .foreignKey(WaypointMediaDescriptionModel.FieldKeys.v1.languageId, references: LanguageModel.schema, .id)
+            
                 .field(WaypointMediaDescriptionModel.FieldKeys.v1.mediaRepositoryId, .uuid, .required)
                 .foreignKey(WaypointMediaDescriptionModel.FieldKeys.v1.mediaRepositoryId, references: WaypointMediaRepositoryModel.schema, .id, onDelete: .cascade)
-            
             
                 .field(WaypointMediaDescriptionModel.FieldKeys.v1.mediaId, .uuid, .required)
                 .foreignKey(WaypointMediaDescriptionModel.FieldKeys.v1.mediaId, references: WaypointMediaModel.schema, .id, onDelete: .cascade)
