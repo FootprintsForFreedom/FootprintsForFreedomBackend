@@ -48,7 +48,7 @@ public extension Waypoint.Media {
             )
         }
         
-        public static func moderatorAndCreatorDetail(id: UUID, title: String, description: String, source: String, group: Group, filePath: String, createdAt: Date, verified: Bool) -> Self {
+        public static func moderatorDetail(id: UUID, title: String, description: String, source: String, group: Group, filePath: String, createdAt: Date, verified: Bool) -> Self {
             return .init(
                 id: id,
                 title: title,
