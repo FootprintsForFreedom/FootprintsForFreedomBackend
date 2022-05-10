@@ -22,7 +22,7 @@ enum MediaMigrations {
                 .id()
             
                 .field(MediaRepositoryModel.FieldKeys.v1.waypointId, .uuid, .required)
-                .foreignKey(MediaRepositoryModel.FieldKeys.v1.waypointId, references: WaypointWaypointModel.schema, .id, onDelete: .cascade)
+                .foreignKey(MediaRepositoryModel.FieldKeys.v1.waypointId, references: WaypointRepositoryModel.schema, .id, onDelete: .cascade)
             
                 .create()
             

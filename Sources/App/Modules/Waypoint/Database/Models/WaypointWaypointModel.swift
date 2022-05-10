@@ -31,8 +31,6 @@ final class WaypointWaypointModel: DatabaseModelInterface {
     @Field(key: FieldKeys.v1.title) var title: String
     @Field(key: FieldKeys.v1.description) var description: String
     
-    @Children(for: \.$waypoint) var media: [MediaRepositoryModel]
-    
     // TODO: likes as sibling?
     
     @Parent(key: FieldKeys.v1.languageId) var language: LanguageModel

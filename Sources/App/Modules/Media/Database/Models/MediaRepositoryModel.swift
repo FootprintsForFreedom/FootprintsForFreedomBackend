@@ -22,7 +22,7 @@ final class MediaRepositoryModel: DatabaseModelInterface {
     @ID() var id: UUID?
     @Children(for: \.$mediaRepository) var media: [MediaDescriptionModel]
     
-    @Parent(key: FieldKeys.v1.waypointId) var waypoint: WaypointWaypointModel
+    @Parent(key: FieldKeys.v1.waypointId) var waypoint: WaypointRepositoryModel
     
     init() { }
 }

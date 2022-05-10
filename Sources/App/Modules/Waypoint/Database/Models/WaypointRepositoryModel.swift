@@ -16,6 +16,7 @@ final class WaypointRepositoryModel: DatabaseModelInterface {
     @ID() var id: UUID?
     @Children(for: \.$repository) var waypoints: [WaypointWaypointModel]
     @Children(for: \.$repository) var locations: [WaypointLocationModel]
+    @Children(for: \.$waypoint) var media: [MediaRepositoryModel]
     
     init() { }
 }
