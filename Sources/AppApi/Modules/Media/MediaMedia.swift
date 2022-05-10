@@ -90,13 +90,15 @@ public extension Media.Media {
         public let source: String
         public let languageCode: String
         public let file: Media.File
+        public let waypointId: UUID
         
-        public init(title: String, description: String, source: String, languageCode: String, file: Media.File) {
+        public init(title: String, description: String, source: String, languageCode: String, file: Media.File, waypointId: UUID) {
             self.title = title
             self.description = description
             self.source = source
             self.languageCode = languageCode
             self.file = file
+            self.waypointId = waypointId
         }
     }
     
