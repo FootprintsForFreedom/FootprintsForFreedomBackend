@@ -28,6 +28,7 @@ public extension Media.Media {
     
     struct Detail: Codable {
         public let id: UUID
+        public let languageCode: String
         public let title: String
         public let description: String
         public let source: String
@@ -35,9 +36,10 @@ public extension Media.Media {
         public let filePath: String
         public let verified: Bool?
         
-        public static func publicDetail(id: UUID, title: String, description: String, source: String, group: Group, filePath: String) -> Self {
+        public static func publicDetail(id: UUID, languageCode: String, title: String, description: String, source: String, group: Group, filePath: String) -> Self {
             return .init(
                 id: id,
+                languageCode: languageCode,
                 title: title,
                 description: description,
                 source: source,
@@ -46,9 +48,10 @@ public extension Media.Media {
             )
         }
         
-        public static func moderatorDetail(id: UUID, title: String, description: String, source: String, group: Group, filePath: String, verified: Bool) -> Self {
+        public static func moderatorDetail(id: UUID, languageCode: String, title: String, description: String, source: String, group: Group, filePath: String, verified: Bool) -> Self {
             return .init(
                 id: id,
+                languageCode: languageCode,
                 title: title,
                 description: description,
                 source: source,
@@ -58,8 +61,9 @@ public extension Media.Media {
             )
         }
         
-        private init(id: UUID, title: String, description: String, source: String, group: Group, filePath: String) {
+        private init(id: UUID, languageCode: String, title: String, description: String, source: String, group: Group, filePath: String) {
             self.id = id
+            self.languageCode = languageCode
             self.title = title
             self.description = description
             self.source = source
@@ -68,8 +72,9 @@ public extension Media.Media {
             self.verified = nil
         }
         
-        private init(id: UUID, title: String, description: String, source: String, group: Group, filePath: String, verified: Bool) {
+        private init(id: UUID, languageCode: String, title: String, description: String, source: String, group: Group, filePath: String, verified: Bool) {
             self.id = id
+            self.languageCode = languageCode
             self.title = title
             self.description = description
             self.source = source
@@ -83,12 +88,14 @@ public extension Media.Media {
         public let title: String
         public let description: String
         public let source: String
+        public let languageCode: String
         public let file: Media.File
         
-        public init(title: String, description: String, source: String, file: Media.File) {
+        public init(title: String, description: String, source: String, languageCode: String, file: Media.File) {
             self.title = title
             self.description = description
             self.source = source
+            self.languageCode = languageCode
             self.file = file
         }
     }
@@ -97,11 +104,13 @@ public extension Media.Media {
         public let title: String
         public let description: String
         public let source: String
+        public let languageCode: String
         
-        public init(title: String, description: String, source: String) {
+        public init(title: String, description: String, source: String, languageCode: String) {
             self.title = title
             self.description = description
             self.source = source
+            self.languageCode = languageCode
         }
     }
     
@@ -109,11 +118,13 @@ public extension Media.Media {
         public let title: String?
         public let description: String?
         public let source: String?
+        public let languageCode: String
         
-        public init(title: String?, description: String?, source: String?) {
+        public init(title: String?, description: String?, source: String?, languageCode: String) {
             self.title = title
             self.description = description
             self.source = source
+            self.languageCode = languageCode
         }
     }
 }
