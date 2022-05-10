@@ -9,7 +9,7 @@ import Vapor
 import Fluent
 
 final class MediaFileModel: DatabaseModelInterface {
-    typealias Module = WaypointModule
+    typealias Module = MediaModule
     
     struct FieldKeys {
         struct v1 {
