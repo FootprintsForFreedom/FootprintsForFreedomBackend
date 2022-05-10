@@ -1,5 +1,5 @@
 //
-//  MediaType.swift
+//  MediaGroup.swift
 //  
 //
 //  Created by niklhut on 16.02.22.
@@ -11,6 +11,6 @@ public extension Media.Media {
     enum Group: String, Codable, CaseIterable, ApiModelInterface {
         public typealias Module = Waypoint
         
-        case video, audio, document
+        case video, audio, image, document
     }
 }

@@ -14,6 +14,7 @@ enum MediaMigrations {
             let mediaGroup = try await db.enum(Media.Media.Group.pathKey)
                 .case(Media.Media.Group.video.rawValue)
                 .case(Media.Media.Group.audio.rawValue)
+                .case(Media.Media.Group.image.rawValue)
                 .case(Media.Media.Group.document.rawValue)
                 .create()
             
