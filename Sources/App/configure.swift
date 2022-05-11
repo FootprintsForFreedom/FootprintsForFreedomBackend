@@ -24,7 +24,7 @@ public func configure(_ app: Application) throws {
                                 workDirectory: "assets"), as: .local)
 
     /// set the max file upload limit
-    app.routes.defaultMaxBodySize = "10mb"
+//    app.routes.defaultMaxBodySize = "10mb"
     
     /// use the Public directory to serve public files
     app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
