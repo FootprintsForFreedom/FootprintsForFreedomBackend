@@ -13,33 +13,40 @@ public extension Media.Media {
         
         case video, audio, image, document
         
-        public var allowedFileExtensions: [String] {
-            // file extensions for the groups according to their mime types
-            // see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types
-            // and https://developer.mozilla.org/en-US/docs/Web/Media/Formats
+        public var allowedMimeTypes: [String] {
             switch self {
             case .video:
-                // video/quicktime, video/mpeg, video/mp4
-                return ["mov", "mpg", "mpeg", "mpe", "m75", "m15", "mp4", "mpg4"]
+                return ["video/quicktime", "video/mpeg", "video/mp4"]
             case .audio:
-                // audio/mpeg, audio/wav
-                return ["mp3", "mpga", "wav", "wave", "bwf"]
+                return ["audio/mpeg", "audio/wav", "audio/vnd.wave"]
             case .image:
-                // image/png, image/jpeg
-                return ["png", "jpg", "jpeg", "jpe"]
+                return ["image/png", "image/jpeg"]
             case .document:
-                // application/pdf
-                return ["pdf"]
+                return ["application/pdf"]
             }
         }
         
-        public static func `for`(_ fileExtension: String) -> Self? {
+        public static func `for`(_ fileType: String) -> Self? {
             for group in Self.allCases {
-                if group.allowedFileExtensions.contains(fileExtension) {
+                if group.allowedMimeTypes.contains(fileType) {
                     return group
                 }
             }
             return nil
+        }
+        
+        public static func preferredFilenameExtension(for mimeType: String) -> String? {
+            switch mimeType {
+            case "video/quicktime": return "mov"
+            case "video/mpeg": return "mpg"
+            case "video/mp4": return "mp4"
+            case "audio/mpeg": return "mp3"
+            case "audio/vnd.wave", "audio/wave": return "wav"
+            case "image/png": return "png"
+            case "image/jpeg": return "jpeg"
+            case "application/pdf": return "pdf"
+            default: return nil
+            }
         }
     }
 }
