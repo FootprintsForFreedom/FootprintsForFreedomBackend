@@ -178,10 +178,13 @@ struct MediaApiController: ApiController {
         }
         
         // file preparations
-        
         guard let fileType = req.headers.contentType, let group = Media.Media.Group.for("\(fileType.type)/\(fileType.subType)"), let preferredFilenameExtension = Media.Media.Group.preferredFilenameExtension(for: "\(fileType.type)/\(fileType.subType)") else {
-            req.logger.log(level: .critical, "A file with the following media type could not be uploaded: \(String(describing: req.headers.contentType?.serialize()))")
-            throw Abort(.badRequest, reason: "This content type is not supportet.")
+            if let fileType = req.headers.contentType {
+                req.logger.log(level: .critical, "A file with the following media type could not be uploaded: \(fileType.serialize()))")
+                throw Abort(.badRequest, reason: "This content type is not supportet.")
+            } else {
+                throw Abort(.badRequest, reason: "No media file in body")
+            }
         }
         
         let mediaPath = "assets/media"
