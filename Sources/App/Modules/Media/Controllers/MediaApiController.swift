@@ -165,17 +165,18 @@ struct MediaApiController: ApiController {
     func createInput(_ req: Request, _ repository: MediaRepositoryModel, _ mediaDescription: MediaDescriptionModel, _ mediaFile: MediaFileModel, _ input: Media.Media.Create) async throws {
         let user = try req.auth.require(AuthenticatedUser.self)
         
-        // TODO: verify waypointID
-        repository.$waypoint.id = input.waypointId
-        
-        guard let languageId = try await LanguageModel
-            .query(on: req.db)
-            .filter(\.$languageCode == input.languageCode)
-            .first()?
-            .requireID()
+        guard
+            let waypoint = try await WaypointRepositoryModel.find(input.waypointId, on: req.db),
+            let languageId = try await LanguageModel
+                .query(on: req.db)
+                .filter(\.$languageCode == input.languageCode)
+                .first()?
+                .requireID()
         else {
             throw Abort(.badRequest)
         }
+        
+        repository.waypoint = waypoint
         
         // file preparations
         guard let fileType = req.headers.contentType, let group = Media.Media.Group.for("\(fileType.type)/\(fileType.subType)"), let preferredFilenameExtension = Media.Media.Group.preferredFilenameExtension(for: "\(fileType.type)/\(fileType.subType)") else {
@@ -226,7 +227,7 @@ struct MediaApiController: ApiController {
                     }
             }
             .get()
-                
+        
         mediaDescription.verified = false
         mediaDescription.title = input.title
         mediaDescription.description = input.description
