@@ -19,13 +19,25 @@ struct MediaApiController: ApiController {
     // MARK: - Validators
     
     @AsyncValidatorBuilder
-    func validators(optional: Bool) -> [AsyncValidator] {
-        KeyedContentValidator<String>.required("title", optional: optional, validateQuery: true)
-        KeyedContentValidator<String>.required("description", optional: optional, validateQuery: true)
-        KeyedContentValidator<String>.required("source", optional: optional, validateQuery: true)
-        // TODO: Attention when update and patch
-        KeyedContentValidator<UUID>.required("waypointId", optional: optional, validateQuery: true)
-        KeyedContentValidator<String>.required("languageCode", optional: optional, validateQuery: true)
+    func createValidators() -> [AsyncValidator] {
+        KeyedContentValidator<String>.required("title", validateQuery: true)
+        KeyedContentValidator<String>.required("description", validateQuery: true)
+        KeyedContentValidator<String>.required("source", validateQuery: true)
+        KeyedContentValidator<String>.required("languageCode", validateQuery: true)
+        KeyedContentValidator<UUID>.required("waypointId", validateQuery: true)
+    }
+    
+    @AsyncValidatorBuilder
+    func updateValidators() -> [AsyncValidator] {
+        KeyedContentValidator<String>.required("title", validateQuery: true)
+        KeyedContentValidator<String>.required("description", validateQuery: true)
+        KeyedContentValidator<String>.required("source", validateQuery: true)
+        KeyedContentValidator<String>.required("languageCode", validateQuery: true)
+    }
+    
+    @AsyncValidatorBuilder
+    func patchValidators() -> [AsyncValidator] {
+        KeyedContentValidator<UUID>.required("idForMediaToPatch", validateQuery: true)
     }
     
     // MARK: - Routes
@@ -44,6 +56,7 @@ struct MediaApiController: ApiController {
         setupDeleteRoutes(protectedRoutes)
     }
     
+    // TODO: maybe declare somwhere else -> is also used in other controllers -> unify
     func onlyForVerifiedUser(_ req: Request) async throws {
         /// Require user to be signed in
         let authenticatedUser = try req.auth.require(AuthenticatedUser.self)
@@ -157,6 +170,10 @@ struct MediaApiController: ApiController {
         return try await createResponse(req, repository, mediaDescription)
     }
     
+    func beforeCreate(_ req: Request, _ model: WaypointRepositoryModel) async throws {
+        try await onlyForVerifiedUser(req)
+    }
+    
     // not implemented, instead function below is used, however this function is required by the protocol
     func createInput(_ req: Request, _ model: MediaRepositoryModel, _ input: Media.Media.Create) async throws {
         fatalError()
@@ -181,7 +198,7 @@ struct MediaApiController: ApiController {
         repository.$waypoint.id = waypointId
         
         // file preparations
-        guard let fileType = req.headers.contentType, let group = Media.Media.Group.for("\(fileType.type)/\(fileType.subType)"), let preferredFilenameExtension = Media.Media.Group.preferredFilenameExtension(for: "\(fileType.type)/\(fileType.subType)") else {
+        guard let mediaFileGroup = req.headers.contentType?.mediaGroup(), let preferredFilenameExtension = req.headers.contentType?.preferredFilenameExtension() else {
             if let fileType = req.headers.contentType {
                 req.logger.log(level: .critical, "A file with the following media type could not be uploaded: \(fileType.serialize()))")
                 throw Abort(.badRequest, reason: "This content type is not supportet.")
@@ -193,14 +210,15 @@ struct MediaApiController: ApiController {
         let mediaPath = "assets/media"
         let fileId = UUID()
         mediaFile.mediaDirectory = "\(mediaPath)/\(fileId.uuidString).\(preferredFilenameExtension)"
-        mediaFile.group = group
+        mediaFile.group = mediaFileGroup
         mediaFile.$user.id = user.id
         
         // save the file
         let filePath = req.application.directory.publicDirectory + mediaFile.mediaDirectory
         
         var sequential = req.eventLoop.makeSucceededFuture(())
-        try await req.application.fileio.openFile(path: filePath, mode: .write, flags: .allowFileCreation(), eventLoop: req.eventLoop)
+        try await req.application.fileio
+            .openFile(path: filePath, mode: .write, flags: .allowFileCreation(), eventLoop: req.eventLoop)
             .flatMap { handle -> EventLoopFuture<Void> in
                 let promise = req.eventLoop.makePromise(of: Void.self)
                 
@@ -244,14 +262,215 @@ struct MediaApiController: ApiController {
     
     // MARK: - Update
     
+    func updateApi(_ req: Request) async throws -> Response {
+        try await RequestValidator(updateValidators()).validate(req)
+        let repository = try await findBy(identifier(req), on: req.db)
+        let input = try req.query.decode(UpdateObject.self)
+        let mediaDescription = MediaDescriptionModel()
+        try await beforeUpdate(req, repository)
+        try await updateInput(req, repository, mediaDescription, input)
+        try await repository.$media.create(mediaDescription, on: req.db)
+        try await afterUpdate(req, repository)
+        return try await updateResponse(req, repository, mediaDescription)
+    }
+    
+    func beforeUpdate(_ req: Request, _ model: WaypointRepositoryModel) async throws {
+        try await onlyForVerifiedUser(req)
+    }
+    
+    // not implemented, instead function below is used, however this function is required by the protocol
     func updateInput(_ req: Request, _ model: MediaRepositoryModel, _ input: Media.Media.Update) async throws {
-        print("hello")
+        fatalError()
+    }
+    
+    func updateInput(_ req: Request, _ repository: MediaRepositoryModel, _ mediaDescription: MediaDescriptionModel, _ input: Media.Media.Update) async throws {
+        /// Require user to be signed in
+        let user = try req.auth.require(AuthenticatedUser.self)
+        
+        guard let languageId = try await LanguageModel
+            .query(on: req.db)
+            .filter(\.$languageCode == input.languageCode)
+            .first()?
+            .requireID()
+        else {
+            throw Abort(.badRequest)
+        }
+        
+        mediaDescription.verified = false
+        mediaDescription.title = input.title
+        mediaDescription.description = input.description
+        mediaDescription.source = input.source
+        mediaDescription.$language.id = languageId
+        mediaDescription.$user.id = user.id
+        
+        if let mediaIdForFile = input.mediaIdForFile {
+            guard let mediaDescriptionForFile = try await MediaDescriptionModel.find(mediaIdForFile, on: req.db) else {
+                throw Abort(.badRequest)
+            }
+            mediaDescription.$media.id = mediaDescriptionForFile.$media.id
+        } else {
+            guard let mediaFileGroup = req.headers.contentType?.mediaGroup(), let preferredFilenameExtension = req.headers.contentType?.preferredFilenameExtension() else {
+                if let fileType = req.headers.contentType {
+                    req.logger.log(level: .critical, "A file with the following media type could not be uploaded: \(fileType.serialize()))")
+                    throw Abort(.badRequest, reason: "This content type is not supportet.")
+                } else {
+                    throw Abort(.badRequest, reason: "No media file in body")
+                }
+            }
+            
+            let mediaPath = "assets/media"
+            let fileId = UUID()
+            let mediaFile = MediaFileModel()
+            mediaFile.mediaDirectory = "\(mediaPath)/\(fileId.uuidString).\(preferredFilenameExtension)"
+            mediaFile.group = mediaFileGroup
+            mediaFile.$user.id = user.id
+            
+            // save the file
+            let filePath = req.application.directory.publicDirectory + mediaFile.mediaDirectory
+            
+            var sequential = req.eventLoop.makeSucceededFuture(())
+            // TODO: delte the file in case of an error -> also when crreating
+            // TODO: unify file saving -> seperate method -> reuse
+            try await req.application.fileio
+                .openFile(path: filePath, mode: .write, flags: .allowFileCreation(), eventLoop: req.eventLoop)
+                .flatMap { handle -> EventLoopFuture<Void> in
+                    let promise = req.eventLoop.makePromise(of: Void.self)
+                    
+                    req.body.drain {
+                        switch $0 {
+                        case .buffer(let chunk):
+                            sequential = sequential.flatMap {
+                                req.application.fileio.write(fileHandle: handle, buffer: chunk, eventLoop: req.eventLoop)
+                            }
+                            return sequential
+                        case .error(let error):
+                            promise.fail(error)
+                            return req.eventLoop.makeSucceededFuture(())
+                        case .end:
+                            promise.succeed(())
+                            return req.eventLoop.makeSucceededFuture(())
+                        }
+                    }
+                    
+                    return promise.futureResult
+                        .flatMap {
+                            sequential
+                        }
+                        .always { result in
+                            _ = try? handle.close()
+                        }
+                }
+                .get()
+            
+            try await mediaFile.create(on: req.db)
+            mediaDescription.$media.id = try mediaFile.requireID()
+        }
+    }
+    
+    func updateResponse(_ req: Request, _ repository: MediaRepositoryModel, _ mediaDescription: MediaDescriptionModel) async throws -> Response {
+        try await detailOutput(req, repository, mediaDescription).encodeResponse(for: req)
     }
     
     // MARK: - Patch
     
+    func patchApi(_ req: Request) async throws -> Response {
+        try await RequestValidator(patchValidators()).validate(req)
+        let repository = try await findBy(identifier(req), on: req.db)
+        let input = try req.query.decode(PatchObject.self)
+        try await beforePatch(req, repository)
+        let mediaDescription = try await patchInputMedia(req, repository, input)
+        try await afterPatch(req, repository)
+        return try await patchResponse(req, repository, mediaDescription)
+    }
+    
+    func beforePatch(_ req: Request, _ model: WaypointRepositoryModel) async throws {
+        try await onlyForVerifiedUser(req)
+    }
+    
+    // not implemented, instead function below is used, however this function is required by the protocol
     func patchInput(_ req: Request, _ model: MediaRepositoryModel, _ input: Media.Media.Patch) async throws {
-        print("hello")
+        fatalError()
+    }
+    
+    // different name since otherwise it is ambiguous because of function overload with same parameters
+    func patchInputMedia(_ req: Request, _ repository: MediaRepositoryModel, _ input: Media.Media.Patch) async throws -> MediaDescriptionModel {
+        /// Require user to be signed in
+        let user = try req.auth.require(AuthenticatedUser.self)
+        
+        guard let mediaToPatch = try await MediaDescriptionModel
+            .find(input.idForMediaToPatch, on: req.db)
+        else {
+            throw Abort(.badRequest, reason: "No media with the given id could be found")
+        }
+        
+        if input.title != nil || input.description != nil || input.source != nil || req.headers.contentType?.mediaGroup() != nil {
+            let mediaDescription = MediaDescriptionModel()
+            
+            mediaDescription.verified = false
+            mediaDescription.title = input.title ?? mediaToPatch.title
+            mediaDescription.description = input.description ?? mediaToPatch.description
+            mediaDescription.source = input.source ?? mediaToPatch.source
+            mediaDescription.$language.id = mediaToPatch.$language.id
+            mediaDescription.$user.id = user.id
+            
+            if let mediaFileGroup = req.headers.contentType?.mediaGroup(), let preferredFilenameExtension = req.headers.contentType?.preferredFilenameExtension() {
+                let mediaPath = "assets/media"
+                let fileId = UUID()
+                let mediaFile = MediaFileModel()
+                mediaFile.mediaDirectory = "\(mediaPath)/\(fileId.uuidString).\(preferredFilenameExtension)"
+                mediaFile.group = mediaFileGroup
+                mediaFile.$user.id = user.id
+                
+                // save the file
+                let filePath = req.application.directory.publicDirectory + mediaFile.mediaDirectory
+                
+                var sequential = req.eventLoop.makeSucceededFuture(())
+                // TODO: delte the file in case of an error -> also when crreating
+                // TODO: unify file saving -> seperate method -> reuse
+                try await req.application.fileio
+                    .openFile(path: filePath, mode: .write, flags: .allowFileCreation(), eventLoop: req.eventLoop)
+                    .flatMap { handle -> EventLoopFuture<Void> in
+                        let promise = req.eventLoop.makePromise(of: Void.self)
+                        
+                        req.body.drain {
+                            switch $0 {
+                            case .buffer(let chunk):
+                                sequential = sequential.flatMap {
+                                    req.application.fileio.write(fileHandle: handle, buffer: chunk, eventLoop: req.eventLoop)
+                                }
+                                return sequential
+                            case .error(let error):
+                                promise.fail(error)
+                                return req.eventLoop.makeSucceededFuture(())
+                            case .end:
+                                promise.succeed(())
+                                return req.eventLoop.makeSucceededFuture(())
+                            }
+                        }
+                        
+                        return promise.futureResult
+                            .flatMap {
+                                sequential
+                            }
+                            .always { result in
+                                _ = try? handle.close()
+                            }
+                    }
+                    .get()
+                
+                try await mediaFile.create(on: req.db)
+                mediaDescription.$media.id = try mediaFile.requireID()
+            }
+            
+            return mediaDescription
+        }
+        
+        // This way nothing happens otherwise just throw an error
+        return mediaToPatch
+    }
+    
+    func patchResponse(_ req: Request, _ repository: MediaRepositoryModel, _ mediaDescription: MediaDescriptionModel) async throws -> Response {
+        try await detailOutput(req, repository, mediaDescription).encodeResponse(for: req)
     }
     
     // MARK: - Delete

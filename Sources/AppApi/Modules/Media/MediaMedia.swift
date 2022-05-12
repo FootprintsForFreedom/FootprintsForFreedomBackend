@@ -105,12 +105,14 @@ public extension Media.Media {
         public let description: String
         public let source: String
         public let languageCode: String
+        public let mediaIdForFile: UUID?
         
-        public init(title: String, description: String, source: String, languageCode: String) {
+        public init(title: String, description: String, source: String, languageCode: String, mediaIdForFile: UUID?) {
             self.title = title
             self.description = description
             self.source = source
             self.languageCode = languageCode
+            self.mediaIdForFile = mediaIdForFile
         }
     }
     
@@ -118,13 +120,13 @@ public extension Media.Media {
         public let title: String?
         public let description: String?
         public let source: String?
-        public let languageCode: String
+        public let idForMediaToPatch: UUID
         
-        public init(title: String?, description: String?, source: String?, languageCode: String) {
+        public init(title: String?, description: String?, source: String?, idForMediaToPatch: UUID) {
             self.title = title
             self.description = description
             self.source = source
-            self.languageCode = languageCode
+            self.idForMediaToPatch = idForMediaToPatch
         }
     }
 }
