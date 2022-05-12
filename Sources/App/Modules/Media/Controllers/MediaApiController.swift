@@ -166,7 +166,9 @@ struct MediaApiController: ApiController {
         let user = try req.auth.require(AuthenticatedUser.self)
         
         guard
-            let waypoint = try await WaypointRepositoryModel.find(input.waypointId, on: req.db),
+            let waypointId = try await WaypointRepositoryModel
+                .find(input.waypointId, on: req.db)?
+                .requireID(),
             let languageId = try await LanguageModel
                 .query(on: req.db)
                 .filter(\.$languageCode == input.languageCode)
@@ -176,7 +178,7 @@ struct MediaApiController: ApiController {
             throw Abort(.badRequest)
         }
         
-        repository.waypoint = waypoint
+        repository.$waypoint.id = waypointId
         
         // file preparations
         guard let fileType = req.headers.contentType, let group = Media.Media.Group.for("\(fileType.type)/\(fileType.subType)"), let preferredFilenameExtension = Media.Media.Group.preferredFilenameExtension(for: "\(fileType.type)/\(fileType.subType)") else {
