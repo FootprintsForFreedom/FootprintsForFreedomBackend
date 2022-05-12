@@ -34,19 +34,5 @@ public extension Media.Media {
             }
             return nil
         }
-        
-        public static func preferredFilenameExtension(for mimeType: String) -> String? {
-            switch mimeType {
-            case "video/quicktime": return "mov"
-            case "video/mpeg": return "mpg"
-            case "video/mp4": return "mp4"
-            case "audio/mpeg": return "mp3"
-            case "audio/vnd.wave", "audio/wave": return "wav"
-            case "image/png": return "png"
-            case "image/jpeg": return "jpeg"
-            case "application/pdf": return "pdf"
-            default: return nil
-            }
-        }
     }
 }
