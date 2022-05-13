@@ -15,7 +15,7 @@ struct FileStorage {
                 .openFile(path: path, mode: .write, flags: .allowFileCreation(), eventLoop: req.eventLoop)
                 .flatMap { handle -> EventLoopFuture<Void> in
                     let promise = req.eventLoop.makePromise(of: Void.self)
-
+                    
                     req.body.drain {
                         switch $0 {
                         case .buffer(let chunk):
@@ -31,7 +31,7 @@ struct FileStorage {
                             return req.eventLoop.makeSucceededFuture(())
                         }
                     }
-
+                    
                     return promise.futureResult
                         .flatMap {
                             sequential
@@ -45,8 +45,19 @@ struct FileStorage {
             // delte the file if an error occurs while uploading
             // namely the file stream ended unexpectedly which means the upload was cancelled
             // avoid having corrupted files in the filesystem
-            try FileManager.default.removeItem(atPath: path)
+            try delete(at: path)
             throw error
         }
+    }
+    
+    static func delete(at path: String) throws  {
+        guard exists(at: path) else {
+            return
+        }
+        try FileManager.default.removeItem(atPath: path)
+    }
+    
+    static func exists(at path: String) -> Bool {
+        return FileManager.default.fileExists(atPath: path)
     }
 }

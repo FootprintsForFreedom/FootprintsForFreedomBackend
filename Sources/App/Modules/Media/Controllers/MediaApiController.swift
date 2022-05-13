@@ -376,4 +376,18 @@ struct MediaApiController: ApiController {
     
     // MARK: - Delete
     
+    func beforeDelete(_ req: Request, _ repository: WaypointRepositoryModel) async throws {
+        /// Require user to be signed in
+        let authenticatedUser = try req.auth.require(AuthenticatedUser.self)
+        /// find the user model belonging to the authenticated user
+        guard let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db) else {
+            throw Abort(.unauthorized)
+        }
+        /// require the user to be an moderator
+        guard user.role >= .moderator else {
+            throw Abort(.forbidden)
+        }
+    }
+    
+    // TODO: clean up files afer deletion -> maybe create service to clean up unused files anyways -> also protects against failed uploads
 }
