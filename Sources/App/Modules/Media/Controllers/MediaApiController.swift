@@ -215,38 +215,7 @@ struct MediaApiController: ApiController {
         
         // save the file
         let filePath = req.application.directory.publicDirectory + mediaFile.mediaDirectory
-        
-        var sequential = req.eventLoop.makeSucceededFuture(())
-        try await req.application.fileio
-            .openFile(path: filePath, mode: .write, flags: .allowFileCreation(), eventLoop: req.eventLoop)
-            .flatMap { handle -> EventLoopFuture<Void> in
-                let promise = req.eventLoop.makePromise(of: Void.self)
-                
-                req.body.drain {
-                    switch $0 {
-                    case .buffer(let chunk):
-                        sequential = sequential.flatMap {
-                            req.application.fileio.write(fileHandle: handle, buffer: chunk, eventLoop: req.eventLoop)
-                        }
-                        return sequential
-                    case .error(let error):
-                        promise.fail(error)
-                        return req.eventLoop.makeSucceededFuture(())
-                    case .end:
-                        promise.succeed(())
-                        return req.eventLoop.makeSucceededFuture(())
-                    }
-                }
-                
-                return promise.futureResult
-                    .flatMap {
-                        sequential
-                    }
-                    .always { result in
-                        _ = try? handle.close()
-                    }
-            }
-            .get()
+        try await FileStorage.saveBodyStream(of: req, to: filePath)
         
         mediaDescription.verified = false
         mediaDescription.title = input.title
@@ -327,41 +296,7 @@ struct MediaApiController: ApiController {
             
             // save the file
             let filePath = req.application.directory.publicDirectory + mediaFile.mediaDirectory
-            
-            var sequential = req.eventLoop.makeSucceededFuture(())
-            // TODO: delte the file in case of an error -> also when crreating
-            // TODO: unify file saving -> seperate method -> reuse
-            try await req.application.fileio
-                .openFile(path: filePath, mode: .write, flags: .allowFileCreation(), eventLoop: req.eventLoop)
-                .flatMap { handle -> EventLoopFuture<Void> in
-                    let promise = req.eventLoop.makePromise(of: Void.self)
-                    
-                    req.body.drain {
-                        switch $0 {
-                        case .buffer(let chunk):
-                            sequential = sequential.flatMap {
-                                req.application.fileio.write(fileHandle: handle, buffer: chunk, eventLoop: req.eventLoop)
-                            }
-                            return sequential
-                        case .error(let error):
-                            promise.fail(error)
-                            return req.eventLoop.makeSucceededFuture(())
-                        case .end:
-                            promise.succeed(())
-                            return req.eventLoop.makeSucceededFuture(())
-                        }
-                    }
-                    
-                    return promise.futureResult
-                        .flatMap {
-                            sequential
-                        }
-                        .always { result in
-                            _ = try? handle.close()
-                        }
-                }
-                .get()
-            
+            try await FileStorage.saveBodyStream(of: req, to: filePath)
             try await mediaFile.create(on: req.db)
             mediaDescription.$media.id = try mediaFile.requireID()
         }
@@ -423,41 +358,7 @@ struct MediaApiController: ApiController {
                 
                 // save the file
                 let filePath = req.application.directory.publicDirectory + mediaFile.mediaDirectory
-                
-                var sequential = req.eventLoop.makeSucceededFuture(())
-                // TODO: delte the file in case of an error -> also when crreating
-                // TODO: unify file saving -> seperate method -> reuse
-                try await req.application.fileio
-                    .openFile(path: filePath, mode: .write, flags: .allowFileCreation(), eventLoop: req.eventLoop)
-                    .flatMap { handle -> EventLoopFuture<Void> in
-                        let promise = req.eventLoop.makePromise(of: Void.self)
-                        
-                        req.body.drain {
-                            switch $0 {
-                            case .buffer(let chunk):
-                                sequential = sequential.flatMap {
-                                    req.application.fileio.write(fileHandle: handle, buffer: chunk, eventLoop: req.eventLoop)
-                                }
-                                return sequential
-                            case .error(let error):
-                                promise.fail(error)
-                                return req.eventLoop.makeSucceededFuture(())
-                            case .end:
-                                promise.succeed(())
-                                return req.eventLoop.makeSucceededFuture(())
-                            }
-                        }
-                        
-                        return promise.futureResult
-                            .flatMap {
-                                sequential
-                            }
-                            .always { result in
-                                _ = try? handle.close()
-                            }
-                    }
-                    .get()
-                
+                try await FileStorage.saveBodyStream(of: req, to: filePath)
                 try await mediaFile.create(on: req.db)
                 mediaDescription.$media.id = try mediaFile.requireID()
             }
