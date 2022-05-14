@@ -170,7 +170,7 @@ struct MediaApiController: ApiController {
         return try await createResponse(req, repository, mediaDescription)
     }
     
-    func beforeCreate(_ req: Request, _ model: WaypointRepositoryModel) async throws {
+    func beforeCreate(_ req: Request, _ model: MediaRepositoryModel) async throws {
         try await onlyForVerifiedUser(req)
     }
     
@@ -243,7 +243,7 @@ struct MediaApiController: ApiController {
         return try await updateResponse(req, repository, mediaDescription)
     }
     
-    func beforeUpdate(_ req: Request, _ model: WaypointRepositoryModel) async throws {
+    func beforeUpdate(_ req: Request, _ model: MediaRepositoryModel) async throws {
         try await onlyForVerifiedUser(req)
     }
     
@@ -318,7 +318,7 @@ struct MediaApiController: ApiController {
         return try await patchResponse(req, repository, mediaDescription)
     }
     
-    func beforePatch(_ req: Request, _ model: WaypointRepositoryModel) async throws {
+    func beforePatch(_ req: Request, _ model: MediaRepositoryModel) async throws {
         try await onlyForVerifiedUser(req)
     }
     
@@ -376,7 +376,7 @@ struct MediaApiController: ApiController {
     
     // MARK: - Delete
     
-    func beforeDelete(_ req: Request, _ repository: WaypointRepositoryModel) async throws {
+    func beforeDelete(_ req: Request, _ repository: MediaRepositoryModel) async throws {
         /// Require user to be signed in
         let authenticatedUser = try req.auth.require(AuthenticatedUser.self)
         /// find the user model belonging to the authenticated user
