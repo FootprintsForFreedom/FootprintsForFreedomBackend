@@ -25,7 +25,7 @@ struct FileStorage {
                             return sequential
                         case .error(let error):
                             promise.fail(error)
-                            return req.eventLoop.makeSucceededFuture(())
+                            return req.eventLoop.future(error: error)
                         case .end:
                             promise.succeed(())
                             return req.eventLoop.makeSucceededFuture(())
@@ -34,7 +34,13 @@ struct FileStorage {
                     
                     return promise.futureResult
                         .flatMap {
-                            sequential
+                            // check there actually is a data in the file otherwise delte the file
+                            req.application.fileio.readFileSize(fileHandle: handle, eventLoop: req.eventLoop).flatMapThrowing { byteCount in
+                                if byteCount == 0 {
+                                    throw Abort(.badRequest)
+                                }
+                            }
+                            .transform(to: sequential)
                         }
                         .always { result in
                             _ = try? handle.close()
