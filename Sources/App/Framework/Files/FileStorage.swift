@@ -9,6 +9,7 @@ import Vapor
 
 struct FileStorage {
     static func saveBodyStream(of req: Request, to path: String) async throws {
+        guard req.application.environment != .testing else { return }
         do {
             var sequential = req.eventLoop.makeSucceededFuture(())
             try await req.application.fileio
