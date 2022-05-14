@@ -56,20 +56,6 @@ struct MediaApiController: ApiController {
         setupDeleteRoutes(protectedRoutes)
     }
     
-    // TODO: maybe declare somwhere else -> is also used in other controllers -> unify
-    func onlyForVerifiedUser(_ req: Request) async throws {
-        /// Require user to be signed in
-        let authenticatedUser = try req.auth.require(AuthenticatedUser.self)
-        /// find the user model belonging to the authenticated user
-        guard let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db) else {
-            throw Abort(.unauthorized)
-        }
-        /// require  the user to be a admin or higher
-        guard user.verified else {
-            throw Abort(.forbidden)
-        }
-    }
-    
     // MARK: - List
     
     func beforeList(_ req: Request, _ queryBuilder: QueryBuilder<MediaRepositoryModel>) async throws -> QueryBuilder<MediaRepositoryModel> {
@@ -171,7 +157,7 @@ struct MediaApiController: ApiController {
     }
     
     func beforeCreate(_ req: Request, _ model: MediaRepositoryModel) async throws {
-        try await onlyForVerifiedUser(req)
+        try await req.onlyForVerifiedUser()
     }
     
     // not implemented, instead function below is used, however this function is required by the protocol
@@ -244,7 +230,7 @@ struct MediaApiController: ApiController {
     }
     
     func beforeUpdate(_ req: Request, _ model: MediaRepositoryModel) async throws {
-        try await onlyForVerifiedUser(req)
+        try await req.onlyForVerifiedUser()
     }
     
     // not implemented, instead function below is used, however this function is required by the protocol
@@ -319,7 +305,7 @@ struct MediaApiController: ApiController {
     }
     
     func beforePatch(_ req: Request, _ model: MediaRepositoryModel) async throws {
-        try await onlyForVerifiedUser(req)
+        try await req.onlyForVerifiedUser()
     }
     
     // not implemented, instead function below is used, however this function is required by the protocol

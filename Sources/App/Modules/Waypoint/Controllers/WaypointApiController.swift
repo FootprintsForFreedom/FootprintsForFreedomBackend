@@ -38,19 +38,6 @@ struct WaypointApiController: ApiController {
         routes.grouped("waypoints")
     }
     
-    func onlyForVerifiedUser(_ req: Request) async throws {
-        /// Require user to be signed in
-        let authenticatedUser = try req.auth.require(AuthenticatedUser.self)
-        /// find the user model belonging to the authenticated user
-        guard let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db) else {
-            throw Abort(.unauthorized)
-        }
-        /// require  the user to be a admin or higher
-        guard user.verified else {
-            throw Abort(.forbidden)
-        }
-    }
-    
     // MARK: - List
     
     func beforeList(_ req: Request, _ queryBuilder: QueryBuilder<WaypointRepositoryModel>) async throws -> QueryBuilder<WaypointRepositoryModel> {
@@ -149,7 +136,7 @@ struct WaypointApiController: ApiController {
     }
     
     func beforeCreate(_ req: Request, _ model: WaypointRepositoryModel) async throws {
-        try await onlyForVerifiedUser(req)
+        try await req.onlyForVerifiedUser()
     }
     
     // not implemented, instead function below is used, however this function is required by the protocol
@@ -210,7 +197,7 @@ struct WaypointApiController: ApiController {
     }
     
     func beforeUpdate(_ req: Request, _ model: WaypointRepositoryModel) async throws {
-        try await onlyForVerifiedUser(req)
+        try await req.onlyForVerifiedUser()
     }
     
     func updateInput(_ req: Request, _ model: WaypointRepositoryModel, _ input: Waypoint.Waypoint.Update) async throws {
@@ -256,13 +243,14 @@ struct WaypointApiController: ApiController {
     }
     
     func beforePatch(_ req: Request, _ model: WaypointRepositoryModel) async throws {
-        try await onlyForVerifiedUser(req)
+        try await req.onlyForVerifiedUser()
     }
     
     func patchInput(_ req: Request, _ model: WaypointRepositoryModel, _ input: Waypoint.Waypoint.Patch) async throws {
         fatalError()
     }
     
+    // TODO: rethink this; maybe when using patch don't enable to create new language, rather always send idForWaypointToPatch to know which waypoint to patch -> enables to also patch unverified waypoints
     func patchInput(_ req: Request, _ repository: WaypointRepositoryModel, _ input: Waypoint.Waypoint.Patch) async throws -> (WaypointWaypointModel, WaypointLocationModel){
         /// Require user to be signed in
         let user = try req.auth.require(AuthenticatedUser.self)
@@ -335,6 +323,10 @@ struct WaypointApiController: ApiController {
     // TODO: make sure cannot delete first location or waypoint model since then it would be empty
     // Instead prompt the user to sumbmit a change and verify subsequently
     // but then also remove the previously sumbmitted not verifed text model
+    
+    // or delte the entire repository when deleting first waypoint
+    // TODO: also enable user to delete own waypoint model/location
+    // also do that with media
     
     func beforeDelete(_ req: Request, _ repository: WaypointRepositoryModel) async throws {
         /// Require user to be signed in
