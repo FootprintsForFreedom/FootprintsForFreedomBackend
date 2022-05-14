@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "Backend",
     platforms: [
-       .macOS(.v12)
+        .macOS(.v12)
     ],
     products: [
         .library(name: "AppApi", targets: ["AppApi"]),
@@ -51,12 +51,17 @@ let package = Package(
             ]
         ),
         .executableTarget(name: "Run", dependencies: [.target(name: "App")]),
-        .testTarget(name: "AppTests", dependencies: [
-            .target(name: "App"),
-            .product(name: "XCTVapor", package: "vapor"),
-            .product(name: "Spec", package: "spec"),
-            .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
-        ]),
+        .testTarget(
+            name: "AppTests",
+            dependencies: [
+                .target(name: "App"),
+                .product(name: "XCTVapor", package: "vapor"),
+                .product(name: "Spec", package: "spec"),
+                .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
+            ],
+            resources: [
+                .process("Resources")
+            ]),
         .testTarget(name: "AppApiTests", dependencies: [
             .target(name: "AppApi"),
         ])
