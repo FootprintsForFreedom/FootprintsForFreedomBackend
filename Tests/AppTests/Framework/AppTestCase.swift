@@ -81,6 +81,12 @@ open class AppTestCase: XCTestCase {
         try await token.create(on: app.db)
         return token.value
     }
+    
+    func data(for resource: String, withExtension fileExtension: String) throws -> Data {
+        let fileURL = Bundle.module.url(forResource: resource, withExtension: fileExtension)!
+        let data = try Data(contentsOf: fileURL)
+        return data
+    }
 }
 
 // TODO: remove?
