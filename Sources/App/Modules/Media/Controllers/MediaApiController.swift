@@ -168,17 +168,20 @@ struct MediaApiController: ApiController {
     func createInput(_ req: Request, _ repository: MediaRepositoryModel, _ mediaDescription: MediaDescriptionModel, _ mediaFile: MediaFileModel, _ input: Media.Media.Create) async throws {
         let user = try req.auth.require(AuthenticatedUser.self)
         
-        guard
-            let waypointId = try await WaypointRepositoryModel
+        guard let waypointId = try await WaypointRepositoryModel
                 .find(input.waypointId, on: req.db)?
-                .requireID(),
-            let languageId = try await LanguageModel
+                .requireID()
+        else {
+            throw Abort(.badRequest, reason: "The waypoint id is invalid")
+        }
+        
+        guard let languageId = try await LanguageModel
                 .query(on: req.db)
                 .filter(\.$languageCode == input.languageCode)
                 .first()?
                 .requireID()
         else {
-            throw Abort(.badRequest)
+            throw Abort(.badRequest, reason: "The language code is invalid")
         }
         
         repository.$waypoint.id = waypointId
