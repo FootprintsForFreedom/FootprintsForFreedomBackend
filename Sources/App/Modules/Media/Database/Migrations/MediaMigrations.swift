@@ -24,6 +24,10 @@ enum MediaMigrations {
                 .field(MediaRepositoryModel.FieldKeys.v1.waypointId, .uuid, .required)
                 .foreignKey(MediaRepositoryModel.FieldKeys.v1.waypointId, references: WaypointRepositoryModel.schema, .id, onDelete: .cascade)
             
+                .field(MediaDescriptionModel.FieldKeys.v1.createdAt, .datetime, .required)
+                .field(WaypointLocationModel.FieldKeys.v1.updatedAt, .datetime, .required)
+                .field(WaypointLocationModel.FieldKeys.v1.deletedAt, .datetime)
+            
                 .create()
             
             try await db.schema(MediaFileModel.schema)
@@ -36,7 +40,9 @@ enum MediaMigrations {
                 .field(MediaFileModel.FieldKeys.v1.userId, .uuid, .required)
                 .foreignKey(MediaFileModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
             
-                .field(MediaFileModel.FieldKeys.v1.createdAt, .datetime, .required)
+                .field(MediaDescriptionModel.FieldKeys.v1.createdAt, .datetime, .required)
+                .field(WaypointLocationModel.FieldKeys.v1.updatedAt, .datetime, .required)
+                .field(WaypointLocationModel.FieldKeys.v1.deletedAt, .datetime)
             
                 .create()
             

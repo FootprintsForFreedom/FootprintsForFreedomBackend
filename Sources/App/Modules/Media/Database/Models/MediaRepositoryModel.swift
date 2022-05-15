@@ -16,6 +16,9 @@ final class MediaRepositoryModel: DatabaseModelInterface {
     struct FieldKeys {
         struct v1 {
             static var waypointId: FieldKey { "waypoint_id" }
+            static var createdAt: FieldKey { "created_at" }
+            static var updatedAt: FieldKey { "updated_at" }
+            static var deletedAt: FieldKey { "deleted_at" }
         }
     }
     
@@ -23,6 +26,12 @@ final class MediaRepositoryModel: DatabaseModelInterface {
     @Children(for: \.$mediaRepository) var media: [MediaDescriptionModel]
     
     @Parent(key: FieldKeys.v1.waypointId) var waypoint: WaypointRepositoryModel
+    
+    @Timestamp(key: FieldKeys.v1.createdAt, on: .create) var createdAt: Date?
+    @Timestamp(key: FieldKeys.v1.updatedAt, on: .update) var updatedAt: Date?
+    
+    // MARK: soft delete
+    @Timestamp(key: FieldKeys.v1.deletedAt, on: .delete) var deletedAt: Date?
     
     init() { }
 }

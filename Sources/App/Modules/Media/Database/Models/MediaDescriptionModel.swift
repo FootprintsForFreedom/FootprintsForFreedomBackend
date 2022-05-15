@@ -48,6 +48,26 @@ final class MediaDescriptionModel: DatabaseModelInterface {
     @Timestamp(key: FieldKeys.v1.deletedAt, on: .delete) var deletedAt: Date?
 
     init() { }
+    
+    init(
+        verified: Bool,
+        title: String,
+        description: String,
+        source: String,
+        languageId: UUID,
+        repositoryId: UUID,
+        fileId: UUID,
+        userId: UUID
+    ) {
+        self.verified = verified
+        self.title = title
+        self.description = description
+        self.source = source
+        self.$language.id = languageId
+        self.$mediaRepository.id = repositoryId
+        self.$media.id = fileId
+        self.$user.id = userId
+    }
 }
 
 // TODO: maybe hash the file contents to verify the file was not edited in the filesystem --> data integrity
