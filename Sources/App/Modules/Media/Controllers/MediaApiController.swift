@@ -378,5 +378,24 @@ struct MediaApiController: ApiController {
         }
     }
     
-    // TODO: clean up files afer deletion -> maybe create service to clean up unused files anyways -> also protects against failed uploads
+    func afterDelete(_ req: Request, _ repository: MediaRepositoryModel) async throws {
+        let medias = try await repository.$media
+            .query(on: req.db)
+            .withDeleted()
+            .field(\.$id)
+            .field(\.$media.$id)
+            .all()
+        
+        let fileIds = medias.map { $0.$media.id }.uniqued()
+        
+        await medias.concurrentForEach { try await $0.delete(on: req.db) }
+        
+        await fileIds.concurrentForEach { id in
+            guard let mediaFile = try await MediaFileModel.find(id, on: req.db) else {
+                return
+            }
+            // TODO: service that deletes soft delted entries after a certain time (-> .evn?) -> also delete the media fieles!
+            try await mediaFile.delete(on: req.db)
+        }
+    }
 }
