@@ -67,7 +67,7 @@ final class WaypointApiDeleteTests: AppTestCase, WaypointTest {
             .expect(.noContent)
             .test()
         
-        // New waypoint count should be one less than original waypoint count
+        // New waypoint count should be original waypoint count
         let newWaypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
         let newWaypointModelCount = try await WaypointWaypointModel.query(on: app.db).count()
         let newLocationCount = try await WaypointLocationModel.query(on: app.db).count()
@@ -119,7 +119,7 @@ final class WaypointApiDeleteTests: AppTestCase, WaypointTest {
         let moderatorToken = try await getToken(for: .moderator)
         
         try app
-            .describe("Delete non-existant waypoint fails")
+            .describe("Delete nonexistent waypoint fails")
             .delete(waypointsPath.appending(UUID().uuidString))
             .bearerToken(moderatorToken)
             .expect(.notFound)
