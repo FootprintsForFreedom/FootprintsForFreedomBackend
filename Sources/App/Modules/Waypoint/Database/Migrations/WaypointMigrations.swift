@@ -13,6 +13,9 @@ enum WaypointMigrations {
         func prepare(on db: Database) async throws {
             try await db.schema(WaypointRepositoryModel.schema)
                 .id()
+                .field(WaypointRepositoryModel.FieldKeys.v1.createdAt, .datetime, .required)
+                .field(WaypointRepositoryModel.FieldKeys.v1.updatedAt, .datetime, .required)
+                .field(WaypointRepositoryModel.FieldKeys.v1.deletedAt, .datetime)
                 .create()
             
             try await db.schema(WaypointWaypointModel.schema)

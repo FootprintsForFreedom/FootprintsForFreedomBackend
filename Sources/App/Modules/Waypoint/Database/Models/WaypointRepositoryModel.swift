@@ -13,10 +13,24 @@ final class WaypointRepositoryModel: DatabaseModelInterface {
     
     static var identifier: String { "repositories" }
     
+    struct FieldKeys {
+        struct v1 {
+            static var createdAt: FieldKey { "created_at" }
+            static var updatedAt: FieldKey { "updated_at" }
+            static var deletedAt: FieldKey { "deleted_at" }
+        }
+    }
+    
     @ID() var id: UUID?
     @Children(for: \.$repository) var waypoints: [WaypointWaypointModel]
     @Children(for: \.$repository) var locations: [WaypointLocationModel]
     @Children(for: \.$waypoint) var media: [MediaRepositoryModel]
+    
+    @Timestamp(key: FieldKeys.v1.createdAt, on: .create) var createdAt: Date?
+    @Timestamp(key: FieldKeys.v1.updatedAt, on: .update) var updatedAt: Date?
+    
+    // MARK: soft delete
+    @Timestamp(key: FieldKeys.v1.deletedAt, on: .delete) var deletedAt: Date?
     
     init() { }
 }
