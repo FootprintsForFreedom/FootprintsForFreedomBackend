@@ -2,7 +2,6 @@ import Fluent
 import FluentPostgresDriver
 import Vapor
 import Liquid
-import LiquidLocalDriver
 @_exported import AppApi
 
 // configures your application
@@ -17,11 +16,6 @@ public func configure(_ app: Application) throws {
         password: Environment.pgPassword,
         database: Environment.pgDbName
     ), as: .psql)
-    
-    /// setup Liquid using the local file storage driver
-    app.fileStorages.use(.local(publicUrl: "http://localhost:8080",
-                                publicPath: app.directory.publicDirectory,
-                                workDirectory: "assets"), as: .local)
 
     /// set the max file upload limit
 //    app.routes.defaultMaxBodySize = "10mb"
