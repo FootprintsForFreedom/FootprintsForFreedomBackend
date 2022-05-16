@@ -45,7 +45,7 @@ extension MediaRepositoryModel {
     ) async throws -> MediaDescriptionModel? {
         var query = self.$media
             .query(on: db)
-            .join(LanguageModel.self, on: \WaypointWaypointModel.$language.$id == \LanguageModel.$id)
+            .join(LanguageModel.self, on: \MediaDescriptionModel.$language.$id == \LanguageModel.$id)
             .filter(LanguageModel.self, \.$languageCode == languageCode)
             .filter(LanguageModel.self, \.$priority != nil)
         if needsToBeVerified {
