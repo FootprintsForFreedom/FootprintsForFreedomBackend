@@ -70,3 +70,17 @@ extension MediaRepositoryModel {
         return nil
     }
 }
+
+extension MediaRepositoryModel {
+    func deleteDependencies(on database: Database) async throws {
+        try await $media
+            .query(on: database)
+            .field(\.$media.$id)
+            .unique()
+            .all()
+            .concurrentForEach { try await MediaFileModel.find($0.$media.id, on: database)?.delete(on: database) }
+        
+        try await $media.query(on: database).delete()
+        // TODO: service that deletes soft delted entries after a certain time (-> .evn?) -> also delete the media fieles!
+    }
+}

@@ -38,6 +38,16 @@ struct WaypointApiController: ApiController {
         routes.grouped("waypoints")
     }
     
+    func setupRoutes(_ routes: RoutesBuilder) {
+        let protectedRoutes = routes.grouped(AuthenticatedUser.guardMiddleware())
+        setupListRoutes(routes)
+        setupDetailRoutes(routes)
+        setupCreateRoutes(protectedRoutes)
+        setupUpdateRoutes(protectedRoutes)
+        setupPatchRoutes(protectedRoutes)
+        setupDeleteRoutes(protectedRoutes)
+    }
+    
     // MARK: - List
     
     func beforeList(_ req: Request, _ queryBuilder: QueryBuilder<WaypointRepositoryModel>) async throws -> QueryBuilder<WaypointRepositoryModel> {
@@ -341,13 +351,10 @@ struct WaypointApiController: ApiController {
         }
     }
     
-    func setupRoutes(_ routes: RoutesBuilder) {
-        let protectedRoutes = routes.grouped(AuthenticatedUser.guardMiddleware())
-        setupListRoutes(routes)
-        setupDetailRoutes(routes)
-        setupCreateRoutes(protectedRoutes)
-        setupUpdateRoutes(protectedRoutes)
-        setupPatchRoutes(protectedRoutes)
-        setupDeleteRoutes(protectedRoutes)
+    func afterDelete(_ req: Request, _ model: WaypointRepositoryModel) async throws {
+        try await model.$waypoints.query(on: req.db).delete()
+        try await model.$locations.query(on: req.db).delete()
+        try await model.$media.query(on: req.db).all().concurrentForEach { try await $0.deleteDependencies(on: req.db) }
+        try await model.$media.query(on: req.db).delete()
     }
 }
