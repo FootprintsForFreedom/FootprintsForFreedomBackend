@@ -125,27 +125,4 @@ final class WaypointApiDeleteTests: AppTestCase, WaypointTest {
             .expect(.notFound)
             .test()
     }
-    
-    //    func testDeleteWaypointDeletesAssociatedMedia() async throws {
-    //        let waypoint = try await createNewWaypoint()
-    //        let moderatorToken = try await getTokenFromOtherUser(role: .moderator)
-    //
-    ////        let media = WaypointMediaModel(
-    //
-    //        // Get original waypoint count
-    //        let waypointCount = try await WaypointWaypointModel.query(on: app.db).count()
-    //
-    //        try app
-    //            .describe("A moderator should be able to delete a unverified waypoint")
-    //            .delete(waypointsPath.appending(waypoint.requireID().uuidString))
-    //            .bearerToken(moderatorToken)
-    //            .expect(.noContent)
-    //            .test()
-    //
-    //        // New waypoint count should be one less than original waypoint count
-    //        let newWaypointCount = try await WaypointWaypointModel.query(on: app.db).count()
-    //        XCTAssertEqual(newWaypointCount, waypointCount - 1)
-    //    }
-    // TODO: delete waypoint deletes media of that waypoint
-    // could already be solved by cascade in migrations but test it
 }
