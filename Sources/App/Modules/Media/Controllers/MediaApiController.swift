@@ -37,6 +37,9 @@ struct MediaApiController: ApiController {
     
     @AsyncValidatorBuilder
     func patchValidators() -> [AsyncValidator] {
+        KeyedContentValidator<String>.required("title", optional: true, validateQuery: true)
+        KeyedContentValidator<String>.required("description", optional: true, validateQuery: true)
+        KeyedContentValidator<String>.required("source", optional: true, validateQuery: true)
         KeyedContentValidator<UUID>.required("idForMediaToPatch", validateQuery: true)
     }
     
