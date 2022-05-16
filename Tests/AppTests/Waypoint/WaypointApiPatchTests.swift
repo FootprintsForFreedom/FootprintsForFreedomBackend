@@ -35,15 +35,13 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
             userId: userId
         )
         try await createdModel.$language.load(on: app.db)
-        let updateContent = Waypoint.Waypoint.Patch(title: patchedTitle, description: patchedDescription, location: patchedLocation, languageCode: patchLangugageCode ?? createdModel.language.languageCode)
-        return (waypointRepository, createdModel, createdLocation, updateContent)
+        let patchContent = Waypoint.Waypoint.Patch(title: patchedTitle, description: patchedDescription, location: patchedLocation, languageCode: patchLangugageCode ?? createdModel.language.languageCode)
+        return (waypointRepository, createdModel, createdLocation, patchContent)
     }
     
     func testSuccessfulPatchWaypointTitle() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(patchedTitle: "The patched title")
-        createdModel.verified = true
-        try await createdModel.update(on: app.db)
+        let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(patchedTitle: "The patched title", verified: true)
         
         try app
             .describe("Patch waypoint title should return ok")
@@ -74,9 +72,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
     
     func testSuccessfulPatchWaypointDescription() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(patchedDescription: "The patched description")
-        createdModel.verified = true
-        try await createdModel.update(on: app.db)
+        let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(patchedDescription: "The patched description", verified: true)
         
         try app
             .describe("Patch waypoint description should return ok")
@@ -107,9 +103,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
     
     func testSuccessfulPatchWaypointLocation() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (waypointRepository, createdModel, _, patchContent) = try await getWaypointPatchContent(patchedLocation: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)))
-        createdModel.verified = true
-        try await createdModel.update(on: app.db)
+        let (waypointRepository, createdModel, _, patchContent) = try await getWaypointPatchContent(patchedLocation: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)), verified: true)
         
         try app
             .describe("Patch waypoint location should return ok")
