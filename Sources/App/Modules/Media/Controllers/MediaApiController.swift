@@ -115,7 +115,8 @@ struct MediaApiController: ApiController {
                 source: mediaDescription.source,
                 group: mediaDescription.media.group,
                 filePath: mediaDescription.media.mediaDirectory,
-                verified: mediaDescription.verified
+                verified: mediaDescription.verified,
+                descriptionId: mediaDescription.requireID()
             )
         }
         return try await detailOutput(req, repository, mediaDescription)

@@ -35,6 +35,7 @@ public extension Media.Media {
         public let group: Group
         public let filePath: String
         public let verified: Bool?
+        public let descriptionId: UUID?
         
         public static func publicDetail(id: UUID, languageCode: String, title: String, description: String, source: String, group: Group, filePath: String) -> Self {
             return .init(
@@ -48,7 +49,7 @@ public extension Media.Media {
             )
         }
         
-        public static func moderatorDetail(id: UUID, languageCode: String, title: String, description: String, source: String, group: Group, filePath: String, verified: Bool) -> Self {
+        public static func moderatorDetail(id: UUID, languageCode: String, title: String, description: String, source: String, group: Group, filePath: String, verified: Bool, descriptionId: UUID) -> Self {
             return .init(
                 id: id,
                 languageCode: languageCode,
@@ -57,7 +58,8 @@ public extension Media.Media {
                 source: source,
                 group: group,
                 filePath: filePath,
-                verified: verified
+                verified: verified,
+                descriptionId: descriptionId
             )
         }
         
@@ -70,9 +72,10 @@ public extension Media.Media {
             self.group = group
             self.filePath = filePath
             self.verified = nil
+            self.descriptionId = nil
         }
         
-        private init(id: UUID, languageCode: String, title: String, description: String, source: String, group: Group, filePath: String, verified: Bool) {
+        private init(id: UUID, languageCode: String, title: String, description: String, source: String, group: Group, filePath: String, verified: Bool, descriptionId: UUID) {
             self.id = id
             self.languageCode = languageCode
             self.title = title
@@ -81,6 +84,7 @@ public extension Media.Media {
             self.group = group
             self.filePath = filePath
             self.verified = verified
+            self.descriptionId = descriptionId
         }
     }
     
