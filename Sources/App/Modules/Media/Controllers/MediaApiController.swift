@@ -328,36 +328,39 @@ struct MediaApiController: ApiController {
             throw Abort(.badRequest, reason: "No media with the given id could be found")
         }
         
-        if input.title != nil || input.description != nil || input.source != nil || req.headers.contentType?.mediaGroup() != nil {
-            let mediaDescription = MediaDescriptionModel()
-            
-            mediaDescription.verified = false
-            mediaDescription.title = input.title ?? mediaToPatch.title
-            mediaDescription.description = input.description ?? mediaToPatch.description
-            mediaDescription.source = input.source ?? mediaToPatch.source
-            mediaDescription.$language.id = mediaToPatch.$language.id
-            mediaDescription.$user.id = user.id
-            
-            if let mediaFileGroup = req.headers.contentType?.mediaGroup(), let preferredFilenameExtension = req.headers.contentType?.preferredFilenameExtension() {
-                let mediaPath = "assets/media"
-                let fileId = UUID()
-                let mediaFile = MediaFileModel()
-                mediaFile.mediaDirectory = "\(mediaPath)/\(fileId.uuidString).\(preferredFilenameExtension)"
-                mediaFile.group = mediaFileGroup
-                mediaFile.$user.id = user.id
-                
-                // save the file
-                let filePath = req.application.directory.publicDirectory + mediaFile.mediaDirectory
-                try await FileStorage.saveBodyStream(of: req, to: filePath)
-                try await mediaFile.create(on: req.db)
-                mediaDescription.$media.id = try mediaFile.requireID()
-            }
-            
-            return mediaDescription
+        guard input.title != nil || input.description != nil || input.source != nil || req.headers.contentType?.mediaGroup() != nil else {
+            throw Abort(.badRequest)
         }
         
-        // This way nothing happens otherwise just throw an error
-        return mediaToPatch
+        let mediaDescription = MediaDescriptionModel()
+        
+        mediaDescription.verified = false
+        mediaDescription.title = input.title ?? mediaToPatch.title
+        mediaDescription.description = input.description ?? mediaToPatch.description
+        mediaDescription.source = input.source ?? mediaToPatch.source
+        mediaDescription.$mediaRepository.id = try repository.requireID()
+        mediaDescription.$language.id = mediaToPatch.$language.id
+        mediaDescription.$user.id = user.id
+        
+        if let mediaFileGroup = req.headers.contentType?.mediaGroup(), let preferredFilenameExtension = req.headers.contentType?.preferredFilenameExtension() {
+            let mediaPath = "assets/media"
+            let fileId = UUID()
+            let mediaFile = MediaFileModel()
+            mediaFile.mediaDirectory = "\(mediaPath)/\(fileId.uuidString).\(preferredFilenameExtension)"
+            mediaFile.group = mediaFileGroup
+            mediaFile.$user.id = user.id
+            
+            // save the file
+            let filePath = req.application.directory.publicDirectory + mediaFile.mediaDirectory
+            try await FileStorage.saveBodyStream(of: req, to: filePath)
+            try await mediaFile.create(on: req.db)
+            mediaDescription.$media.id = try mediaFile.requireID()
+        } else {
+            mediaDescription.$media.id = mediaToPatch.$media.id
+        }
+        
+        try await mediaDescription.create(on: req.db)
+        return mediaDescription
     }
     
     func patchResponse(_ req: Request, _ repository: MediaRepositoryModel, _ mediaDescription: MediaDescriptionModel) async throws -> Response {
