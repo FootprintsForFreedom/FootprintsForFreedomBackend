@@ -7,7 +7,6 @@
 
 import Vapor
 import Fluent
-import Liquid
 
 extension Media.Media.List: Content { }
 extension Media.Media.Detail: Content { }
@@ -76,22 +75,21 @@ struct MediaApiController: ApiController {
     func listOutput(_ req: Request, _ models: Page<MediaRepositoryModel>) async throws -> Page<Media.Media.List> {
         // TODO: sort?
         let preferredLanguageCode = try req.query.decode(PreferredLanguageQuery.self).preferredLanguage
-        
         let allLanguageCodesByPriority = try await LanguageModel.languageCodesByPriority(preferredLanguageCode: preferredLanguageCode, on: req.db)
         
         return try await models
             .concurrentMap { model in
-                if let mediaDescription = try await model.media(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db) {
-                    // TODO: is this a bottleneck for the time it takes to return a result?
-                    try await mediaDescription.$media.load(on: req.db)
-                    return .init(
-                        id: try model.requireID(),
-                        title: mediaDescription.title,
-                        group: mediaDescription.media.group
-                    )
-                } else {
+                guard let mediaDescription = try await model.media(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db) else {
                     return nil
                 }
+                
+                // TODO: is this a bottleneck for the time it takes to return a result?
+                try await mediaDescription.$media.load(on: req.db)
+                return .init(
+                    id: try model.requireID(),
+                    title: mediaDescription.title,
+                    group: mediaDescription.media.group
+                )
             }
             .compactMap { $0 }
     }
