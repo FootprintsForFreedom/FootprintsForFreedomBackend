@@ -12,22 +12,9 @@ import DiffMatchPatch
 extension Waypoint.Repository.Changes: Content { }
 
 extension WaypointApiController {
-    func onlyForModerator(_ req: Request) async throws {
-        /// Require user to be signed in
-        let authenticatedUser = try req.auth.require(AuthenticatedUser.self)
-        /// find the user model belonging to the authenticated user
-        guard let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db) else {
-            throw Abort(.unauthorized)
-        }
-        /// require  the user to be a admin or higher
-        guard user.role >= .moderator else {
-            throw Abort(.forbidden)
-        }
-    }
-    
     // GET: api/wayponts/:repositoryID/waypoints/changes/?from=model1ID&to=model2ID
     func detailChanges(_ req: Request) async throws -> Waypoint.Repository.Changes {
-        try await onlyForModerator(req)
+        try await req.onlyFor(.moderator)
         
         let repository = try await detail(req)
         let detailChangesRequest = try req.query.decode(Waypoint.Repository.DetailChangesRequest.self)
@@ -78,7 +65,7 @@ extension WaypointApiController {
     
     // Returns all repositories with unverified waypoint or location models
     func listRepositoriesWithUnverifiedModels(_ req: Request) async throws -> Page<Waypoint.Waypoint.List> {
-        try await onlyForModerator(req)
+        try await req.onlyFor(.moderator)
         
         let preferredLanguageCode = try req.query.decode(PreferredLanguageQuery.self).preferredLanguage
         
@@ -129,7 +116,7 @@ extension WaypointApiController {
     
     // GET: api/waypoints/:repositoryId/waypoints/unverified
     func listUnverifiedWaypoints(_ req: Request) async throws -> Page<Waypoint.Repository.ListUnverifiedWaypoints> {
-        try await onlyForModerator(req)
+        try await req.onlyFor(.moderator)
         
         let repository = try await detail(req)
         
@@ -154,7 +141,7 @@ extension WaypointApiController {
     
     // GET: api/waypoints/:repositoryId/locations/unverified
     func listUnverifiedLocations(_ req: Request) async throws -> Page<Waypoint.Repository.ListUnverifiedLocations> {
-        try await onlyForModerator(req)
+        try await req.onlyFor(.moderator)
         
         let repository = try await detail(req)
         
@@ -177,7 +164,7 @@ extension WaypointApiController {
     
     // POST: api/waypoints/:repositoryId/waypoints/verify/:waypointModelId
     func verifyWaypoint(_ req: Request) async throws -> Waypoint.Waypoint.Detail {
-        try await onlyForModerator(req)
+        try await req.onlyFor(.moderator)
         
         let repository = try await detail(req)
         guard
@@ -223,7 +210,7 @@ extension WaypointApiController {
     
     // POST: api/waypoints/:repositoryId/locations/verify/:waypointModelId
     func verifyLocation(_ req: Request) async throws -> Waypoint.Waypoint.Detail {
-        try await onlyForModerator(req)
+        try await req.onlyFor(.moderator)
         
         let repository = try await detail(req)
         guard
