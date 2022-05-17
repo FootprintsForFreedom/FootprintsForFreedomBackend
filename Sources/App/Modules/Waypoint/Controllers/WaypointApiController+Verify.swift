@@ -19,19 +19,21 @@ extension WaypointApiController {
         let repository = try await detail(req)
         let detailChangesRequest = try req.query.decode(Waypoint.Repository.DetailChangesRequest.self)
         
-        guard let fromId = detailChangesRequest.from,
-              let toId = detailChangesRequest.to
+        guard
+            let fromId = detailChangesRequest.from,
+            let toId = detailChangesRequest.to
         else {
             throw Abort(.badRequest)
         }
         
-        guard let model1 = try await WaypointWaypointModel
+        guard
+            let model1 = try await WaypointWaypointModel
                 .query(on: req.db)
                 .filter(\.$repository.$id == repository.requireID())
                 .filter(\._$id == fromId)
                 .with(\.$user)
                 .first(),
-              let model2 = try await WaypointWaypointModel
+            let model2 = try await WaypointWaypointModel
                 .query(on: req.db)
                 .filter(\.$repository.$id == repository.requireID())
                 .filter(\._$id == toId)
@@ -68,7 +70,6 @@ extension WaypointApiController {
         try await req.onlyFor(.moderator)
         
         let preferredLanguageCode = try req.query.decode(PreferredLanguageQuery.self).preferredLanguage
-        
         let allLanguageCodesByPriority = try await LanguageModel.languageCodesByPriority(preferredLanguageCode: preferredLanguageCode, on: req.db)
         
         let repositoriesWithUnverifiedModels = try await WaypointRepositoryModel
@@ -175,12 +176,12 @@ extension WaypointApiController {
         }
         
         guard let waypoint = try await WaypointWaypointModel
-                .query(on: req.db)
-                .filter(\._$id == waypointId)
-                .filter(\.$repository.$id == repository.requireID())
-                .filter(\.$verified == false)
-                .with(\.$language)
-                .first()
+            .query(on: req.db)
+            .filter(\._$id == waypointId)
+            .filter(\.$repository.$id == repository.requireID())
+            .filter(\.$verified == false)
+            .with(\.$language)
+            .first()
         else {
             throw Abort(.badRequest)
         }
@@ -221,11 +222,11 @@ extension WaypointApiController {
         }
         
         guard let location = try await WaypointLocationModel
-                .query(on: req.db)
-                .filter(\._$id == locationId)
-                .filter(\.$repository.$id == repository.requireID())
-                .filter(\.$verified == false)
-                .first()
+            .query(on: req.db)
+            .filter(\._$id == locationId)
+            .filter(\.$repository.$id == repository.requireID())
+            .filter(\.$verified == false)
+            .first()
         else {
             throw Abort(.badRequest)
         }
