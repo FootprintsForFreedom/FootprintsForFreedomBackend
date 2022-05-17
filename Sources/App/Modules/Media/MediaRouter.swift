@@ -10,6 +10,7 @@ import Vapor
 struct MediaRouter: RouteCollection {
     
     let apiController = MediaApiController()
+    let waypointApiController = WaypointApiController()
     
     func boot(routes: RoutesBuilder) throws {
         
@@ -19,5 +20,6 @@ struct MediaRouter: RouteCollection {
         let routes = args["routes"] as! RoutesBuilder
         
         apiController.setupRoutes(routes)
+        waypointApiController.setupMediaRoute(routes)
     }
 }
