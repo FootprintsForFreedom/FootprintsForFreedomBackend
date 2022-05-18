@@ -89,7 +89,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
         let userToken = try await getToken(for: .user)
         
         try app
-            .describe("List repositories with unverified models should return ok and the repositories")
+            .describe("List repositories with unverified models as user should fail")
             .get(waypointsPath.appending("unverified"))
             .bearerToken(userToken)
             .expect(.forbidden)
@@ -98,7 +98,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
     
     func testListRepositoriesWithUnverifedModelsWithoutTokenFails() async throws {
         try app
-            .describe("List repositories with unverified models without token should return fail")
+            .describe("List repositories with unverified models without token should fail")
             .get(waypointsPath.appending("unverified"))
             .expect(.unauthorized)
             .test()
