@@ -12,32 +12,33 @@ import DiffMatchPatch
 extension Media.Repository.Changes: Content { }
 
 extension MediaApiController {
+    
+    @AsyncValidatorBuilder
+    func detailChangesValidators() -> [AsyncValidator] {
+        KeyedContentValidator<String>.required("from", validateQuery: true)
+        KeyedContentValidator<String>.required("to", validateQuery: true)
+    }
+    
     // GET: api/media/:mediaId/changes/?from=modelId1&to=modelId2
     func detailChanges(_ req: Request) async throws -> Media.Repository.Changes {
         try await req.onlyFor(.moderator)
         
         let repository = try await detail(req)
+        try await RequestValidator(detailChangesValidators()).validate(req)
         let detailChangesRequest = try req.query.decode(Media.Repository.DetailChangesRequest.self)
-        
-        guard
-            let fromId = detailChangesRequest.from,
-            let toId = detailChangesRequest.to
-        else {
-            throw Abort(.badRequest)
-        }
         
         guard
             let model1 = try await MediaDescriptionModel
                 .query(on: req.db)
                 .filter(\.$mediaRepository.$id == repository.requireID())
-                .filter(\._$id == fromId)
+                .filter(\._$id == detailChangesRequest.from)
                 .with(\.$user)
                 .with(\.$media)
                 .first(),
             let model2 = try await MediaDescriptionModel
                 .query(on: req.db)
                 .filter(\.$mediaRepository.$id == repository.requireID())
-                .filter(\._$id == toId)
+                .filter(\._$id == detailChangesRequest.to)
                 .with(\.$user)
                 .with(\.$media)
                 .first()

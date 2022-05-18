@@ -12,31 +12,32 @@ import DiffMatchPatch
 extension Waypoint.Repository.Changes: Content { }
 
 extension WaypointApiController {
+    
+    @AsyncValidatorBuilder
+    func detailChangesValidators() -> [AsyncValidator] {
+        KeyedContentValidator<String>.required("from", validateQuery: true)
+        KeyedContentValidator<String>.required("to", validateQuery: true)
+    }
+    
     // GET: api/wayponts/:repositoryID/waypoints/changes/?from=model1ID&to=model2ID
     func detailChanges(_ req: Request) async throws -> Waypoint.Repository.Changes {
         try await req.onlyFor(.moderator)
         
         let repository = try await detail(req)
+        try await RequestValidator(detailChangesValidators()).validate(req)
         let detailChangesRequest = try req.query.decode(Waypoint.Repository.DetailChangesRequest.self)
-        
-        guard
-            let fromId = detailChangesRequest.from,
-            let toId = detailChangesRequest.to
-        else {
-            throw Abort(.badRequest)
-        }
         
         guard
             let model1 = try await WaypointWaypointModel
                 .query(on: req.db)
                 .filter(\.$repository.$id == repository.requireID())
-                .filter(\._$id == fromId)
+                .filter(\._$id == detailChangesRequest.from)
                 .with(\.$user)
                 .first(),
             let model2 = try await WaypointWaypointModel
                 .query(on: req.db)
                 .filter(\.$repository.$id == repository.requireID())
-                .filter(\._$id == toId)
+                .filter(\._$id == detailChangesRequest.to)
                 .with(\.$user)
                 .first()
         else {
