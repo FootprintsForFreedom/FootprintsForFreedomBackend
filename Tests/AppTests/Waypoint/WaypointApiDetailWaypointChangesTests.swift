@@ -44,38 +44,6 @@ final class WaypointApiDetailWaypointChangesTests: AppTestCase, WaypointTest {
             .test()
     }
     
-    func testDetailChangesOnlyContainsNewLocationWhenItChanged() async throws {
-        let moderatorToken = try await getToken(for: .moderator)
-        
-        let user = try await getUser(role: .user)
-        let language =  try await createLanguage()
-        let (waypointRepository, waypointModel, _) = try await createNewWaypoint(languageId: language.requireID())
-        try await waypointModel.$user.load(on: app.db)
-        
-        let secondWaypointModel = try await WaypointWaypointModel.createWith(
-            title: "Another different title",
-            description: "This is a new description",
-            repositoryId: waypointRepository.requireID(),
-            languageId: language.requireID(),
-            userId: user.requireID(),
-            verified: false,
-            on: app.db
-        )
-        try await secondWaypointModel.$user.load(on: app.db)
-        
-        try app
-            .describe("Detail changes should not return new Location when it did not change")
-            .get(waypointsPath.appending("\(waypointRepository.requireID())/waypoints/changes/?from=\(waypointModel.requireID())&to=\(secondWaypointModel.requireID())"))
-            .bearerToken(moderatorToken)
-            .expect(.ok)
-            .expect(.json)
-            .expect(Waypoint.Repository.Changes.self) { content in
-                XCTAssertEqual(content.fromUser.id, waypointModel.user.id)
-                XCTAssertEqual(content.toUser.id, secondWaypointModel.user.id)
-            }
-            .test()
-    }
-    
     func testDetailChangesAsUserFails() async throws {
         let userToken = try await getToken(for: .user)
         
