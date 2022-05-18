@@ -86,7 +86,7 @@ extension MediaApiController {
         
         let repositoriesWithUnverifiedModels = try await MediaRepositoryModel
             .query(on: req.db)
-            .join(MediaDescriptionModel.self, on: \MediaDescriptionModel.$mediaRepository.$id == \WaypointRepositoryModel.$id)
+            .join(MediaDescriptionModel.self, on: \MediaDescriptionModel.$mediaRepository.$id == \MediaRepositoryModel.$id)
             .join(LanguageModel.self, on: \MediaDescriptionModel.$language.$id == \LanguageModel.$id)
             .filter(MediaDescriptionModel.self, \.$verified == false)
             .filter(LanguageModel.self, \.$priority != nil)
@@ -104,6 +104,7 @@ extension MediaApiController {
                 media = oldestUnverifiedMedia
             }
             
+            try await media.$media.load(on: req.db)
             return try .init(
                 id: repository.requireID(),
                 title: media.title,
@@ -138,7 +139,7 @@ extension MediaApiController {
     var newModelPathIdComponent: PathComponent { .init(stringLiteral: ":" + newModelPathIdKey) }
     
     // POST: api/media/:repositoryId/verify/:waypointModelId
-    func verifyWaypoint(_ req: Request) async throws -> Media.Media.Detail {
+    func verifyMedia(_ req: Request) async throws -> Media.Media.Detail {
         try await req.onlyFor(.moderator)
         
         let repository = try await detail(req)
@@ -185,6 +186,6 @@ extension MediaApiController {
         existingModelRoutes.get("changes", use: detailChanges)
         existingModelRoutes.grouped("verify")
             .grouped(newModelPathIdComponent)
-            .post(use: verifyWaypoint)
+            .post(use: verifyMedia)
     }
 }
