@@ -79,10 +79,7 @@ extension MediaApiController {
     
     func listRepositoriesWithUnverifiedModels(_ req: Request) async throws -> Page<Media.Media.List> {
         try await req.onlyFor(.moderator)
-        
-        // TODO: simplify the following language code statements for all models -> something like req.getAllLanguageCodesByPriority
-        let preferredLanguageCode = try req.query.decode(PreferredLanguageQuery.self).preferredLanguage
-        let allLanguageCodesByPriority = try await LanguageModel.languageCodesByPriority(preferredLanguageCode: preferredLanguageCode, on: req.db)
+        let allLanguageCodesByPriority = try await req.allLanguageCodesByPriority()
         
         let repositoriesWithUnverifiedModels = try await MediaRepositoryModel
             .query(on: req.db)

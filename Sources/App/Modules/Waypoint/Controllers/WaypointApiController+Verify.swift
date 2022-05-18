@@ -70,8 +70,7 @@ extension WaypointApiController {
     func listRepositoriesWithUnverifiedModels(_ req: Request) async throws -> Page<Waypoint.Waypoint.List> {
         try await req.onlyFor(.moderator)
         
-        let preferredLanguageCode = try req.query.decode(PreferredLanguageQuery.self).preferredLanguage
-        let allLanguageCodesByPriority = try await LanguageModel.languageCodesByPriority(preferredLanguageCode: preferredLanguageCode, on: req.db)
+        let allLanguageCodesByPriority = try await req.allLanguageCodesByPriority()
         
         let repositoriesWithUnverifiedModels = try await WaypointRepositoryModel
             .query(on: req.db)
@@ -234,9 +233,7 @@ extension WaypointApiController {
         location.verified = true
         try await location.update(on: req.db)
         
-        let preferredLanguageCode = try req.query.decode(PreferredLanguageQuery.self).preferredLanguage
-        
-        let allLanguageCodesByPriority = try await LanguageModel.languageCodesByPriority(preferredLanguageCode: preferredLanguageCode, on: req.db)
+        let allLanguageCodesByPriority = try await req.allLanguageCodesByPriority()
         
         let latestVerifiedWaypointModel = try await repository.waypointModel(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db, sort: .ascending)
         var waypoint: WaypointWaypointModel! = latestVerifiedWaypointModel

@@ -74,8 +74,7 @@ struct MediaApiController: ApiController {
     
     func listOutput(_ req: Request, _ models: Page<MediaRepositoryModel>) async throws -> Page<Media.Media.List> {
         // TODO: sort?
-        let preferredLanguageCode = try req.query.decode(PreferredLanguageQuery.self).preferredLanguage
-        let allLanguageCodesByPriority = try await LanguageModel.languageCodesByPriority(preferredLanguageCode: preferredLanguageCode, on: req.db)
+        let allLanguageCodesByPriority = try await req.allLanguageCodesByPriority()
         
         return try await models
             .concurrentMap { model in
@@ -97,8 +96,7 @@ struct MediaApiController: ApiController {
     // MARK: - Detail
     
     func detailOutput(_ req: Request, _ repository: MediaRepositoryModel) async throws -> Media.Media.Detail {
-        let preferredLanguageCode = try req.query.decode(PreferredLanguageQuery.self).preferredLanguage
-        let allLanguageCodesByPriority = try await LanguageModel.languageCodesByPriority(preferredLanguageCode: preferredLanguageCode, on: req.db)
+        let allLanguageCodesByPriority = try await req.allLanguageCodesByPriority()
         
         guard let mediaDescription = try await repository.media(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db) else {
             throw Abort(.notFound)
