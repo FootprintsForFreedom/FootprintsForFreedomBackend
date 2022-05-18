@@ -92,10 +92,10 @@ extension WaypointApiController {
             let latestVerifiedWaypointModel = try await repository.waypointModel(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db, sort: .ascending)
             var waypointModel: WaypointWaypointModel! = latestVerifiedWaypointModel
             if waypointModel == nil {
-                guard let oldestWaypointModel = try await repository.waypointModel(for: allLanguageCodesByPriority, needsToBeVerified: false, on: req.db, sort: .ascending) else {
+                guard let oldestUnverifiedWaypointModel = try await repository.waypointModel(for: allLanguageCodesByPriority, needsToBeVerified: false, on: req.db, sort: .ascending) else {
                     throw Abort(.internalServerError)
                 }
-                waypointModel = oldestWaypointModel
+                waypointModel = oldestUnverifiedWaypointModel
             }
             
             let latestVerifiedLocation = try await repository.location(needsToBeVerified: true, on: req.db)
