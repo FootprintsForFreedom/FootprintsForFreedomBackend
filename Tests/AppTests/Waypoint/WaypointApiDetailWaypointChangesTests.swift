@@ -94,7 +94,7 @@ final class WaypointApiDetailWaypointChangesTests: AppTestCase, WaypointTest {
         let (waypointRepository, waypointModel, _) = try await createNewWaypoint()
         
         try  app
-            .describe("Detail changes request must contain from and to id field")
+            .describe("Detail changes request must contain from id field")
             .get(waypointsPath.appending("\(waypointRepository.requireID())/waypoints/changes/?to=\(waypointModel.requireID())"))
             .bearerToken(moderatorToken)
             .expect(.badRequest)
@@ -106,7 +106,7 @@ final class WaypointApiDetailWaypointChangesTests: AppTestCase, WaypointTest {
         let (waypointRepository, waypointModel, _) = try await createNewWaypoint()
         
         try  app
-            .describe("Detail changes request must contain from and to id field")
+            .describe("Detail changes request must contain to id field")
             .get(waypointsPath.appending("\(waypointRepository.requireID())/waypoints/changes/?from=\(waypointModel.requireID())"))
             .bearerToken(moderatorToken)
             .expect(.badRequest)
