@@ -35,7 +35,7 @@ final class LanguageModel: DatabaseModelInterface {
         languageCode: String,
         name: String,
         isRTL: Bool,
-        priority: Int
+        priority: Int?
     ) {
         self.id = id
         self.languageCode = languageCode
