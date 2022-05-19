@@ -88,25 +88,3 @@ open class AppTestCase: XCTestCase {
         return data
     }
 }
-
-// TODO: remove?
-open class AppTestCaseWithModeratorToken: AppTestCase {
-    var moderatorToken: String!
-    
-    override open func setUp() async throws {
-        app = try await createTestApp()
-        moderatorToken = try await getToken(for: .moderator)
-    }
-}
-
-open class AppTestCaseWithModeratorAndNormalToken: AppTestCase {
-    var token: String!
-    var moderatorToken: String!
-    
-    override open func setUp() async throws {
-        app = try await self.createTestApp()
-        
-        token = try await getToken(for: .user)
-        moderatorToken = try await getToken(for: .moderator)
-    }
-}
