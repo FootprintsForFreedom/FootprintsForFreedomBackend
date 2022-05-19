@@ -27,7 +27,7 @@ final class LanguageApiSetPriorityTests: AppTestCase, LanguageTest {
         let setLanguagesPriorityContent = Language.Language.UpdatePriorities(newLanguagesOrder: activeLanguageIds.shuffled())
         
         try app
-            .describe("Update language priorities as moderator should return ok and the new order")
+            .describe("Update language priorities as admin should return ok and the new order")
             .put(languagesPath.appending("priorities"))
             .body(setLanguagesPriorityContent)
             .bearerToken(token)
@@ -52,7 +52,7 @@ final class LanguageApiSetPriorityTests: AppTestCase, LanguageTest {
         let setLanguagesPriorityContent = Language.Language.UpdatePriorities(newLanguagesOrder: activeLanguageIds.shuffled())
         
         try app
-            .describe("Update language priorities as moderator should return ok and the new order")
+            .describe("Update language priorities without all languages in the new order should fail")
             .put(languagesPath.appending("priorities"))
             .body(setLanguagesPriorityContent)
             .bearerToken(token)
@@ -72,7 +72,7 @@ final class LanguageApiSetPriorityTests: AppTestCase, LanguageTest {
         let setLanguagesPriorityContent = Language.Language.UpdatePriorities(newLanguagesOrder: newLanguagesOrder)
         
         try app
-            .describe("Update language priorities as moderator should return ok and the new order")
+            .describe("Update language priorities with deactivated language in new order should fail")
             .put(languagesPath.appending("priorities"))
             .body(setLanguagesPriorityContent)
             .bearerToken(token)
@@ -84,7 +84,7 @@ final class LanguageApiSetPriorityTests: AppTestCase, LanguageTest {
         let token = try await getToken(for: .admin)
         
         try app
-            .describe("Update language priorities as moderator should return ok and the new order")
+            .describe("Update language priorities without new languages order should fail")
             .put(languagesPath.appending("priorities"))
             .bearerToken(token)
             .expect(.badRequest)
@@ -95,7 +95,7 @@ final class LanguageApiSetPriorityTests: AppTestCase, LanguageTest {
         let token = try await getToken(for: .moderator)
         
         try app
-            .describe("Update language priorities as moderator should return ok and the new order")
+            .describe("Update language priorities as moderator should fail")
             .put(languagesPath.appending("priorities"))
             .bearerToken(token)
             .expect(.forbidden)
@@ -106,7 +106,7 @@ final class LanguageApiSetPriorityTests: AppTestCase, LanguageTest {
         let token = try await getToken(for: .user)
         
         try app
-            .describe("Update language priorities as moderator should return ok and the new order")
+            .describe("Update language priorities as user should fail")
             .put(languagesPath.appending("priorities"))
             .bearerToken(token)
             .expect(.forbidden)
@@ -115,7 +115,7 @@ final class LanguageApiSetPriorityTests: AppTestCase, LanguageTest {
     
     func testSetLanguagePrioritiesWithoutTokenFails() async throws {
         try app
-            .describe("Update language priorities as moderator should return ok and the new order")
+            .describe("Update language priorities wihtout token should fail")
             .put(languagesPath.appending("priorities"))
             .expect(.unauthorized)
             .test()
