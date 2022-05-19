@@ -12,9 +12,7 @@ import Spec
 
 extension User.Account.Update: Content {}
 
-final class UserApiUpdateTests: AppTestCase {
-    let usersPath = "api/\(User.pathKey)/\(User.Account.pathKey)/"
-    
+final class UserApiUpdateTests: AppTestCase, UserTest {
     private func getUserUpdateContent(
         name: String = "New Test User",
         updatedName: String = "Updated Test User",
@@ -23,15 +21,10 @@ final class UserApiUpdateTests: AppTestCase {
         school: String? = nil,
         updatedSchool: String? = nil
     ) async throws -> (model: UserAccountModel, token: String, updateContent: User.Account.Update) {
-        let password = "password7293"
-        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(password), verified: false, role: .user)
-        try await user.create(on: app.db)
-
-        let token = try user.generateToken()
-        try await token.save(on: app.db)
+        let (user, token) = try await createNewUserWithToken(name: name, email: email, school: school, verified: false, role: .user)
         
         let updatedUser = User.Account.Update(name: updatedName, email: updatedEmail, school: updatedSchool)
-        return (user, token.value, updatedUser)
+        return (user, token, updatedUser)
     }
     
     func testSuccessfulUpdateUserWithSchoolFromNilToValue() async throws {

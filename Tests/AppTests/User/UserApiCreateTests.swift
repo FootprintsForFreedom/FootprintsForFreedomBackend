@@ -12,9 +12,7 @@ import Spec
 
 extension User.Account.Create: Content {}
 
-final class UserApiCreateTests: AppTestCase {
-    let usersPath = "api/\(User.pathKey)/\(User.Account.pathKey)/"
-    
+final class UserApiCreateTests: AppTestCase, UserTest {
     private func getUserCreateContent(
         name: String = "New Test User",
         email: String = "new-test-user\(UUID())@example.com",

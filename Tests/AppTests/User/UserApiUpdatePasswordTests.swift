@@ -12,25 +12,16 @@ import Spec
 
 extension User.Account.ChangePassword: Content {}
 
-final class UserApiUpdatePasswordTests: AppTestCase {
-    let usersPath = "api/\(User.pathKey)/\(User.Account.pathKey)/"
-
+final class UserApiUpdatePasswordTests: AppTestCase, UserTest {
     private func getUserUpdatePasswordContent(
         initialPassword: String = "password",
         currentPassword: String = "password",
         newPassword: String = "1newPassword"
     ) async throws -> (model: UserAccountModel, token: String, updatePasswordContent: User.Account.ChangePassword) {
-        let name = "New Test User"
-        let email = "new-test-user\(UUID())@example.com"
-        let school: String? = nil
-        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(initialPassword), verified: false, role: .user)
-        try await user.create(on: app.db)
-        
-        let token = try user.generateToken()
-        try await token.save(on: app.db)
+        let (user, token) = try await createNewUserWithToken(password: initialPassword)
         
         let updatedUser = User.Account.ChangePassword(currentPassword: currentPassword, newPassword: newPassword)
-        return (user, token.value, updatedUser)
+        return (user, token, updatedUser)
     }
     
     func testSuccessfulUpdateUserPassword() async throws {

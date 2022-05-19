@@ -10,37 +10,7 @@ import XCTVapor
 import Fluent
 import Spec
 
-final class UserApiDeleteTests: AppTestCaseWithModeratorAndNormalToken {
-    let usersPath = "api/\(User.pathKey)/\(User.Account.pathKey)/"
-    
-    private func createNewUser(
-        name: String = "New Test User",
-        email: String = "test-user\(UUID())@example.com",
-        school: String? = nil,
-        password: String = "password",
-        verified: Bool = false,
-        role: User.Role = .user
-    ) async throws -> UserAccountModel {
-        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(password), verified: verified, role: role)
-        try await user.create(on: app.db)
-        return user
-    }
-    
-    private func createNewUserWithToken(
-        name: String = "New Test User",
-        email: String = "test-user\(UUID())@example.com",
-        school: String? = nil,
-        password: String = "password",
-        verified: Bool = false,
-        role: User.Role = .user
-    ) async throws -> (user: UserAccountModel, token: String) {
-        let user = try await createNewUser(name: name, email: email, school: school, password: password, verified: verified, role: role)
-        let token = try user.generateToken()
-        try await token.create(on: app.db)
-        
-        return (user, token.value)
-    }
-    
+final class UserApiDeleteTests: AppTestCase, UserTest {
     func testSuccessfulDeleteUserSelf() async throws {
         let (user, token) = try await createNewUserWithToken()
         
@@ -60,6 +30,7 @@ final class UserApiDeleteTests: AppTestCaseWithModeratorAndNormalToken {
     }
     
     func testSuccessfulDeleteUserFromAdmin() async throws {
+        let moderatorToken = try await getToken(for: .moderator)
         let user = try await createNewUser()
         
         // Get original user count
@@ -78,6 +49,7 @@ final class UserApiDeleteTests: AppTestCaseWithModeratorAndNormalToken {
     }
     
     func testsDeleteUserFromNonAdminFails() async throws {
+        let token = try await getToken(for: .user)
         let user = try await createNewUser()
         
         try app
@@ -89,6 +61,7 @@ final class UserApiDeleteTests: AppTestCaseWithModeratorAndNormalToken {
     }
     
     func testDeleteUserDeletesTokens() async throws {
+        let moderatorToken = try await getToken(for: .moderator)
         let user = try await createNewUser()
         
         try app
@@ -112,7 +85,9 @@ final class UserApiDeleteTests: AppTestCaseWithModeratorAndNormalToken {
             .test()
     }
     
-    func testDeleteNonExistingUserFails() throws {
+    func testDeleteNonExistingUserFails() async throws {
+        let moderatorToken = try await getToken(for: .moderator)
+        
         try app
             .describe("Deleting a user which does not exist fails")
             .delete(usersPath.appending(UUID().uuidString))

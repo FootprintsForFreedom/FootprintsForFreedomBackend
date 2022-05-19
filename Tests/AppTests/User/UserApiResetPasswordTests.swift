@@ -13,9 +13,7 @@ import Spec
 extension User.Account.ResetPasswordRequest: Content {}
 extension User.Account.ResetPassword: Content {}
 
-final class UserApiResetPasswordTests: AppTestCase {
-    let usersPath = "api/\(User.pathKey)/\(User.Account.pathKey)/"
-    
+final class UserApiResetPasswordTests: AppTestCase, UserTest {
     private func createNewUser(
         name: String = "New Test User",
         email: String = "test-use\(UUID())r@example.com",
@@ -24,7 +22,7 @@ final class UserApiResetPasswordTests: AppTestCase {
         verified: Bool = false,
         role: User.Role = .user
     ) async throws -> UserAccountModel {
-        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(password), verified: verified, role: role)
+        let user = UserAccountModel(name: name, email: email, school: school, password: password, verified: verified, role: role)
         try await user.create(on: app.db)
         return user
     }

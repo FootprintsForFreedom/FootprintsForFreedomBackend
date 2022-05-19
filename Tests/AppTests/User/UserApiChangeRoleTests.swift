@@ -12,9 +12,7 @@ import Spec
 
 extension User.Account.ChangeRole: Content {}
 
-final class UserApiChangeRoleTests: AppTestCase {
-    let usersPath = "api/\(User.pathKey)/\(User.Account.pathKey)/"
-    
+final class UserApiChangeRoleTests: AppTestCase, UserTest {
     private func createNewUser(
         name: String = "New Test User",
         email: String = "test-user\(UUID())@example.com",

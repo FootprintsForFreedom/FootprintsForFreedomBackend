@@ -12,29 +12,11 @@ import Spec
 
 extension User.Account.Verification: Content {}
 
-final class UserApiEmailVerificationTests: AppTestCase {
-    let usersPath = "api/\(User.pathKey)/\(User.Account.pathKey)/"
-    
-    private func createNewUser(
-        verified: Bool = false
-    ) async throws -> (model: UserAccountModel, token: String) {
-        let name = "New Test User"
-        let email = "new-test-user\(UUID())@example.com"
-        let school: String? = nil
-        let password = "password7293"
-        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(password), verified: verified, role: .user)
-        try await user.create(on: app.db)
-        
-        let token = try user.generateToken()
-        try await token.save(on: app.db)
-        
-        return (user, token.value)
-    }
-    
+final class UserApiEmailVerificationTests: AppTestCase, UserTest {
     // MARK: - request verification
     
     func testSuccessfulRequestVerification() async throws {
-        let (user, token) = try await createNewUser()
+        let (user, token) = try await createNewUserWithToken()
         XCTAssertFalse(user.verified)
         
         try app
@@ -46,7 +28,7 @@ final class UserApiEmailVerificationTests: AppTestCase {
     }
     
     func testRequestVerificationDeletesOldTokens() async throws {
-        let (user, token) = try await createNewUser()
+        let (user, token) = try await createNewUserWithToken()
         XCTAssertFalse(user.verified)
         
         // Get original verification token count
@@ -73,7 +55,7 @@ final class UserApiEmailVerificationTests: AppTestCase {
     }
     
     func testRequestVerificationFromDifferentUserFails() async throws {
-        let (user, _) = try await createNewUser()
+        let user = try await createNewUser()
         XCTAssertFalse(user.verified)
         
         let token = try await getToken(for: .user)
@@ -95,7 +77,7 @@ final class UserApiEmailVerificationTests: AppTestCase {
     }
     
     func testRequestVerificationFromVerifiedUserFails() async throws {
-        let (user, token) = try await createNewUser(verified: true)
+        let (user, token) = try await createNewUserWithToken(verified: true)
         XCTAssertTrue(user.verified)
         
         try app
@@ -107,7 +89,7 @@ final class UserApiEmailVerificationTests: AppTestCase {
     }
     
     func testRequestVerificationWihtoutTokenFails() async throws {
-        let (user, _) = try await createNewUser()
+        let user = try await createNewUser()
         XCTAssertFalse(user.verified)
         
         try app
@@ -126,7 +108,7 @@ final class UserApiEmailVerificationTests: AppTestCase {
     }
     
     func testSuccessfulUserVerificationWhenSignedIn() async throws {
-        let (user, token) = try await createNewUser()
+        let (user, token) = try await createNewUserWithToken()
         XCTAssertFalse(user.verified)
         
         // Get original verification token count
@@ -158,7 +140,7 @@ final class UserApiEmailVerificationTests: AppTestCase {
     }
     
     func testSuccessfulUserVerificationWithoutBearerToken() async throws {
-        let (user, _) = try await createNewUser()
+        let user = try await createNewUser()
         XCTAssertFalse(user.verified)
         
         // Get original verification token count
@@ -186,7 +168,7 @@ final class UserApiEmailVerificationTests: AppTestCase {
     }
     
     func testVerificationWithWrongVerificationTokenFails() async throws {
-        let (user, _) = try await createNewUser()
+        let user = try await createNewUser()
         XCTAssertFalse(user.verified)
         let _ = try await verificationToken(for: user)
         let wrongVerificationToken = try user.generateVerificationToken()
@@ -201,7 +183,7 @@ final class UserApiEmailVerificationTests: AppTestCase {
     }
     
     func testVerificationWithoutSavedTokenFails() async throws {
-        let (user, _) = try await createNewUser()
+        let user = try await createNewUser()
         XCTAssertFalse(user.verified)
         let wrongVerificationToken = try user.generateVerificationToken()
         
@@ -215,7 +197,7 @@ final class UserApiEmailVerificationTests: AppTestCase {
     }
     
     func testVerificationWithOldTokenFails() async throws {
-        let (user, _) = try await createNewUser()
+        let user = try await createNewUser()
         XCTAssertFalse(user.verified)
         let verificationToken = try await verificationToken(for: user)
         // Set the created date back one day

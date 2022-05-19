@@ -12,9 +12,7 @@ import Spec
 
 extension User.Account.Patch: Content {}
 
-final class UserApiPatchTests: AppTestCase {
-    let usersPath = "api/\(User.pathKey)/\(User.Account.pathKey)/"
-    
+final class UserApiPatchTests: AppTestCase, UserTest {
     private func getUserPatchContent(
         name: String = "New Test User",
         patchedName: String? = nil,
@@ -24,15 +22,21 @@ final class UserApiPatchTests: AppTestCase {
         shouldPatchSchool: Bool = false,
         patchedSchool: String? = nil
     ) async throws -> (model: UserAccountModel, token: String, patchContent: User.Account.Patch) {
-        let password = "password7293"
-        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(password), verified: false, role: .user)
-        try await user.create(on: app.db)
+        let (user, token) = try await createNewUserWithToken(
+            name: name,
+            email: email,
+            school: school,
+            verified: false,
+            role: .user
+        )
         
-        let token = try user.generateToken()
-        try await token.create(on: app.db)
-        
-        let patchedUser = User.Account.Patch(name: patchedName, email: patchedEmail, setSchool: shouldPatchSchool, school: patchedSchool)
-        return (user, token.value, patchedUser)
+        let patchedUser = User.Account.Patch(
+            name: patchedName,
+            email: patchedEmail,
+            setSchool: shouldPatchSchool,
+            school: patchedSchool
+        )
+        return (user, token, patchedUser)
     }
     
     func testEmptyPatchUserDoesNothing() async throws {

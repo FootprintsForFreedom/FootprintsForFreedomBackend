@@ -10,9 +10,7 @@ import XCTVapor
 import Fluent
 import Spec
 
-final class UserApiGetOwnUserTests: AppTestCase {
-    let getOwnUserPath = "/api/\(User.pathKey)/\(User.Account.pathKey)/me"
-    
+final class UserApiGetOwnUserTests: AppTestCase, UserTest {
     private func createNewUserWithToken(
         name: String = "New Test User",
         email: String = "test-user\(UUID())@example.com",
@@ -35,7 +33,7 @@ final class UserApiGetOwnUserTests: AppTestCase {
         
         try app
             .describe("Get own user should return authenticated user")
-            .get(getOwnUserPath)
+            .get(usersPath.appending("me"))
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)

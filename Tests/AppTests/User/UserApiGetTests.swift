@@ -10,9 +10,7 @@ import XCTVapor
 import Fluent
 import Spec
 
-final class UserApiGetTests: AppTestCaseWithModeratorAndNormalToken {
-    let usersPath = "api/\(User.pathKey)/\(User.Account.pathKey)/"
-    
+final class UserApiGetTests: AppTestCase, UserTest {
     private func createNewUser(
         name: String = "New Test User",
         email: String = "test-user\(UUID())@example.com",
@@ -27,6 +25,7 @@ final class UserApiGetTests: AppTestCaseWithModeratorAndNormalToken {
     }
     
     func testSuccesfullListUsers() async throws {
+        let moderatorToken = try await getToken(for: .moderator)
         let user = try await createNewUser()
         
         // Get user count
@@ -48,6 +47,8 @@ final class UserApiGetTests: AppTestCaseWithModeratorAndNormalToken {
     }
     
     func testListUsersWithNormalTokenFails() async throws {
+        let token = try await getToken(for: .user)
+        
         try app
             .describe("List users should fail with normal token")
             .get(usersPath)
@@ -88,6 +89,7 @@ final class UserApiGetTests: AppTestCaseWithModeratorAndNormalToken {
     }
     
     func testGetUserAsModerator() async throws {
+        let moderatorToken = try await getToken(for: .moderator)
         let user = try await createNewUser()
         
         try app
@@ -129,6 +131,7 @@ final class UserApiGetTests: AppTestCaseWithModeratorAndNormalToken {
     }
     
     func testGetUserAsNormalUser() async throws {
+        let token = try await getToken(for: .user)
         let user = try await createNewUser()
         
         try app
