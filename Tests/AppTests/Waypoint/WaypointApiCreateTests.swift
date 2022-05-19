@@ -12,9 +12,7 @@ import Spec
 
 extension Waypoint.Waypoint.Create: Content { }
 
-final class WaypointApiCreateTests: AppTestCase, LanguageTest {
-    let waypointsPath = "api/waypoints/"
-    
+final class WaypointApiCreateTests: AppTestCase, WaypointTest {
     private func getWaypointCreateContent(
         title: String = "New Waypoint Title \(UUID())",
         description: String = "New Waypoint Description",

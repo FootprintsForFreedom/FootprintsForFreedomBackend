@@ -13,8 +13,6 @@ import Spec
 extension Media.Media.Patch: Content { }
 
 final class MediaApiPatchTests: AppTestCase, MediaTest {
-    let mediaPath = "api/media/"
-    
     private func getMediaPatchContent(
         title: String = "New Meidia Title \(UUID())",
         patchedTitle: String? = nil,

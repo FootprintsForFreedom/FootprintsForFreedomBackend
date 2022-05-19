@@ -11,8 +11,6 @@ import Fluent
 import Spec
 
 final class MediaApiVerificationTests: AppTestCase, MediaTest {
-    let mediaPath = "api/media/"
-    
     func testSuccessfulVerifyMedia() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let (repository, description, file) = try await createNewMedia()

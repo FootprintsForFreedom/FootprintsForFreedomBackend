@@ -11,8 +11,6 @@ import Fluent
 import Spec
 
 final class LanguageApiGetTests: AppTestCase, LanguageTest {
-    let languagesPath = "api/languages/"
-    
     func testSuccessfulListLanguagesReturnsLanguagesByPriority() async throws {
         for _ in 0...4 {
             let language = try await createLanguage()

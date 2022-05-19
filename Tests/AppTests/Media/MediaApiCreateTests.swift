@@ -13,9 +13,7 @@ import Spec
 extension Media.Media.Create: Content { }
 extension Data: Content { }
 
-final class MediaApiCreateTests: AppTestCase, LanguageTest, WaypointTest {
-    let mediaPath = "api/media/"
-    
+final class MediaApiCreateTests: AppTestCase, MediaTest {
     private func getMediaCreateContent(
         title: String = "New Meidia Title \(UUID())",
         description: String = "New Media Description",

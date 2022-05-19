@@ -11,8 +11,6 @@ import Fluent
 import Spec
 
 final class WaypointApiDeleteTests: AppTestCase, WaypointTest {
-    let waypointsPath = "api/waypoints/"
-    
     func testSuccessfulDeleteUnverifiedWaypointAsModerator() async throws {
         // Get original waypoint count
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()

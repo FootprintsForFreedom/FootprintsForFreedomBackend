@@ -11,8 +11,6 @@ import Fluent
 import Spec
 
 final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
-    let mediaPath = "api/media/"
-    
     func testSuccessfulDetailChanges() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         

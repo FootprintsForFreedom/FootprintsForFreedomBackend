@@ -11,8 +11,6 @@ import Fluent
 import Spec
 
 final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
-    let mediaPath = "api/media/"
-    
     func testSuccessfulListRepositoriesWithUnverifiedModels() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         

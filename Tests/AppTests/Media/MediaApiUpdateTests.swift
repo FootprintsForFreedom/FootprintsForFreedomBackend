@@ -13,8 +13,6 @@ import Spec
 extension Media.Media.Update: Content { }
 
 final class MediaApiUpdateTests: AppTestCase, MediaTest {
-    let mediaPath = "api/media/"
-    
     private func getMediaUpdateContent(
         title: String = "New Meidia Title \(UUID())",
         updatedTitle: String = "Updated Title",

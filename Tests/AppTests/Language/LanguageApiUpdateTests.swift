@@ -13,8 +13,6 @@ import Spec
 extension Language.Language.Update: Content { }
 
 final class LanguageApiUpdateTests: AppTestCase, LanguageTest {
-    let languagesPath = "api/languages/"
-    
     private func getLanguageUpdateContent(
         languageCode: String = UUID().uuidString,
         name: String = UUID().uuidString,

@@ -13,8 +13,6 @@ import Spec
 extension Waypoint.Waypoint.Update: Content { }
 
 final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
-    let waypointsPath = "api/waypoints/"
-    
     private func getWaypointUpdateContent(
         title: String = "New Waypoint Title",
         updatedTitle: String = "Updated Title for Waypoint",

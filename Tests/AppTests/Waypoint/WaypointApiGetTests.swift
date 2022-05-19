@@ -11,8 +11,6 @@ import Fluent
 import Spec
 
 final class WaypointApiGetTests: AppTestCase, WaypointTest {
-    let waypointsPath = "api/waypoints/"
-    
     func testSuccessfulListVerifiedWaypointsWithPreferredLanguageReturnsVerifiedModelsForAllLanguagesButPrefersSpecifiedLanguage() async throws {
         let language = try await createLanguage()
         let language2 = try await createLanguage()

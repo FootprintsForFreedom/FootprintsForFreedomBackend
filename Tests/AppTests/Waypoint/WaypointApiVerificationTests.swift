@@ -11,8 +11,6 @@ import Fluent
 import Spec
 
 final class WaypointApiVerificationTests: AppTestCase, WaypointTest {
-    let waypointsPath = "api/waypoints/"
-    
     func testSuccessfulVerifyWaypoint() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let (waypointRepository, waypointModel, location) = try await createNewWaypoint()

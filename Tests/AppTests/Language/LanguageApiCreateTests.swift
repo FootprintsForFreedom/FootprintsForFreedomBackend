@@ -12,9 +12,7 @@ import Spec
 
 extension Language.Language.Create: Content { }
 
-final class LanguageApiCreateTests: AppTestCase {
-    let languagesPath = "api/languages/"
-    
+final class LanguageApiCreateTests: AppTestCase, LanguageTest {
     private func getLanguageCreateContent(
         languageCode: String = UUID().uuidString,
         name: String = UUID().uuidString,

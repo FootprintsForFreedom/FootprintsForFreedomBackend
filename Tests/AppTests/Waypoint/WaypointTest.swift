@@ -12,6 +12,8 @@ import Fluent
 protocol WaypointTest: LanguageTest { }
 
 extension WaypointTest {
+    var waypointsPath: String { "api/waypoints/" }
+    
     func createNewWaypoint(
         title: String = "New Waypoint Title",
         description: String = "New Waypoint Description",

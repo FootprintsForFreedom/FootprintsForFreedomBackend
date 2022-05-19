@@ -11,8 +11,6 @@ import Fluent
 import Spec
 
 final class MediaApiDeleteTests: AppTestCase, MediaTest {
-    let mediaPath = "api/media/"
-    
     func testSuccessfulDeleteUnverifiedMediaAsModerator() async throws {
         // Get original media count
         let mediaCount = try await MediaRepositoryModel.query(on: app.db).count()

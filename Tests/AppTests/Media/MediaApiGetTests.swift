@@ -11,8 +11,6 @@ import Fluent
 import Spec
 
 final class MediaApiGetTests: AppTestCase, MediaTest {
-    let mediaPath = "api/media/"
-    
     func testSuccessfulListVerifiedMediasWithPreferredLanguageReturnsVerifiedModelsForAllLanguagesButPrefersSpecifiedLanguage() async throws {
         let language = try await createLanguage()
         let language2 = try await createLanguage()

@@ -11,8 +11,6 @@ import Fluent
 import Spec
 
 final class LanguageApiActivateTests: AppTestCase, LanguageTest {
-    let languagesPath = "api/languages/"
-    
     func testSuccessfulActivateLanguage() async throws {
         let token = try await getToken(for: .admin)
         let language = try await createLanguage()

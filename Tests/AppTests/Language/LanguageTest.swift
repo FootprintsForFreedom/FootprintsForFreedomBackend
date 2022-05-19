@@ -12,6 +12,8 @@ import Fluent
 protocol LanguageTest: AppTestCase { }
 
 extension LanguageTest {
+    var languagesPath: String { "api/languages/" }
+    
     func createLanguage(
         languageCode: String = UUID().uuidString,
         name: String = UUID().uuidString,

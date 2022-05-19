@@ -13,8 +13,6 @@ import Spec
 extension Language.Language.Patch: Content { }
 
 final class LanguageApiPatchTests: AppTestCase, LanguageTest {
-    let languagesPath = "api/languages/"
-    
     private func getLanguagePatchContent(
         languageCode: String? = nil,
         name: String? = nil,

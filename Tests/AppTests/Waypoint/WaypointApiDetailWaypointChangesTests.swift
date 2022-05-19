@@ -11,8 +11,6 @@ import Fluent
 import Spec
 
 final class WaypointApiDetailWaypointChangesTests: AppTestCase, WaypointTest {
-    let waypointsPath = "api/waypoints/"
-    
     func testSuccessfulDetailChanges() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         

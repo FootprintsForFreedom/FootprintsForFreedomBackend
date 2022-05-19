@@ -12,9 +12,7 @@ import Spec
 
 extension Language.Language.UpdatePriorities: Content { }
 
-final class LanguageApiSetPriorityTests: AppTestCase, LanguageTest {
-    let languagesPath = "api/languages/"
-    
+final class LanguageApiSetPriorityTests: AppTestCase, LanguageTest {    
     func testSuccessfulSetLanguagePriorities() async throws {
         let token = try await getToken(for: .admin)
         for _ in 1...4 { _ = try await createLanguage() }

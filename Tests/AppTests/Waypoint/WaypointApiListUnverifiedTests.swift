@@ -11,8 +11,6 @@ import Fluent
 import Spec
 
 final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
-    let waypointsPath = "api/waypoints/"
-    
     func testSuccessfulListRepositoriesWithUnverifiedModels() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         
