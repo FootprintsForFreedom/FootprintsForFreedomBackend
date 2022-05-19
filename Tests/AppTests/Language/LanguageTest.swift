@@ -15,7 +15,8 @@ extension LanguageTest {
     func createLanguage(
         languageCode: String = UUID().uuidString,
         name: String = UUID().uuidString,
-        isRTL: Bool = false
+        isRTL: Bool = false,
+        activated: Bool = true
     ) async throws -> LanguageModel {
         let highestPriority = try await LanguageModel
             .query(on: app.db)
@@ -23,7 +24,7 @@ extension LanguageTest {
             .sort(\.$priority, .descending)
             .first()?.priority ?? 0
         
-        let language = LanguageModel(languageCode: languageCode, name: name, isRTL: isRTL, priority: highestPriority + 1)
+        let language = LanguageModel(languageCode: languageCode, name: name, isRTL: isRTL, priority: activated ? highestPriority + 1 : nil)
         try await language.create(on: app.db)
         return language
     }
