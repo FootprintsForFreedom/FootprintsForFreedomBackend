@@ -63,14 +63,17 @@ struct LanguageApiController: UnpagedApiController {
         }
     }
     
+    var languageCodePathIdKey: String { "languageCode" }
+    var languageCodePathIdComponent: PathComponent { .init(stringLiteral: ":" + languageCodePathIdKey) }
+    
     func setupDetailRoutes(_ routes: RoutesBuilder) {
         let baseRoutes = getBaseRoutes(routes)
-        let existingModelRoutes = baseRoutes.grouped(":languageCode")
+        let existingModelRoutes = baseRoutes.grouped(languageCodePathIdComponent)
         existingModelRoutes.get(use: detailApi)
     }
     
     func languageCode(_ req: Request) throws -> String {
-        guard let languageCode = req.parameters.get("languageCode", as: String.self) else {
+        guard let languageCode = req.parameters.get(languageCodePathIdKey, as: String.self) else {
             throw Abort(.badRequest)
         }
         return languageCode
