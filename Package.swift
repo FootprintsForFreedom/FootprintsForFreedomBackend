@@ -20,6 +20,7 @@ let package = Package(
         .package(url: "https://github.com/binarybirds/liquid-local-driver", from: "1.3.0"),
         .package(url: "https://github.com/binarybirds/swift-html", from: "1.2.0"),
         .package(url: "https://github.com/binarybirds/spec", from: "1.2.0"),
+        .package(url: "https://github.com/JohnSundell/CollectionConcurrencyKit.git", from: "0.1.0"),
     ],
     targets: [
         .target(name: "diff_match_patch"),
@@ -39,6 +40,7 @@ let package = Package(
                 .product(name: "Liquid", package: "liquid"),
                 .product(name: "LiquidLocalDriver", package: "liquid-local-driver"),
                 .product(name: "SwiftHtml", package: "swift-html"),
+                .product(name: "CollectionConcurrencyKit", package: "CollectionConcurrencyKit"),
                 
                 .target(name: "DiffMatchPatch"),
                 .target(name: "AppApi")

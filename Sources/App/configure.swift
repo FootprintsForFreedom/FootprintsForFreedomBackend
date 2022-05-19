@@ -3,6 +3,7 @@ import FluentPostgresDriver
 import Vapor
 import Liquid
 @_exported import AppApi
+@_exported import CollectionConcurrencyKit
 
 // configures your application
 public func configure(_ app: Application) throws {
