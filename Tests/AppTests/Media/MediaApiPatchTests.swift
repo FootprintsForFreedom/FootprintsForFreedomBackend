@@ -16,17 +16,17 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
     private func getMediaPatchContent(
         title: String = "New Meidia Title \(UUID())",
         patchedTitle: String? = nil,
-        description: String = "New Media Description",
-        patchedDescription: String? = nil,
+        detailText: String = "New Media Description",
+        patchedDetailText: String? = nil,
         source: String = "New Media Source",
         patchedSource: String? = nil,
         languageId: UUID? = nil,
         waypointId: UUID? = nil,
         verified: Bool = false
-    ) async throws -> (mediaRepository: MediaRepositoryModel, createdMediaDescription: MediaDescriptionModel, createdMediaFile: MediaFileModel, patchContent: Media.Media.Patch) {
-        let (repository, description, file) = try await createNewMedia(
+    ) async throws -> (mediaRepository: MediaRepositoryModel, createdMediaDetail: MediaDetailModel, createdMediaFile: MediaFileModel, patchContent: Media.Media.Patch) {
+        let (repository, detail, file) = try await createNewMedia(
             title: title,
-            description: description,
+            detailText: detailText,
             source: source,
             verified: verified,
             waypointId: waypointId,
@@ -35,11 +35,11 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
         
         let patchContent = try Media.Media.Patch(
             title: patchedTitle,
-            description: patchedDescription,
+            detailText: patchedDetailText,
             source: patchedSource,
-            idForMediaToPatch: description.requireID()
+            idForMediaToPatch: detail.requireID()
         )
-        return (repository, description, file, patchContent)
+        return (repository, detail, file, patchContent)
     }
     
     struct TestFile {
@@ -50,8 +50,8 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
     
     func testSuccessfulPatchMediaTitle() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, description, file, patchContent) = try await getMediaPatchContent(patchedTitle: "The patched title", verified: true)
-        try await description.$language.load(on: app.db)
+        let (repository, detail, file, patchContent) = try await getMediaPatchContent(patchedTitle: "The patched title", verified: true)
+        try await detail.$language.load(on: app.db)
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
         
@@ -64,9 +64,9 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
             .expect(Media.Media.Detail.self) { content in
                 XCTAssertNotNil(content.id)
                 XCTAssertEqual(content.title, patchContent.title)
-                XCTAssertEqual(content.description, description.description)
-                XCTAssertEqual(content.source, description.source)
-                XCTAssertEqual(content.languageCode, description.language.languageCode)
+                XCTAssertEqual(content.detailText, detail.detailText)
+                XCTAssertEqual(content.source, detail.source)
+                XCTAssertEqual(content.languageCode, detail.language.languageCode)
                 XCTAssertEqual(content.group, file.group)
                 XCTAssertEqual(content.filePath, file.mediaDirectory)
                 XCTAssertNil(content.verified)
@@ -83,25 +83,25 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
         XCTAssertFalse(newMediaModel.verified)
     }
     
-    func testSuccessfulPatchMediaDescription() async throws {
+    func testSuccessfulPatchMediaDetail() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, description, file, patchContent) = try await getMediaPatchContent(patchedDescription: "The patched description", verified: true)
-        try await description.$language.load(on: app.db)
+        let (repository, detail, file, patchContent) = try await getMediaPatchContent(patchedDetailText: "The patched detailText", verified: true)
+        try await detail.$language.load(on: app.db)
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
         
         try app
-            .describe("Patch media title description return ok")
+            .describe("Patch media title detailText return ok")
             .patch(mediaPath.appending("\(repository.requireID().uuidString)/?\(query)"))
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
             .expect(Media.Media.Detail.self) { content in
                 XCTAssertNotNil(content.id)
-                XCTAssertEqual(content.title, description.title)
-                XCTAssertEqual(content.description, patchContent.description)
-                XCTAssertEqual(content.source, description.source)
-                XCTAssertEqual(content.languageCode, description.language.languageCode)
+                XCTAssertEqual(content.title, detail.title)
+                XCTAssertEqual(content.detailText, patchContent.detailText)
+                XCTAssertEqual(content.source, detail.source)
+                XCTAssertEqual(content.languageCode, detail.language.languageCode)
                 XCTAssertEqual(content.group, file.group)
                 XCTAssertEqual(content.filePath, file.mediaDirectory)
                 XCTAssertNil(content.verified)
@@ -121,8 +121,8 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
     
     func testSuccessfulPatchMediaSource() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, description, file, patchContent) = try await getMediaPatchContent(patchedSource: "The patched source", verified: true)
-        try await description.$language.load(on: app.db)
+        let (repository, detail, file, patchContent) = try await getMediaPatchContent(patchedSource: "The patched source", verified: true)
+        try await detail.$language.load(on: app.db)
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
         
@@ -134,10 +134,10 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
             .expect(.json)
             .expect(Media.Media.Detail.self) { content in
                 XCTAssertNotNil(content.id)
-                XCTAssertEqual(content.title, description.title)
-                XCTAssertEqual(content.description, description.description)
+                XCTAssertEqual(content.title, detail.title)
+                XCTAssertEqual(content.detailText, detail.detailText)
                 XCTAssertEqual(content.source, patchContent.source)
-                XCTAssertEqual(content.languageCode, description.language.languageCode)
+                XCTAssertEqual(content.languageCode, detail.language.languageCode)
                 XCTAssertEqual(content.group, file.group)
                 XCTAssertEqual(content.filePath, file.mediaDirectory)
                 XCTAssertNil(content.verified)
@@ -156,8 +156,8 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
     
     func testSuccessfulPatchMediaFile() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, description, file, patchContent) = try await getMediaPatchContent(verified: true)
-        try await description.$language.load(on: app.db)
+        let (repository, detail, file, patchContent) = try await getMediaPatchContent(verified: true)
+        try await detail.$language.load(on: app.db)
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
         let newFile = TestFile(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png")
@@ -173,10 +173,10 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
             .expect(.json)
             .expect(Media.Media.Detail.self) { content in
                 XCTAssertNotNil(content.id)
-                XCTAssertEqual(content.title, description.title)
-                XCTAssertEqual(content.description, description.description)
-                XCTAssertEqual(content.source, description.source)
-                XCTAssertEqual(content.languageCode, description.language.languageCode)
+                XCTAssertEqual(content.title, detail.title)
+                XCTAssertEqual(content.detailText, detail.detailText)
+                XCTAssertEqual(content.source, detail.source)
+                XCTAssertEqual(content.languageCode, detail.language.languageCode)
                 XCTAssertEqual(content.group, file.group)
                 XCTAssertNotEqual(content.filePath, file.mediaDirectory)
                 XCTAssertNil(content.verified)
@@ -221,14 +221,14 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
             .test()
     }
     
-    func testPatchMediaNeedsValidDescription() async throws {
+    func testPatchMediaNeedsValidDetailText() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, _, _, patchContent) = try await getMediaPatchContent(patchedDescription: "", verified: true)
+        let (repository, _, _, patchContent) = try await getMediaPatchContent(patchedDetailText: "", verified: true)
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
         
         try app
-            .describe("Patch media title should need valid description or abort")
+            .describe("Patch media title should need valid detailText or abort")
             .patch(mediaPath.appending("\(repository.requireID().uuidString)/?\(query)"))
             .bearerToken(token)
             .expect(.badRequest)
@@ -252,7 +252,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
     func testPatchMediaNeedsValidIdForMediaToPatch() async throws {
         let token = try await getToken(for: .user, verified: true)
         let (repository, _, _, _) = try await getMediaPatchContent(verified: true)
-        let patchContent = Media.Media.Patch(title: nil, description: nil, source: nil, idForMediaToPatch: UUID())
+        let patchContent = Media.Media.Patch(title: nil, detailText: nil, source: nil, idForMediaToPatch: UUID())
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
         

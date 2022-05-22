@@ -10,20 +10,20 @@ import XCTVapor
 import Fluent
 import Spec
 
-extension Waypoint.Waypoint.Create: Content { }
+extension Waypoint.Detail.Create: Content { }
 
 final class WaypointApiCreateTests: AppTestCase, WaypointTest {
     private func getWaypointCreateContent(
         title: String = "New Waypoint Title \(UUID())",
-        description: String = "New Waypoint Description",
+        detailText: String = "New Waypoint detail text",
         location: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
         languageCode: String? = nil
-    ) async throws -> Waypoint.Waypoint.Create {
+    ) async throws -> Waypoint.Detail.Create {
         var languageCode: String! = languageCode
         if languageCode == nil {
             languageCode = try await createLanguage().languageCode
         }
-        return .init(title: title, description: description, location: location, languageCode: languageCode)
+        return .init(title: title, detailText: detailText, location: location, languageCode: languageCode)
     }
     
     func testSuccessfulCreateWaypoint() async throws {
@@ -31,7 +31,7 @@ final class WaypointApiCreateTests: AppTestCase, WaypointTest {
         let newWaypoint = try await getWaypointCreateContent()
         
         // Get original waypoint count
-        let waypointCount = try await WaypointWaypointModel.query(on: app.db).count()
+        let waypointCount = try await WaypointDetailModel.query(on: app.db).count()
         var newRepositoryId: UUID!
         
         try app
@@ -41,11 +41,11 @@ final class WaypointApiCreateTests: AppTestCase, WaypointTest {
             .bearerToken(token)
             .expect(.created)
             .expect(.json)
-            .expect(Waypoint.Waypoint.Detail.self) { content in
+            .expect(Waypoint.Detail.Detail.self) { content in
                 XCTAssertNotNil(content.id)
                 newRepositoryId = content.id
                 XCTAssertEqual(content.title, newWaypoint.title)
-                XCTAssertEqual(content.description, newWaypoint.description)
+                XCTAssertEqual(content.detailText, newWaypoint.detailText)
                 XCTAssertEqual(content.location, newWaypoint.location)
                 XCTAssertEqual(content.languageCode, newWaypoint.languageCode)
                 XCTAssertNil(content.verified)
@@ -53,7 +53,7 @@ final class WaypointApiCreateTests: AppTestCase, WaypointTest {
             .test()
         
         // New waypoint count should be one more than original waypoint count
-        let newWaypointCount = try await WaypointWaypointModel.query(on: app.db).count()
+        let newWaypointCount = try await WaypointDetailModel.query(on: app.db).count()
         XCTAssertEqual(newWaypointCount, waypointCount + 1)
         
         // check the new model is unverified
@@ -75,7 +75,7 @@ final class WaypointApiCreateTests: AppTestCase, WaypointTest {
         let newWaypoint = try await getWaypointCreateContent()
         
         // Get original waypoint count
-        let waypointCount = try await WaypointWaypointModel.query(on: app.db).count()
+        let waypointCount = try await WaypointDetailModel.query(on: app.db).count()
         var newRepositoryId: UUID!
         
         try app
@@ -85,11 +85,11 @@ final class WaypointApiCreateTests: AppTestCase, WaypointTest {
             .bearerToken(moderatorToken)
             .expect(.created)
             .expect(.json)
-            .expect(Waypoint.Waypoint.Detail.self) { content in
+            .expect(Waypoint.Detail.Detail.self) { content in
                 XCTAssertNotNil(content.id)
                 newRepositoryId = content.id
                 XCTAssertEqual(content.title, newWaypoint.title)
-                XCTAssertEqual(content.description, newWaypoint.description)
+                XCTAssertEqual(content.detailText, newWaypoint.detailText)
                 XCTAssertEqual(content.location, newWaypoint.location)
                 XCTAssertEqual(content.languageCode, newWaypoint.languageCode)
                 XCTAssertNil(content.verified)
@@ -97,7 +97,7 @@ final class WaypointApiCreateTests: AppTestCase, WaypointTest {
             .test()
         
         // New waypoint count should be one more than original waypoint count
-        let newWaypointCount = try await WaypointWaypointModel.query(on: app.db).count()
+        let newWaypointCount = try await WaypointDetailModel.query(on: app.db).count()
         XCTAssertEqual(newWaypointCount, waypointCount + 1)
         
         // check the new model is unverified
@@ -151,12 +151,12 @@ final class WaypointApiCreateTests: AppTestCase, WaypointTest {
             .test()
     }
     
-    func testCreateWaypointNeedsValidDescription() async throws {
+    func testCreateWaypointNeedsValidDetailText() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let newWaypoint = try await getWaypointCreateContent(description: "")
+        let newWaypoint = try await getWaypointCreateContent(detailText: "")
         
         try app
-            .describe("Create waypoint with empty description should fail")
+            .describe("Create waypoint with empty detailText should fail")
             .post(waypointsPath)
             .body(newWaypoint)
             .bearerToken(token)
@@ -189,10 +189,10 @@ final class WaypointApiCreateTests: AppTestCase, WaypointTest {
     func testCreateWaypointNeedsLocation() async throws {
         struct Create: Content {
             let title: String
-            let description: String
+            let detailText: String
         }
         let token = try await getToken(for: .user, verified: true)
-        let newWaypoint = Create(title: "New Title", description: "New Description")
+        let newWaypoint = Create(title: "New Title", detailText: "New detail text")
         
         try app
             .describe("Create waypoint without location should fail")

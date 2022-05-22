@@ -28,20 +28,20 @@ public extension Media.Repository {
     struct ListUnverified: Codable {
         public let modelId: UUID
         public let title: String
-        public let description: String
+        public let detailText: String
         public let languageCode: String
         
-        public init(modelId: UUID, title: String, description: String, languageCode: String) {
+        public init(modelId: UUID, title: String, detailText: String, languageCode: String) {
             self.modelId = modelId
             self.title = title
-            self.description = description
+            self.detailText = detailText
             self.languageCode = languageCode
         }
     }
     
     struct Changes: Codable {
         public let titleDiff: [Diff]
-        public let descriptionDiff: [Diff]
+        public let detailTextDiff: [Diff]
         public let sourceDiff: [Diff]
         public let fromGroup: Media.Media.Group
         public let toGroup: Media.Media.Group
@@ -50,9 +50,9 @@ public extension Media.Repository {
         public let fromUser: User.Account.Detail
         public let toUser: User.Account.Detail
         
-        public init(titleDiff: [Diff], descriptionDiff: [Diff], sourceDiff: [Diff], fromGroup: Media.Media.Group, toGroup: Media.Media.Group, fromFilePath: String, toFilePath: String, fromUser: User.Account.Detail, toUser: User.Account.Detail) {
+        public init(titleDiff: [Diff], detailTextDiff: [Diff], sourceDiff: [Diff], fromGroup: Media.Media.Group, toGroup: Media.Media.Group, fromFilePath: String, toFilePath: String, fromUser: User.Account.Detail, toUser: User.Account.Detail) {
             self.titleDiff = titleDiff
-            self.descriptionDiff = descriptionDiff
+            self.detailTextDiff = detailTextDiff
             self.sourceDiff = sourceDiff
             self.fromGroup = fromGroup
             self.toGroup = toGroup

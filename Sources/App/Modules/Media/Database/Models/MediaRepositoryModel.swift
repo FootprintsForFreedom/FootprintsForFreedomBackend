@@ -23,7 +23,7 @@ final class MediaRepositoryModel: DatabaseModelInterface {
     }
     
     @ID() var id: UUID?
-    @Children(for: \.$mediaRepository) var media: [MediaDescriptionModel]
+    @Children(for: \.$mediaRepository) var media: [MediaDetailModel]
     
     @Parent(key: FieldKeys.v1.waypointId) var waypoint: WaypointRepositoryModel
     
@@ -42,10 +42,10 @@ extension MediaRepositoryModel {
         needsToBeVerified: Bool,
         on db: Database,
         sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
-    ) async throws -> MediaDescriptionModel? {
+    ) async throws -> MediaDetailModel? {
         var query = self.$media
             .query(on: db)
-            .join(LanguageModel.self, on: \MediaDescriptionModel.$language.$id == \LanguageModel.$id)
+            .join(LanguageModel.self, on: \MediaDetailModel.$language.$id == \LanguageModel.$id)
             .filter(LanguageModel.self, \.$languageCode == languageCode)
             .filter(LanguageModel.self, \.$priority != nil)
         if needsToBeVerified {
@@ -61,7 +61,7 @@ extension MediaRepositoryModel {
         needsToBeVerified: Bool,
         on db: Database,
         sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
-    ) async throws -> MediaDescriptionModel? {
+    ) async throws -> MediaDetailModel? {
         for languageCode in languageCodesByPriority {
             if let waypoint = try await media(for: languageCode, needsToBeVerified: needsToBeVerified, on: db, sort: sortDirection){
                 return waypoint

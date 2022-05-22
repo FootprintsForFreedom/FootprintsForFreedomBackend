@@ -24,7 +24,7 @@ enum MediaMigrations {
                 .field(MediaRepositoryModel.FieldKeys.v1.waypointId, .uuid, .required)
                 .foreignKey(MediaRepositoryModel.FieldKeys.v1.waypointId, references: WaypointRepositoryModel.schema, .id, onDelete: .cascade)
             
-                .field(MediaDescriptionModel.FieldKeys.v1.createdAt, .datetime, .required)
+                .field(MediaDetailModel.FieldKeys.v1.createdAt, .datetime, .required)
                 .field(WaypointLocationModel.FieldKeys.v1.updatedAt, .datetime, .required)
                 .field(WaypointLocationModel.FieldKeys.v1.deletedAt, .datetime)
             
@@ -40,32 +40,32 @@ enum MediaMigrations {
                 .field(MediaFileModel.FieldKeys.v1.userId, .uuid, .required)
                 .foreignKey(MediaFileModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
             
-                .field(MediaDescriptionModel.FieldKeys.v1.createdAt, .datetime, .required)
+                .field(MediaDetailModel.FieldKeys.v1.createdAt, .datetime, .required)
                 .field(WaypointLocationModel.FieldKeys.v1.updatedAt, .datetime, .required)
                 .field(WaypointLocationModel.FieldKeys.v1.deletedAt, .datetime)
             
                 .create()
             
-            try await db.schema(MediaDescriptionModel.schema)
+            try await db.schema(MediaDetailModel.schema)
                 .id()
-                .field(MediaDescriptionModel.FieldKeys.v1.verified, .bool, .required)
-                .field(MediaDescriptionModel.FieldKeys.v1.title, .string, .required)
-                .field(MediaDescriptionModel.FieldKeys.v1.description, .string, .required)
-                .field(MediaDescriptionModel.FieldKeys.v1.source, .string, .required)
+                .field(MediaDetailModel.FieldKeys.v1.verified, .bool, .required)
+                .field(MediaDetailModel.FieldKeys.v1.title, .string, .required)
+                .field(MediaDetailModel.FieldKeys.v1.detailText, .string, .required)
+                .field(MediaDetailModel.FieldKeys.v1.source, .string, .required)
             
-                .field(MediaDescriptionModel.FieldKeys.v1.languageId, .uuid, .required)
-                .foreignKey(MediaDescriptionModel.FieldKeys.v1.languageId, references: LanguageModel.schema, .id)
+                .field(MediaDetailModel.FieldKeys.v1.languageId, .uuid, .required)
+                .foreignKey(MediaDetailModel.FieldKeys.v1.languageId, references: LanguageModel.schema, .id)
             
-                .field(MediaDescriptionModel.FieldKeys.v1.mediaRepositoryId, .uuid, .required)
-                .foreignKey(MediaDescriptionModel.FieldKeys.v1.mediaRepositoryId, references: MediaRepositoryModel.schema, .id, onDelete: .cascade)
+                .field(MediaDetailModel.FieldKeys.v1.mediaRepositoryId, .uuid, .required)
+                .foreignKey(MediaDetailModel.FieldKeys.v1.mediaRepositoryId, references: MediaRepositoryModel.schema, .id, onDelete: .cascade)
             
-                .field(MediaDescriptionModel.FieldKeys.v1.mediaId, .uuid, .required)
-                .foreignKey(MediaDescriptionModel.FieldKeys.v1.mediaId, references: MediaFileModel.schema, .id, onDelete: .cascade)
+                .field(MediaDetailModel.FieldKeys.v1.mediaId, .uuid, .required)
+                .foreignKey(MediaDetailModel.FieldKeys.v1.mediaId, references: MediaFileModel.schema, .id, onDelete: .cascade)
             
-                .field(MediaDescriptionModel.FieldKeys.v1.userId, .uuid, .required)
-                .foreignKey(MediaDescriptionModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
+                .field(MediaDetailModel.FieldKeys.v1.userId, .uuid, .required)
+                .foreignKey(MediaDetailModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
             
-                .field(MediaDescriptionModel.FieldKeys.v1.createdAt, .datetime, .required)
+                .field(MediaDetailModel.FieldKeys.v1.createdAt, .datetime, .required)
                 .field(WaypointLocationModel.FieldKeys.v1.updatedAt, .datetime, .required)
                 .field(WaypointLocationModel.FieldKeys.v1.deletedAt, .datetime)
             
@@ -73,7 +73,7 @@ enum MediaMigrations {
         }
         
         func revert(on db: Database) async throws {
-            try await db.schema(MediaDescriptionModel.schema).delete()
+            try await db.schema(MediaDetailModel.schema).delete()
             try await db.schema(MediaFileModel.schema).delete()
             try await db.schema(MediaRepositoryModel.schema).delete()
             try await db.enum(Media.Media.Group.pathKey).delete()

@@ -10,32 +10,32 @@ import XCTVapor
 import Fluent
 import Spec
 
-extension Waypoint.Waypoint.Update: Content { }
+extension Waypoint.Detail.Update: Content { }
 
 final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
     private func getWaypointUpdateContent(
         title: String = "New Waypoint Title",
         updatedTitle: String = "Updated Title for Waypoint",
-        description: String = "New Waypoint Description",
-        updatedDescription: String = "Updated description for Waypoint",
+        detailText: String = "New Waypoint detail text",
+        updatedDetailText: String = "Updated detailText for Waypoint",
         location: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
         updatedLocation: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
         languageId: UUID? = nil,
         updateLangugageCode: String = "de",
         verified: Bool = false,
         userId: UUID? = nil
-    ) async throws -> (repository: WaypointRepositoryModel, createdLocation: WaypointLocationModel, updateContent: Waypoint.Waypoint.Update) {
+    ) async throws -> (repository: WaypointRepositoryModel, createdLocation: WaypointLocationModel, updateContent: Waypoint.Detail.Update) {
         let (waypointRepository, _, createdLocation) = try await createNewWaypoint(
             title: title,
-            description: description,
+            detailText: detailText,
             location: location,
             verified: verified,
             languageId: languageId,
             userId: userId
         )
-        let updateContent = Waypoint.Waypoint.Update(
+        let updateContent = Waypoint.Detail.Update(
             title: updatedTitle,
-            description: updatedDescription,
+            detailText: updatedDetailText,
             languageCode: updateLangugageCode
         )
         return (waypointRepository, createdLocation, updateContent)
@@ -56,10 +56,10 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
-            .expect(Waypoint.Waypoint.Detail.self) { content in
+            .expect(Waypoint.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, waypointRepository.id)
                 XCTAssertEqual(content.title, updateContent.title)
-                XCTAssertEqual(content.description, updateContent.description)
+                XCTAssertEqual(content.detailText, updateContent.detailText)
                 XCTAssertEqual(content.location, createdLocation.location)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
                 XCTAssertNil(content.verified)
@@ -87,9 +87,9 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
         let (waypointRepository, _, createdLocation) = try await createNewWaypoint()
         let secondLanguage = try await createLanguage(languageCode: UUID().uuidString, name: UUID().uuidString, isRTL: false)
         
-        let updateContent = Waypoint.Waypoint.Update(
+        let updateContent = Waypoint.Detail.Update(
             title: "Language 2",
-            description: "Description for additional language",
+            detailText: "Detail text for additional language",
             languageCode: secondLanguage.languageCode
         )
         
@@ -100,10 +100,10 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
-            .expect(Waypoint.Waypoint.Detail.self) { content in
+            .expect(Waypoint.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, waypointRepository.id)
                 XCTAssertEqual(content.title, updateContent.title)
-                XCTAssertEqual(content.description, updateContent.description)
+                XCTAssertEqual(content.detailText, updateContent.detailText)
                 XCTAssertEqual(content.location, createdLocation.location)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
                 XCTAssertNil(content.verified)
@@ -157,12 +157,12 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
             .test()
     }
     
-    func testUpdateWaypointNeedsValidDescription() async throws {
+    func testUpdateWaypointNeedsValidDetailText() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (waypointRepository, _, updateContent) = try await getWaypointUpdateContent(updatedDescription: "")
+        let (waypointRepository, _, updateContent) = try await getWaypointUpdateContent(updatedDetailText: "")
         
         try app
-            .describe("Update waypoint should fail with empty description")
+            .describe("Update waypoint should fail with empty detailText")
             .put(waypointsPath.appending(waypointRepository.requireID().uuidString))
             .body(updateContent)
             .bearerToken(token)

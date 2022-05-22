@@ -16,12 +16,12 @@ extension WaypointTest {
     
     func createNewWaypoint(
         title: String = "New Waypoint Title",
-        description: String = "New Waypoint Description",
+        detailText: String = "New Waypoint detail text",
         location: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
         verified: Bool = false,
         languageId: UUID? = nil,
         userId: UUID? = nil
-    ) async throws -> (repository: WaypointRepositoryModel, model: WaypointWaypointModel, location: WaypointLocationModel) {
+    ) async throws -> (repository: WaypointRepositoryModel, model: WaypointDetailModel, location: WaypointLocationModel) {
         var userId: UUID! = userId
         if userId == nil {
             userId = try await getUser(role: .user).requireID()
@@ -37,9 +37,9 @@ extension WaypointTest {
             }
         }()
         
-        let waypointModel = try await WaypointWaypointModel.createWith(
+        let waypointModel = try await WaypointDetailModel.createWith(
             title: title,
-            description: description,
+            detailText: detailText,
             repositoryId: waypointRepository.requireID(),
             languageId: languageId,
             userId: userId,
@@ -58,10 +58,10 @@ extension WaypointTest {
     }
 }
 
-extension WaypointWaypointModel {
+extension WaypointDetailModel {
     static func createWith(
         title: String,
-        description: String,
+        detailText: String,
         repositoryId: UUID,
         languageId: UUID,
         userId: UUID,
@@ -71,7 +71,7 @@ extension WaypointWaypointModel {
         let waypoint = self.init(
             verified: verified,
             title: title,
-            description: description,
+            detailText: detailText,
             languageId: languageId,
             repositoryId: repositoryId,
             userId: userId

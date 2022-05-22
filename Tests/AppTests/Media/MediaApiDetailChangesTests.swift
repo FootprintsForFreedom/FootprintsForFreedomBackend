@@ -17,17 +17,17 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
         let user = try await getUser(role: .user)
         let language = try await createLanguage()
         let (waypointRepository, _, _) = try await createNewWaypoint(languageId: language.requireID())
-        let (mediaRepository, mediaDescription, mediaFile) = try await createNewMedia(waypointId: waypointRepository.requireID(), languageId: language.requireID())
+        let (mediaRepository, mediaDetail, mediaFile) = try await createNewMedia(waypointId: waypointRepository.requireID(), languageId: language.requireID())
         let secondMediaFile = try await MediaFileModel.createWith(
             mediaDirectory: UUID().uuidString,
             group: .video,
             userId: user.requireID(),
             on: app.db
         )
-        let secondMediaDescription = try await MediaDescriptionModel.createWith(
+        let secondMediaDetail = try await MediaDetailModel.createWith(
             verified: false,
             title: "Another different title",
-            description: "This is a mew description",
+            detailText: "This is a mew detailText",
             source: "Some other source",
             languageId: language.requireID(),
             repositoryId: mediaRepository.requireID(),
@@ -35,18 +35,18 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
             userId: user.requireID(),
             on: app.db
         )
-        try await mediaDescription.$user.load(on: app.db)
-        try await secondMediaDescription.$user.load(on: app.db)
+        try await mediaDetail.$user.load(on: app.db)
+        try await secondMediaDetail.$user.load(on: app.db)
         
         try app
             .describe("Detail changes as moderator should be succesful and return ok and the changes")
-            .get(mediaPath.appending("\(mediaRepository.requireID())/changes/?from=\(mediaDescription.requireID())&to=\(secondMediaDescription.requireID())"))
+            .get(mediaPath.appending("\(mediaRepository.requireID())/changes/?from=\(mediaDetail.requireID())&to=\(secondMediaDetail.requireID())"))
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
             .expect(Media.Repository.Changes.self) { content in
-                XCTAssertEqual(content.fromUser.id, mediaDescription.user.id)
-                XCTAssertEqual(content.toUser.id, secondMediaDescription.user.id)
+                XCTAssertEqual(content.fromUser.id, mediaDetail.user.id)
+                XCTAssertEqual(content.toUser.id, secondMediaDetail.user.id)
                 XCTAssertEqual(content.fromGroup, mediaFile.group)
                 XCTAssertEqual(content.toGroup, secondMediaFile.group)
                 XCTAssertEqual(content.fromFilePath, mediaFile.mediaDirectory)
@@ -61,11 +61,11 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
         let user = try await getUser(role: .user)
         let language = try await createLanguage()
         let (waypointRepository, _, _) = try await createNewWaypoint(languageId: language.requireID())
-        let (mediaRepository, mediaDescription, mediaFile) = try await createNewMedia(waypointId: waypointRepository.requireID(), languageId: language.requireID())
-        let secondMediaDescription = try await MediaDescriptionModel.createWith(
+        let (mediaRepository, mediaDetail, mediaFile) = try await createNewMedia(waypointId: waypointRepository.requireID(), languageId: language.requireID())
+        let secondMediaDetail = try await MediaDetailModel.createWith(
             verified: false,
             title: "Another different title",
-            description: "This is a mew description",
+            detailText: "This is a mew detailText",
             source: "Some other source",
             languageId: language.requireID(),
             repositoryId: mediaRepository.requireID(),
@@ -76,7 +76,7 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
         
         try app
             .describe("Detail changes as moderator should be succesful and return ok and the changes")
-            .get(mediaPath.appending("\(mediaRepository.requireID())/changes/?from=\(mediaDescription.requireID())&to=\(secondMediaDescription.requireID())"))
+            .get(mediaPath.appending("\(mediaRepository.requireID())/changes/?from=\(mediaDetail.requireID())&to=\(secondMediaDetail.requireID())"))
             .bearerToken(userToken)
             .expect(.forbidden)
             .test()
@@ -86,11 +86,11 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
         let user = try await getUser(role: .user)
         let language = try await createLanguage()
         let (waypointRepository, _, _) = try await createNewWaypoint(languageId: language.requireID())
-        let (mediaRepository, mediaDescription, mediaFile) = try await createNewMedia(waypointId: waypointRepository.requireID(), languageId: language.requireID())
-        let secondMediaDescription = try await MediaDescriptionModel.createWith(
+        let (mediaRepository, mediaDetail, mediaFile) = try await createNewMedia(waypointId: waypointRepository.requireID(), languageId: language.requireID())
+        let secondMediaDetail = try await MediaDetailModel.createWith(
             verified: false,
             title: "Another different title",
-            description: "This is a mew description",
+            detailText: "This is a mew detailText",
             source: "Some other source",
             languageId: language.requireID(),
             repositoryId: mediaRepository.requireID(),
@@ -101,18 +101,18 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
         
         try app
             .describe("Detail changes as moderator should be succesful and return ok and the changes")
-            .get(mediaPath.appending("\(mediaRepository.requireID())/changes/?from=\(mediaDescription.requireID())&to=\(secondMediaDescription.requireID())"))
+            .get(mediaPath.appending("\(mediaRepository.requireID())/changes/?from=\(mediaDetail.requireID())&to=\(secondMediaDetail.requireID())"))
             .expect(.unauthorized)
             .test()
     }
     
     func testDetailChangesMustContainFromId() async throws {
         let moderatorToken = try await getToken(for: .admin)
-        let (repository, description, _) = try await createNewMedia()
+        let (repository, detail, _) = try await createNewMedia()
         
         try  app
             .describe("Detail changes request must contain from id field")
-            .get(mediaPath.appending("\(repository.requireID())/changes/?to=\(description.requireID())"))
+            .get(mediaPath.appending("\(repository.requireID())/changes/?to=\(detail.requireID())"))
             .bearerToken(moderatorToken)
             .expect(.badRequest)
             .test()
@@ -120,11 +120,11 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
     
     func testDetailChangesMustContainToId() async throws {
         let moderatorToken = try await getToken(for: .admin)
-        let (repository, description, _) = try await createNewMedia()
+        let (repository, detail, _) = try await createNewMedia()
         
         try  app
             .describe("Detail changes request must contain to id field")
-            .get(mediaPath.appending("\(repository.requireID())/changes/?from=\(description.requireID())"))
+            .get(mediaPath.appending("\(repository.requireID())/changes/?from=\(detail.requireID())"))
             .bearerToken(moderatorToken)
             .expect(.badRequest)
             .test()
@@ -135,12 +135,12 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
         
         let language =  try await createLanguage()
         let (waypointRepository, _, _) = try await createNewWaypoint(languageId: language.requireID())
-        let (_, mediaDescription, _) = try await createNewMedia(waypointId: waypointRepository.requireID(), languageId: language.requireID())
-        let (mediaRepository2, mediaDescription2, _) = try await createNewMedia(languageId: language.requireID())
+        let (_, mediaDetail, _) = try await createNewMedia(waypointId: waypointRepository.requireID(), languageId: language.requireID())
+        let (mediaRepository2, mediaDetail2, _) = try await createNewMedia(languageId: language.requireID())
         
         try app
             .describe("Detail changes should fail when from model is from other repository")
-            .get(mediaPath.appending("\(mediaRepository2.requireID())/changes/?from=\(mediaDescription.requireID())&to=\(mediaDescription2.requireID())"))
+            .get(mediaPath.appending("\(mediaRepository2.requireID())/changes/?from=\(mediaDetail.requireID())&to=\(mediaDetail2.requireID())"))
             .bearerToken(moderatorToken)
             .expect(.notFound)
             .test()
@@ -151,12 +151,12 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
         
         let language =  try await createLanguage()
         let (waypointRepository, _, _) = try await createNewWaypoint(languageId: language.requireID())
-        let (mediaRepository, mediaDescription, _) = try await createNewMedia(waypointId: waypointRepository.requireID(), languageId: language.requireID())
-        let (_, mediaDescription2, _) = try await createNewMedia(languageId: language.requireID())
+        let (mediaRepository, mediaDetail, _) = try await createNewMedia(waypointId: waypointRepository.requireID(), languageId: language.requireID())
+        let (_, mediaDetail2, _) = try await createNewMedia(languageId: language.requireID())
         
         try app
             .describe("Detail changes should fail when to model is from other repository")
-            .get(mediaPath.appending("\(mediaRepository.requireID())/changes/?from=\(mediaDescription.requireID())&to=\(mediaDescription2.requireID())"))
+            .get(mediaPath.appending("\(mediaRepository.requireID())/changes/?from=\(mediaDetail.requireID())&to=\(mediaDetail2.requireID())"))
             .bearerToken(moderatorToken)
             .expect(.notFound)
             .test()
@@ -169,11 +169,11 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
         let language =  try await createLanguage()
         let secondLanguage =  try await createLanguage()
         let (waypointRepository, _, _) = try await createNewWaypoint(languageId: language.requireID())
-        let (mediaRepository, mediaDescription, mediaFile) = try await createNewMedia(waypointId: waypointRepository.requireID(), languageId: language.requireID())
-        let secondMediaDescription = try await MediaDescriptionModel.createWith(
+        let (mediaRepository, mediaDetail, mediaFile) = try await createNewMedia(waypointId: waypointRepository.requireID(), languageId: language.requireID())
+        let secondMediaDetail = try await MediaDetailModel.createWith(
             verified: false,
             title: "Another different title",
-            description: "This is a mew description",
+            detailText: "This is a mew detailText",
             source: "Some other source",
             languageId: secondLanguage.requireID(),
             repositoryId: mediaRepository.requireID(),
@@ -184,7 +184,7 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
         
         try app
             .describe("Detail changes should fail when models have different languages")
-            .get(mediaPath.appending("\(mediaRepository.requireID())/changes/?from=\(mediaDescription.requireID())&to=\(secondMediaDescription.requireID())"))
+            .get(mediaPath.appending("\(mediaRepository.requireID())/changes/?from=\(mediaDetail.requireID())&to=\(secondMediaDetail.requireID())"))
             .bearerToken(moderatorToken)
             .expect(.badRequest)
             .test()

@@ -16,14 +16,14 @@ extension MediaTest {
     
     func createNewMedia(
         title: String = "New Media Title \(UUID())",
-        description: String = "New Media Desscription",
+        detailText: String = "New Media Desscription",
         source: String = "New Media Source",
         group: Media.Media.Group = .image,
         verified: Bool = false,
         waypointId: UUID? = nil,
         languageId: UUID? = nil,
         userId: UUID? = nil
-    ) async throws -> (repository: MediaRepositoryModel, description: MediaDescriptionModel, file: MediaFileModel) {
+    ) async throws -> (repository: MediaRepositoryModel, detail: MediaDetailModel, file: MediaFileModel) {
         var userId: UUID! = userId
         if userId == nil {
             userId = try await getUser(role: .user).requireID()
@@ -56,10 +56,10 @@ extension MediaTest {
             on: app.db
         )
         
-        let mediaDescription = try await MediaDescriptionModel.createWith(
+        let mediaDetail = try await MediaDetailModel.createWith(
             verified: verified,
             title: title,
-            description: description,
+            detailText: detailText,
             source: source,
             languageId: languageId,
             repositoryId: mediaRepository.requireID(),
@@ -68,7 +68,7 @@ extension MediaTest {
             on: app.db
         )
         
-        return (mediaRepository, mediaDescription, mediaFile)
+        return (mediaRepository, mediaDetail, mediaFile)
     }
 }
 
@@ -89,11 +89,11 @@ extension MediaFileModel {
     }
 }
 
-extension MediaDescriptionModel {
+extension MediaDetailModel {
     static func createWith(
         verified: Bool,
         title: String,
-        description: String,
+        detailText: String,
         source: String,
         languageId: UUID,
         repositoryId: UUID,
@@ -101,17 +101,17 @@ extension MediaDescriptionModel {
         userId: UUID,
         on db: Database
     ) async throws -> Self {
-        let mediaDescription = self.init(
+        let mediaDetail = self.init(
             verified: verified,
             title: title,
-            description: description,
+            detailText: detailText,
             source: source,
             languageId: languageId,
             repositoryId: repositoryId,
             fileId: fileId,
             userId: userId
         )
-        try await mediaDescription.create(on: db)
-        return mediaDescription
+        try await mediaDetail.create(on: db)
+        return mediaDetail
     }
 }

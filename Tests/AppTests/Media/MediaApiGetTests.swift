@@ -24,10 +24,10 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
         let (verifiedMediaRepository, createdVerifiedMedia, _) = try await createNewMedia(verified: true, languageId: language.requireID(), userId: userId)
         try await createdVerifiedMedia.$language.load(on: app.db)
         // Create a second not verified model for the verified media that should not be returned
-        let _ = try await MediaDescriptionModel.createWith(
+        let _ = try await MediaDetailModel.createWith(
             verified: false,
             title: "Not visible",
-            description: "Not visible",
+            detailText: "Not visible",
             source: "Any source",
             languageId: language.requireID(),
             repositoryId: verifiedMediaRepository.requireID(),
@@ -41,10 +41,10 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
         // Create a reposiotry that is available in both languages
         let (verifiedMediaRepositoryWithMultipleLanguages, _, _) = try await createNewMedia(verified: true, languageId: language2.requireID(), userId: userId)
         // Create a second model in the other language
-        let createdVerifiedMediaInLanguage1 = try await MediaDescriptionModel.createWith(
+        let createdVerifiedMediaInLanguage1 = try await MediaDetailModel.createWith(
             verified: true,
             title: "Language 2",
-            description: "Second description",
+            detailText: "Second detailText",
             source: "Some source",
             languageId: language.requireID(),
             repositoryId: verifiedMediaRepositoryWithMultipleLanguages.requireID(),
@@ -110,10 +110,10 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
         // Create a verified media
         let (verifiedMediaRepository, createdVerifiedMedia, _) = try await createNewMedia(verified: true, languageId: language.requireID(), userId: userId)
         // Create a second not verified model for the verified media that should not be returned
-        let _ = try await MediaDescriptionModel.createWith(
+        let _ = try await MediaDetailModel.createWith(
             verified: false,
             title: "Not visible",
-            description: "Not visible",
+            detailText: "Not visible",
             source: "Any source",
             languageId: language.requireID(),
             repositoryId: verifiedMediaRepository.requireID(),
@@ -127,10 +127,10 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
         // Create a reposiotry that is available in both languages
         let (verifiedMediaRepositoryWithMultipleLanguages, _, _) = try await createNewMedia(verified: true, languageId: language2.requireID(), userId: userId)
         // Create a second model in the other language
-        let createdVerifiedMediaInLanguage1 = try await MediaDescriptionModel.createWith(
+        let createdVerifiedMediaInLanguage1 = try await MediaDetailModel.createWith(
             verified: true,
             title: "Language 2",
-            description: "Second description",
+            detailText: "Second detailText",
             source: "Some source",
             languageId: language.requireID(),
             repositoryId: verifiedMediaRepositoryWithMultipleLanguages.requireID(),
@@ -228,12 +228,12 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
             .expect(Media.Media.Detail.self) { content in
                 XCTAssertEqual(content.id, mediaRepository.id)
                 XCTAssertEqual(content.title, media.title)
-                XCTAssertEqual(content.description, media.description)
+                XCTAssertEqual(content.detailText, media.detailText)
                 XCTAssertEqual(content.languageCode, media.language.languageCode)
                 XCTAssertEqual(content.group, file.group)
                 XCTAssertEqual(content.filePath, file.mediaDirectory)
                 XCTAssertNil(content.verified)
-                XCTAssertNil(content.descriptionId)
+                XCTAssertNil(content.detailId)
             }
             .test()
     }
@@ -254,14 +254,14 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
             .expect(Media.Media.Detail.self) { content in
                 XCTAssertEqual(content.id, mediaRepository.id)
                 XCTAssertEqual(content.title, media.title)
-                XCTAssertEqual(content.description, media.description)
+                XCTAssertEqual(content.detailText, media.detailText)
                 XCTAssertEqual(content.languageCode, media.language.languageCode)
                 XCTAssertEqual(content.group, file.group)
                 XCTAssertEqual(content.filePath, file.mediaDirectory)
                 XCTAssertNotNil(content.verified)
                 XCTAssertEqual(content.verified, media.verified)
-                XCTAssertNotNil(content.descriptionId)
-                XCTAssertEqual(content.descriptionId, media.id!)
+                XCTAssertNotNil(content.detailId)
+                XCTAssertEqual(content.detailId, media.id!)
             }
             .test()
     }

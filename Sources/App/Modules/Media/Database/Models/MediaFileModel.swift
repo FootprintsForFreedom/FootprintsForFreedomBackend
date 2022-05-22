@@ -25,7 +25,7 @@ final class MediaFileModel: DatabaseModelInterface {
     @ID() var id: UUID?
     @Field(key: FieldKeys.v1.mediaDirectory) var mediaDirectory: String
     
-    @Children(for: \.$media) var descriptions: [MediaDescriptionModel]
+    @Children(for: \.$media) var detailText: [MediaDetailModel]
     
     @Enum(key: FieldKeys.v1.group) var group: Media.Media.Group
     

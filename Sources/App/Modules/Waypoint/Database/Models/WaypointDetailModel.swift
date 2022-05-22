@@ -1,5 +1,5 @@
 //
-//  WaypointWaypointModel.swift
+//  WaypointDetailModel.swift
 //  
 //
 //  Created by niklhut on 09.02.22.
@@ -8,14 +8,14 @@
 import Vapor
 import Fluent
 
-final class WaypointWaypointModel: DatabaseModelInterface {
+final class WaypointDetailModel: DatabaseModelInterface {
     typealias Module = WaypointModule
     
     struct FieldKeys {
         struct v1 {
             static var verified: FieldKey { "verified" }
             static var title: FieldKey { "title" }
-            static var description: FieldKey { "description" }
+            static var detailText: FieldKey { "detailText" }
             static var languageId: FieldKey { "language_id" }
             static var repositoryId: FieldKey { "repository_id" }
             static var userId: FieldKey { "user_id" }
@@ -28,7 +28,7 @@ final class WaypointWaypointModel: DatabaseModelInterface {
     @ID() var id: UUID?
     @Field(key: FieldKeys.v1.verified) var verified: Bool
     @Field(key: FieldKeys.v1.title) var title: String
-    @Field(key: FieldKeys.v1.description) var description: String
+    @Field(key: FieldKeys.v1.detailText) var detailText: String
     
     // TODO: likes as sibling?
     
@@ -49,7 +49,7 @@ final class WaypointWaypointModel: DatabaseModelInterface {
         id: UUID? = nil,
         verified: Bool = false,
         title: String,
-        description: String,
+        detailText: String,
         languageId: UUID,
         repositoryId: UUID,
         userId: UUID
@@ -57,15 +57,15 @@ final class WaypointWaypointModel: DatabaseModelInterface {
         self.id = id
         self.verified = verified
         self.title = title
-        self.description = description
+        self.detailText = detailText
         self.$language.id = languageId
         self.$repository.id = repositoryId
         self.$user.id = userId
     }
 }
 
-extension WaypointWaypointModel: Equatable {
-    static func == (lhs: WaypointWaypointModel, rhs: WaypointWaypointModel) -> Bool {
+extension WaypointDetailModel: Equatable {
+    static func == (lhs: WaypointDetailModel, rhs: WaypointDetailModel) -> Bool {
         lhs.id == rhs.id
     }
 }

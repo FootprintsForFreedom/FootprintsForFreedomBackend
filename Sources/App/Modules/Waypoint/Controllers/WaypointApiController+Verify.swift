@@ -28,13 +28,13 @@ extension WaypointApiController {
         let detailChangesRequest = try req.query.decode(Waypoint.Repository.DetailChangesRequest.self)
         
         guard
-            let model1 = try await WaypointWaypointModel
+            let model1 = try await WaypointDetailModel
                 .query(on: req.db)
                 .filter(\.$repository.$id == repository.requireID())
                 .filter(\._$id == detailChangesRequest.from)
                 .with(\.$user)
                 .first(),
-            let model2 = try await WaypointWaypointModel
+            let model2 = try await WaypointDetailModel
                 .query(on: req.db)
                 .filter(\.$repository.$id == repository.requireID())
                 .filter(\._$id == detailChangesRequest.to)
@@ -52,7 +52,7 @@ extension WaypointApiController {
         let titleDiff = computeDiff(model1.title, model2.title)
             .cleaningUpSemantics()
             .converted()
-        let descriptionDiff = computeDiff(model1.description, model2.description)
+        let detailTextDiff = computeDiff(model1.detailText, model2.detailText)
             .cleaningUpSemantics()
             .converted()
         
@@ -60,27 +60,27 @@ extension WaypointApiController {
         let model2User = try User.Account.Detail.publicDetail(id: model2.user.requireID(), name: model2.user.name, school: model2.user.school)
         return .init(
             titleDiff: titleDiff,
-            descriptionDiff: descriptionDiff,
+            detailTextDiff: detailTextDiff,
             fromUser: model1User,
             toUser: model2User
         )
     }
     
     // Returns all repositories with unverified waypoint or location models
-    func listRepositoriesWithUnverifiedModels(_ req: Request) async throws -> Page<Waypoint.Waypoint.List> {
+    func listRepositoriesWithUnverifiedModels(_ req: Request) async throws -> Page<Waypoint.Detail.List> {
         try await req.onlyFor(.moderator)
         
         let allLanguageCodesByPriority = try await req.allLanguageCodesByPriority()
         
         let repositoriesWithUnverifiedModels = try await WaypointRepositoryModel
             .query(on: req.db)
-            .join(WaypointWaypointModel.self, on: \WaypointWaypointModel.$repository.$id == \WaypointRepositoryModel.$id)
-            .join(LanguageModel.self, on: \WaypointWaypointModel.$language.$id == \LanguageModel.$id)
+            .join(WaypointDetailModel.self, on: \WaypointDetailModel.$repository.$id == \WaypointRepositoryModel.$id)
+            .join(LanguageModel.self, on: \WaypointDetailModel.$language.$id == \LanguageModel.$id)
             .join(WaypointLocationModel.self, on: \WaypointLocationModel.$repository.$id == \WaypointRepositoryModel.$id)
             .group(.or) { group in
                 group.filter(WaypointLocationModel.self, \.$verified == false)
                     .group(.and) { group2 in
-                        group2.filter(WaypointWaypointModel.self, \.$verified == false)
+                        group2.filter(WaypointDetailModel.self, \.$verified == false)
                             .filter(LanguageModel.self, \.$priority != nil)
                     }
             }
@@ -90,7 +90,7 @@ extension WaypointApiController {
         
         return try await repositoriesWithUnverifiedModels.concurrentMap { repository in
             let latestVerifiedWaypointModel = try await repository.waypointModel(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db, sort: .ascending)
-            var waypointModel: WaypointWaypointModel! = latestVerifiedWaypointModel
+            var waypointModel: WaypointDetailModel! = latestVerifiedWaypointModel
             if waypointModel == nil {
                 guard let oldestUnverifiedWaypointModel = try await repository.waypointModel(for: allLanguageCodesByPriority, needsToBeVerified: false, on: req.db, sort: .ascending) else {
                     throw Abort(.internalServerError)
@@ -124,7 +124,7 @@ extension WaypointApiController {
         let unverifiedWaypoints = try await repository.$waypoints
             .query(on: req.db)
             .filter(\.$verified == false)
-            .join(LanguageModel.self, on: \WaypointWaypointModel.$language.$id == \LanguageModel.$id)
+            .join(LanguageModel.self, on: \WaypointDetailModel.$language.$id == \LanguageModel.$id)
             .filter(LanguageModel.self, \.$priority != nil)
             .sort(\.$updatedAt, .ascending) // oldest first
             .with(\.$language)
@@ -134,7 +134,7 @@ extension WaypointApiController {
             return try .init(
                 modelId: waypoint.requireID(),
                 title: waypoint.title,
-                description: waypoint.description,
+                detailText: waypoint.detailText,
                 languageCode: waypoint.language.languageCode
             )
         }
@@ -164,7 +164,7 @@ extension WaypointApiController {
     var newModelPathIdComponent: PathComponent { .init(stringLiteral: ":" + newModelPathIdKey) }
     
     // POST: api/waypoints/:repositoryId/waypoints/verify/:waypointModelId
-    func verifyWaypoint(_ req: Request) async throws -> Waypoint.Waypoint.Detail {
+    func verifyWaypoint(_ req: Request) async throws -> Waypoint.Detail.Detail {
         try await req.onlyFor(.moderator)
         
         let repository = try await detail(req)
@@ -175,7 +175,7 @@ extension WaypointApiController {
             throw Abort(.badRequest)
         }
         
-        guard let waypoint = try await WaypointWaypointModel
+        guard let waypoint = try await WaypointDetailModel
             .query(on: req.db)
             .filter(\._$id == waypointId)
             .filter(\.$repository.$id == repository.requireID())
@@ -200,7 +200,7 @@ extension WaypointApiController {
         return try .moderatorDetail(
             id: repository.id!,
             title: waypoint.title,
-            description: waypoint.description,
+            detailText: waypoint.detailText,
             location: location.location,
             languageCode: waypoint.language.languageCode,
             verified: waypoint.verified && location.verified,
@@ -210,7 +210,7 @@ extension WaypointApiController {
     }
     
     // POST: api/waypoints/:repositoryId/locations/verify/:waypointModelId
-    func verifyLocation(_ req: Request) async throws -> Waypoint.Waypoint.Detail {
+    func verifyLocation(_ req: Request) async throws -> Waypoint.Detail.Detail {
         try await req.onlyFor(.moderator)
         
         let repository = try await detail(req)
@@ -236,7 +236,7 @@ extension WaypointApiController {
         let allLanguageCodesByPriority = try await req.allLanguageCodesByPriority()
         
         let latestVerifiedWaypointModel = try await repository.waypointModel(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db, sort: .ascending)
-        var waypoint: WaypointWaypointModel! = latestVerifiedWaypointModel
+        var waypoint: WaypointDetailModel! = latestVerifiedWaypointModel
         if waypoint == nil {
             guard let oldestWaypointModel = try await repository.waypointModel(for: allLanguageCodesByPriority, needsToBeVerified: false, on: req.db, sort: .ascending) else {
                 throw Abort(.internalServerError)
@@ -248,7 +248,7 @@ extension WaypointApiController {
         return try .moderatorDetail(
             id: repository.id!,
             title: waypoint.title,
-            description: waypoint.description,
+            detailText: waypoint.detailText,
             location: location.location,
             languageCode: waypoint.language.languageCode,
             verified: waypoint.verified && location.verified,

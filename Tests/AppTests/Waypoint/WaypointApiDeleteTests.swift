@@ -52,7 +52,7 @@ final class WaypointApiDeleteTests: AppTestCase, WaypointTest {
     func testDeleteWaypointRepositoryDeletesModels() async throws {
         // Get original waypoint repository and model count
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
-        let waypointModelCount = try await WaypointWaypointModel.query(on: app.db).count()
+        let waypointModelCount = try await WaypointDetailModel.query(on: app.db).count()
         let locationCount = try await WaypointLocationModel.query(on: app.db).count()
         
         let (waypointRepository, _, _) = try await createNewWaypoint(verified: true)
@@ -67,7 +67,7 @@ final class WaypointApiDeleteTests: AppTestCase, WaypointTest {
         
         // New waypoint count should be original waypoint count
         let newWaypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
-        let newWaypointModelCount = try await WaypointWaypointModel.query(on: app.db).count()
+        let newWaypointModelCount = try await WaypointDetailModel.query(on: app.db).count()
         let newLocationCount = try await WaypointLocationModel.query(on: app.db).count()
         XCTAssertEqual(newWaypointCount, waypointCount)
         XCTAssertEqual(newWaypointModelCount, waypointModelCount)

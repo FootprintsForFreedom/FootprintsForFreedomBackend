@@ -8,11 +8,11 @@
 import Vapor
 import Fluent
 
-extension Waypoint.Waypoint.List: Content { }
-extension Waypoint.Waypoint.Detail: Content { }
+extension Waypoint.Detail.List: Content { }
+extension Waypoint.Detail.Detail: Content { }
 
 struct WaypointApiController: ApiController {
-    typealias ApiModel = Waypoint.Waypoint
+    typealias ApiModel = Waypoint.Detail
     typealias DatabaseModel = WaypointRepositoryModel
     
     // MARK: - Validators
@@ -20,7 +20,7 @@ struct WaypointApiController: ApiController {
     @AsyncValidatorBuilder
     func validators(optional: Bool) -> [AsyncValidator] {
         KeyedContentValidator<String>.required("title", optional: optional)
-        KeyedContentValidator<String>.required("description", optional: optional)
+        KeyedContentValidator<String>.required("detailText", optional: optional)
         KeyedContentValidator<Waypoint.Location>.location("location", optional: optional)
         KeyedContentValidator<String>.required("languageCode", optional: false)
     }
@@ -28,7 +28,7 @@ struct WaypointApiController: ApiController {
     @AsyncValidatorBuilder
     func updateValidators() -> [AsyncValidator] {
         KeyedContentValidator<String>.required("title")
-        KeyedContentValidator<String>.required("description")
+        KeyedContentValidator<String>.required("detailText")
         KeyedContentValidator<String>.required("languageCode")
     }
     
@@ -52,11 +52,11 @@ struct WaypointApiController: ApiController {
     
     func beforeList(_ req: Request, _ queryBuilder: QueryBuilder<WaypointRepositoryModel>) async throws -> QueryBuilder<WaypointRepositoryModel> {
         queryBuilder
-            .join(WaypointWaypointModel.self, on: \WaypointWaypointModel.$repository.$id == \WaypointRepositoryModel.$id)
-            .filter(WaypointWaypointModel.self, \.$verified == true)
+            .join(WaypointDetailModel.self, on: \WaypointDetailModel.$repository.$id == \WaypointRepositoryModel.$id)
+            .filter(WaypointDetailModel.self, \.$verified == true)
             .join(WaypointLocationModel.self, on: \WaypointLocationModel.$repository.$id == \WaypointRepositoryModel.$id)
             .filter(WaypointLocationModel.self, \.$verified == true)
-            .join(LanguageModel.self, on: \WaypointWaypointModel.$language.$id == \LanguageModel.$id)
+            .join(LanguageModel.self, on: \WaypointDetailModel.$language.$id == \LanguageModel.$id)
             .filter(LanguageModel.self, \.$priority != nil)
         //            .sort(WaypointWaypointModel.self, \.$updatedAt, .descending) // newest first
         //            .sort(WaypointWaypointModel.self, \.$title, .ascending) // from a to z
@@ -64,7 +64,7 @@ struct WaypointApiController: ApiController {
             .unique()
     }
     
-    func listOutput(_ req: Request, _ models: Page<WaypointRepositoryModel>) async throws -> Page<Waypoint.Waypoint.List> {
+    func listOutput(_ req: Request, _ models: Page<WaypointRepositoryModel>) async throws -> Page<Waypoint.Detail.List> {
         // TODO: sort alphabetically
         let allLanguageCodesByPriority = try await req.allLanguageCodesByPriority()
         
@@ -90,7 +90,7 @@ struct WaypointApiController: ApiController {
     
     // MARK: - Detail
     
-    func detailOutput(_ req: Request, _ repository: WaypointRepositoryModel) async throws -> Waypoint.Waypoint.Detail {
+    func detailOutput(_ req: Request, _ repository: WaypointRepositoryModel) async throws -> Waypoint.Detail.Detail {
         let allLanguageCodesByPriority = try await req.allLanguageCodesByPriority()
         
         guard
@@ -105,7 +105,7 @@ struct WaypointApiController: ApiController {
             return try .moderatorDetail(
                 id: repository.id!,
                 title: waypoint.title,
-                description: waypoint.description,
+                detailText: waypoint.detailText,
                 location: location.location,
                 languageCode: waypoint.language.languageCode,
                 verified: waypoint.verified && location.verified,
@@ -116,12 +116,12 @@ struct WaypointApiController: ApiController {
         return try await detailOutput(req, repository, waypoint, location)
     }
     
-    func detailOutput(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointWaypointModel, _ location: WaypointLocationModel) async throws -> Waypoint.Waypoint.Detail {
+    func detailOutput(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointDetailModel, _ location: WaypointLocationModel) async throws -> Waypoint.Detail.Detail {
         try await waypoint.$language.load(on: req.db)
         return .publicDetail(
             id: repository.id!,
             title: waypoint.title,
-            description: waypoint.description,
+            detailText: waypoint.detailText,
             location: location.location,
             languageCode: waypoint.language.languageCode
         )
@@ -134,7 +134,7 @@ struct WaypointApiController: ApiController {
         let input = try req.content.decode(CreateObject.self)
         let repository = DatabaseModel()
         try await create(req, repository)
-        let waypoint = WaypointWaypointModel()
+        let waypoint = WaypointDetailModel()
         let location = WaypointLocationModel()
         try await createInput(req, repository, waypoint, location, input)
         try await waypoint.create(on: req.db)
@@ -147,11 +147,11 @@ struct WaypointApiController: ApiController {
     }
     
     // not implemented, instead function below is used, however this function is required by the protocol
-    func createInput(_ req: Request, _ model: WaypointRepositoryModel, _ input: Waypoint.Waypoint.Create) async throws {
+    func createInput(_ req: Request, _ model: WaypointRepositoryModel, _ input: Waypoint.Detail.Create) async throws {
         fatalError()
     }
     
-    func createInput(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointWaypointModel, _ location: WaypointLocationModel, _ input: Waypoint.Waypoint.Create) async throws {
+    func createInput(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointDetailModel, _ location: WaypointLocationModel, _ input: Waypoint.Detail.Create) async throws {
         let user = try req.auth.require(AuthenticatedUser.self)
         
         guard let languageId = try await LanguageModel
@@ -165,7 +165,7 @@ struct WaypointApiController: ApiController {
         
         waypoint.verified = false
         waypoint.title = input.title
-        waypoint.description = input.description
+        waypoint.detailText = input.detailText
         waypoint.$language.id = languageId
         waypoint.$repository.id = try repository.requireID()
         waypoint.$user.id = user.id
@@ -177,7 +177,7 @@ struct WaypointApiController: ApiController {
         location.$user.id = user.id
     }
     
-    func createResponse(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointWaypointModel, _ location: WaypointLocationModel) async throws -> Response {
+    func createResponse(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointDetailModel, _ location: WaypointLocationModel) async throws -> Response {
         try await detailOutput(req, repository, waypoint, location).encodeResponse(status: .created, for: req)
     }
     
@@ -187,7 +187,7 @@ struct WaypointApiController: ApiController {
         try await RequestValidator(updateValidators()).validate(req)
         let repository = try await findBy(identifier(req), on: req.db)
         let input = try req.content.decode(UpdateObject.self)
-        let waypoint = WaypointWaypointModel()
+        let waypoint = WaypointDetailModel()
         try await beforeUpdate(req, repository)
         try await updateInput(req, repository, waypoint, input)
         try await waypoint.create(on: req.db)
@@ -207,12 +207,12 @@ struct WaypointApiController: ApiController {
         try await req.onlyForVerifiedUser()
     }
     
-    func updateInput(_ req: Request, _ model: WaypointRepositoryModel, _ input: Waypoint.Waypoint.Update) async throws {
+    func updateInput(_ req: Request, _ model: WaypointRepositoryModel, _ input: Waypoint.Detail.Update) async throws {
         fatalError()
     }
     
     
-    func updateInput(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointWaypointModel, _ input: Waypoint.Waypoint.Update) async throws {
+    func updateInput(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointDetailModel, _ input: Waypoint.Detail.Update) async throws {
         /// Require user to be signed in
         let user = try req.auth.require(AuthenticatedUser.self)
         
@@ -227,13 +227,13 @@ struct WaypointApiController: ApiController {
         
         waypoint.verified = false
         waypoint.title = input.title
-        waypoint.description = input.description
+        waypoint.detailText = input.detailText
         waypoint.$language.id = languageId
         waypoint.$repository.id = try repository.requireID()
         waypoint.$user.id = user.id
     }
     
-    func updateResponse(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointWaypointModel, _ location: WaypointLocationModel) async throws -> Response {
+    func updateResponse(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointDetailModel, _ location: WaypointLocationModel) async throws -> Response {
         try await detailOutput(req, repository, waypoint, location).encodeResponse(for: req)
     }
     
@@ -253,12 +253,12 @@ struct WaypointApiController: ApiController {
         try await req.onlyForVerifiedUser()
     }
     
-    func patchInput(_ req: Request, _ model: WaypointRepositoryModel, _ input: Waypoint.Waypoint.Patch) async throws {
+    func patchInput(_ req: Request, _ model: WaypointRepositoryModel, _ input: Waypoint.Detail.Patch) async throws {
         fatalError()
     }
     
     // TODO: rethink this; maybe when using patch don't enable to create new language, rather always send idForWaypointToPatch to know which waypoint to patch -> enables to also patch unverified waypoints
-    func patchInput(_ req: Request, _ repository: WaypointRepositoryModel, _ input: Waypoint.Waypoint.Patch) async throws -> (WaypointWaypointModel, WaypointLocationModel){
+    func patchInput(_ req: Request, _ repository: WaypointRepositoryModel, _ input: Waypoint.Detail.Patch) async throws -> (WaypointDetailModel, WaypointLocationModel){
         /// Require user to be signed in
         let user = try req.auth.require(AuthenticatedUser.self)
         
@@ -270,24 +270,24 @@ struct WaypointApiController: ApiController {
             throw Abort(.badRequest)
         }
         
-        var waypoint: WaypointWaypointModel! = nil
-        if input.title != nil || input.description != nil || input.location != nil {
-            let newWaypoint = WaypointWaypointModel()
+        var waypoint: WaypointDetailModel! = nil
+        if input.title != nil || input.detailText != nil || input.location != nil {
+            let newWaypoint = WaypointDetailModel()
             newWaypoint.verified = false
             newWaypoint.$user.id = user.id
             newWaypoint.$language.id = try language.requireID()
             newWaypoint.$repository.id = try repository.requireID()
             
-            if let newTitle = input.title, let newDescription = input.description {
+            if let newTitle = input.title, let newDetailText = input.detailText {
                 newWaypoint.title = newTitle
-                newWaypoint.description = newDescription
+                newWaypoint.detailText = newDetailText
             } else {
                 guard let latestVerifiedWaypointForPatchLanguage = try await repository.waypointModel(for: input.languageCode, needsToBeVerified: true, on: req.db) else {
                     throw Abort(.badRequest)
                 }
                 
                 newWaypoint.title = input.title ?? latestVerifiedWaypointForPatchLanguage.title
-                newWaypoint.description = input.description ?? latestVerifiedWaypointForPatchLanguage.description
+                newWaypoint.detailText = input.detailText ?? latestVerifiedWaypointForPatchLanguage.detailText
             }
             try await newWaypoint.create(on: req.db)
             waypoint = newWaypoint
@@ -321,7 +321,7 @@ struct WaypointApiController: ApiController {
         return (waypoint, location)
     }
     
-    func patchResponse(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointWaypointModel, _ location: WaypointLocationModel) async throws -> Response {
+    func patchResponse(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointDetailModel, _ location: WaypointLocationModel) async throws -> Response {
         try await detailOutput(req, repository, waypoint, location).encodeResponse(for: req)
     }
     

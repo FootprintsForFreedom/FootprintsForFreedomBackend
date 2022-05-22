@@ -1,5 +1,5 @@
 //
-//  MediaDescriptionModel.swift
+//  MediaDetailModel.swift
 //  
 //
 //  Created by niklhut on 16.02.22.
@@ -8,14 +8,14 @@
 import Vapor
 import Fluent
 
-final class MediaDescriptionModel: DatabaseModelInterface {
+final class MediaDetailModel: DatabaseModelInterface {
     typealias Module = MediaModule
     
     struct FieldKeys {
         struct v1 {
             static var verified: FieldKey { "verified" }
             static var title: FieldKey { "title" }
-            static var description: FieldKey { "description" }
+            static var detailText: FieldKey { "detailText" }
             static var source: FieldKey { "source" }
             static var mediaRepositoryId: FieldKey { "media_repository_id" }
             static var mediaId: FieldKey { "media_id" }
@@ -31,8 +31,8 @@ final class MediaDescriptionModel: DatabaseModelInterface {
     @Field(key: FieldKeys.v1.verified) var verified: Bool
     
     @Field(key: FieldKeys.v1.title) var title: String
-    // TODO: rename description (not only here but also in waypoint) to detailText or something similar to avoid coercion form CusotmStringConvertible
-    @Field(key: FieldKeys.v1.description) var description: String
+    // TODO: rename
+    @Field(key: FieldKeys.v1.detailText) var detailText: String
     @Field(key: FieldKeys.v1.source) var source: String
     
     @Parent(key: FieldKeys.v1.languageId) var language: LanguageModel
@@ -52,7 +52,7 @@ final class MediaDescriptionModel: DatabaseModelInterface {
     init(
         verified: Bool,
         title: String,
-        description: String,
+        detailText: String,
         source: String,
         languageId: UUID,
         repositoryId: UUID,
@@ -61,7 +61,7 @@ final class MediaDescriptionModel: DatabaseModelInterface {
     ) {
         self.verified = verified
         self.title = title
-        self.description = description
+        self.detailText = detailText
         self.source = source
         self.$language.id = languageId
         self.$mediaRepository.id = repositoryId

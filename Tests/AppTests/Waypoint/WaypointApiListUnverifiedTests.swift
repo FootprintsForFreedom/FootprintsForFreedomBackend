@@ -24,9 +24,9 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
         // Create a verified waypoint
         let (verifiedWaypointRepository, createdVerifiedWaypoint, _) = try await createNewWaypoint(verified: true, languageId: language.requireID(), userId: userId)
         // Create a second not verified model for the verified waypoint
-        let _ = try await WaypointWaypointModel.createWith(
+        let _ = try await WaypointDetailModel.createWith(
             title: "Not visible",
-            description: "Not visible",
+            detailText: "Not visible",
             repositoryId: verifiedWaypointRepository.requireID(),
             languageId: language.requireID(),
             userId: userId,
@@ -54,7 +54,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Waypoint.List>.self) { content in
+            .expect(Page<Waypoint.Detail.List>.self) { content in
                 XCTAssertEqual(content.metadata.total, content.items.count)
                 XCTAssertEqual(content.items.count, verifiedWaypointCount)
                 XCTAssertEqual(content.items.map { $0.id }.uniqued().count, verifiedWaypointCount)
@@ -114,9 +114,9 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
         let (waypointRepository, createdUnverifiedWaypoint, _) = try await createNewWaypoint(languageId: language.requireID(), userId: userId)
         try await createdUnverifiedWaypoint.$language.load(on: app.db)
         // Create a verified waypoint for the same repository
-        let verifiedWaypoint = try await WaypointWaypointModel.createWith(
+        let verifiedWaypoint = try await WaypointDetailModel.createWith(
             title: "Verified Waypoint",
-            description: "This is text",
+            detailText: "This is text",
             repositoryId: waypointRepository.requireID(),
             languageId: language.requireID(),
             userId: userId,
@@ -124,9 +124,9 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
             on: app.db
         )
         // Create a second not verified waypoint for the same repository
-        let secondCreatedUnverifiedWaypoint = try await WaypointWaypointModel.createWith(
+        let secondCreatedUnverifiedWaypoint = try await WaypointDetailModel.createWith(
             title: "Not visible",
-            description: "Not visible",
+            detailText: "Not visible",
             repositoryId: waypointRepository.requireID(),
             languageId: language.requireID(),
             userId: userId,
@@ -135,9 +135,9 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
         )
         try await secondCreatedUnverifiedWaypoint.$language.load(on: app.db)
         // Create a second not verified waypoint for the same repository in another language
-        let createdUnverifiedWaypointInDifferentLanguage = try await WaypointWaypointModel.createWith(
+        let createdUnverifiedWaypointInDifferentLanguage = try await WaypointDetailModel.createWith(
             title: "Different Language",
-            description: "Not visible, other language",
+            detailText: "Not visible, other language",
             repositoryId: waypointRepository.requireID(),
             languageId: language2.requireID(),
             userId: userId,
@@ -149,11 +149,11 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
         let (_, unverifiedWaypointForDifferentRepository, _) = try await createNewWaypoint(languageId: language.requireID(), userId: userId)
         
         // Get unverified and verified waypoint count
-        let waypointCount = try await WaypointWaypointModel
+        let waypointCount = try await WaypointDetailModel
             .query(on: app.db)
             .count()
         
-        let unverifiedWaypointForRepositoryCount = try await WaypointWaypointModel
+        let unverifiedWaypointForRepositoryCount = try await WaypointDetailModel
             .query(on: app.db)
             .filter(\.$verified == false)
             .filter(\.$repository.$id == waypointRepository.requireID())
@@ -176,7 +176,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
                 if let unverifiedWaypoint = content.items.first(where: { $0.modelId == createdUnverifiedWaypoint.id }) {
                     XCTAssertEqual(unverifiedWaypoint.modelId, createdUnverifiedWaypoint.id)
                     XCTAssertEqual(unverifiedWaypoint.title, createdUnverifiedWaypoint.title)
-                    XCTAssertEqual(unverifiedWaypoint.description, createdUnverifiedWaypoint.description)
+                    XCTAssertEqual(unverifiedWaypoint.detailText, createdUnverifiedWaypoint.detailText)
                     XCTAssertEqual(unverifiedWaypoint.languageCode, createdUnverifiedWaypoint.language.languageCode)
                 }
                 
@@ -186,7 +186,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
                 if let secondUnverifiedWaypoint = content.items.first(where: { $0.modelId == secondCreatedUnverifiedWaypoint.id }) {
                     XCTAssertEqual(secondUnverifiedWaypoint.modelId, secondCreatedUnverifiedWaypoint.id)
                     XCTAssertEqual(secondUnverifiedWaypoint.title, secondCreatedUnverifiedWaypoint.title)
-                    XCTAssertEqual(secondUnverifiedWaypoint.description, secondCreatedUnverifiedWaypoint.description)
+                    XCTAssertEqual(secondUnverifiedWaypoint.detailText, secondCreatedUnverifiedWaypoint.detailText)
                     XCTAssertEqual(secondUnverifiedWaypoint.languageCode, secondCreatedUnverifiedWaypoint.language.languageCode)
                 }
                 
@@ -194,7 +194,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
                 if let unverifiedWaypointInDifferentLanguage = content.items.first(where: { $0.modelId == createdUnverifiedWaypointInDifferentLanguage.id }) {
                     XCTAssertEqual(unverifiedWaypointInDifferentLanguage.modelId, createdUnverifiedWaypointInDifferentLanguage.id)
                     XCTAssertEqual(unverifiedWaypointInDifferentLanguage.title, createdUnverifiedWaypointInDifferentLanguage.title)
-                    XCTAssertEqual(unverifiedWaypointInDifferentLanguage.description, createdUnverifiedWaypointInDifferentLanguage.description)
+                    XCTAssertEqual(unverifiedWaypointInDifferentLanguage.detailText, createdUnverifiedWaypointInDifferentLanguage.detailText)
                     XCTAssertEqual(unverifiedWaypointInDifferentLanguage.languageCode, createdUnverifiedWaypointInDifferentLanguage.language.languageCode)
                 }
                 

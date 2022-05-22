@@ -28,13 +28,13 @@ public extension Waypoint.Repository {
     struct ListUnverifiedWaypoints: Codable {
         public let modelId: UUID
         public let title: String
-        public let description: String
+        public let detailText: String
         public let languageCode: String
         
-        public init(modelId: UUID, title: String, description: String, languageCode: String) {
+        public init(modelId: UUID, title: String, detailText: String, languageCode: String) {
             self.modelId = modelId
             self.title = title
-            self.description = description
+            self.detailText = detailText
             self.languageCode = languageCode
         }
     }
@@ -51,13 +51,13 @@ public extension Waypoint.Repository {
     
     struct Changes: Codable {
         public let titleDiff: [Diff]
-        public let descriptionDiff: [Diff]
+        public let detailTextDiff: [Diff]
         public let fromUser: User.Account.Detail
         public let toUser: User.Account.Detail
         
-        public init(titleDiff: [Diff], descriptionDiff: [Diff], fromUser: User.Account.Detail, toUser: User.Account.Detail) {
+        public init(titleDiff: [Diff], detailTextDiff: [Diff], fromUser: User.Account.Detail, toUser: User.Account.Detail) {
             self.titleDiff = titleDiff
-            self.descriptionDiff = descriptionDiff
+            self.detailTextDiff = detailTextDiff
             self.fromUser = fromUser
             self.toUser = toUser
         }

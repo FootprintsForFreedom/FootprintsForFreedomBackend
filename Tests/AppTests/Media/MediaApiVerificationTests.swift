@@ -13,21 +13,21 @@ import Spec
 final class MediaApiVerificationTests: AppTestCase, MediaTest {
     func testSuccessfulVerifyMedia() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let (repository, description, file) = try await createNewMedia()
-        try await description.$language.load(on: app.db)
+        let (repository, detail, file) = try await createNewMedia()
+        try await detail.$language.load(on: app.db)
         
         try app
             .describe("Verify media as moderator should be successful and return ok")
-            .post(mediaPath.appending("\(repository.requireID())/verify/\(description.requireID())"))
+            .post(mediaPath.appending("\(repository.requireID())/verify/\(detail.requireID())"))
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
             .expect(Media.Media.Detail.self) { content in
                 XCTAssertEqual(content.id, repository.id)
-                XCTAssertEqual(content.title, description.title)
-                XCTAssertEqual(content.description, description.description)
-                XCTAssertEqual(content.source, description.source)
-                XCTAssertEqual(content.languageCode, description.language.languageCode)
+                XCTAssertEqual(content.title, detail.title)
+                XCTAssertEqual(content.detailText, detail.detailText)
+                XCTAssertEqual(content.source, detail.source)
+                XCTAssertEqual(content.languageCode, detail.language.languageCode)
                 XCTAssertEqual(content.group, file.group)
                 XCTAssertEqual(content.filePath, file.mediaDirectory)
                 XCTAssertEqual(content.verified, true)
@@ -37,33 +37,33 @@ final class MediaApiVerificationTests: AppTestCase, MediaTest {
     
     func testVerifyMediaAsUserFails() async throws {
         let userToken = try await getToken(for: .user)
-        let (repository, description, _) = try await createNewMedia()
+        let (repository, detail, _) = try await createNewMedia()
         
         try app
             .describe("Verify media as user should fail")
-            .post(mediaPath.appending("\(repository.requireID())/verify/\(description.requireID())"))
+            .post(mediaPath.appending("\(repository.requireID())/verify/\(detail.requireID())"))
             .bearerToken(userToken)
             .expect(.forbidden)
             .test()
     }
     
     func testVerifyMediaWithoutTokenFails() async throws {
-        let (repository, description, _) = try await createNewMedia()
+        let (repository, detail, _) = try await createNewMedia()
         
         try app
             .describe("Verify media wihtout token should fail")
-            .post(mediaPath.appending("\(repository.requireID())/verify/\(description.requireID())"))
+            .post(mediaPath.appending("\(repository.requireID())/verify/\(detail.requireID())"))
             .expect(.unauthorized)
             .test()
     }
     
     func testVerifyMediaWithAlreadyVerifiedMediaFails() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let (repository, description, _) = try await createNewMedia(verified: true)
+        let (repository, detail, _) = try await createNewMedia(verified: true)
         
         try app
             .describe("Verify media for already verified media should fail")
-            .post(mediaPath.appending("\(repository.requireID())/verify/\(description.requireID())"))
+            .post(mediaPath.appending("\(repository.requireID())/verify/\(detail.requireID())"))
             .bearerToken(moderatorToken)
             .expect(.badRequest)
             .test()

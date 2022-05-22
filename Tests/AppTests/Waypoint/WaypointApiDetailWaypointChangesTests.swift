@@ -17,9 +17,9 @@ final class WaypointApiDetailWaypointChangesTests: AppTestCase, WaypointTest {
         let user = try await getUser(role: .user)
         let language =  try await createLanguage()
         let (waypointRepository, waypointModel, _) = try await createNewWaypoint(languageId: language.requireID())
-        let secondWaypointModel = try await WaypointWaypointModel.createWith(
+        let secondWaypointModel = try await WaypointDetailModel.createWith(
             title: "Another different title",
-            description: "This is a new description",
+            detailText: "This is a new detailText",
             repositoryId: waypointRepository.requireID(),
             languageId: language.requireID(),
             userId: user.requireID(),
@@ -48,9 +48,9 @@ final class WaypointApiDetailWaypointChangesTests: AppTestCase, WaypointTest {
         let user = try await getUser(role: .user)
         let language =  try await createLanguage()
         let (waypointRepository, waypointModel, _) = try await createNewWaypoint(languageId: language.requireID())
-        let secondWaypointModel = try await WaypointWaypointModel.createWith(
+        let secondWaypointModel = try await WaypointDetailModel.createWith(
             title: "Another different title",
-            description: "This is a new description",
+            detailText: "This is a new detailText",
             repositoryId: waypointRepository.requireID(),
             languageId: language.requireID(),
             userId: user.requireID(),
@@ -70,9 +70,9 @@ final class WaypointApiDetailWaypointChangesTests: AppTestCase, WaypointTest {
         let user = try await getUser(role: .user)
         let language =  try await createLanguage()
         let (waypointRepository, waypointModel, _) = try await createNewWaypoint(languageId: language.requireID())
-        let secondWaypointModel = try await WaypointWaypointModel.createWith(
+        let secondWaypointModel = try await WaypointDetailModel.createWith(
             title: "Another different title",
-            description: "This is a new description",
+            detailText: "This is a new detailText",
             repositoryId: waypointRepository.requireID(),
             languageId: language.requireID(),
             userId: user.requireID(),
@@ -148,9 +148,9 @@ final class WaypointApiDetailWaypointChangesTests: AppTestCase, WaypointTest {
         let language =  try await createLanguage()
         let secondLanguage =  try await createLanguage()
         let (waypointRepository, waypointModel, _) = try await createNewWaypoint(languageId: language.requireID())
-        let secondWaypointModel = try await WaypointWaypointModel.createWith(
+        let secondWaypointModel = try await WaypointDetailModel.createWith(
             title: "Another different title",
-            description: "This is a new description",
+            detailText: "This is a new detailText",
             repositoryId: waypointRepository.requireID(),
             languageId: secondLanguage.requireID(),
             userId: user.requireID(),

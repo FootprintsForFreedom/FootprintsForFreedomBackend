@@ -49,10 +49,10 @@ final class MediaApiDeleteTests: AppTestCase, MediaTest {
         XCTAssertEqual(newMediaCount, mediaCount)
     }
     
-    func testDeleteMediaRepositoryDeletesDescriptionsAndFiles() async throws {
+    func testDeleteMediaRepositoryDeletesDetailsAndFiles() async throws {
         // Get original media count
         let mediaRepositoryCount = try await MediaRepositoryModel.query(on: app.db).count()
-        let mediaDescriptionCount = try await MediaDescriptionModel.query(on: app.db).count()
+        let mediaDetailCount = try await MediaDetailModel.query(on: app.db).count()
         let mediaFileCount = try await MediaFileModel.query(on: app.db).count()
         
         let (mediaRepository, _, _) = try await createNewMedia(verified: true)
@@ -67,10 +67,10 @@ final class MediaApiDeleteTests: AppTestCase, MediaTest {
         
         // New media count should be original count
         let newMediaRepositoryCount = try await MediaRepositoryModel.query(on: app.db).count()
-        let newMediaDescriptionCount = try await MediaDescriptionModel.query(on: app.db).count()
+        let newMediaDetailCount = try await MediaDetailModel.query(on: app.db).count()
         let newMediaFileCount = try await MediaFileModel.query(on: app.db).count()
         XCTAssertEqual(newMediaRepositoryCount, mediaRepositoryCount)
-        XCTAssertEqual(newMediaDescriptionCount, mediaDescriptionCount)
+        XCTAssertEqual(newMediaDetailCount, mediaDetailCount)
         XCTAssertEqual(newMediaFileCount, mediaFileCount)
     }
     

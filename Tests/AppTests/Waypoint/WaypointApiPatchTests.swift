@@ -10,30 +10,35 @@ import XCTVapor
 import Fluent
 import Spec
 
-extension Waypoint.Waypoint.Patch: Content { }
+extension Waypoint.Detail.Patch: Content { }
 
 final class WaypointApiPatchTests: AppTestCase, WaypointTest {
     private func getWaypointPatchContent(
         title: String = "New Waypoint Title",
         patchedTitle: String? = nil,
-        description: String = "New Waypoint Description",
-        patchedDescription: String? = nil,
+        detailText: String = "New Waypoint detail text",
+        patchedDetailText: String? = nil,
         location: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
         patchedLocation: Waypoint.Location? = nil,
         languageId: UUID? = nil,
         patchLangugageCode: String? = nil,
         verified: Bool = false,
         userId: UUID? = nil
-    ) async throws -> (waypointRepository: WaypointRepositoryModel, createdModel: WaypointWaypointModel, createdLocation: WaypointLocationModel, patchContent: Waypoint.Waypoint.Patch) {
+    ) async throws -> (waypointRepository: WaypointRepositoryModel, createdModel: WaypointDetailModel, createdLocation: WaypointLocationModel, patchContent: Waypoint.Detail.Patch) {
         let (waypointRepository, createdModel, createdLocation) = try await createNewWaypoint(
             title: title,
-            description: description,
+            detailText: detailText,
             verified: verified,
             languageId: languageId,
             userId: userId
         )
         try await createdModel.$language.load(on: app.db)
-        let patchContent = Waypoint.Waypoint.Patch(title: patchedTitle, description: patchedDescription, location: patchedLocation, languageCode: patchLangugageCode ?? createdModel.language.languageCode)
+        let patchContent = Waypoint.Detail.Patch(
+            title: patchedTitle,
+            detailText: patchedDetailText,
+            location: patchedLocation,
+            languageCode: patchLangugageCode ?? createdModel.language.languageCode
+        )
         return (waypointRepository, createdModel, createdLocation, patchContent)
     }
     
@@ -48,10 +53,10 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
-            .expect(Waypoint.Waypoint.Detail.self) { content in
+            .expect(Waypoint.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, waypointRepository.id)
                 XCTAssertEqual(content.title, patchContent.title)
-                XCTAssertEqual(content.description, createdModel.description)
+                XCTAssertEqual(content.detailText, createdModel.detailText)
                 XCTAssertEqual(content.location, createdLocation.location)
                 XCTAssertEqual(content.languageCode, patchContent.languageCode)
                 XCTAssertNil(content.verified)
@@ -68,21 +73,21 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
         XCTAssertFalse(newWaypointModel.verified)
     }
     
-    func testSuccessfulPatchWaypointDescription() async throws {
+    func testSuccessfulPatchWaypointDetailText() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(patchedDescription: "The patched description", verified: true)
+        let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(patchedDetailText: "The patched detailText", verified: true)
         
         try app
-            .describe("Patch waypoint description should return ok")
+            .describe("Patch waypoint detailText should return ok")
             .patch(waypointsPath.appending(waypointRepository.requireID().uuidString))
             .body(patchContent)
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
-            .expect(Waypoint.Waypoint.Detail.self) { content in
+            .expect(Waypoint.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, waypointRepository.id)
                 XCTAssertEqual(content.title, createdModel.title)
-                XCTAssertEqual(content.description, patchContent.description)
+                XCTAssertEqual(content.detailText, patchContent.detailText)
                 XCTAssertEqual(content.location, createdLocation.location)
                 XCTAssertEqual(content.languageCode, patchContent.languageCode)
                 XCTAssertNil(content.verified)
@@ -110,10 +115,10 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
-            .expect(Waypoint.Waypoint.Detail.self) { content in
+            .expect(Waypoint.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, waypointRepository.id)
                 XCTAssertEqual(content.title, createdModel.title)
-                XCTAssertEqual(content.description, createdModel.description)
+                XCTAssertEqual(content.detailText, createdModel.detailText)
                 XCTAssertEqual(content.location, patchContent.location)
                 XCTAssertEqual(content.languageCode, patchContent.languageCode)
                 XCTAssertNil(content.verified)
@@ -132,7 +137,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
     
     func testSuccessfulPatchWithoutVerifiedModelInSpecifiedLanguageWhenAllParametersAreSet() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (waypointRepository, _, _, patchContent) = try await getWaypointPatchContent(patchedTitle: "The patched title", patchedDescription: "The patched description", patchedLocation: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)))
+        let (waypointRepository, _, _, patchContent) = try await getWaypointPatchContent(patchedTitle: "The patched title", patchedDetailText: "The patched detailText", patchedLocation: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)))
         
         try app
             .describe("Patch waypoint without verified model in the specified language should fail")
@@ -141,10 +146,10 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
-            .expect(Waypoint.Waypoint.Detail.self) { content in
+            .expect(Waypoint.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, waypointRepository.id)
                 XCTAssertEqual(content.title, patchContent.title)
-                XCTAssertEqual(content.description, patchContent.description)
+                XCTAssertEqual(content.detailText, patchContent.detailText)
                 XCTAssertEqual(content.location, patchContent.location)
                 XCTAssertEqual(content.languageCode, patchContent.languageCode)
                 XCTAssertNil(content.verified)
@@ -191,12 +196,12 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
             .test()
     }
     
-    func testPatchWaypointNeedsValidDescription() async throws {
+    func testPatchWaypointNeedsValidDetailText() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (waypointRepository, _, _, patchContent) = try await getWaypointPatchContent(patchedDescription: "")
+        let (waypointRepository, _, _, patchContent) = try await getWaypointPatchContent(patchedDetailText: "")
         
         try app
-            .describe("Patch waypoint should fail with empty description")
+            .describe("Patch waypoint should fail with empty detailText")
             .patch(waypointsPath.appending(waypointRepository.requireID().uuidString))
             .body(patchContent)
             .bearerToken(token)
@@ -255,7 +260,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
     
     func testPatchWaypointAsUnverifiedUserFails() async throws {
         let token = try await getToken(for: .user)
-        let (waypointRepository, _, _, patchContent) = try await getWaypointPatchContent(patchedDescription: "new description")
+        let (waypointRepository, _, _, patchContent) = try await getWaypointPatchContent(patchedDetailText: "new detailText")
         
         try app
             .describe("Patch waypoint as unverified user should fail")

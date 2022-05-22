@@ -24,9 +24,9 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
         let (verifiedWaypointRepository, createdVerifiedWaypoint, _) = try await createNewWaypoint(verified: true, languageId: language.requireID(), userId: userId)
         try await createdVerifiedWaypoint.$language.load(on: app.db)
         // Create a second not verified model for the verified waypoint that should not be returned
-        let _ = try await WaypointWaypointModel.createWith(
+        let _ = try await WaypointDetailModel.createWith(
             title: "Not visible",
-            description: "Not visible",
+            detailText: "Not visible",
             repositoryId: verifiedWaypointRepository.requireID(),
             languageId: language.requireID(),
             userId: userId,
@@ -39,9 +39,9 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
         // Create a reposiotry that is available in both languages
         let (verifiedWaypointRepositoryWithMultipleLanguages, _, _) = try await createNewWaypoint(verified: true, languageId: language2.requireID(), userId: userId)
         // Create a second model in the other language
-        let createdVerifiedWaypointInLanguage1 = try await WaypointWaypointModel.createWith(
+        let createdVerifiedWaypointInLanguage1 = try await WaypointDetailModel.createWith(
             title: "Language 2",
-            description: "Second description",
+                    detailText: "Second detailText",
             repositoryId: verifiedWaypointRepositoryWithMultipleLanguages.requireID(),
             languageId: language.requireID(),
             userId: userId,
@@ -68,7 +68,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
             .get(waypointsPath.appending("?preferredLanguage=\(language.languageCode)&per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Waypoint.List>.self) { content in
+            .expect(Page<Waypoint.Detail.List>.self) { content in
                 XCTAssertEqual(content.metadata.total, content.items.count)
                 XCTAssertEqual(content.items.count, verifiedWaypointCount)
                 XCTAssertEqual(content.items.map { $0.id }.uniqued().count, verifiedWaypointCount)
@@ -110,9 +110,9 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
         // Create a verified waypoint
         let (verifiedWaypointRepository, createdVerifiedWaypoint, _) = try await createNewWaypoint(verified: true, languageId: language.requireID(), userId: userId)
         // Create a second not verified model for the verified waypoint that should not be returned
-        let _ = try await WaypointWaypointModel.createWith(
+        let _ = try await WaypointDetailModel.createWith(
             title: "Not visible",
-            description: "Not visible",
+                    detailText: "Not visible",
             repositoryId: verifiedWaypointRepository.requireID(),
             languageId: language.requireID(),
             userId: userId,
@@ -125,9 +125,9 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
         // Create a reposiotry that is available in both languages
         let (verifiedWaypointRepositoryWithMultipleLanguages, _, _) = try await createNewWaypoint(verified: true, languageId: language2.requireID(), userId: userId)
         // Create a second model in the other language
-        let createdVerifiedWaypointInLanguage1 = try await WaypointWaypointModel.createWith(
+        let createdVerifiedWaypointInLanguage1 = try await WaypointDetailModel.createWith(
             title: "Language 2",
-            description: "Second description",
+                    detailText: "Second detailText",
             repositoryId: verifiedWaypointRepositoryWithMultipleLanguages.requireID(),
             languageId: language.requireID(),
             userId: userId,
@@ -152,7 +152,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
             .get(waypointsPath.appending("?per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Waypoint.List>.self) { content in
+            .expect(Page<Waypoint.Detail.List>.self) { content in
                 XCTAssertEqual(content.items.count, verifiedWaypointCount)
                 
                 XCTAssert(content.items.contains { $0.id == verifiedWaypointRepository.id })
@@ -205,7 +205,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
             .get(waypointsPath.appending("?per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Waypoint.List>.self) { content in
+            .expect(Page<Waypoint.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == verifiedWaypointRepository.id })
                 XCTAssertFalse(content.items.contains { $0.id == verifiedWaypointRepositoryForDeactivatedLanguage.id })
             }
@@ -224,10 +224,10 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
             .get(waypointsPath.appending(waypointRepository.requireID().uuidString))
             .expect(.ok)
             .expect(.json)
-            .expect(Waypoint.Waypoint.Detail.self) { content in
+            .expect(Waypoint.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, waypointRepository.id)
                 XCTAssertEqual(content.title, waypoint.title)
-                XCTAssertEqual(content.description, waypoint.description)
+                XCTAssertEqual(content.detailText, waypoint.detailText)
                 XCTAssertEqual(content.location, location.location)
                 XCTAssertEqual(content.languageCode, waypoint.language.languageCode)
                 XCTAssertNil(content.verified)
@@ -249,10 +249,10 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Waypoint.Waypoint.Detail.self) { content in
+            .expect(Waypoint.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, waypointRepository.id)
                 XCTAssertEqual(content.title, waypoint.title)
-                XCTAssertEqual(content.description, waypoint.description)
+                XCTAssertEqual(content.detailText, waypoint.detailText)
                 XCTAssertEqual(content.location, location.location)
                 XCTAssertEqual(content.languageCode, waypoint.language.languageCode)
                 XCTAssertNotNil(content.verified)

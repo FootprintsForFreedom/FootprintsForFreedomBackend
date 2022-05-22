@@ -22,7 +22,7 @@ final class WaypointRepositoryModel: DatabaseModelInterface {
     }
     
     @ID() var id: UUID?
-    @Children(for: \.$repository) var waypoints: [WaypointWaypointModel]
+    @Children(for: \.$repository) var waypoints: [WaypointDetailModel]
     @Children(for: \.$repository) var locations: [WaypointLocationModel]
     @Children(for: \.$waypoint) var media: [MediaRepositoryModel]
     
@@ -54,10 +54,10 @@ extension WaypointRepositoryModel {
         needsToBeVerified: Bool,
         on db: Database,
         sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
-    ) async throws -> WaypointWaypointModel? {
+    ) async throws -> WaypointDetailModel? {
         var query = self.$waypoints
             .query(on: db)
-            .join(LanguageModel.self, on: \WaypointWaypointModel.$language.$id == \LanguageModel.$id)
+            .join(LanguageModel.self, on: \WaypointDetailModel.$language.$id == \LanguageModel.$id)
             .filter(LanguageModel.self, \.$languageCode == languageCode)
             .filter(LanguageModel.self, \.$priority != nil)
         if needsToBeVerified {
@@ -73,9 +73,9 @@ extension WaypointRepositoryModel {
         needsToBeVerified: Bool,
         on db: Database,
         sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
-    ) async throws -> WaypointWaypointModel? {
+    ) async throws -> WaypointDetailModel? {
         for languageCode in languageCodesByPriority {
-            if let waypoint = try await waypointModel(for: languageCode, needsToBeVerified: needsToBeVerified, on: db, sort: sortDirection){
+            if let waypoint = try await waypointModel(for: languageCode, needsToBeVerified: needsToBeVerified, on: db, sort: sortDirection) {
                 return waypoint
             }
         }

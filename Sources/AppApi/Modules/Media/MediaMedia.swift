@@ -30,74 +30,74 @@ public extension Media.Media {
         public let id: UUID
         public let languageCode: String
         public let title: String
-        public let description: String
+        public let detailText: String
         public let source: String
         public let group: Group
         public let filePath: String
         public let verified: Bool?
-        public let descriptionId: UUID?
+        public let detailId: UUID?
         
-        public static func publicDetail(id: UUID, languageCode: String, title: String, description: String, source: String, group: Group, filePath: String) -> Self {
+        public static func publicDetail(id: UUID, languageCode: String, title: String, detailText: String, source: String, group: Group, filePath: String) -> Self {
             return .init(
                 id: id,
                 languageCode: languageCode,
                 title: title,
-                description: description,
+                detailText: detailText,
                 source: source,
                 group: group,
                 filePath: filePath
             )
         }
         
-        public static func moderatorDetail(id: UUID, languageCode: String, title: String, description: String, source: String, group: Group, filePath: String, verified: Bool, descriptionId: UUID) -> Self {
+        public static func moderatorDetail(id: UUID, languageCode: String, title: String, detailText: String, source: String, group: Group, filePath: String, verified: Bool, detailId: UUID) -> Self {
             return .init(
                 id: id,
                 languageCode: languageCode,
                 title: title,
-                description: description,
+                detailText: detailText,
                 source: source,
                 group: group,
                 filePath: filePath,
                 verified: verified,
-                descriptionId: descriptionId
+                detailId: detailId
             )
         }
         
-        private init(id: UUID, languageCode: String, title: String, description: String, source: String, group: Group, filePath: String) {
+        private init(id: UUID, languageCode: String, title: String, detailText: String, source: String, group: Group, filePath: String) {
             self.id = id
             self.languageCode = languageCode
             self.title = title
-            self.description = description
+            self.detailText = detailText
             self.source = source
             self.group = group
             self.filePath = filePath
             self.verified = nil
-            self.descriptionId = nil
+            self.detailId = nil
         }
         
-        private init(id: UUID, languageCode: String, title: String, description: String, source: String, group: Group, filePath: String, verified: Bool, descriptionId: UUID) {
+        private init(id: UUID, languageCode: String, title: String, detailText: String, source: String, group: Group, filePath: String, verified: Bool, detailId: UUID) {
             self.id = id
             self.languageCode = languageCode
             self.title = title
-            self.description = description
+            self.detailText = detailText
             self.source = source
             self.group = group
             self.filePath = filePath
             self.verified = verified
-            self.descriptionId = descriptionId
+            self.detailId = detailId
         }
     }
     
     struct Create: Codable {
         public let title: String
-        public let description: String
+        public let detailText: String
         public let source: String
         public let languageCode: String
         public let waypointId: UUID
         
-        public init(title: String, description: String, source: String, languageCode: String, waypointId: UUID) {
+        public init(title: String, detailText: String, source: String, languageCode: String, waypointId: UUID) {
             self.title = title
-            self.description = description
+            self.detailText = detailText
             self.source = source
             self.languageCode = languageCode
             self.waypointId = waypointId
@@ -106,14 +106,14 @@ public extension Media.Media {
     
     struct Update: Codable {
         public let title: String
-        public let description: String
+        public let detailText: String
         public let source: String
         public let languageCode: String
         public let mediaIdForFile: UUID?
         
-        public init(title: String, description: String, source: String, languageCode: String, mediaIdForFile: UUID?) {
+        public init(title: String, detailText: String, source: String, languageCode: String, mediaIdForFile: UUID?) {
             self.title = title
-            self.description = description
+            self.detailText = detailText
             self.source = source
             self.languageCode = languageCode
             self.mediaIdForFile = mediaIdForFile
@@ -122,13 +122,13 @@ public extension Media.Media {
     
     struct Patch: Codable {
         public let title: String?
-        public let description: String?
+        public let detailText: String?
         public let source: String?
         public let idForMediaToPatch: UUID
         
-        public init(title: String?, description: String?, source: String?, idForMediaToPatch: UUID) {
+        public init(title: String?, detailText: String?, source: String?, idForMediaToPatch: UUID) {
             self.title = title
-            self.description = description
+            self.detailText = detailText
             self.source = source
             self.idForMediaToPatch = idForMediaToPatch
         }

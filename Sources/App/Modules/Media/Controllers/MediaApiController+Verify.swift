@@ -28,14 +28,14 @@ extension MediaApiController {
         let detailChangesRequest = try req.query.decode(Media.Repository.DetailChangesRequest.self)
         
         guard
-            let model1 = try await MediaDescriptionModel
+            let model1 = try await MediaDetailModel
                 .query(on: req.db)
                 .filter(\.$mediaRepository.$id == repository.requireID())
                 .filter(\._$id == detailChangesRequest.from)
                 .with(\.$user)
                 .with(\.$media)
                 .first(),
-            let model2 = try await MediaDescriptionModel
+            let model2 = try await MediaDetailModel
                 .query(on: req.db)
                 .filter(\.$mediaRepository.$id == repository.requireID())
                 .filter(\._$id == detailChangesRequest.to)
@@ -54,7 +54,7 @@ extension MediaApiController {
         let titleDiff = computeDiff(model1.title, model2.title)
             .cleaningUpSemantics()
             .converted()
-        let descriptionDiff = computeDiff(model1.description, model2.description)
+        let detailTextDiff = computeDiff(model1.detailText, model2.detailText)
             .cleaningUpSemantics()
             .converted()
         let sourceDiff = computeDiff(model1.source, model2.source)
@@ -66,7 +66,7 @@ extension MediaApiController {
         
         return .init(
             titleDiff: titleDiff,
-            descriptionDiff: descriptionDiff,
+            detailTextDiff: detailTextDiff,
             sourceDiff: sourceDiff,
             fromGroup: model1.media.group,
             toGroup: model2.media.group,
@@ -83,9 +83,9 @@ extension MediaApiController {
         
         let repositoriesWithUnverifiedModels = try await MediaRepositoryModel
             .query(on: req.db)
-            .join(MediaDescriptionModel.self, on: \MediaDescriptionModel.$mediaRepository.$id == \MediaRepositoryModel.$id)
-            .join(LanguageModel.self, on: \MediaDescriptionModel.$language.$id == \LanguageModel.$id)
-            .filter(MediaDescriptionModel.self, \.$verified == false)
+            .join(MediaDetailModel.self, on: \MediaDetailModel.$mediaRepository.$id == \MediaRepositoryModel.$id)
+            .join(LanguageModel.self, on: \MediaDetailModel.$language.$id == \LanguageModel.$id)
+            .filter(MediaDetailModel.self, \.$verified == false)
             .filter(LanguageModel.self, \.$priority != nil)
             .field(\.$id)
             .unique()
@@ -93,7 +93,7 @@ extension MediaApiController {
         
         return try await repositoriesWithUnverifiedModels.concurrentMap { repository in
             let latestVerifiedMedia = try await repository.media(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db, sort: .ascending)
-            var media: MediaDescriptionModel! = latestVerifiedMedia
+            var media: MediaDetailModel! = latestVerifiedMedia
             if media == nil {
                 guard let oldestUnverifiedMedia = try await repository.media(for: allLanguageCodesByPriority, needsToBeVerified: false, on: req.db, sort: .ascending) else {
                     throw Abort(.internalServerError)
@@ -127,7 +127,7 @@ extension MediaApiController {
             return try .init(
                 modelId: media.requireID(),
                 title: media.title,
-                description: media.description,
+                detailText: media.detailText,
                 languageCode: media.language.languageCode)
         }
     }
@@ -147,7 +147,7 @@ extension MediaApiController {
             throw Abort(.badRequest)
         }
         
-        guard let media = try await MediaDescriptionModel
+        guard let media = try await MediaDetailModel
             .query(on: req.db)
             .filter(\._$id == waypointId)
             .filter(\.$mediaRepository.$id == repository.requireID())
@@ -165,12 +165,12 @@ extension MediaApiController {
             id: repository.requireID(),
             languageCode: media.language.languageCode,
             title: media.title,
-            description: media.description,
+            detailText: media.detailText,
             source: media.source,
             group: media.media.group,
             filePath: media.media.mediaDirectory,
             verified: media.verified, // TODO: && media.file.verififed
-            descriptionId: media.requireID()
+            detailId: media.requireID()
         )
     }
     

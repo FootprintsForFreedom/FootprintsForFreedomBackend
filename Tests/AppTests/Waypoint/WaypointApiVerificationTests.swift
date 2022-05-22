@@ -24,10 +24,10 @@ final class WaypointApiVerificationTests: AppTestCase, WaypointTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Waypoint.Waypoint.Detail.self) { content in
+            .expect(Waypoint.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, waypointRepository.id)
                 XCTAssertEqual(content.title, waypointModel.title)
-                XCTAssertEqual(content.description, waypointModel.description)
+                XCTAssertEqual(content.detailText, waypointModel.detailText)
                 XCTAssertEqual(content.location, location.location)
                 XCTAssertEqual(content.languageCode, waypointModel.language.languageCode)
                 XCTAssertEqual(content.verified, true)
@@ -82,10 +82,10 @@ final class WaypointApiVerificationTests: AppTestCase, WaypointTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Waypoint.Waypoint.Detail.self) { content in
+            .expect(Waypoint.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, waypointRepository.id)
                 XCTAssertEqual(content.title, waypointModel.title)
-                XCTAssertEqual(content.description, waypointModel.description)
+                XCTAssertEqual(content.detailText, waypointModel.detailText)
                 XCTAssertEqual(content.location, locationModel.location)
                 XCTAssertEqual(content.languageCode, waypointModel.language.languageCode)
                 XCTAssertEqual(content.verified, true)

@@ -20,7 +20,7 @@ struct MediaApiController: ApiController {
     @AsyncValidatorBuilder
     func createValidators() -> [AsyncValidator] {
         KeyedContentValidator<String>.required("title", validateQuery: true)
-        KeyedContentValidator<String>.required("description", validateQuery: true)
+        KeyedContentValidator<String>.required("detailText", validateQuery: true)
         KeyedContentValidator<String>.required("source", validateQuery: true)
         KeyedContentValidator<String>.required("languageCode", validateQuery: true)
         KeyedContentValidator<UUID>.required("waypointId", validateQuery: true)
@@ -29,7 +29,7 @@ struct MediaApiController: ApiController {
     @AsyncValidatorBuilder
     func updateValidators() -> [AsyncValidator] {
         KeyedContentValidator<String>.required("title", validateQuery: true)
-        KeyedContentValidator<String>.required("description", validateQuery: true)
+        KeyedContentValidator<String>.required("detailText", validateQuery: true)
         KeyedContentValidator<String>.required("source", validateQuery: true)
         KeyedContentValidator<String>.required("languageCode", validateQuery: true)
     }
@@ -37,7 +37,7 @@ struct MediaApiController: ApiController {
     @AsyncValidatorBuilder
     func patchValidators() -> [AsyncValidator] {
         KeyedContentValidator<String>.required("title", optional: true, validateQuery: true)
-        KeyedContentValidator<String>.required("description", optional: true, validateQuery: true)
+        KeyedContentValidator<String>.required("detailText", optional: true, validateQuery: true)
         KeyedContentValidator<String>.required("source", optional: true, validateQuery: true)
         KeyedContentValidator<UUID>.required("idForMediaToPatch", validateQuery: true)
     }
@@ -62,11 +62,11 @@ struct MediaApiController: ApiController {
     
     func beforeList(_ req: Request, _ queryBuilder: QueryBuilder<MediaRepositoryModel>) async throws -> QueryBuilder<MediaRepositoryModel> {
         queryBuilder
-        // only return repositories with verified media descriptions inside
-            .join(MediaDescriptionModel.self, on: \MediaDescriptionModel.$mediaRepository.$id == \MediaRepositoryModel.$id)
-            .filter(MediaDescriptionModel.self, \.$verified == true)
-        // only return media descriptions which have a activated language
-            .join(LanguageModel.self, on: \MediaDescriptionModel.$language.$id == \LanguageModel.$id)
+        // only return repositories with verified media details inside
+            .join(MediaDetailModel.self, on: \MediaDetailModel.$mediaRepository.$id == \MediaRepositoryModel.$id)
+            .filter(MediaDetailModel.self, \.$verified == true)
+        // only return media details which have a activated language
+            .join(LanguageModel.self, on: \MediaDetailModel.$language.$id == \LanguageModel.$id)
             .filter(LanguageModel.self, \.$priority != nil)
             .field(\.$id)
             .unique()
@@ -78,16 +78,16 @@ struct MediaApiController: ApiController {
         
         return try await models
             .concurrentMap { model in
-                guard let mediaDescription = try await model.media(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db) else {
+                guard let mediaDetail = try await model.media(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db) else {
                     return nil
                 }
                 
                 // TODO: is this a bottleneck for the time it takes to return a result?
-                try await mediaDescription.$media.load(on: req.db)
+                try await mediaDetail.$media.load(on: req.db)
                 return .init(
                     id: try model.requireID(),
-                    title: mediaDescription.title,
-                    group: mediaDescription.media.group
+                    title: mediaDetail.title,
+                    group: mediaDetail.media.group
                 )
             }
             .compactMap { $0 }
@@ -98,40 +98,40 @@ struct MediaApiController: ApiController {
     func detailOutput(_ req: Request, _ repository: MediaRepositoryModel) async throws -> Media.Media.Detail {
         let allLanguageCodesByPriority = try await req.allLanguageCodesByPriority()
         
-        guard let mediaDescription = try await repository.media(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db) else {
+        guard let mediaDetail = try await repository.media(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db) else {
             throw Abort(.notFound)
         }
         
         if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db), user.role >= .moderator {
-            try await mediaDescription.$media.load(on: req.db)
-            try await mediaDescription.$language.load(on: req.db)
+            try await mediaDetail.$media.load(on: req.db)
+            try await mediaDetail.$language.load(on: req.db)
             
             return try .moderatorDetail(
                 id: repository.requireID(),
-                languageCode: mediaDescription.language.languageCode,
-                title: mediaDescription.title,
-                description: mediaDescription.description,
-                source: mediaDescription.source,
-                group: mediaDescription.media.group,
-                filePath: mediaDescription.media.mediaDirectory,
-                verified: mediaDescription.verified,
-                descriptionId: mediaDescription.requireID()
+                languageCode: mediaDetail.language.languageCode,
+                title: mediaDetail.title,
+                detailText: mediaDetail.detailText,
+                source: mediaDetail.source,
+                group: mediaDetail.media.group,
+                filePath: mediaDetail.media.mediaDirectory,
+                verified: mediaDetail.verified,
+                detailId: mediaDetail.requireID()
             )
         }
-        return try await detailOutput(req, repository, mediaDescription)
+        return try await detailOutput(req, repository, mediaDetail)
     }
     
-    func detailOutput(_ req: Request, _ repository: MediaRepositoryModel, _ mediaDescription: MediaDescriptionModel) async throws -> Media.Media.Detail {
-        try await mediaDescription.$media.load(on: req.db)
-        try await mediaDescription.$language.load(on: req.db)
+    func detailOutput(_ req: Request, _ repository: MediaRepositoryModel, _ mediaDetail: MediaDetailModel) async throws -> Media.Media.Detail {
+        try await mediaDetail.$media.load(on: req.db)
+        try await mediaDetail.$language.load(on: req.db)
         return try .publicDetail(
             id: repository.requireID(),
-            languageCode: mediaDescription.language.languageCode,
-            title: mediaDescription.title,
-            description: mediaDescription.description,
-            source: mediaDescription.source,
-            group: mediaDescription.media.group,
-            filePath: mediaDescription.media.mediaDirectory
+            languageCode: mediaDetail.language.languageCode,
+            title: mediaDetail.title,
+            detailText: mediaDetail.detailText,
+            source: mediaDetail.source,
+            group: mediaDetail.media.group,
+            filePath: mediaDetail.media.mediaDirectory
         )
     }
     
@@ -147,13 +147,13 @@ struct MediaApiController: ApiController {
         let input = try req.query.decode(CreateObject.self)
         let repository = DatabaseModel()
         let mediaFile = MediaFileModel()
-        let mediaDescription = MediaDescriptionModel()
-        try await createInput(req, repository, mediaDescription, mediaFile, input)
+        let mediaDetail = MediaDetailModel()
+        try await createInput(req, repository, mediaDetail, mediaFile, input)
         try await create(req, repository)
         try await mediaFile.create(on: req.db)
-        mediaDescription.$mediaRepository.id = try repository.requireID()
-        try await mediaFile.$descriptions.create(mediaDescription, on: req.db)
-        return try await createResponse(req, repository, mediaDescription)
+        mediaDetail.$mediaRepository.id = try repository.requireID()
+        try await mediaFile.$detailText.create(mediaDetail, on: req.db)
+        return try await createResponse(req, repository, mediaDetail)
     }
     
     func beforeCreate(_ req: Request, _ model: MediaRepositoryModel) async throws {
@@ -165,7 +165,7 @@ struct MediaApiController: ApiController {
         fatalError()
     }
     
-    func createInput(_ req: Request, _ repository: MediaRepositoryModel, _ mediaDescription: MediaDescriptionModel, _ mediaFile: MediaFileModel, _ input: Media.Media.Create) async throws {
+    func createInput(_ req: Request, _ repository: MediaRepositoryModel, _ mediaDetail: MediaDetailModel, _ mediaFile: MediaFileModel, _ input: Media.Media.Create) async throws {
         let user = try req.auth.require(AuthenticatedUser.self)
         
         guard let waypointId = try await WaypointRepositoryModel
@@ -206,16 +206,16 @@ struct MediaApiController: ApiController {
         let filePath = req.application.directory.publicDirectory + mediaFile.mediaDirectory
         try await FileStorage.saveBodyStream(of: req, to: filePath)
         
-        mediaDescription.verified = false
-        mediaDescription.title = input.title
-        mediaDescription.description = input.description
-        mediaDescription.source = input.source
-        mediaDescription.$language.id = languageId
-        mediaDescription.$user.id = user.id
+        mediaDetail.verified = false
+        mediaDetail.title = input.title
+        mediaDetail.detailText = input.detailText
+        mediaDetail.source = input.source
+        mediaDetail.$language.id = languageId
+        mediaDetail.$user.id = user.id
     }
     
-    func createResponse(_ req: Request, _ repository: MediaRepositoryModel, _ mediaDescription: MediaDescriptionModel) async throws -> Response {
-        try await detailOutput(req, repository, mediaDescription).encodeResponse(status: .created, for: req)
+    func createResponse(_ req: Request, _ repository: MediaRepositoryModel, _ mediaDetail: MediaDetailModel) async throws -> Response {
+        try await detailOutput(req, repository, mediaDetail).encodeResponse(status: .created, for: req)
     }
     
     // MARK: - Update
@@ -224,12 +224,12 @@ struct MediaApiController: ApiController {
         try await RequestValidator(updateValidators()).validate(req)
         let repository = try await findBy(identifier(req), on: req.db)
         let input = try req.query.decode(UpdateObject.self)
-        let mediaDescription = MediaDescriptionModel()
+        let mediaDetail = MediaDetailModel()
         try await beforeUpdate(req, repository)
-        try await updateInput(req, repository, mediaDescription, input)
-        try await repository.$media.create(mediaDescription, on: req.db)
+        try await updateInput(req, repository, mediaDetail, input)
+        try await repository.$media.create(mediaDetail, on: req.db)
         try await afterUpdate(req, repository)
-        return try await updateResponse(req, repository, mediaDescription)
+        return try await updateResponse(req, repository, mediaDetail)
     }
     
     func beforeUpdate(_ req: Request, _ model: MediaRepositoryModel) async throws {
@@ -241,7 +241,7 @@ struct MediaApiController: ApiController {
         fatalError()
     }
     
-    func updateInput(_ req: Request, _ repository: MediaRepositoryModel, _ mediaDescription: MediaDescriptionModel, _ input: Media.Media.Update) async throws {
+    func updateInput(_ req: Request, _ repository: MediaRepositoryModel, _ mediaDetail: MediaDetailModel, _ input: Media.Media.Update) async throws {
         /// Require user to be signed in
         let user = try req.auth.require(AuthenticatedUser.self)
         
@@ -254,18 +254,18 @@ struct MediaApiController: ApiController {
             throw Abort(.badRequest)
         }
         
-        mediaDescription.verified = false
-        mediaDescription.title = input.title
-        mediaDescription.description = input.description
-        mediaDescription.source = input.source
-        mediaDescription.$language.id = languageId
-        mediaDescription.$user.id = user.id
+        mediaDetail.verified = false
+        mediaDetail.title = input.title
+        mediaDetail.detailText = input.detailText
+        mediaDetail.source = input.source
+        mediaDetail.$language.id = languageId
+        mediaDetail.$user.id = user.id
         
         if let mediaIdForFile = input.mediaIdForFile {
-            guard let mediaDescriptionForFile = try await MediaDescriptionModel.find(mediaIdForFile, on: req.db) else {
+            guard let mediaDetailForFile = try await MediaDetailModel.find(mediaIdForFile, on: req.db) else {
                 throw Abort(.badRequest)
             }
-            mediaDescription.$media.id = mediaDescriptionForFile.$media.id
+            mediaDetail.$media.id = mediaDetailForFile.$media.id
         } else {
             guard let mediaFileGroup = req.headers.contentType?.mediaGroup(), let preferredFilenameExtension = req.headers.contentType?.preferredFilenameExtension() else {
                 if let fileType = req.headers.contentType {
@@ -287,12 +287,12 @@ struct MediaApiController: ApiController {
             let filePath = req.application.directory.publicDirectory + mediaFile.mediaDirectory
             try await FileStorage.saveBodyStream(of: req, to: filePath)
             try await mediaFile.create(on: req.db)
-            mediaDescription.$media.id = try mediaFile.requireID()
+            mediaDetail.$media.id = try mediaFile.requireID()
         }
     }
     
-    func updateResponse(_ req: Request, _ repository: MediaRepositoryModel, _ mediaDescription: MediaDescriptionModel) async throws -> Response {
-        try await detailOutput(req, repository, mediaDescription).encodeResponse(for: req)
+    func updateResponse(_ req: Request, _ repository: MediaRepositoryModel, _ mediaDetail: MediaDetailModel) async throws -> Response {
+        try await detailOutput(req, repository, mediaDetail).encodeResponse(for: req)
     }
     
     // MARK: - Patch
@@ -302,9 +302,9 @@ struct MediaApiController: ApiController {
         let repository = try await findBy(identifier(req), on: req.db)
         let input = try req.query.decode(PatchObject.self)
         try await beforePatch(req, repository)
-        let mediaDescription = try await patchInputMedia(req, repository, input)
+        let mediaDetail = try await patchInputMedia(req, repository, input)
         try await afterPatch(req, repository)
-        return try await patchResponse(req, repository, mediaDescription)
+        return try await patchResponse(req, repository, mediaDetail)
     }
     
     func beforePatch(_ req: Request, _ model: MediaRepositoryModel) async throws {
@@ -317,29 +317,29 @@ struct MediaApiController: ApiController {
     }
     
     // different name since otherwise it is ambiguous because of function overload with same parameters
-    func patchInputMedia(_ req: Request, _ repository: MediaRepositoryModel, _ input: Media.Media.Patch) async throws -> MediaDescriptionModel {
+    func patchInputMedia(_ req: Request, _ repository: MediaRepositoryModel, _ input: Media.Media.Patch) async throws -> MediaDetailModel {
         /// Require user to be signed in
         let user = try req.auth.require(AuthenticatedUser.self)
         
-        guard let mediaToPatch = try await MediaDescriptionModel
+        guard let mediaToPatch = try await MediaDetailModel
             .find(input.idForMediaToPatch, on: req.db)
         else {
             throw Abort(.badRequest, reason: "No media with the given id could be found")
         }
         
-        guard input.title != nil || input.description != nil || input.source != nil || req.headers.contentType?.mediaGroup() != nil else {
+        guard input.title != nil || input.detailText != nil || input.source != nil || req.headers.contentType?.mediaGroup() != nil else {
             throw Abort(.badRequest)
         }
         
-        let mediaDescription = MediaDescriptionModel()
+        let mediaDetail = MediaDetailModel()
         
-        mediaDescription.verified = false
-        mediaDescription.title = input.title ?? mediaToPatch.title
-        mediaDescription.description = input.description ?? mediaToPatch.description
-        mediaDescription.source = input.source ?? mediaToPatch.source
-        mediaDescription.$mediaRepository.id = try repository.requireID()
-        mediaDescription.$language.id = mediaToPatch.$language.id
-        mediaDescription.$user.id = user.id
+        mediaDetail.verified = false
+        mediaDetail.title = input.title ?? mediaToPatch.title
+        mediaDetail.detailText = input.detailText ?? mediaToPatch.detailText
+        mediaDetail.source = input.source ?? mediaToPatch.source
+        mediaDetail.$mediaRepository.id = try repository.requireID()
+        mediaDetail.$language.id = mediaToPatch.$language.id
+        mediaDetail.$user.id = user.id
         
         if let mediaFileGroup = req.headers.contentType?.mediaGroup(), let preferredFilenameExtension = req.headers.contentType?.preferredFilenameExtension() {
             let mediaPath = "assets/media"
@@ -353,17 +353,17 @@ struct MediaApiController: ApiController {
             let filePath = req.application.directory.publicDirectory + mediaFile.mediaDirectory
             try await FileStorage.saveBodyStream(of: req, to: filePath)
             try await mediaFile.create(on: req.db)
-            mediaDescription.$media.id = try mediaFile.requireID()
+            mediaDetail.$media.id = try mediaFile.requireID()
         } else {
-            mediaDescription.$media.id = mediaToPatch.$media.id
+            mediaDetail.$media.id = mediaToPatch.$media.id
         }
         
-        try await mediaDescription.create(on: req.db)
-        return mediaDescription
+        try await mediaDetail.create(on: req.db)
+        return mediaDetail
     }
     
-    func patchResponse(_ req: Request, _ repository: MediaRepositoryModel, _ mediaDescription: MediaDescriptionModel) async throws -> Response {
-        try await detailOutput(req, repository, mediaDescription).encodeResponse(for: req)
+    func patchResponse(_ req: Request, _ repository: MediaRepositoryModel, _ mediaDetail: MediaDetailModel) async throws -> Response {
+        try await detailOutput(req, repository, mediaDetail).encodeResponse(for: req)
     }
     
     // MARK: - Delete

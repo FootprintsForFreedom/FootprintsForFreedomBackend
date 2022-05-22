@@ -16,8 +16,8 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
     private func getMediaUpdateContent(
         title: String = "New Meidia Title \(UUID())",
         updatedTitle: String = "Updated Title",
-        description: String = "New Media Description",
-        updatedDescription: String = "Updated Description",
+        detailText: String = "New Media Description",
+        updatedDetailText: String = "Updated Description",
         source: String = "New Media Source",
         updatedSource: String = "Updated Media Soruce",
         languageId: UUID? = nil,
@@ -25,10 +25,10 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
         waypointId: UUID? = nil,
         setMediaIdForFile: Bool = true,
         verified: Bool = false
-    ) async throws -> (mediaRepository: MediaRepositoryModel, createdMediaDescription: MediaDescriptionModel, createdMediaFile: MediaFileModel, updateContent: Media.Media.Update) {
-        let (repository, description, file) = try await createNewMedia(
+    ) async throws -> (mediaRepository: MediaRepositoryModel, createdMediaDetail: MediaDetailModel, createdMediaFile: MediaFileModel, updateContent: Media.Media.Update) {
+        let (repository, detail, file) = try await createNewMedia(
             title: title,
-            description: description,
+            detailText: detailText,
             source: source,
             verified: verified,
             waypointId: waypointId,
@@ -36,16 +36,16 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
         )
         
         if updateLanguageCode == nil {
-            try await description.$language.load(on: app.db)
+            try await detail.$language.load(on: app.db)
         }
         let updateContent = try Media.Media.Update(
             title: updatedTitle,
-            description: updatedDescription,
+            detailText: updatedDetailText,
             source: updatedSource,
-            languageCode: updateLanguageCode ?? description.language.languageCode,
-            mediaIdForFile: setMediaIdForFile ? description.requireID() : nil
+            languageCode: updateLanguageCode ?? detail.language.languageCode,
+            mediaIdForFile: setMediaIdForFile ? detail.requireID() : nil
         )
-        return (repository, description, file, updateContent)
+        return (repository, detail, file, updateContent)
     }
     
     struct TestFile {
@@ -69,7 +69,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
             .expect(Media.Media.Detail.self) { content in
                 XCTAssertNotNil(content.id)
                 XCTAssertEqual(content.title, updateContent.title)
-                XCTAssertEqual(content.description, updateContent.description)
+                XCTAssertEqual(content.detailText, updateContent.detailText)
                 XCTAssertEqual(content.source, updateContent.source)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
                 XCTAssertEqual(content.group, file.group)
@@ -106,7 +106,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
             .expect(Media.Media.Detail.self) { content in
                 XCTAssertNotNil(content.id)
                 XCTAssertEqual(content.title, updateContent.title)
-                XCTAssertEqual(content.description, updateContent.description)
+                XCTAssertEqual(content.detailText, updateContent.detailText)
                 XCTAssertEqual(content.source, updateContent.source)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
                 XCTAssertNotEqual(content.filePath, file.mediaDirectory)
@@ -140,7 +140,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
             .expect(Media.Media.Detail.self) { content in
                 XCTAssertNotNil(content.id)
                 XCTAssertEqual(content.title, updateContent.title)
-                XCTAssertEqual(content.description, updateContent.description)
+                XCTAssertEqual(content.detailText, updateContent.detailText)
                 XCTAssertEqual(content.source, updateContent.source)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
                 XCTAssertEqual(content.group, file.group)
@@ -196,13 +196,13 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
             .test()
     }
     
-    func testUpdateMediaNeedsValidDescription() async throws {
+    func testUpdateMediaNeedsValidDetailText() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, _, _, updateContent) = try await getMediaUpdateContent(updatedDescription: "", verified: true)
+        let (repository, _, _, updateContent) = try await getMediaUpdateContent(updatedDetailText: "", verified: true)
         let query = try URLEncodedFormEncoder().encode(updateContent)
         
         try app
-            .describe("Update media with empty description should fail")
+            .describe("Update media with empty detailText should fail")
             .put(mediaPath.appending("\(repository.requireID().uuidString)/?\(query)"))
             .bearerToken(token)
             .expect(.badRequest)

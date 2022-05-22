@@ -18,26 +18,26 @@ enum WaypointMigrations {
                 .field(WaypointRepositoryModel.FieldKeys.v1.deletedAt, .datetime)
                 .create()
             
-            try await db.schema(WaypointWaypointModel.schema)
+            try await db.schema(WaypointDetailModel.schema)
                 .id()
             
-                .field(WaypointWaypointModel.FieldKeys.v1.verified, .bool, .required)
-                .field(WaypointWaypointModel.FieldKeys.v1.title, .string , .required)
-                .field(WaypointWaypointModel.FieldKeys.v1.description, .string , .required)
+                .field(WaypointDetailModel.FieldKeys.v1.verified, .bool, .required)
+                .field(WaypointDetailModel.FieldKeys.v1.title, .string , .required)
+                .field(WaypointDetailModel.FieldKeys.v1.detailText, .string , .required)
             
-                .field(WaypointWaypointModel.FieldKeys.v1.languageId, .uuid, .required)
-                .foreignKey(WaypointWaypointModel.FieldKeys.v1.languageId, references: LanguageModel.schema, .id)
+                .field(WaypointDetailModel.FieldKeys.v1.languageId, .uuid, .required)
+                .foreignKey(WaypointDetailModel.FieldKeys.v1.languageId, references: LanguageModel.schema, .id)
             
-                .field(WaypointWaypointModel.FieldKeys.v1.repositoryId, .uuid, .required)
-                .foreignKey(WaypointWaypointModel.FieldKeys.v1.repositoryId, references: WaypointRepositoryModel.schema, .id, onDelete: .cascade)
+                .field(WaypointDetailModel.FieldKeys.v1.repositoryId, .uuid, .required)
+                .foreignKey(WaypointDetailModel.FieldKeys.v1.repositoryId, references: WaypointRepositoryModel.schema, .id, onDelete: .cascade)
             
             // TODO: required may pose problem when deleting user, test please
-                .field(WaypointWaypointModel.FieldKeys.v1.userId, .uuid)
-                .foreignKey(WaypointWaypointModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
+                .field(WaypointDetailModel.FieldKeys.v1.userId, .uuid)
+                .foreignKey(WaypointDetailModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
             
-                .field(WaypointWaypointModel.FieldKeys.v1.createdAt, .datetime, .required)
-                .field(WaypointWaypointModel.FieldKeys.v1.updatedAt, .datetime, .required)
-                .field(WaypointWaypointModel.FieldKeys.v1.deletedAt, .datetime)
+                .field(WaypointDetailModel.FieldKeys.v1.createdAt, .datetime, .required)
+                .field(WaypointDetailModel.FieldKeys.v1.updatedAt, .datetime, .required)
+                .field(WaypointDetailModel.FieldKeys.v1.deletedAt, .datetime)
             
                 .create()
             
@@ -62,7 +62,7 @@ enum WaypointMigrations {
         }
         
         func revert(on db: Database) async throws {
-            try await db.schema(WaypointWaypointModel.schema).delete()
+            try await db.schema(WaypointDetailModel.schema).delete()
             try await db.schema(WaypointLocationModel.schema).delete()
             try await db.schema(WaypointRepositoryModel.schema).delete()
         }

@@ -20,14 +20,14 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
         let userId = try await getUser(role: .user).requireID()
         
         // Create an unverified media
-        let (unverifiedMediaRepository, createdUnverifiedDescription, _) = try await createNewMedia(languageId: language.requireID(), userId: userId)
+        let (unverifiedMediaRepository, createdUnverifiedDetail, _) = try await createNewMedia(languageId: language.requireID(), userId: userId)
         // Create a verified media
-        let (verifiedMediaRepository, createdVerifiedDescription, createdVerifiedFile) = try await createNewMedia(verified: true, languageId: language.requireID(), userId: userId)
+        let (verifiedMediaRepository, createdVerifiedDetail, createdVerifiedFile) = try await createNewMedia(verified: true, languageId: language.requireID(), userId: userId)
         // Create a second not verified model for the verified media
-        let _ = try await MediaDescriptionModel.createWith(
+        let _ = try await MediaDetailModel.createWith(
             verified: false,
             title: "Not visible",
-            description: "Some invisible description",
+            detailText: "Some invisible detailText",
             source: "What is this?",
             languageId: language.requireID(),
             repositoryId: verifiedMediaRepository.requireID(),
@@ -66,7 +66,7 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
                 XCTAssert(content.items.contains { $0.id == unverifiedMediaRepository.id })
                 if let unverifiedMedia = content.items.first(where: { $0.id == unverifiedMediaRepository.id }) {
                     XCTAssertEqual(unverifiedMedia.id, unverifiedMediaRepository.id)
-                    XCTAssertEqual(unverifiedMedia.title, createdUnverifiedDescription.title)
+                    XCTAssertEqual(unverifiedMedia.title, createdUnverifiedDetail.title)
                 }
                 
                 
@@ -75,7 +75,7 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
                 XCTAssert(content.items.contains { $0.id == verifiedMediaRepository.id })
                 if let verifiedMedia = content.items.first(where: { $0.id == verifiedMediaRepository.id }) {
                     XCTAssertEqual(verifiedMedia.id, verifiedMediaRepository.id)
-                    XCTAssertEqual(verifiedMedia.title, createdVerifiedDescription.title)
+                    XCTAssertEqual(verifiedMedia.title, createdVerifiedDetail.title)
                 }
                 
                 XCTAssertFalse(content.items.contains { $0.id == verifiedMediaRepositoryInDifferentLanguage.id })
@@ -102,7 +102,7 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
             .test()
     }
     
-    func testListUnverifiedDescriptionsForRepository() async throws {
+    func testListUnverifiedDetailsForRepository() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         
         let language = try await createLanguage()
@@ -111,13 +111,13 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
         let userId = try await getUser(role: .user).requireID()
         
         // Create an unverified media
-        let (mediaRepository, createdUnverifiedDescription, createdFile) = try await createNewMedia(languageId: language.requireID(), userId: userId)
-        try await createdUnverifiedDescription.$language.load(on: app.db)
+        let (mediaRepository, createdUnverifiedDetail, createdFile) = try await createNewMedia(languageId: language.requireID(), userId: userId)
+        try await createdUnverifiedDetail.$language.load(on: app.db)
         // Create a verified media for the same repository
-        let verifiedDescription = try await MediaDescriptionModel.createWith(
+        let verifiedDetail = try await MediaDetailModel.createWith(
             verified: true,
             title: "Verified Media",
-            description: "This is text",
+            detailText: "This is text",
             source: "What is this?",
             languageId: language.requireID(),
             repositoryId: mediaRepository.requireID(),
@@ -126,10 +126,10 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
             on: app.db
         )
         // Create a second not verified media for the same repository
-        let secondCreatedUnverifiedDescription = try await MediaDescriptionModel.createWith(
+        let secondCreatedUnverifiedDetail = try await MediaDetailModel.createWith(
             verified: false,
             title: "Not visible",
-            description: "Some invisible description",
+            detailText: "Some invisible detailText",
             source: "What is that?",
             languageId: language.requireID(),
             repositoryId: mediaRepository.requireID(),
@@ -137,12 +137,12 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
             userId: userId,
             on: app.db
         )
-        try await secondCreatedUnverifiedDescription.$language.load(on: app.db)
+        try await secondCreatedUnverifiedDetail.$language.load(on: app.db)
         // Create a second not verified media for the same repository in another language
-        let createdUnverifiedDescriptionInDifferentLanguage = try await MediaDescriptionModel.createWith(
+        let createdUnverifiedDetailInDifferentLanguage = try await MediaDetailModel.createWith(
             verified: false,
             title: "Different Language",
-            description: "Not visible description, other language",
+            detailText: "Not visible detailText, other language",
             source: "Hallo, was ist das?",
             languageId: language2.requireID(),
             repositoryId: mediaRepository.requireID(),
@@ -150,16 +150,16 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
             userId: userId,
             on: app.db
         )
-        try await createdUnverifiedDescriptionInDifferentLanguage.$language.load(on: app.db)
+        try await createdUnverifiedDetailInDifferentLanguage.$language.load(on: app.db)
         // Create a not verified media for another repository
-        let (_, unverifiedDescriptionForDifferentRepository, _) = try await createNewMedia(languageId: language.requireID(), userId: userId)
+        let (_, unverifiedDetailForDifferentRepository, _) = try await createNewMedia(languageId: language.requireID(), userId: userId)
 
         // Get unverified and verified media count
-        let mediaCount = try await MediaDescriptionModel
+        let mediaCount = try await MediaDetailModel
             .query(on: app.db)
             .count()
 
-        let unverifiedMediaForRepositoryCount = try await MediaDescriptionModel
+        let unverifiedMediaForRepositoryCount = try await MediaDetailModel
             .query(on: app.db)
             .filter(\.$verified == false)
             .filter(\.$mediaRepository.$id == mediaRepository.requireID())
@@ -178,38 +178,38 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.items.map { $0.modelId }.uniqued().count, content.items.count)
                 XCTAssertEqual(content.metadata.total, unverifiedMediaForRepositoryCount)
 
-                XCTAssert(content.items.contains { $0.modelId == createdUnverifiedDescription.id })
-                if let unverifiedDescription = content.items.first(where: { $0.modelId == createdUnverifiedDescription.id }) {
-                    XCTAssertEqual(unverifiedDescription.modelId, createdUnverifiedDescription.id)
-                    XCTAssertEqual(unverifiedDescription.title, createdUnverifiedDescription.title)
-                    XCTAssertEqual(unverifiedDescription.description, createdUnverifiedDescription.description)
-                    XCTAssertEqual(unverifiedDescription.languageCode, createdUnverifiedDescription.language.languageCode)
+                XCTAssert(content.items.contains { $0.modelId == createdUnverifiedDetail.id })
+                if let unverifiedDetail = content.items.first(where: { $0.modelId == createdUnverifiedDetail.id }) {
+                    XCTAssertEqual(unverifiedDetail.modelId, createdUnverifiedDetail.id)
+                    XCTAssertEqual(unverifiedDetail.title, createdUnverifiedDetail.title)
+                    XCTAssertEqual(unverifiedDetail.detailText, createdUnverifiedDetail.detailText)
+                    XCTAssertEqual(unverifiedDetail.languageCode, createdUnverifiedDetail.language.languageCode)
                 }
 
-                XCTAssertFalse(content.items.contains { $0.modelId == verifiedDescription.id })
+                XCTAssertFalse(content.items.contains { $0.modelId == verifiedDetail.id })
 
-                XCTAssert(content.items.contains { $0.modelId == secondCreatedUnverifiedDescription.id })
-                if let secondUnverifiedDescription = content.items.first(where: { $0.modelId == secondCreatedUnverifiedDescription.id }) {
-                    XCTAssertEqual(secondUnverifiedDescription.modelId, secondCreatedUnverifiedDescription.id)
-                    XCTAssertEqual(secondUnverifiedDescription.title, secondCreatedUnverifiedDescription.title)
-                    XCTAssertEqual(secondUnverifiedDescription.description, secondCreatedUnverifiedDescription.description)
-                    XCTAssertEqual(secondUnverifiedDescription.languageCode, secondCreatedUnverifiedDescription.language.languageCode)
+                XCTAssert(content.items.contains { $0.modelId == secondCreatedUnverifiedDetail.id })
+                if let secondUnverifiedDetail = content.items.first(where: { $0.modelId == secondCreatedUnverifiedDetail.id }) {
+                    XCTAssertEqual(secondUnverifiedDetail.modelId, secondCreatedUnverifiedDetail.id)
+                    XCTAssertEqual(secondUnverifiedDetail.title, secondCreatedUnverifiedDetail.title)
+                    XCTAssertEqual(secondUnverifiedDetail.detailText, secondCreatedUnverifiedDetail.detailText)
+                    XCTAssertEqual(secondUnverifiedDetail.languageCode, secondCreatedUnverifiedDetail.language.languageCode)
                 }
 
-                XCTAssert(content.items.contains { $0.modelId == createdUnverifiedDescriptionInDifferentLanguage.id })
-                if let unverifiedDescriptionInDifferentLanguage = content.items.first(where: { $0.modelId == createdUnverifiedDescriptionInDifferentLanguage.id }) {
-                    XCTAssertEqual(unverifiedDescriptionInDifferentLanguage.modelId, createdUnverifiedDescriptionInDifferentLanguage.id)
-                    XCTAssertEqual(unverifiedDescriptionInDifferentLanguage.title, createdUnverifiedDescriptionInDifferentLanguage.title)
-                    XCTAssertEqual(unverifiedDescriptionInDifferentLanguage.description, createdUnverifiedDescriptionInDifferentLanguage.description)
-                    XCTAssertEqual(unverifiedDescriptionInDifferentLanguage.languageCode, createdUnverifiedDescriptionInDifferentLanguage.language.languageCode)
+                XCTAssert(content.items.contains { $0.modelId == createdUnverifiedDetailInDifferentLanguage.id })
+                if let unverifiedDetailInDifferentLanguage = content.items.first(where: { $0.modelId == createdUnverifiedDetailInDifferentLanguage.id }) {
+                    XCTAssertEqual(unverifiedDetailInDifferentLanguage.modelId, createdUnverifiedDetailInDifferentLanguage.id)
+                    XCTAssertEqual(unverifiedDetailInDifferentLanguage.title, createdUnverifiedDetailInDifferentLanguage.title)
+                    XCTAssertEqual(unverifiedDetailInDifferentLanguage.detailText, createdUnverifiedDetailInDifferentLanguage.detailText)
+                    XCTAssertEqual(unverifiedDetailInDifferentLanguage.languageCode, createdUnverifiedDetailInDifferentLanguage.language.languageCode)
                 }
 
-                XCTAssertFalse(content.items.contains { $0.modelId == unverifiedDescriptionForDifferentRepository.id })
+                XCTAssertFalse(content.items.contains { $0.modelId == unverifiedDetailForDifferentRepository.id })
             }
             .test()
     }
     
-    func testListUnverifiedDescriptionsForRepositoryAsUserFails() async throws {
+    func testListUnverifiedDetailsForRepositoryAsUserFails() async throws {
         let userToken = try await getToken(for: .user)
         
         // Create an unverified media
@@ -223,7 +223,7 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
             .test()
     }
     
-    func testListUnverifiedDescriptionsForRepositoryWithoutTokenFails() async throws {
+    func testListUnverifiedDetailsForRepositoryWithoutTokenFails() async throws {
         // Create an unverified media
         let (mediaRepository, _, _) = try await createNewMedia()
         

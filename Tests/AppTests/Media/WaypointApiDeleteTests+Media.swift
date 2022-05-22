@@ -14,10 +14,10 @@ extension WaypointApiDeleteTests: MediaTest {
     func testDeleteWaypointDeletesAssociatedMedia() async throws {
         // Get original waypoint count
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
-        let waypointModelCount = try await WaypointWaypointModel.query(on: app.db).count()
+        let waypointModelCount = try await WaypointDetailModel.query(on: app.db).count()
         let locationCount = try await WaypointLocationModel.query(on: app.db).count()
         let mediaRespositoryCount = try await MediaRepositoryModel.query(on: app.db).count()
-        let mediaDescriptionCount = try await MediaDescriptionModel.query(on: app.db).count()
+        let mediaDetailCount = try await MediaDetailModel.query(on: app.db).count()
         let mediaFileCount = try await MediaFileModel.query(on: app.db).count()
         
         let (waypointRepository, _, _) = try await createNewWaypoint()
@@ -33,16 +33,16 @@ extension WaypointApiDeleteTests: MediaTest {
         
         // New waypoint count should be one less than original waypoint count
         let newWaypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
-        let newWaypointModelCount = try await WaypointWaypointModel.query(on: app.db).count()
+        let newWaypointModelCount = try await WaypointDetailModel.query(on: app.db).count()
         let newLocationCount = try await WaypointLocationModel.query(on: app.db).count()
         let newMediaRespositoryCount = try await MediaRepositoryModel.query(on: app.db).count()
-        let newMediaDescriptionCount = try await MediaDescriptionModel.query(on: app.db).count()
+        let newMediaDetailCount = try await MediaDetailModel.query(on: app.db).count()
         let newMediaFileCount = try await MediaFileModel.query(on: app.db).count()
         XCTAssertEqual(newWaypointCount, waypointCount)
         XCTAssertEqual(newWaypointModelCount, waypointModelCount)
         XCTAssertEqual(newLocationCount, locationCount)
         XCTAssertEqual(newMediaRespositoryCount, mediaRespositoryCount)
-        XCTAssertEqual(newMediaDescriptionCount, mediaDescriptionCount)
+        XCTAssertEqual(newMediaDetailCount, mediaDetailCount)
         XCTAssertEqual(newMediaFileCount, mediaFileCount)
     }
 }

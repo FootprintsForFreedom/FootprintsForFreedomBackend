@@ -16,7 +16,7 @@ extension Data: Content { }
 final class MediaApiCreateTests: AppTestCase, MediaTest {
     private func getMediaCreateContent(
         title: String = "New Meidia Title \(UUID())",
-        description: String = "New Media Description",
+        detailText: String = "New Media Description",
         source: String = "New Media Source",
         languageCode: String? = nil,
         waypointId: UUID? = nil
@@ -29,7 +29,7 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         if waypointId == nil {
             waypointId = try await createNewWaypoint().repository.id
         }
-        return .init(title: title, description: description, source: source, languageCode: languageCode, waypointId: waypointId)
+        return .init(title: title, detailText: detailText, source: source, languageCode: languageCode, waypointId: waypointId)
     }
     
     struct TestFile {
@@ -43,7 +43,7 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         let newMedia = try await getMediaCreateContent()
         
         // Get original media count
-        let mediaDescriptionCount = try await MediaDescriptionModel.query(on: app.db).count()
+        let mediaDetailCount = try await MediaDetailModel.query(on: app.db).count()
         let mediaFileCount = try await MediaFileModel.query(on: app.db).count()
         var newRepositoryId: UUID!
         
@@ -74,7 +74,7 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
                     XCTAssertNotNil(content.id)
                     newRepositoryId = content.id
                     XCTAssertEqual(content.title, newMedia.title)
-                    XCTAssertEqual(content.description, newMedia.description)
+                    XCTAssertEqual(content.detailText, newMedia.detailText)
                     XCTAssertEqual(content.source, newMedia.source)
                     XCTAssertEqual(content.languageCode, newMedia.languageCode)
                     XCTAssertNil(content.verified)
@@ -83,9 +83,9 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         }
         
         // New media count should be one more than original media count
-        let newMediaDescriptionCount = try await MediaDescriptionModel.query(on: app.db).count()
+        let newMediaDetailCount = try await MediaDetailModel.query(on: app.db).count()
         let newMediaFileCount = try await MediaFileModel.query(on: app.db).count()
-        XCTAssertEqual(newMediaDescriptionCount, mediaDescriptionCount + testFiles.count)
+        XCTAssertEqual(newMediaDetailCount, mediaDetailCount + testFiles.count)
         XCTAssertEqual(newMediaFileCount, mediaFileCount + testFiles.count)
         
         // check the new model is unverified
@@ -107,7 +107,7 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         let newMedia = try await getMediaCreateContent()
         
         // Get original media count
-        let mediaDescriptionCount = try await MediaDescriptionModel.query(on: app.db).count()
+        let mediaDetailCount = try await MediaDetailModel.query(on: app.db).count()
         let mediaFileCount = try await MediaFileModel.query(on: app.db).count()
         var newRepositoryId: UUID!
         
@@ -138,7 +138,7 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
                     XCTAssertNotNil(content.id)
                     newRepositoryId = content.id
                     XCTAssertEqual(content.title, newMedia.title)
-                    XCTAssertEqual(content.description, newMedia.description)
+                    XCTAssertEqual(content.detailText, newMedia.detailText)
                     XCTAssertEqual(content.source, newMedia.source)
                     XCTAssertEqual(content.languageCode, newMedia.languageCode)
                     XCTAssertNil(content.verified)
@@ -147,9 +147,9 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         }
         
         // New media count should be one more than original media count
-        let newMediaDescriptionCount = try await MediaDescriptionModel.query(on: app.db).count()
+        let newMediaDetailCount = try await MediaDetailModel.query(on: app.db).count()
         let newMediaFileCount = try await MediaFileModel.query(on: app.db).count()
-        XCTAssertEqual(newMediaDescriptionCount, mediaDescriptionCount + testFiles.count)
+        XCTAssertEqual(newMediaDetailCount, mediaDetailCount + testFiles.count)
         XCTAssertEqual(newMediaFileCount, mediaFileCount + testFiles.count)
         
         // check the new model is unverified
@@ -218,16 +218,16 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
             .test()
     }
     
-    func testCreateMediaNeedsValidDescription() async throws {
+    func testCreateMediaNeedsValidDetailText() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let newMedia = try await getMediaCreateContent(description: "")
+        let newMedia = try await getMediaCreateContent(detailText: "")
         
         let query = try URLEncodedFormEncoder().encode(newMedia)
         let file = TestFile(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png")
         let fileData = try data(for: file.filename, withExtension: file.fileExtension)
             
         try app
-            .describe("Create media with empty description should fail")
+            .describe("Create media with empty detailText should fail")
             .post(mediaPath.appending("?\(query)"))
             .buffer(ByteBuffer(data: fileData))
             .header("Content-Type", file.mimeType)
