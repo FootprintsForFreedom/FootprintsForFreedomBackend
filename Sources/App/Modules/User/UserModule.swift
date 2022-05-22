@@ -6,7 +6,6 @@
 //
 
 import Vapor
-import SwiftHtml
 
 struct UserModule: ModuleInterface {
 
@@ -16,7 +15,6 @@ struct UserModule: ModuleInterface {
         app.migrations.add(UserMigrations.v1())
         app.migrations.add(UserMigrations.seed())
         
-//        app.middleware.use(UserSessionAuthenticator())
         app.middleware.use(UserTokenAuthenticator())
         
         app.hooks.register("api-routes", use: router.apiRoutesHook)
