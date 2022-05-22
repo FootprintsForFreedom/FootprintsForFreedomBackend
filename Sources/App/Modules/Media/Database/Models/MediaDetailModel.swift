@@ -31,7 +31,6 @@ final class MediaDetailModel: DatabaseModelInterface {
     @Field(key: FieldKeys.v1.verified) var verified: Bool
     
     @Field(key: FieldKeys.v1.title) var title: String
-    // TODO: rename
     @Field(key: FieldKeys.v1.detailText) var detailText: String
     @Field(key: FieldKeys.v1.source) var source: String
     
