@@ -16,7 +16,6 @@ final class WaypointWaypointModel: DatabaseModelInterface {
             static var verified: FieldKey { "verified" }
             static var title: FieldKey { "title" }
             static var description: FieldKey { "description" }
-            static var locationId: FieldKey { "location_id" }
             static var languageId: FieldKey { "language_id" }
             static var repositoryId: FieldKey { "repository_id" }
             static var userId: FieldKey { "user_id" }
