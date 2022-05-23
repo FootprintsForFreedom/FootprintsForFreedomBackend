@@ -162,7 +162,7 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
         let unverifiedMediaForRepositoryCount = try await MediaDetailModel
             .query(on: app.db)
             .filter(\.$verified == false)
-            .filter(\.$mediaRepository.$id == mediaRepository.requireID())
+            .filter(\.$repository.$id == mediaRepository.requireID())
             .count()
 
         try app

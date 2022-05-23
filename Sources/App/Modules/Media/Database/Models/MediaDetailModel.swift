@@ -17,7 +17,7 @@ final class MediaDetailModel: DatabaseModelInterface {
             static var title: FieldKey { "title" }
             static var detailText: FieldKey { "detailText" }
             static var source: FieldKey { "source" }
-            static var mediaRepositoryId: FieldKey { "media_repository_id" }
+            static var repositoryId: FieldKey { "repository_id" }
             static var mediaId: FieldKey { "media_id" }
             static var languageId: FieldKey { "language_id" }
             static var userId: FieldKey { "user_id" }
@@ -36,7 +36,7 @@ final class MediaDetailModel: DatabaseModelInterface {
     
     @Parent(key: FieldKeys.v1.languageId) var language: LanguageModel
     
-    @Parent(key: FieldKeys.v1.mediaRepositoryId) var mediaRepository: MediaRepositoryModel
+    @Parent(key: FieldKeys.v1.repositoryId) var repository: MediaRepositoryModel
     @Parent(key: FieldKeys.v1.mediaId) var media: MediaFileModel
     @Parent(key: FieldKeys.v1.userId) var user: UserAccountModel
     
@@ -63,7 +63,7 @@ final class MediaDetailModel: DatabaseModelInterface {
         self.detailText = detailText
         self.source = source
         self.$language.id = languageId
-        self.$mediaRepository.id = repositoryId
+        self.$repository.id = repositoryId
         self.$media.id = fileId
         self.$user.id = userId
     }

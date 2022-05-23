@@ -63,7 +63,7 @@ struct MediaApiController: ApiController {
     func beforeList(_ req: Request, _ queryBuilder: QueryBuilder<MediaRepositoryModel>) async throws -> QueryBuilder<MediaRepositoryModel> {
         queryBuilder
         // only return repositories with verified media details inside
-            .join(MediaDetailModel.self, on: \MediaDetailModel.$mediaRepository.$id == \MediaRepositoryModel.$id)
+            .join(MediaDetailModel.self, on: \MediaDetailModel.$repository.$id == \MediaRepositoryModel.$id)
             .filter(MediaDetailModel.self, \.$verified == true)
         // only return media details which have a activated language
             .join(LanguageModel.self, on: \MediaDetailModel.$language.$id == \LanguageModel.$id)
@@ -151,7 +151,7 @@ struct MediaApiController: ApiController {
         try await createInput(req, repository, mediaDetail, mediaFile, input)
         try await create(req, repository)
         try await mediaFile.create(on: req.db)
-        mediaDetail.$mediaRepository.id = try repository.requireID()
+        mediaDetail.$repository.id = try repository.requireID()
         try await mediaFile.$detailText.create(mediaDetail, on: req.db)
         return try await createResponse(req, repository, mediaDetail)
     }
@@ -337,7 +337,7 @@ struct MediaApiController: ApiController {
         mediaDetail.title = input.title ?? mediaToPatch.title
         mediaDetail.detailText = input.detailText ?? mediaToPatch.detailText
         mediaDetail.source = input.source ?? mediaToPatch.source
-        mediaDetail.$mediaRepository.id = try repository.requireID()
+        mediaDetail.$repository.id = try repository.requireID()
         mediaDetail.$language.id = mediaToPatch.$language.id
         mediaDetail.$user.id = user.id
         

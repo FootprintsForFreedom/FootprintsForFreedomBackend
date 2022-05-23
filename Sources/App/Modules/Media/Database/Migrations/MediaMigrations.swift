@@ -56,8 +56,8 @@ enum MediaMigrations {
                 .field(MediaDetailModel.FieldKeys.v1.languageId, .uuid, .required)
                 .foreignKey(MediaDetailModel.FieldKeys.v1.languageId, references: LanguageModel.schema, .id)
             
-                .field(MediaDetailModel.FieldKeys.v1.mediaRepositoryId, .uuid, .required)
-                .foreignKey(MediaDetailModel.FieldKeys.v1.mediaRepositoryId, references: MediaRepositoryModel.schema, .id, onDelete: .cascade)
+                .field(MediaDetailModel.FieldKeys.v1.repositoryId, .uuid, .required)
+                .foreignKey(MediaDetailModel.FieldKeys.v1.repositoryId, references: MediaRepositoryModel.schema, .id, onDelete: .cascade)
             
                 .field(MediaDetailModel.FieldKeys.v1.mediaId, .uuid, .required)
                 .foreignKey(MediaDetailModel.FieldKeys.v1.mediaId, references: MediaFileModel.schema, .id, onDelete: .cascade)

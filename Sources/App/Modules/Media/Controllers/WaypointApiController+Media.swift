@@ -13,7 +13,7 @@ extension WaypointApiController {
         let waypointRepository = try await detail(req)
         let mediaRepositories = try await waypointRepository.$media
             .query(on: req.db)
-            .join(MediaDetailModel.self, on: \MediaDetailModel.$mediaRepository.$id == \MediaRepositoryModel.$id)
+            .join(MediaDetailModel.self, on: \MediaDetailModel.$repository.$id == \MediaRepositoryModel.$id)
             .filter(MediaDetailModel.self, \.$verified == true)
             .join(LanguageModel.self, on: \MediaDetailModel.$language.$id == \LanguageModel.$id)
             .filter(LanguageModel.self, \.$priority != nil)

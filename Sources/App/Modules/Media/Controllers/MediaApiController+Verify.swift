@@ -30,14 +30,14 @@ extension MediaApiController {
         guard
             let model1 = try await MediaDetailModel
                 .query(on: req.db)
-                .filter(\.$mediaRepository.$id == repository.requireID())
+                .filter(\.$repository.$id == repository.requireID())
                 .filter(\._$id == detailChangesRequest.from)
                 .with(\.$user)
                 .with(\.$media)
                 .first(),
             let model2 = try await MediaDetailModel
                 .query(on: req.db)
-                .filter(\.$mediaRepository.$id == repository.requireID())
+                .filter(\.$repository.$id == repository.requireID())
                 .filter(\._$id == detailChangesRequest.to)
                 .with(\.$user)
                 .with(\.$media)
@@ -83,7 +83,7 @@ extension MediaApiController {
         
         let repositoriesWithUnverifiedModels = try await MediaRepositoryModel
             .query(on: req.db)
-            .join(MediaDetailModel.self, on: \MediaDetailModel.$mediaRepository.$id == \MediaRepositoryModel.$id)
+            .join(MediaDetailModel.self, on: \MediaDetailModel.$repository.$id == \MediaRepositoryModel.$id)
             .join(LanguageModel.self, on: \MediaDetailModel.$language.$id == \LanguageModel.$id)
             .filter(MediaDetailModel.self, \.$verified == false)
             .filter(LanguageModel.self, \.$priority != nil)
@@ -150,7 +150,7 @@ extension MediaApiController {
         guard let media = try await MediaDetailModel
             .query(on: req.db)
             .filter(\._$id == waypointId)
-            .filter(\.$mediaRepository.$id == repository.requireID())
+            .filter(\.$repository.$id == repository.requireID())
             .filter(\.$verified == false)
             .with(\.$language)
             .with(\.$media)

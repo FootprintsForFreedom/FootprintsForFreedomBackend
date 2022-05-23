@@ -26,7 +26,7 @@ final class MediaRepositoryModel: DatabaseModelInterface {
     
     @Parent(key: FieldKeys.v1.waypointId) var waypoint: WaypointRepositoryModel
     
-    @Children(for: \.$mediaRepository) var media: [MediaDetailModel]
+    @Children(for: \.$repository) var media: [MediaDetailModel]
     
     @Siblings(through: MediaTagModel.self, from: \.$media, to: \.$tag) var tags: [TagRepositoryModel]
     
