@@ -26,6 +26,8 @@ final class WaypointRepositoryModel: DatabaseModelInterface {
     @Children(for: \.$repository) var locations: [WaypointLocationModel]
     @Children(for: \.$waypoint) var media: [MediaRepositoryModel]
     
+    @Siblings(through: WaypointTagModel.self, from: \.$waypoint, to: \.$tag) var tags: [TagRepositoryModel]
+    
     @Timestamp(key: FieldKeys.v1.createdAt, on: .create) var createdAt: Date?
     @Timestamp(key: FieldKeys.v1.updatedAt, on: .update) var updatedAt: Date?
     

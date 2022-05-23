@@ -23,9 +23,12 @@ final class MediaRepositoryModel: DatabaseModelInterface {
     }
     
     @ID() var id: UUID?
-    @Children(for: \.$mediaRepository) var media: [MediaDetailModel]
     
     @Parent(key: FieldKeys.v1.waypointId) var waypoint: WaypointRepositoryModel
+    
+    @Children(for: \.$mediaRepository) var media: [MediaDetailModel]
+    
+    @Siblings(through: MediaTagModel.self, from: \.$media, to: \.$tag) var tags: [TagRepositoryModel]
     
     @Timestamp(key: FieldKeys.v1.createdAt, on: .create) var createdAt: Date?
     @Timestamp(key: FieldKeys.v1.updatedAt, on: .update) var updatedAt: Date?

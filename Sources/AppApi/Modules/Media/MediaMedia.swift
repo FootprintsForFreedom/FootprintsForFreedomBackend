@@ -13,6 +13,7 @@ public extension Media {
     }
 }
 
+// TODO: rename to Media.Detail
 public extension Media.Media {
     struct List: Codable {
         public let id: UUID
