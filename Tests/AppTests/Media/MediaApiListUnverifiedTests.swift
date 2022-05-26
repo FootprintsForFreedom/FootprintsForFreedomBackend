@@ -41,13 +41,13 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
         // Get unverified media count
         let media = try await MediaRepositoryModel
             .query(on: app.db)
-            .with(\.$media) { $0.with(\.$language) }
+            .with(\.$details) { $0.with(\.$language) }
             .all()
         
         let mediaCount = media.count
         
         let verifiedMediaCount = media
-            .filter { $0.media.contains { !$0.verified && $0.language.priority != nil } }
+            .filter { $0.details.contains { !$0.verified && $0.language.priority != nil } }
             .count
         
         try app

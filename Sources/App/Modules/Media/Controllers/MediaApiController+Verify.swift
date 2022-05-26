@@ -11,45 +11,20 @@ import DiffMatchPatch
 
 extension Media.Repository.Changes: Content { }
 
-extension MediaApiController {
+extension MediaApiController: RepositoryVerificationController {
     
-    @AsyncValidatorBuilder
-    func detailChangesValidators() -> [AsyncValidator] {
-        KeyedContentValidator<String>.required("from", validateQuery: true)
-        KeyedContentValidator<String>.required("to", validateQuery: true)
+    // MARK: - detail changes
+    
+    func beforeDetailChanges(_ req: Request) async throws {
+        try await req.onlyFor(.moderator)
+    }
+    
+    func beforeGetDetailModel(_ req: Request, _ queryBuilder: QueryBuilder<Detail>) async throws -> QueryBuilder<Detail> {
+        queryBuilder.with(\.$user).with(\.$media)
     }
     
     // GET: api/media/:mediaId/changes/?from=modelId1&to=modelId2
-    func detailChanges(_ req: Request) async throws -> Media.Repository.Changes {
-        try await req.onlyFor(.moderator)
-        
-        let repository = try await detail(req)
-        try await RequestValidator(detailChangesValidators()).validate(req)
-        let detailChangesRequest = try req.query.decode(Media.Repository.DetailChangesRequest.self)
-        
-        guard
-            let model1 = try await MediaDetailModel
-                .query(on: req.db)
-                .filter(\.$repository.$id == repository.requireID())
-                .filter(\._$id == detailChangesRequest.from)
-                .with(\.$user)
-                .with(\.$media)
-                .first(),
-            let model2 = try await MediaDetailModel
-                .query(on: req.db)
-                .filter(\.$repository.$id == repository.requireID())
-                .filter(\._$id == detailChangesRequest.to)
-                .with(\.$user)
-                .with(\.$media)
-                .first()
-        else {
-            throw Abort(.notFound)
-        }
-        
-        guard model1.$language.id == model2.$language.id else {
-            throw Abort(.badRequest, reason: "The models need to be of the same language")
-        }
-        
+    func detailChangesOutput(_ req: Request, _ model1: Detail, _ model2: Detail) async throws -> Media.Repository.Changes {
         /// compute the diffs
         let titleDiff = computeDiff(model1.title, model2.title)
             .cleaningUpSemantics()
@@ -77,112 +52,62 @@ extension MediaApiController {
         )
     }
     
-    func listRepositoriesWithUnverifiedModels(_ req: Request) async throws -> Page<Media.Media.List> {
+    // MARK: - list repositories with unverified details
+    
+    func beforeListRepositoriesWithUnverifiedDetails(_ req: Request) async throws {
         try await req.onlyFor(.moderator)
-        let allLanguageCodesByPriority = try await req.allLanguageCodesByPriority()
-        
-        let repositoriesWithUnverifiedModels = try await MediaRepositoryModel
-            .query(on: req.db)
-            .join(MediaDetailModel.self, on: \MediaDetailModel.$repository.$id == \MediaRepositoryModel.$id)
-            .join(LanguageModel.self, on: \MediaDetailModel.$language.$id == \LanguageModel.$id)
-            .filter(MediaDetailModel.self, \.$verified == false)
-            .filter(LanguageModel.self, \.$priority != nil)
-            .field(\.$id)
-            .unique()
-            .paginate(for: req)
-        
-        return try await repositoriesWithUnverifiedModels.concurrentMap { repository in
-            let latestVerifiedMedia = try await repository.media(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db, sort: .ascending)
-            var media: MediaDetailModel! = latestVerifiedMedia
-            if media == nil {
-                guard let oldestUnverifiedMedia = try await repository.media(for: allLanguageCodesByPriority, needsToBeVerified: false, on: req.db, sort: .ascending) else {
-                    throw Abort(.internalServerError)
-                }
-                media = oldestUnverifiedMedia
-            }
-            
-            try await media.$media.load(on: req.db)
-            return try .init(
-                id: repository.requireID(),
-                title: media.title,
-                group: media.media.group
-            )
-        }
     }
     
-    
-    func listUnverifiedMediaModels(_ req: Request) async throws -> Page<Media.Repository.ListUnverified> {
-        try await req.onlyFor(.moderator)
-        
-        let repository = try await detail(req)
-        
-        let unverifiedMediaModels = try await repository.$media
-            .query(on: req.db)
-            .filter(\.$verified == false)
-            .sort(\.$updatedAt, .ascending) // oldest first
-            .with(\.$language)
-            .paginate(for: req)
-        
-        return try unverifiedMediaModels.map { media in
-            return try .init(
-                modelId: media.requireID(),
-                title: media.title,
-                detailText: media.detailText,
-                languageCode: media.language.languageCode)
-        }
-    }
-    
-    var newModelPathIdKey: String { "newModel" }
-    var newModelPathIdComponent: PathComponent { .init(stringLiteral: ":" + newModelPathIdKey) }
-    
-    // POST: api/media/:repositoryId/verify/:waypointModelId
-    func verifyMedia(_ req: Request) async throws -> Media.Media.Detail {
-        try await req.onlyFor(.moderator)
-        
-        let repository = try await detail(req)
-        guard
-            let waypointIdString = req.parameters.get(newModelPathIdKey),
-            let waypointId = UUID(uuidString: waypointIdString)
-        else {
-            throw Abort(.badRequest)
-        }
-        
-        guard let media = try await MediaDetailModel
-            .query(on: req.db)
-            .filter(\._$id == waypointId)
-            .filter(\.$repository.$id == repository.requireID())
-            .filter(\.$verified == false)
-            .with(\.$language)
-            .with(\.$media)
-            .first()
-        else {
-            throw Abort(.badRequest)
-        }
-        media.verified = true
-        try await media.update(on: req.db)
-        
-        return try .moderatorDetail(
+    func listRepositoriesWithUnverifiedDetailsOutput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: Detail) async throws -> Media.Media.List {
+        try await detail.$media.load(on: req.db)
+        return try .init(
             id: repository.requireID(),
-            languageCode: media.language.languageCode,
-            title: media.title,
-            detailText: media.detailText,
-            source: media.source,
-            group: media.media.group,
-            filePath: media.media.mediaDirectory,
-            verified: media.verified, // TODO: && media.file.verififed
-            detailId: media.requireID()
+            title: detail.title,
+            group: detail.media.group
         )
     }
     
-    func setupVerificationRoutes(_ routes: RoutesBuilder) {
-        let baseRoutes = getBaseRoutes(routes)
-        baseRoutes.get("unverified", use: listRepositoriesWithUnverifiedModels)
-        
-        let existingModelRoutes = baseRoutes.grouped(ApiModel.pathIdComponent)
-        existingModelRoutes.get("unverified", use: listUnverifiedMediaModels)
-        existingModelRoutes.get("changes", use: detailChanges)
-        existingModelRoutes.grouped("verify")
-            .grouped(newModelPathIdComponent)
-            .post(use: verifyMedia)
+    // MARK: - list unverified details for repository
+    
+    func beforeListUnverifiedDetails(_ req: Request) async throws {
+        try await req.onlyFor(.moderator)
+    }
+    
+    func beforeGetUnverifiedDetail(_ req: Request, _ queryBuilder: QueryBuilder<Detail>) async throws -> QueryBuilder<Detail> {
+        queryBuilder.with(\.$language)
+    }
+    
+    func listUnverifiedDetailsOutput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: Detail) async throws -> Media.Repository.ListUnverified {
+        return try .init(
+            modelId: detail.requireID(),
+            title: detail.title,
+            detailText: detail.detailText,
+            languageCode: detail.language.languageCode
+        )
+    }
+    
+    // MARK: - verify detail
+    
+    func beforeVerifyDetail(_ req: Request) async throws {
+        try await req.onlyFor(.moderator)
+    }
+    
+    func beforeGetDetailToVerify(_ req: Request, _ queryBuilder: QueryBuilder<Detail>) async throws -> QueryBuilder<Detail> {
+        queryBuilder.with(\.$language).with(\.$media)
+    }
+    
+    // POST: api/media/:repositoryId/verify/:waypointModelId
+    func verifyDetailOutput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: Detail) async throws -> Media.Media.Detail {
+        return try .moderatorDetail(
+            id: repository.requireID(),
+            languageCode: detail.language.languageCode,
+            title: detail.title,
+            detailText: detail.detailText,
+            source: detail.source,
+            group: detail.media.group,
+            filePath: detail.media.mediaDirectory,
+            verified: detail.verified, // TODO: && media.file.verififed
+            detailId: detail.requireID()
+        )
     }
 }

@@ -10,7 +10,7 @@ import Fluent
 
 extension WaypointApiController {
     func listMedia(_ req: Request) async throws -> Page<Media.Media.List> {
-        let waypointRepository = try await detail(req)
+        let waypointRepository = try await repository(req)
         let mediaRepositories = try await waypointRepository.$media
             .query(on: req.db)
             .join(MediaDetailModel.self, on: \MediaDetailModel.$repository.$id == \MediaRepositoryModel.$id)

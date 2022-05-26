@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class MediaDetailModel: DatabaseModelInterface {
+final class MediaDetailModel: DetailModel {
     typealias Module = MediaModule
     
     struct FieldKeys {
@@ -67,6 +67,13 @@ final class MediaDetailModel: DatabaseModelInterface {
         self.$media.id = fileId
         self.$user.id = userId
     }
+}
+
+extension MediaDetailModel {
+    var _$language: ParentProperty<MediaDetailModel, LanguageModel> { $language }
+    var _$verified: FieldProperty<MediaDetailModel, Bool> { $verified }
+    var _$updatedAt: TimestampProperty<MediaDetailModel, DefaultTimestampFormat> { $updatedAt }
+    var _$repository: ParentProperty<MediaDetailModel, MediaRepositoryModel> { $repository }
 }
 
 // TODO: maybe hash the file contents to verify the file was not edited in the filesystem --> data integrity

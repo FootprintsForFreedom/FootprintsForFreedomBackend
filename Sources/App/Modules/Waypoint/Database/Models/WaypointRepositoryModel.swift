@@ -8,8 +8,9 @@
 import Vapor
 import Fluent
 
-final class WaypointRepositoryModel: DatabaseModelInterface {
+final class WaypointRepositoryModel: RepositoryModel {
     typealias Module = WaypointModule
+    typealias Detail = WaypointDetailModel
     
     static var identifier: String { "repositories" }
     
@@ -22,7 +23,7 @@ final class WaypointRepositoryModel: DatabaseModelInterface {
     }
     
     @ID() var id: UUID?
-    @Children(for: \.$repository) var waypoints: [WaypointDetailModel]
+    @Children(for: \.$repository) var details: [WaypointDetailModel]
     @Children(for: \.$repository) var locations: [WaypointLocationModel]
     @Children(for: \.$waypoint) var media: [MediaRepositoryModel]
     
@@ -38,6 +39,10 @@ final class WaypointRepositoryModel: DatabaseModelInterface {
 }
 
 extension WaypointRepositoryModel {
+    var _$details: ChildrenProperty<WaypointRepositoryModel, WaypointDetailModel> { $details }
+}
+
+extension WaypointRepositoryModel {
     func location(
         needsToBeVerified: Bool,
         on db: Database,
@@ -49,38 +54,5 @@ extension WaypointRepositoryModel {
         }
         query = query.sort(\.$updatedAt, sortDirection)
         return try await query.first()
-    }
-    
-    func waypointModel(
-        for languageCode: String,
-        needsToBeVerified: Bool,
-        on db: Database,
-        sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
-    ) async throws -> WaypointDetailModel? {
-        var query = self.$waypoints
-            .query(on: db)
-            .join(LanguageModel.self, on: \WaypointDetailModel.$language.$id == \LanguageModel.$id)
-            .filter(LanguageModel.self, \.$languageCode == languageCode)
-            .filter(LanguageModel.self, \.$priority != nil)
-        if needsToBeVerified {
-            query = query.filter(\.$verified == true)
-        }
-        query = query.sort(\.$updatedAt, sortDirection)
-        
-        return try await query.first()
-    }
-    
-    func waypointModel(
-        for languageCodesByPriority: [String],
-        needsToBeVerified: Bool,
-        on db: Database,
-        sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
-    ) async throws -> WaypointDetailModel? {
-        for languageCode in languageCodesByPriority {
-            if let waypoint = try await waypointModel(for: languageCode, needsToBeVerified: needsToBeVerified, on: db, sort: sortDirection) {
-                return waypoint
-            }
-        }
-        return nil
     }
 }

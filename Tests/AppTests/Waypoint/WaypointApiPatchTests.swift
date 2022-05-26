@@ -21,7 +21,6 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
         location: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
         patchedLocation: Waypoint.Location? = nil,
         languageId: UUID? = nil,
-        patchLangugageCode: String? = nil,
         verified: Bool = false,
         userId: UUID? = nil
     ) async throws -> (waypointRepository: WaypointRepositoryModel, createdModel: WaypointDetailModel, createdLocation: WaypointLocationModel, patchContent: Waypoint.Detail.Patch) {
@@ -33,11 +32,11 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
             userId: userId
         )
         try await createdModel.$language.load(on: app.db)
-        let patchContent = Waypoint.Detail.Patch(
+        let patchContent = try Waypoint.Detail.Patch(
             title: patchedTitle,
             detailText: patchedDetailText,
             location: patchedLocation,
-            languageCode: patchLangugageCode ?? createdModel.language.languageCode
+            idForWaypointToPatch: createdModel.requireID()
         )
         return (waypointRepository, createdModel, createdLocation, patchContent)
     }
@@ -45,6 +44,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
     func testSuccessfulPatchWaypointTitle() async throws {
         let token = try await getToken(for: .user, verified: true)
         let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(patchedTitle: "The patched title", verified: true)
+        try await createdModel.$language.load(on: app.db)
         
         try app
             .describe("Patch waypoint title should return ok")
@@ -58,13 +58,13 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.title, patchContent.title)
                 XCTAssertEqual(content.detailText, createdModel.detailText)
                 XCTAssertEqual(content.location, createdLocation.location)
-                XCTAssertEqual(content.languageCode, patchContent.languageCode)
+                XCTAssertEqual(content.languageCode, createdModel.language.languageCode)
                 XCTAssertNil(content.verified)
             }
             .test()
         
         // Test the new waypoint model was created correctly
-        let newWaypointModel = try await waypointRepository.$waypoints
+        let newWaypointModel = try await waypointRepository.$details
             .query(on: app.db)
             .sort(\.$updatedAt, .descending)
             .first()!
@@ -76,6 +76,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
     func testSuccessfulPatchWaypointDetailText() async throws {
         let token = try await getToken(for: .user, verified: true)
         let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(patchedDetailText: "The patched detailText", verified: true)
+        try await createdModel.$language.load(on: app.db)
         
         try app
             .describe("Patch waypoint detailText should return ok")
@@ -89,13 +90,13 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.title, createdModel.title)
                 XCTAssertEqual(content.detailText, patchContent.detailText)
                 XCTAssertEqual(content.location, createdLocation.location)
-                XCTAssertEqual(content.languageCode, patchContent.languageCode)
+                XCTAssertEqual(content.languageCode, createdModel.language.languageCode)
                 XCTAssertNil(content.verified)
             }
             .test()
         
         // Test the new waypoint model was created correctly
-        let newWaypointModel = try await waypointRepository.$waypoints
+        let newWaypointModel = try await waypointRepository.$details
             .query(on: app.db)
             .sort(\.$updatedAt, .descending)
             .first()!
@@ -107,6 +108,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
     func testSuccessfulPatchWaypointLocation() async throws {
         let token = try await getToken(for: .user, verified: true)
         let (waypointRepository, createdModel, _, patchContent) = try await getWaypointPatchContent(patchedLocation: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)), verified: true)
+        try await createdModel.$language.load(on: app.db)
         
         try app
             .describe("Patch waypoint location should return ok")
@@ -120,24 +122,25 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.title, createdModel.title)
                 XCTAssertEqual(content.detailText, createdModel.detailText)
                 XCTAssertEqual(content.location, patchContent.location)
-                XCTAssertEqual(content.languageCode, patchContent.languageCode)
+                XCTAssertEqual(content.languageCode, createdModel.language.languageCode)
                 XCTAssertNil(content.verified)
             }
             .test()
         
         // Test the new waypoint model was created correctly
-        let newWaypointModel = try await waypointRepository.$waypoints
+        let newLocationModel = try await waypointRepository.$locations
             .query(on: app.db)
             .sort(\.$updatedAt, .descending)
             .first()!
         
-        XCTAssertNotNil(newWaypointModel.id)
-        XCTAssertFalse(newWaypointModel.verified)
+        XCTAssertNotNil(newLocationModel.id)
+        XCTAssertFalse(newLocationModel.verified)
     }
     
     func testSuccessfulPatchWithoutVerifiedModelInSpecifiedLanguageWhenAllParametersAreSet() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (waypointRepository, _, _, patchContent) = try await getWaypointPatchContent(patchedTitle: "The patched title", patchedDetailText: "The patched detailText", patchedLocation: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)))
+        let (waypointRepository, createdModel, _, patchContent) = try await getWaypointPatchContent(patchedTitle: "The patched title", patchedDetailText: "The patched detailText", patchedLocation: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)))
+        try await createdModel.$language.load(on: app.db)
         
         try app
             .describe("Patch waypoint without verified model in the specified language should fail")
@@ -151,25 +154,12 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.title, patchContent.title)
                 XCTAssertEqual(content.detailText, patchContent.detailText)
                 XCTAssertEqual(content.location, patchContent.location)
-                XCTAssertEqual(content.languageCode, patchContent.languageCode)
+                XCTAssertEqual(content.languageCode, createdModel.language.languageCode)
                 XCTAssertNil(content.verified)
             }
             .test()
     }
-    
-    func testPatchWithoutVerifiedModelInSpecifiedLanguageFails() async throws {
-        let token = try await getToken(for: .user, verified: true)
-        let (waypointRepository, _, _, patchContent) = try await getWaypointPatchContent(patchedTitle: "The patched title")
         
-        try app
-            .describe("Patch waypoint without verified model in the specified language should fail")
-            .patch(waypointsPath.appending(waypointRepository.requireID().uuidString))
-            .body(patchContent)
-            .bearerToken(token)
-            .expect(.badRequest)
-            .test()
-    }
-    
     func testEmptyPatchWaypointFails() async throws {
         let token = try await getToken(for: .user, verified: true)
         let (waypointRepository, _, _, patchContent) = try await getWaypointPatchContent()
@@ -209,24 +199,15 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
             .test()
     }
     
-    func testUpdateWaypointNeedsValidLanguageCode() async throws {
-        let language = try await createLanguage()
+    func testPatchWaypointNeedsValidIdForWaypointToPatch() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (waypointRepository1, _, _, updateContent1) = try await getWaypointPatchContent(languageId: language.requireID(), patchLangugageCode: "")
-        let (waypointRepository2, _, _, updateContent2) = try await getWaypointPatchContent(languageId: language.requireID(), patchLangugageCode: "hi")
+        let (waypointRepository, _, _, _) = try await getWaypointPatchContent(verified: true)
+        let patchContent = Media.Media.Patch(title: nil, detailText: nil, source: nil, idForMediaToPatch: UUID())
         
         try app
-            .describe("Patch waypoint with empty language code should fail")
-            .patch(waypointsPath.appending(waypointRepository1.requireID().uuidString))
-            .body(updateContent1)
-            .bearerToken(token)
-            .expect(.badRequest)
-            .test()
-        
-        try app
-            .describe("Patch waypoint with non-existent language code should fail")
-            .patch(waypointsPath.appending(waypointRepository2.requireID().uuidString))
-            .body(updateContent2)
+            .describe("Patch waypoint with should need valid id for waypoint to patch or fail")
+            .patch(waypointsPath.appending(waypointRepository.requireID().uuidString))
+            .body(patchContent)
             .bearerToken(token)
             .expect(.badRequest)
             .test()

@@ -74,7 +74,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
             .test()
         
         // Test the new media model was created correctly
-        let newMediaModel = try await repository.$media
+        let newMediaModel = try await repository.$details
             .query(on: app.db)
             .sort(\.$updatedAt, .descending)
             .first()!
@@ -109,7 +109,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
             .test()
         
         // Test the new media model was created correctly
-        let newMediaModel = try await repository.$media
+        let newMediaModel = try await repository.$details
             .query(on: app.db)
             .sort(\.$updatedAt, .descending)
             .first()!
@@ -145,7 +145,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
             .test()
         
         // Test the new media model was created correctly
-        let newMediaModel = try await repository.$media
+        let newMediaModel = try await repository.$details
             .query(on: app.db)
             .sort(\.$updatedAt, .descending)
             .first()!
@@ -184,7 +184,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
             .test()
         
         // Test the new media model was created correctly
-        let newMediaModel = try await repository.$media
+        let newMediaModel = try await repository.$details
             .query(on: app.db)
             .sort(\.$updatedAt, .descending)
             .first()!

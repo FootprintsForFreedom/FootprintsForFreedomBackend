@@ -15,16 +15,6 @@ public extension Media {
 }
 
 public extension Media.Repository {
-    struct DetailChangesRequest: Codable {
-        public let from: UUID
-        public let to: UUID
-        
-        public init(from: UUID, to: UUID) {
-            self.from = from
-            self.to = to
-        }
-    }
-    
     struct ListUnverified: Codable {
         public let modelId: UUID
         public let title: String

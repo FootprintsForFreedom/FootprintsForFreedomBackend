@@ -8,8 +8,9 @@
 import Vapor
 import Fluent
 
-final class MediaRepositoryModel: DatabaseModelInterface {
+final class MediaRepositoryModel: RepositoryModel {
     typealias Module = MediaModule
+    typealias Detail = MediaDetailModel
     
     static var identifier: String { "repositories" }
     
@@ -26,7 +27,7 @@ final class MediaRepositoryModel: DatabaseModelInterface {
     
     @Parent(key: FieldKeys.v1.waypointId) var waypoint: WaypointRepositoryModel
     
-    @Children(for: \.$repository) var media: [MediaDetailModel]
+    @Children(for: \.$repository) var details: [MediaDetailModel]
     
     @Siblings(through: MediaTagModel.self, from: \.$media, to: \.$tag) var tags: [TagRepositoryModel]
     
@@ -40,50 +41,19 @@ final class MediaRepositoryModel: DatabaseModelInterface {
 }
 
 extension MediaRepositoryModel {
-    func media(
-        for languageCode: String,
-        needsToBeVerified: Bool,
-        on db: Database,
-        sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
-    ) async throws -> MediaDetailModel? {
-        var query = self.$media
-            .query(on: db)
-            .join(LanguageModel.self, on: \MediaDetailModel.$language.$id == \LanguageModel.$id)
-            .filter(LanguageModel.self, \.$languageCode == languageCode)
-            .filter(LanguageModel.self, \.$priority != nil)
-        if needsToBeVerified {
-            query = query.filter(\.$verified == true)
-        }
-        query = query.sort(\.$updatedAt, sortDirection)
-        
-        return try await query.first()
-    }
-    
-    func media(
-        for languageCodesByPriority: [String],
-        needsToBeVerified: Bool,
-        on db: Database,
-        sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
-    ) async throws -> MediaDetailModel? {
-        for languageCode in languageCodesByPriority {
-            if let waypoint = try await media(for: languageCode, needsToBeVerified: needsToBeVerified, on: db, sort: sortDirection){
-                return waypoint
-            }
-        }
-        return nil
-    }
+    var _$details: ChildrenProperty<MediaRepositoryModel, MediaDetailModel> { $details }
 }
 
 extension MediaRepositoryModel {
     func deleteDependencies(on database: Database) async throws {
-        try await $media
+        try await $details
             .query(on: database)
             .field(\.$media.$id)
             .unique()
             .all()
             .concurrentForEach { try await MediaFileModel.find($0.$media.id, on: database)?.delete(on: database) }
         
-        try await $media.query(on: database).delete()
+        try await $details.query(on: database).delete()
         // TODO: service that deletes soft delted entries after a certain time (-> .evn?) -> also delete the media fieles!
     }
 }

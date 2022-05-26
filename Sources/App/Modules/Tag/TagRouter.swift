@@ -9,7 +9,7 @@ import Vapor
 
 struct TagRouter: RouteCollection {
     
-    let apiController = TagApiController()
+//    let apiController = TagApiController()
     
     func boot(routes: RoutesBuilder) throws {
         
@@ -18,7 +18,7 @@ struct TagRouter: RouteCollection {
     func apiRoutesHook(_ args: HookArguments) -> Void {
         let routes = args["routes"] as! RoutesBuilder
         
-        apiController.setupRoutes(routes)
-        apiController.setupVerificationRoutes(routes)
+//        apiController.setupRoutes(routes)
+//        apiController.setupVerificationRoutes(routes)
     }
 }

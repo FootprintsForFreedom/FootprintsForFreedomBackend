@@ -112,13 +112,13 @@ public extension Waypoint.Detail {
         public let title: String?
         public let detailText: String?
         public let location: Waypoint.Location?
-        public let languageCode: String
+        public let idForWaypointToPatch: UUID
         
-        public init(title: String?, detailText: String?, location: Waypoint.Location?, languageCode: String) {
+        public init(title: String?, detailText: String?, location: Waypoint.Location?, idForWaypointToPatch: UUID) {
             self.title = title
             self.detailText = detailText
             self.location = location
-            self.languageCode = languageCode
+            self.idForWaypointToPatch = idForWaypointToPatch
         }
     }
 }

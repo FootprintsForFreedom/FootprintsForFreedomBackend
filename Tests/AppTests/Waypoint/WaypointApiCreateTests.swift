@@ -60,7 +60,7 @@ final class WaypointApiCreateTests: AppTestCase, WaypointTest {
         if let newRepositoryId = newRepositoryId {
             let waypoint = try await WaypointRepositoryModel
                 .find(newRepositoryId, on: app.db)!
-                .$waypoints
+                .$details
                 .query(on: app.db)
                 .sort(\.$createdAt, .descending)
                 .first()!
@@ -104,7 +104,7 @@ final class WaypointApiCreateTests: AppTestCase, WaypointTest {
         if let newRepositoryId = newRepositoryId {
             let waypoint = try await WaypointRepositoryModel
                 .find(newRepositoryId, on: app.db)!
-                .$waypoints
+                .$details
                 .query(on: app.db)
                 .sort(\.$createdAt, .descending)
                 .first()!

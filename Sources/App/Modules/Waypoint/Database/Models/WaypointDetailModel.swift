@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class WaypointDetailModel: DatabaseModelInterface {
+final class WaypointDetailModel: DetailModel {
     typealias Module = WaypointModule
     
     struct FieldKeys {
@@ -62,6 +62,13 @@ final class WaypointDetailModel: DatabaseModelInterface {
         self.$repository.id = repositoryId
         self.$user.id = userId
     }
+}
+
+extension WaypointDetailModel {
+    var _$verified: FieldProperty<WaypointDetailModel, Bool> { $verified }
+    var _$language: ParentProperty<WaypointDetailModel, LanguageModel> { $language }
+    var _$updatedAt: TimestampProperty<WaypointDetailModel, DefaultTimestampFormat> { $updatedAt }
+    var _$repository: ParentProperty<WaypointDetailModel, WaypointRepositoryModel> { $repository }
 }
 
 extension WaypointDetailModel: Equatable {

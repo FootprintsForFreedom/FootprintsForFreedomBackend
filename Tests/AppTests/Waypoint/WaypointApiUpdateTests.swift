@@ -67,7 +67,7 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
             .test()
         
         // Test the new waypoint model was created correctly
-        let newWaypointModel = try await waypointRepository.$waypoints
+        let newWaypointModel = try await waypointRepository.$details
             .query(on: app.db)
             .sort(\.$updatedAt, .descending)
             .first()!
@@ -111,7 +111,7 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
             .test()
         
         // Test the new waypoint model was created correctly
-        let newWaypointModel = try await waypointRepository.$waypoints
+        let newWaypointModel = try await waypointRepository.$details
             .query(on: app.db)
             .sort(\.$updatedAt, .descending)
             .first()!

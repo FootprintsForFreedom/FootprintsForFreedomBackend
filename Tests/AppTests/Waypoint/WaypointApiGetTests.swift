@@ -53,14 +53,14 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
         // Get verified waypoint count
         let waypoints = try await WaypointRepositoryModel
             .query(on: app.db)
-            .with(\.$waypoints) { $0.with(\.$language) }
+            .with(\.$details) { $0.with(\.$language) }
             .with(\.$locations)
             .all()
         
         let waypointCount = waypoints.count
         
         let verifiedWaypointCount = waypoints
-            .filter { $0.waypoints.contains { $0.verified && $0.language.priority != nil } && $0.locations.contains { $0.verified } }
+            .filter { $0.details.contains { $0.verified && $0.language.priority != nil } && $0.locations.contains { $0.verified } }
             .count
         
         try app
@@ -138,13 +138,13 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
         // Get verified waypoint count
         let waypoints = try await WaypointRepositoryModel
             .query(on: app.db)
-            .with(\.$waypoints) { $0.with(\.$language) }
+            .with(\.$details) { $0.with(\.$language) }
             .all()
         
         let waypointCount = waypoints.count
         
         let verifiedWaypointCount = waypoints
-            .filter { $0.waypoints.contains { $0.verified && $0.language.priority != nil } }
+            .filter { $0.details.contains { $0.verified && $0.language.priority != nil } }
             .count
         
         try app
@@ -195,7 +195,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
         // Get waypoint count
         let waypoints = try await WaypointRepositoryModel
             .query(on: app.db)
-            .with(\.$waypoints) { $0.with(\.$language) }
+            .with(\.$details) { $0.with(\.$language) }
             .all()
         
         let waypointCount = waypoints.count

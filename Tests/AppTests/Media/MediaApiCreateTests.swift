@@ -92,7 +92,7 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         if let newRepositoryId = newRepositoryId {
             let media = try await MediaRepositoryModel
                 .find(newRepositoryId, on: app.db)!
-                .$media
+                .$details
                 .query(on: app.db)
                 .sort(\.$createdAt, .descending)
                 .first()!
@@ -156,7 +156,7 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         if let newRepositoryId = newRepositoryId {
             let media = try await MediaRepositoryModel
                 .find(newRepositoryId, on: app.db)!
-                .$media
+                .$details
                 .query(on: app.db)
                 .sort(\.$createdAt, .descending)
                 .first()!
@@ -303,7 +303,7 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
     
     func testCreateMediaNeedsValidContentType() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let newMedia = try await getMediaCreateContent(source: "")
+        let newMedia = try await getMediaCreateContent()
         
         let query = try URLEncodedFormEncoder().encode(newMedia)
         let file = TestFile(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png")
@@ -315,7 +315,7 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
             .buffer(ByteBuffer(data: fileData))
             .header("Content-Type", "hallo/test")
             .bearerToken(token)
-            .expect(.badRequest)
+            .expect(.unsupportedMediaType)
             .test()
     }
     
