@@ -11,7 +11,7 @@ import DiffMatchPatch
 
 extension Waypoint.Repository.Changes: Content { }
 
-extension WaypointApiController: RepositoryVerificationController {
+extension WaypointApiController: ApiRepositoryVerificationController {
     
     // MARK: - detail changes
     

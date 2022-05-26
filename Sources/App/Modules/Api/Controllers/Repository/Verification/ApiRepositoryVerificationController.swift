@@ -1,5 +1,5 @@
 //
-//  RepositoryVerificationController.swift
+//  ApiRepositoryVerificationController.swift
 //  
 //
 //  Created by niklhut on 26.05.22.
@@ -7,7 +7,7 @@
 
 import Vapor
 
-protocol RepositoryVerificationController:
+protocol ApiRepositoryVerificationController:
     ApiRepositoryDetailChangesController,
     ApiListRepositoriesWithUnverifiedDetailsController,
     ApiRepositoryListUnverifiedDetailsController,
@@ -16,7 +16,7 @@ protocol RepositoryVerificationController:
     func setupVerificationRoutes(_ routes: RoutesBuilder)
 }
 
-extension RepositoryVerificationController {
+extension ApiRepositoryVerificationController {
     func setupVerificationRoutes(_ routes: RoutesBuilder) {
         setupDetailChangesRoutes(routes)
         setuplistRepositoriesWithUnverifiedDetailsRoutes(routes)

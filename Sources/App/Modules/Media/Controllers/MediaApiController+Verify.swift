@@ -11,7 +11,7 @@ import DiffMatchPatch
 
 extension Media.Repository.Changes: Content { }
 
-extension MediaApiController: RepositoryVerificationController {
+extension MediaApiController: ApiRepositoryVerificationController {
     
     // MARK: - detail changes
     
