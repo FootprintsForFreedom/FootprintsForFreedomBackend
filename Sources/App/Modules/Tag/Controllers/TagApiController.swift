@@ -8,61 +8,170 @@
 import Vapor
 import Fluent
 
-//struct TagApiController: ApiController {
-//    typealias ApiModel = Tag.Detail
-//    typealias DatabaseModel = TagRepositoryModel
-//    
-//    // MARK: - Validators
-//    
-//    
-//    
-//    // MARK: - Routes
-//    
-//    func getBaseRoutes(_ routes: RoutesBuilder) -> RoutesBuilder {
-//        routes.grouped("tags")
-//    }
-//    
-//    func setupRoutes(_ routes: RoutesBuilder) {
-//        let protectedRoutes = routes.grouped(AuthenticatedUser.guardMiddleware())
-//        setupListRoutes(routes)
-//        setupDetailRoutes(routes)
-//        setupCreateRoutes(protectedRoutes)
-//        setupUpdateRoutes(protectedRoutes)
-//        setupPatchRoutes(protectedRoutes)
-//        setupDeleteRoutes(protectedRoutes)
-//    }
-//    
-//    // MARK: - List
-//    
-//    func beforeList(_ req: Request, _ queryBuilder: QueryBuilder<TagRepositoryModel>) async throws -> QueryBuilder<TagRepositoryModel> {
-//        queryBuilder
-//            // only return repositories with verified details insid
-//            .join(TagDetailModel.self, on: \TagDetailModel.$repository.$id == \TagRepositoryModel.$id)
-//            .filter(TagDetailModel.self, \.$verified == true)
-//        // only return details which have a activated language
-//            .join(LanguageModel.self, on: \TagDetailModel.$language.$id == \LanguageModel.$id)
-//            .filter(LanguageModel.self, \.$priority != nil)
-//            .field(\.$id)
-//            .unique()
-//    }
-//    
-//    func listOutput(_ req: Request, _ models: Page<TagRepositoryModel>) async throws -> Page<Tag.Detail.List> {
-//        // TODO: sort?
-//        return try await models
-//            .concurrentMap { model in
-//                guard let detail = try await model.detail(for: req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db) else {
-//                    return nil
-//                }
-//                
-//                return try .init(
-//                    id: detail.requireID(),
-//                    title: detail.title
-//                )
-//            }
-//            .compactMap { $0 }
-//    }
-//    
-//    // MARK: - Detail
-//    
-//    
-//}
+extension Tag.Detail.List: Content { }
+extension Tag.Detail.Detail: Content { }
+
+struct TagApiController: ApiRepositoryController {
+    typealias ApiModel = Tag.Detail
+    typealias Repository = TagRepositoryModel
+    
+    // MARK: - Validators
+    
+    @AsyncValidatorBuilder
+    func createValidators() -> [AsyncValidator] {
+        KeyedContentValidator<String>.required("title")
+        KeyedContentValidator<[String]>.required("keywords")
+        KeyedContentValidator<String>.required("languageCode")
+    }
+    
+    @AsyncValidatorBuilder
+    func updateValidators() -> [AsyncValidator] {
+        KeyedContentValidator<String>.required("title")
+        KeyedContentValidator<[String]>.required("keywords")
+        KeyedContentValidator<String>.required("languageCode")
+    }
+    
+    @AsyncValidatorBuilder
+    func patchValidators() -> [AsyncValidator] {
+        KeyedContentValidator<String>.required("title", optional: true)
+        KeyedContentValidator<[String]>.required("keywords", optional: true)
+        KeyedContentValidator<UUID>.required("idForTagToPatch")
+    }
+    
+    // MARK: - Routes
+    
+    func getBaseRoutes(_ routes: RoutesBuilder) -> RoutesBuilder {
+        routes.grouped("tags")
+    }
+    
+    func setupRoutes(_ routes: RoutesBuilder) {
+        let protectedRoutes = routes.grouped(AuthenticatedUser.guardMiddleware())
+        setupListRoutes(routes)
+        setupDetailRoutes(routes)
+        setupCreateRoutes(protectedRoutes)
+        setupUpdateRoutes(protectedRoutes)
+        setupPatchRoutes(protectedRoutes)
+        setupDeleteRoutes(protectedRoutes)
+    }
+    
+    // MARK: - List
+    
+    func listOutput(_ req: Request, _ repository: Repository, _ detail: Detail) async throws -> Tag.Detail.List {
+        return try .init(
+            id: repository.requireID(),
+            title: detail.title
+        )
+    }
+    
+    // MARK: - Detail
+    
+    func detailOutput(_ req: Request, _ repository: Repository, _ detail: Detail) async throws -> Tag.Detail.Detail {
+        try await detail.$language.load(on: req.db)
+        
+        if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db), user.role >= .moderator && req.method == .GET {
+            return try .moderatorDetail(
+                id: repository.requireID(),
+                title: detail.title,
+                keywords: detail.keywords,
+                languageCode: detail.language.languageCode,
+                verified: detail.verified,
+                detailId: detail.requireID()
+            )
+        } else {
+            return try .publicDetail(
+                id: repository.requireID(),
+                title: detail.title,
+                keywords: detail.keywords,
+                languageCode: detail.language.languageCode
+            )
+        }
+    }
+    
+    // MARK: - Create
+    
+    func beforeCreate(_ req: Request, _ repository: TagRepositoryModel) async throws {
+        try await req.onlyForVerifiedUser()
+    }
+    
+    func createInput(_ req: Request, _ repository: TagRepositoryModel, _ detail: Detail, _ input: Tag.Detail.Create) async throws {
+        /// Require user to be signed in
+        let user = try req.auth.require(AuthenticatedUser.self)
+        
+        guard let languageId = try await LanguageModel
+                .query(on: req.db)
+                .filter(\.$languageCode == input.languageCode)
+                .first()?
+                .requireID()
+        else {
+            throw Abort(.badRequest, reason: "The language code is invalid")
+        }
+        
+        detail.verified = false
+        detail.title = input.title
+        detail.keywords = input.keywords
+        detail.$language.id = languageId
+        detail.$user.id = user.id
+    }
+    
+    // MARK: - Update
+    
+    func beforeUpdate(_ req: Request, _ repository: TagRepositoryModel) async throws {
+        try await req.onlyForVerifiedUser()
+    }
+    
+    func updateInput(_ req: Request, _ repository: TagRepositoryModel, _ detail: Detail, _ input: Tag.Detail.Update) async throws {
+        /// Require user to be signed in
+        let user = try req.auth.require(AuthenticatedUser.self)
+        
+        guard let languageId = try await LanguageModel
+                .query(on: req.db)
+                .filter(\.$languageCode == input.languageCode)
+                .first()?
+                .requireID()
+        else {
+            throw Abort(.badRequest, reason: "The language code is invalid")
+        }
+        
+        detail.verified = false
+        detail.title = input.title
+        detail.keywords = input.keywords
+        detail.$language.id = languageId
+        detail.$user.id = user.id
+    }
+    
+    // MARK: - Patch
+    
+    func beforePatch(_ req: Request, _ repository: TagRepositoryModel) async throws {
+        try await req.onlyForVerifiedUser()
+    }
+    
+    func patchInput(_ req: Request, _ repository: TagRepositoryModel, _ detail: Detail, _ input: Tag.Detail.Patch) async throws {
+        /// Require user to be signed in
+        let user = try req.auth.require(AuthenticatedUser.self)
+        
+        guard let tagToPatch = try await TagDetailModel.find(input.idForTagDetailToPatch, on: req.db) else {
+            throw Abort(.badRequest, reason: "No tag with the given id could be found")
+        }
+        
+        guard input.title != nil || input.keywords != nil else {
+            throw Abort(.badRequest)
+        }
+        
+        detail.verified = false
+        detail.title = input.title ?? tagToPatch.title
+        detail.keywords = input.keywords ?? tagToPatch.keywords
+        detail.$language.id = tagToPatch.$language.id
+        detail.$user.id = user.id
+    }
+    
+    // MARK: - Delete
+    
+    func beforeDelete(_ req: Request, _ repository: TagRepositoryModel) async throws {
+        try await req.onlyFor(.moderator)
+    }
+    
+    func afterDelete(_ req: Request, _ repository: TagRepositoryModel) async throws {
+        // TODO: delete dependencies
+//        try await repository.deleteDependencies(on: req.db)
+    }
+}

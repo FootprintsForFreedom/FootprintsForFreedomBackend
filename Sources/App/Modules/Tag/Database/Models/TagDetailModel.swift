@@ -8,7 +8,8 @@
 import Vapor
 import Fluent
 
-final class TagDetailModel: DatabaseModelInterface {
+final class TagDetailModel: DetailModel {
+    
     typealias Module = TagModule
     
     struct FieldKeys {
@@ -43,4 +44,11 @@ final class TagDetailModel: DatabaseModelInterface {
     @Timestamp(key: FieldKeys.v1.deletedAt, on: .delete) var deletedAt: Date?
     
     init() { }
+}
+
+extension TagDetailModel {
+    var _$verified: FieldProperty<TagDetailModel, Bool> { $verified }
+    var _$language: ParentProperty<TagDetailModel, LanguageModel> { $language }
+    var _$repository: ParentProperty<TagDetailModel, TagRepositoryModel> { $repository }
+    var _$updatedAt: TimestampProperty<TagDetailModel, DefaultTimestampFormat> { $updatedAt }
 }

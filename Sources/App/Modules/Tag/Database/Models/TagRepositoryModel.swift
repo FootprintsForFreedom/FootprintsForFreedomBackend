@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class TagRepositoryModel: DatabaseModelInterface {
+final class TagRepositoryModel: RepositoryModel {
     typealias Module = TagModule
     
     static var schema = "tags"
@@ -37,36 +37,5 @@ final class TagRepositoryModel: DatabaseModelInterface {
 }
 
 extension TagRepositoryModel {
-    func detail(
-        for languageCode: String,
-        needsToBeVerified: Bool,
-        on db: Database,
-        sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
-    ) async throws -> TagDetailModel? {
-        var query = self.$details
-            .query(on: db)
-            .join(LanguageModel.self, on: \TagDetailModel.$language.$id == \LanguageModel.$id)
-            .filter(LanguageModel.self, \.$languageCode == languageCode)
-            .filter(LanguageModel.self, \.$priority != nil)
-        if needsToBeVerified {
-            query = query.filter(\.$verified == true)
-        }
-        query = query.sort(\.$updatedAt, sortDirection)
-        
-        return try await query.first()
-    }
-    
-    func detail(
-        for languageCodesByPriority: [String],
-        needsToBeVerified: Bool,
-        on db: Database,
-        sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
-    ) async throws -> TagDetailModel? {
-        for languageCode in languageCodesByPriority {
-            if let detail = try await detail(for: languageCode, needsToBeVerified: needsToBeVerified, on: db, sort: sortDirection) {
-                return detail
-            }
-        }
-        return nil
-    }
+    var _$details: ChildrenProperty<TagRepositoryModel, TagDetailModel> { $details }
 }
