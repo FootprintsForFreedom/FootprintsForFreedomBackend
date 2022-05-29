@@ -40,6 +40,7 @@ public func configure(_ app: Application) throws {
         LanguageModule(),
         WaypointModule(),
         MediaModule(),
+        TagModule(),
 //        AdminModule(),
         ApiModule(),
 //        BlogModule(),
