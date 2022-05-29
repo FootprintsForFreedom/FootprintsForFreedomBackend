@@ -39,3 +39,11 @@ final class TagRepositoryModel: RepositoryModel {
 extension TagRepositoryModel {
     var _$details: ChildrenProperty<TagRepositoryModel, TagDetailModel> { $details }
 }
+
+extension TagRepositoryModel {
+    func deleteDependencies(on database: Database) async throws {
+        try await $details
+            .query(on: database)
+            .delete()
+    }
+}
