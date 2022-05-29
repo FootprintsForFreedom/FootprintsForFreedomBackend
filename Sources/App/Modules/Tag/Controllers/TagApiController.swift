@@ -35,7 +35,7 @@ struct TagApiController: ApiRepositoryController {
     func patchValidators() -> [AsyncValidator] {
         KeyedContentValidator<String>.required("title", optional: true)
         KeyedContentValidator<[String]>.required("keywords", optional: true)
-        KeyedContentValidator<UUID>.required("idForTagToPatch")
+        KeyedContentValidator<UUID>.required("idForTagDetailToPatch")
     }
     
     // MARK: - Routes
@@ -106,9 +106,14 @@ struct TagApiController: ApiRepositoryController {
             throw Abort(.badRequest, reason: "The language code is invalid")
         }
         
+        let keywords = input.keywords.compactMap { $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : $0 }
+        guard !keywords.isEmpty else {
+            throw Abort(.badRequest, reason: "The keywords are invalid")
+        }
+        
         detail.verified = false
         detail.title = input.title
-        detail.keywords = input.keywords
+        detail.keywords = keywords
         detail.$language.id = languageId
         detail.$user.id = user.id
     }
@@ -132,9 +137,14 @@ struct TagApiController: ApiRepositoryController {
             throw Abort(.badRequest, reason: "The language code is invalid")
         }
         
+        let keywords = input.keywords.compactMap { $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : $0 }
+        guard !keywords.isEmpty else {
+            throw Abort(.badRequest, reason: "The keywords are invalid")
+        }
+        
         detail.verified = false
         detail.title = input.title
-        detail.keywords = input.keywords
+        detail.keywords = keywords
         detail.$language.id = languageId
         detail.$user.id = user.id
     }
@@ -159,7 +169,17 @@ struct TagApiController: ApiRepositoryController {
         
         detail.verified = false
         detail.title = input.title ?? tagToPatch.title
-        detail.keywords = input.keywords ?? tagToPatch.keywords
+        
+        if let keywords = input.keywords {
+            let keywords = keywords.compactMap { $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : $0 }
+            guard !keywords.isEmpty else {
+                throw Abort(.badRequest, reason: "The keywords are invalid")
+            }
+            detail.keywords = keywords
+        } else {
+            detail.keywords = tagToPatch.keywords
+        }
+        
         detail.$language.id = tagToPatch.$language.id
         detail.$user.id = user.id
     }
@@ -171,7 +191,6 @@ struct TagApiController: ApiRepositoryController {
     }
     
     func afterDelete(_ req: Request, _ repository: TagRepositoryModel) async throws {
-        // TODO: delete dependencies
-//        try await repository.deleteDependencies(on: req.db)
+        try await repository.deleteDependencies(on: req.db)
     }
 }
