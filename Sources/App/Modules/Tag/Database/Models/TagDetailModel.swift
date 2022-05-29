@@ -44,6 +44,22 @@ final class TagDetailModel: DetailModel {
     @Timestamp(key: FieldKeys.v1.deletedAt, on: .delete) var deletedAt: Date?
     
     init() { }
+    
+    init(
+        verified: Bool,
+        title: String,
+        keywords: [String],
+        languageId: UUID,
+        repositoryId: UUID,
+        userId: UUID
+    ) {
+        self.verified = verified
+        self.title = title
+        self.keywords = keywords
+        self.$language.id = languageId
+        self.$repository.id = repositoryId
+        self.$user.id = userId
+    }
 }
 
 extension TagDetailModel {
