@@ -11,7 +11,7 @@ import Fluent
 final class TagRepositoryModel: RepositoryModel {
     typealias Module = TagModule
     
-    static var schema = "tags"
+    static var identifier = "repositories"
     
     struct FieldKeys {
         struct v1 {
