@@ -30,16 +30,13 @@ extension TagApiController: ApiRepositoryVerificationController {
         
         let keywordDiff = model1.keywords.difference(from: model2.keywords)
         
-        let model1User = try User.Account.Detail.publicDetail(id: model1.user.requireID(), name: model1.user.name, school: model1.user.school)
-        let model2User = try User.Account.Detail.publicDetail(id: model2.user.requireID(), name: model2.user.name, school: model2.user.school)
-        
-        return .init(
+        return try .init(
             titleDiff: titleDiff,
             equalKeywords: keywordDiff.equal,
             deletedKeywords: keywordDiff.deleted,
             insertedKeywords: keywordDiff.inserted,
-            fromUser: model1User,
-            toUser: model2User
+            fromUser: model1.user(),
+            toUser: model1.user()
         )
     }
     

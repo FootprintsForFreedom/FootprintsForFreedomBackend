@@ -38,14 +38,14 @@ final class MediaDetailModel: DetailModel {
     
     @Parent(key: FieldKeys.v1.repositoryId) var repository: MediaRepositoryModel
     @Parent(key: FieldKeys.v1.mediaId) var media: MediaFileModel
-    @Parent(key: FieldKeys.v1.userId) var user: UserAccountModel
+    @OptionalParent(key: FieldKeys.v1.userId) var user: UserAccountModel?
     
     @Timestamp(key: FieldKeys.v1.createdAt, on: .create) var createdAt: Date?
     @Timestamp(key: FieldKeys.v1.updatedAt, on: .update) var updatedAt: Date?
     
     // MARK: soft delete
     @Timestamp(key: FieldKeys.v1.deletedAt, on: .delete) var deletedAt: Date?
-
+    
     init() { }
     
     init(
@@ -74,6 +74,7 @@ extension MediaDetailModel {
     var _$verified: FieldProperty<MediaDetailModel, Bool> { $verified }
     var _$updatedAt: TimestampProperty<MediaDetailModel, DefaultTimestampFormat> { $updatedAt }
     var _$repository: ParentProperty<MediaDetailModel, MediaRepositoryModel> { $repository }
+    var _$user: OptionalParentProperty<MediaDetailModel, UserAccountModel> { $user }
 }
 
 // TODO: maybe hash the file contents to verify the file was not edited in the filesystem --> data integrity

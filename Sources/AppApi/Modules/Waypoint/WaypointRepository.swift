@@ -42,10 +42,10 @@ public extension Waypoint.Repository {
     struct Changes: Codable {
         public let titleDiff: [Diff]
         public let detailTextDiff: [Diff]
-        public let fromUser: User.Account.Detail
-        public let toUser: User.Account.Detail
+        public let fromUser: User.Account.Detail?
+        public let toUser: User.Account.Detail?
         
-        public init(titleDiff: [Diff], detailTextDiff: [Diff], fromUser: User.Account.Detail, toUser: User.Account.Detail) {
+        public init(titleDiff: [Diff], detailTextDiff: [Diff], fromUser: User.Account.Detail?, toUser: User.Account.Detail?) {
             self.titleDiff = titleDiff
             self.detailTextDiff = detailTextDiff
             self.fromUser = fromUser

@@ -45,8 +45,8 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
             .expect(.ok)
             .expect(.json)
             .expect(Media.Repository.Changes.self) { content in
-                XCTAssertEqual(content.fromUser.id, mediaDetail.user.id)
-                XCTAssertEqual(content.toUser.id, secondMediaDetail.user.id)
+                XCTAssertEqual(content.fromUser?.id, mediaDetail.user?.id)
+                XCTAssertEqual(content.toUser?.id, secondMediaDetail.user?.id)
                 XCTAssertEqual(content.fromGroup, mediaFile.group)
                 XCTAssertEqual(content.toGroup, secondMediaFile.group)
                 XCTAssertEqual(content.fromFilePath, mediaFile.mediaDirectory)

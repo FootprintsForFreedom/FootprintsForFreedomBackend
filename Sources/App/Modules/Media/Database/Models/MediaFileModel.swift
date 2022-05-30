@@ -29,7 +29,7 @@ final class MediaFileModel: DatabaseModelInterface {
     
     @Enum(key: FieldKeys.v1.group) var group: Media.Detail.Group
     
-    @Parent(key: FieldKeys.v1.userId) var user: UserAccountModel
+    @OptionalParent(key: FieldKeys.v1.userId) var user: UserAccountModel?
     
     @Timestamp(key: FieldKeys.v1.createdAt, on: .create) var createdAt: Date?
     @Timestamp(key: FieldKeys.v1.updatedAt, on: .update) var updatedAt: Date?

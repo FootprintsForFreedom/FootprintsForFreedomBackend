@@ -31,7 +31,6 @@ enum WaypointMigrations {
                 .field(WaypointDetailModel.FieldKeys.v1.repositoryId, .uuid, .required)
                 .foreignKey(WaypointDetailModel.FieldKeys.v1.repositoryId, references: WaypointRepositoryModel.schema, .id, onDelete: .cascade)
             
-            // TODO: required may pose problem when deleting user, test please
                 .field(WaypointDetailModel.FieldKeys.v1.userId, .uuid)
                 .foreignKey(WaypointDetailModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
             
@@ -50,7 +49,6 @@ enum WaypointMigrations {
                 .field(WaypointLocationModel.FieldKeys.v1.repositoryId, .uuid, .required)
                 .foreignKey(WaypointLocationModel.FieldKeys.v1.repositoryId, references: WaypointRepositoryModel.schema, .id, onDelete: .cascade)
             
-            // TODO: required may pose problem when deleting user, test please
                 .field(WaypointLocationModel.FieldKeys.v1.userId, .uuid)
                 .foreignKey(WaypointLocationModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
             

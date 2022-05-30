@@ -37,7 +37,7 @@ enum MediaMigrations {
             
                 .field(MediaFileModel.FieldKeys.v1.group, mediaGroup, .required)
             
-                .field(MediaFileModel.FieldKeys.v1.userId, .uuid, .required)
+                .field(MediaFileModel.FieldKeys.v1.userId, .uuid)
                 .foreignKey(MediaFileModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
             
                 .field(MediaDetailModel.FieldKeys.v1.createdAt, .datetime, .required)
@@ -62,7 +62,7 @@ enum MediaMigrations {
                 .field(MediaDetailModel.FieldKeys.v1.mediaId, .uuid, .required)
                 .foreignKey(MediaDetailModel.FieldKeys.v1.mediaId, references: MediaFileModel.schema, .id, onDelete: .cascade)
             
-                .field(MediaDetailModel.FieldKeys.v1.userId, .uuid, .required)
+                .field(MediaDetailModel.FieldKeys.v1.userId, .uuid)
                 .foreignKey(MediaDetailModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
             
                 .field(MediaDetailModel.FieldKeys.v1.createdAt, .datetime, .required)

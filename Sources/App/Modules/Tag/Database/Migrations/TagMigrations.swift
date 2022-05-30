@@ -31,7 +31,6 @@ enum TagMigrations {
                 .field(TagDetailModel.FieldKeys.v1.repositoryId, .uuid, .required)
                 .foreignKey(TagDetailModel.FieldKeys.v1.repositoryId, references: TagRepositoryModel.schema, .id, onDelete: .cascade)
             
-            // TODO: required may pose problem when deleting user, test please
                 .field(TagDetailModel.FieldKeys.v1.userId, .uuid)
                 .foreignKey(TagDetailModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
             

@@ -33,13 +33,11 @@ extension WaypointApiController: ApiRepositoryVerificationController {
             .cleaningUpSemantics()
             .converted()
         
-        let model1User = try User.Account.Detail.publicDetail(id: model1.user.requireID(), name: model1.user.name, school: model1.user.school)
-        let model2User = try User.Account.Detail.publicDetail(id: model2.user.requireID(), name: model2.user.name, school: model2.user.school)
-        return .init(
+        return try .init(
             titleDiff: titleDiff,
             detailTextDiff: detailTextDiff,
-            fromUser: model1User,
-            toUser: model2User
+            fromUser: model1.user(),
+            toUser: model2.user()
         )
     }
     

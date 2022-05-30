@@ -35,7 +35,7 @@ final class TagDetailModel: DetailModel {
     @Parent(key: FieldKeys.v1.languageId) var language: LanguageModel
     
     @Parent(key: FieldKeys.v1.repositoryId) var repository: TagRepositoryModel
-    @Parent(key: FieldKeys.v1.userId) var user: UserAccountModel
+    @OptionalParent(key: FieldKeys.v1.userId) var user: UserAccountModel?
     
     @Timestamp(key: FieldKeys.v1.createdAt, on: .create) var createdAt: Date?
     @Timestamp(key: FieldKeys.v1.updatedAt, on: .update) var updatedAt: Date?
@@ -67,4 +67,5 @@ extension TagDetailModel {
     var _$language: ParentProperty<TagDetailModel, LanguageModel> { $language }
     var _$repository: ParentProperty<TagDetailModel, TagRepositoryModel> { $repository }
     var _$updatedAt: TimestampProperty<TagDetailModel, DefaultTimestampFormat> { $updatedAt }
+    var _$user: OptionalParentProperty<TagDetailModel, UserAccountModel> { $user }
 }

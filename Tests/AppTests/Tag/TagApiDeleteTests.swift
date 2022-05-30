@@ -119,4 +119,5 @@ final class TagApiDeleteTests: AppTestCase, TagTest {
     }
     
     // TODO: test delete mediaTag/waypointTag when deleting tag itself
+    // TODO: delete tag pirvot when deleting media/waypoint/tag -> cascase on pivot?
 }

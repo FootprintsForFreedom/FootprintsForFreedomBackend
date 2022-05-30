@@ -34,10 +34,10 @@ public extension Tag.Repository {
         public let equalKeywords: [String]
         public let deletedKeywords: [String]
         public let insertedKeywords: [String]
-        public let fromUser: User.Account.Detail
-        public let toUser: User.Account.Detail
+        public let fromUser: User.Account.Detail?
+        public let toUser: User.Account.Detail?
         
-        public init(titleDiff: [Diff], equalKeywords: [String], deletedKeywords: [String], insertedKeywords: [String], fromUser: User.Account.Detail, toUser: User.Account.Detail) {
+        public init(titleDiff: [Diff], equalKeywords: [String], deletedKeywords: [String], insertedKeywords: [String], fromUser: User.Account.Detail?, toUser: User.Account.Detail?) {
             self.titleDiff = titleDiff
             self.equalKeywords = equalKeywords
             self.deletedKeywords = deletedKeywords

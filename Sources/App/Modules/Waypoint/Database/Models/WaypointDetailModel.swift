@@ -35,7 +35,7 @@ final class WaypointDetailModel: DetailModel {
     @Parent(key: FieldKeys.v1.languageId) var language: LanguageModel
     
     @Parent(key: FieldKeys.v1.repositoryId) var repository: WaypointRepositoryModel
-    @Parent(key: FieldKeys.v1.userId) var user: UserAccountModel
+    @OptionalParent(key: FieldKeys.v1.userId) var user: UserAccountModel?
     
     @Timestamp(key: FieldKeys.v1.createdAt, on: .create) var createdAt: Date?
     @Timestamp(key: FieldKeys.v1.updatedAt, on: .update) var updatedAt: Date?
@@ -69,6 +69,7 @@ extension WaypointDetailModel {
     var _$language: ParentProperty<WaypointDetailModel, LanguageModel> { $language }
     var _$updatedAt: TimestampProperty<WaypointDetailModel, DefaultTimestampFormat> { $updatedAt }
     var _$repository: ParentProperty<WaypointDetailModel, WaypointRepositoryModel> { $repository }
+    var _$user: OptionalParentProperty<WaypointDetailModel, UserAccountModel> { $user }
 }
 
 extension WaypointDetailModel: Equatable {

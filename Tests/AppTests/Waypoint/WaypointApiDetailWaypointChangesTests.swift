@@ -36,8 +36,8 @@ final class WaypointApiDetailWaypointChangesTests: AppTestCase, WaypointTest {
             .expect(.ok)
             .expect(.json)
             .expect(Waypoint.Repository.Changes.self) { content in
-                XCTAssertEqual(content.fromUser.id, waypointModel.user.id)
-                XCTAssertEqual(content.toUser.id, secondWaypointModel.user.id)
+                XCTAssertEqual(content.fromUser?.id, waypointModel.user?.id)
+                XCTAssertEqual(content.toUser?.id, secondWaypointModel.user?.id)
             }
             .test()
     }

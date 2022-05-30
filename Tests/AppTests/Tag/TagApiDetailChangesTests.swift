@@ -36,8 +36,8 @@ final class TagApiDetailChangesTests: AppTestCase, TagTest {
             .expect(.ok)
             .expect(.json)
             .expect(Tag.Repository.Changes.self) { content in
-                XCTAssertEqual(content.fromUser.id, detail.user.id)
-                XCTAssertEqual(content.toUser.id, secondTagDetail.user.id)
+                XCTAssertEqual(content.fromUser?.id, detail.user?.id)
+                XCTAssertEqual(content.toUser?.id, secondTagDetail.user?.id)
             }
             .test()
     }
