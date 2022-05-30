@@ -65,9 +65,9 @@ enum TagMigrations {
         
         func revert(on db: Database) async throws {
             try await db.schema(TagDetailModel.schema).delete()
-            try await db.schema(TagRepositoryModel.schema).delete()
             try await db.schema(WaypointTagModel.schema).delete()
             try await db.schema(MediaTagModel.schema).delete()
+            try await db.schema(TagRepositoryModel.schema).delete()
         }
     }
 }
