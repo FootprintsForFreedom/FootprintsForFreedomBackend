@@ -36,7 +36,7 @@ extension TagApiController: ApiRepositoryVerificationController {
             deletedKeywords: keywordDiff.deleted,
             insertedKeywords: keywordDiff.inserted,
             fromUser: model1.user(),
-            toUser: model1.user()
+            toUser: model2.user()
         )
     }
     
