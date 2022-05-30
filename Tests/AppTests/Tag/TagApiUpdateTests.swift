@@ -120,6 +120,7 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
         try app
             .describe("Update tag as unverified user should fail")
             .put(tagPath.appending(repository.requireID().uuidString))
+            .body(updateContent)
             .expect(.unauthorized)
             .test()
     }
