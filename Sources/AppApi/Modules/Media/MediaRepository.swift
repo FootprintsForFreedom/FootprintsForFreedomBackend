@@ -33,14 +33,14 @@ public extension Media.Repository {
         public let titleDiff: [Diff]
         public let detailTextDiff: [Diff]
         public let sourceDiff: [Diff]
-        public let fromGroup: Media.Media.Group
-        public let toGroup: Media.Media.Group
+        public let fromGroup: Media.Detail.Group
+        public let toGroup: Media.Detail.Group
         public let fromFilePath: String
         public let toFilePath: String
         public let fromUser: User.Account.Detail
         public let toUser: User.Account.Detail
         
-        public init(titleDiff: [Diff], detailTextDiff: [Diff], sourceDiff: [Diff], fromGroup: Media.Media.Group, toGroup: Media.Media.Group, fromFilePath: String, toFilePath: String, fromUser: User.Account.Detail, toUser: User.Account.Detail) {
+        public init(titleDiff: [Diff], detailTextDiff: [Diff], sourceDiff: [Diff], fromGroup: Media.Detail.Group, toGroup: Media.Detail.Group, fromFilePath: String, toFilePath: String, fromUser: User.Account.Detail, toUser: User.Account.Detail) {
             self.titleDiff = titleDiff
             self.detailTextDiff = detailTextDiff
             self.sourceDiff = sourceDiff

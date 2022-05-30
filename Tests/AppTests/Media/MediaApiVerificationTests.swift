@@ -22,7 +22,7 @@ final class MediaApiVerificationTests: AppTestCase, MediaTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Media.Media.Detail.self) { content in
+            .expect(Media.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, repository.id)
                 XCTAssertEqual(content.title, detail.title)
                 XCTAssertEqual(content.detailText, detail.detailText)

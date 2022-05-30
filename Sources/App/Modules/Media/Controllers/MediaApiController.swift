@@ -8,11 +8,11 @@
 import Vapor
 import Fluent
 
-extension Media.Media.List: Content { }
-extension Media.Media.Detail: Content { }
+extension Media.Detail.List: Content { }
+extension Media.Detail.Detail: Content { }
 
 struct MediaApiController: ApiRepositoryController {
-    typealias ApiModel = Media.Media
+    typealias ApiModel = Media.Detail
     typealias Repository = MediaRepositoryModel
     
     // MARK: - Validators
@@ -60,7 +60,7 @@ struct MediaApiController: ApiRepositoryController {
     
     // MARK: - List
     
-    func listOutput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: MediaDetailModel) async throws -> Media.Media.List {
+    func listOutput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: MediaDetailModel) async throws -> Media.Detail.List {
         // TODO: is this a bottleneck for the time it takes to return a result?
         try await detail.$media.load(on: req.db)
         return .init(
@@ -72,7 +72,7 @@ struct MediaApiController: ApiRepositoryController {
     
     // MARK: - Detail
     
-    func detailOutput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: MediaDetailModel) async throws -> Media.Media.Detail {
+    func detailOutput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: MediaDetailModel) async throws -> Media.Detail.Detail {
         try await detail.$media.load(on: req.db)
         try await detail.$language.load(on: req.db)
         
@@ -112,11 +112,11 @@ struct MediaApiController: ApiRepositoryController {
         try await req.onlyForVerifiedUser()
     }
     
-    func getCreateInput(_ req: Request) throws -> Media.Media.Create {
+    func getCreateInput(_ req: Request) throws -> Media.Detail.Create {
         try req.query.decode(CreateObject.self)
     }
     
-    func createRepositoryInput(_ req: Request, _ repository: MediaRepositoryModel, _ input: Media.Media.Create) async throws {
+    func createRepositoryInput(_ req: Request, _ repository: MediaRepositoryModel, _ input: Media.Detail.Create) async throws {
         guard let waypointId = try await WaypointRepositoryModel
                 .find(input.waypointId, on: req.db)?
                 .requireID()
@@ -127,7 +127,7 @@ struct MediaApiController: ApiRepositoryController {
         repository.$waypoint.id = waypointId
     }
     
-    func createInput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: MediaDetailModel, _ input: Media.Media.Create) async throws {
+    func createInput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: MediaDetailModel, _ input: Media.Detail.Create) async throws {
         let user = try req.auth.require(AuthenticatedUser.self)
         
         guard let languageId = try await LanguageModel
@@ -183,11 +183,11 @@ struct MediaApiController: ApiRepositoryController {
         try await req.onlyForVerifiedUser()
     }
     
-    func getUpdateInput(_ req: Request) throws -> Media.Media.Update {
+    func getUpdateInput(_ req: Request) throws -> Media.Detail.Update {
         try req.query.decode(UpdateObject.self)
     }
     
-    func updateInput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: MediaDetailModel, _ input: Media.Media.Update) async throws {
+    func updateInput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: MediaDetailModel, _ input: Media.Detail.Update) async throws {
         /// Require user to be signed in
         let user = try req.auth.require(AuthenticatedUser.self)
         
@@ -249,11 +249,11 @@ struct MediaApiController: ApiRepositoryController {
         try await req.onlyForVerifiedUser()
     }
     
-    func getPatchInput(_ req: Request) throws -> Media.Media.Patch {
+    func getPatchInput(_ req: Request) throws -> Media.Detail.Patch {
         try req.query.decode(PatchObject.self)
     }
     
-    func patchInput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: MediaDetailModel, _ input: Media.Media.Patch) async throws {
+    func patchInput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: MediaDetailModel, _ input: Media.Detail.Patch) async throws {
         /// Require user to be signed in
         let user = try req.auth.require(AuthenticatedUser.self)
         

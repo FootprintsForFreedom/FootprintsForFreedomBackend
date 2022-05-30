@@ -56,7 +56,7 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Media.List>.self) { content in
+            .expect(Page<Media.Detail.List>.self) { content in
                 XCTAssertEqual(content.metadata.total, content.items.count)
                 XCTAssertEqual(content.items.count, verifiedMediaCount)
                 XCTAssertEqual(content.items.map { $0.id }.uniqued().count, verifiedMediaCount)

@@ -10,7 +10,7 @@ import XCTVapor
 import Fluent
 import Spec
 
-extension Media.Media.Create: Content { }
+extension Media.Detail.Create: Content { }
 extension Data: Content { }
 
 final class MediaApiCreateTests: AppTestCase, MediaTest {
@@ -20,7 +20,7 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         source: String = "New Media Source",
         languageCode: String? = nil,
         waypointId: UUID? = nil
-    ) async throws -> Media.Media.Create {
+    ) async throws -> Media.Detail.Create {
         var languageCode: String! = languageCode
         if languageCode == nil {
             languageCode = try await createLanguage().languageCode
@@ -70,7 +70,7 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
                 .bearerToken(token)
                 .expect(.created)
                 .expect(.json)
-                .expect(Media.Media.Detail.self) { content in
+                .expect(Media.Detail.Detail.self) { content in
                     XCTAssertNotNil(content.id)
                     newRepositoryId = content.id
                     XCTAssertEqual(content.title, newMedia.title)
@@ -134,7 +134,7 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
                 .bearerToken(token)
                 .expect(.created)
                 .expect(.json)
-                .expect(Media.Media.Detail.self) { content in
+                .expect(Media.Detail.Detail.self) { content in
                     XCTAssertNotNil(content.id)
                     newRepositoryId = content.id
                     XCTAssertEqual(content.title, newMedia.title)

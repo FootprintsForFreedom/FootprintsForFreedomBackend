@@ -10,7 +10,7 @@ import XCTVapor
 import Fluent
 import Spec
 
-extension Media.Media.Update: Content { }
+extension Media.Detail.Update: Content { }
 
 final class MediaApiUpdateTests: AppTestCase, MediaTest {
     private func getMediaUpdateContent(
@@ -25,7 +25,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
         waypointId: UUID? = nil,
         setMediaIdForFile: Bool = true,
         verified: Bool = false
-    ) async throws -> (mediaRepository: MediaRepositoryModel, createdMediaDetail: MediaDetailModel, createdMediaFile: MediaFileModel, updateContent: Media.Media.Update) {
+    ) async throws -> (mediaRepository: MediaRepositoryModel, createdMediaDetail: MediaDetailModel, createdMediaFile: MediaFileModel, updateContent: Media.Detail.Update) {
         let (repository, detail, file) = try await createNewMedia(
             title: title,
             detailText: detailText,
@@ -38,7 +38,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
         if updateLanguageCode == nil {
             try await detail.$language.load(on: app.db)
         }
-        let updateContent = try Media.Media.Update(
+        let updateContent = try Media.Detail.Update(
             title: updatedTitle,
             detailText: updatedDetailText,
             source: updatedSource,
@@ -66,7 +66,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
-            .expect(Media.Media.Detail.self) { content in
+            .expect(Media.Detail.Detail.self) { content in
                 XCTAssertNotNil(content.id)
                 XCTAssertEqual(content.title, updateContent.title)
                 XCTAssertEqual(content.detailText, updateContent.detailText)
@@ -103,7 +103,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
             .header("Content-Type", newFile.mimeType)
             .bearerToken(token)
             .expect(.json)
-            .expect(Media.Media.Detail.self) { content in
+            .expect(Media.Detail.Detail.self) { content in
                 XCTAssertNotNil(content.id)
                 XCTAssertEqual(content.title, updateContent.title)
                 XCTAssertEqual(content.detailText, updateContent.detailText)
@@ -137,7 +137,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
-            .expect(Media.Media.Detail.self) { content in
+            .expect(Media.Detail.Detail.self) { content in
                 XCTAssertNotNil(content.id)
                 XCTAssertEqual(content.title, updateContent.title)
                 XCTAssertEqual(content.detailText, updateContent.detailText)

@@ -1,5 +1,5 @@
 //
-//  MediaMedia.swift
+//  MediaDetail.swift
 //  
 //
 //  Created by niklhut on 09.05.22.
@@ -8,13 +8,12 @@
 import Foundation
 
 public extension Media {
-    enum Media: ApiModelInterface {
+    enum Detail: ApiModelInterface {
         public typealias Module = AppApi.Media
     }
 }
 
-// TODO: rename to Media.Detail
-public extension Media.Media {
+public extension Media.Detail {
     struct List: Codable {
         public let id: UUID
         public let title: String

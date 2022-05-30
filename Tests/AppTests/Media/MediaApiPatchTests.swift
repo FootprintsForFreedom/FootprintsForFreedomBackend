@@ -10,7 +10,7 @@ import XCTVapor
 import Fluent
 import Spec
 
-extension Media.Media.Patch: Content { }
+extension Media.Detail.Patch: Content { }
 
 final class MediaApiPatchTests: AppTestCase, MediaTest {
     private func getMediaPatchContent(
@@ -23,7 +23,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
         languageId: UUID? = nil,
         waypointId: UUID? = nil,
         verified: Bool = false
-    ) async throws -> (mediaRepository: MediaRepositoryModel, createdMediaDetail: MediaDetailModel, createdMediaFile: MediaFileModel, patchContent: Media.Media.Patch) {
+    ) async throws -> (mediaRepository: MediaRepositoryModel, createdMediaDetail: MediaDetailModel, createdMediaFile: MediaFileModel, patchContent: Media.Detail.Patch) {
         let (repository, detail, file) = try await createNewMedia(
             title: title,
             detailText: detailText,
@@ -33,7 +33,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
             languageId: languageId
         )
         
-        let patchContent = try Media.Media.Patch(
+        let patchContent = try Media.Detail.Patch(
             title: patchedTitle,
             detailText: patchedDetailText,
             source: patchedSource,
@@ -61,7 +61,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
-            .expect(Media.Media.Detail.self) { content in
+            .expect(Media.Detail.Detail.self) { content in
                 XCTAssertNotNil(content.id)
                 XCTAssertEqual(content.title, patchContent.title)
                 XCTAssertEqual(content.detailText, detail.detailText)
@@ -96,7 +96,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
-            .expect(Media.Media.Detail.self) { content in
+            .expect(Media.Detail.Detail.self) { content in
                 XCTAssertNotNil(content.id)
                 XCTAssertEqual(content.title, detail.title)
                 XCTAssertEqual(content.detailText, patchContent.detailText)
@@ -132,7 +132,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
-            .expect(Media.Media.Detail.self) { content in
+            .expect(Media.Detail.Detail.self) { content in
                 XCTAssertNotNil(content.id)
                 XCTAssertEqual(content.title, detail.title)
                 XCTAssertEqual(content.detailText, detail.detailText)
@@ -171,7 +171,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
-            .expect(Media.Media.Detail.self) { content in
+            .expect(Media.Detail.Detail.self) { content in
                 XCTAssertNotNil(content.id)
                 XCTAssertEqual(content.title, detail.title)
                 XCTAssertEqual(content.detailText, detail.detailText)
@@ -252,7 +252,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
     func testPatchMediaNeedsValidIdForMediaToPatch() async throws {
         let token = try await getToken(for: .user, verified: true)
         let (repository, _, _, _) = try await getMediaPatchContent(verified: true)
-        let patchContent = Media.Media.Patch(title: nil, detailText: nil, source: nil, idForMediaToPatch: UUID())
+        let patchContent = Media.Detail.Patch(title: nil, detailText: nil, source: nil, idForMediaToPatch: UUID())
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
         

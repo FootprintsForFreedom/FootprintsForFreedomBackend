@@ -58,7 +58,7 @@ extension MediaApiController: ApiRepositoryVerificationController {
         try await req.onlyFor(.moderator)
     }
     
-    func listRepositoriesWithUnverifiedDetailsOutput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: Detail) async throws -> Media.Media.List {
+    func listRepositoriesWithUnverifiedDetailsOutput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: Detail) async throws -> Media.Detail.List {
         try await detail.$media.load(on: req.db)
         return try .init(
             id: repository.requireID(),
@@ -97,7 +97,7 @@ extension MediaApiController: ApiRepositoryVerificationController {
     }
     
     // POST: api/media/:repositoryId/verify/:waypointModelId
-    func verifyDetailOutput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: Detail) async throws -> Media.Media.Detail {
+    func verifyDetailOutput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: Detail) async throws -> Media.Detail.Detail {
         return try .moderatorDetail(
             id: repository.requireID(),
             languageCode: detail.language.languageCode,

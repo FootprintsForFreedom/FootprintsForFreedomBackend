@@ -7,7 +7,7 @@
 
 import Foundation
 
-public extension Media.Media {
+public extension Media.Detail {
     enum Group: String, Codable, CaseIterable, ApiModelInterface {
         public typealias Module = Waypoint
         

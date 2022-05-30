@@ -202,7 +202,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
     func testPatchWaypointNeedsValidIdForWaypointToPatch() async throws {
         let token = try await getToken(for: .user, verified: true)
         let (waypointRepository, _, _, _) = try await getWaypointPatchContent(verified: true)
-        let patchContent = Media.Media.Patch(title: nil, detailText: nil, source: nil, idForMediaToPatch: UUID())
+        let patchContent = Media.Detail.Patch(title: nil, detailText: nil, source: nil, idForMediaToPatch: UUID())
         
         try app
             .describe("Patch waypoint with should need valid id for waypoint to patch or fail")

@@ -18,7 +18,7 @@ extension MediaTest {
         title: String = "New Media Title \(UUID())",
         detailText: String = "New Media Desscription",
         source: String = "New Media Source",
-        group: Media.Media.Group = .image,
+        group: Media.Detail.Group = .image,
         verified: Bool = false,
         waypointId: UUID? = nil,
         languageId: UUID? = nil,
@@ -75,7 +75,7 @@ extension MediaTest {
 extension MediaFileModel {
     static func createWith(
         mediaDirectory: String,
-        group: Media.Media.Group,
+        group: Media.Detail.Group,
         userId: UUID,
         on db: Database
     ) async throws -> Self {

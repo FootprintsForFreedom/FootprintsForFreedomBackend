@@ -9,7 +9,7 @@ import Vapor
 import Fluent
 
 extension WaypointApiController {
-    func listMedia(_ req: Request) async throws -> Page<Media.Media.List> {
+    func listMedia(_ req: Request) async throws -> Page<Media.Detail.List> {
         let waypointRepository = try await repository(req)
         let mediaRepositories = try await waypointRepository.$media
             .query(on: req.db)

@@ -71,7 +71,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
             .get(mediaPath.appending("?preferredLanguage=\(language.languageCode)&per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Media.List>.self) { content in
+            .expect(Page<Media.Detail.List>.self) { content in
                 XCTAssertEqual(content.metadata.total, content.items.count)
                 XCTAssertEqual(content.items.count, verifiedMediaCount)
                 XCTAssertEqual(content.items.map { $0.id }.uniqued().count, verifiedMediaCount)
@@ -156,7 +156,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
             .get(mediaPath.appending("?per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Media.List>.self) { content in
+            .expect(Page<Media.Detail.List>.self) { content in
                 XCTAssertEqual(content.items.count, verifiedMediaCount)
                 
                 XCTAssert(content.items.contains { $0.id == verifiedMediaRepository.id })
@@ -206,7 +206,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
             .get(mediaPath.appending("?per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Media.List>.self) { content in
+            .expect(Page<Media.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == verifiedMediaRepository.id })
                 XCTAssertFalse(content.items.contains { $0.id == verifiedMediaRepositoryForDeactivatedLanguage.id })
             }
@@ -225,7 +225,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
             .get(mediaPath.appending(mediaRepository.requireID().uuidString))
             .expect(.ok)
             .expect(.json)
-            .expect(Media.Media.Detail.self) { content in
+            .expect(Media.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, mediaRepository.id)
                 XCTAssertEqual(content.title, media.title)
                 XCTAssertEqual(content.detailText, media.detailText)
@@ -251,7 +251,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Media.Media.Detail.self) { content in
+            .expect(Media.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, mediaRepository.id)
                 XCTAssertEqual(content.title, media.title)
                 XCTAssertEqual(content.detailText, media.detailText)

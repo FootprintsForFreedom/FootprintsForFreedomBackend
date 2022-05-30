@@ -8,8 +8,8 @@
 import Vapor
 
 extension HTTPMediaType {
-    func mediaGroup() -> Media.Media.Group? {
-        if let group = Media.Media.Group.for("\(type)/\(subType)") {
+    func mediaGroup() -> Media.Detail.Group? {
+        if let group = Media.Detail.Group.for("\(type)/\(subType)") {
             return group
         }
         return nil

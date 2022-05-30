@@ -27,7 +27,7 @@ final class MediaFileModel: DatabaseModelInterface {
     
     @Children(for: \.$media) var detailText: [MediaDetailModel]
     
-    @Enum(key: FieldKeys.v1.group) var group: Media.Media.Group
+    @Enum(key: FieldKeys.v1.group) var group: Media.Detail.Group
     
     @Parent(key: FieldKeys.v1.userId) var user: UserAccountModel
     
@@ -41,7 +41,7 @@ final class MediaFileModel: DatabaseModelInterface {
     
     init(
         mediaDirectory: String,
-        group: Media.Media.Group,
+        group: Media.Detail.Group,
         userId: UUID
     ) {
         self.mediaDirectory = mediaDirectory
