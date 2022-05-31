@@ -34,23 +34,35 @@ protocol RepositoryModel: DatabaseModelInterface {
 }
 
 extension RepositoryModel {
+    // always returns verified detail when it exists, if needsToBeVerified is false it returns an unverified model when no verified one exists, if false it return nil
     func detail(
         for languageCode: String,
         needsToBeVerified: Bool,
         on db: Database,
         sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
     ) async throws -> Detail? {
-        var query = self._$details
+        let verifiedDetail = try await self._$details
             .query(on: db)
             .join(parent: \._$language)
             .filter(LanguageModel.self, \.$languageCode == languageCode)
             .filter(LanguageModel.self, \.$priority != nil)
-        if needsToBeVerified {
-            query = query.filter(\._$verified == true)
-        }
-        query = query.sort(\._$updatedAt, sortDirection)
+            .sort(\._$updatedAt, sortDirection)
+            .filter(\._$verified == true)
+            .first()
         
-        return try await query.first()
+        if let verifiedDetail = verifiedDetail {
+            return verifiedDetail
+        } else if needsToBeVerified == false {
+            return try await self._$details
+                .query(on: db)
+                .join(parent: \._$language)
+                .filter(LanguageModel.self, \.$languageCode == languageCode)
+                .filter(LanguageModel.self, \.$priority != nil)
+                .sort(\._$updatedAt, sortDirection)
+                .first()
+        } else {
+            return nil
+        }
     }
     
     func detail(

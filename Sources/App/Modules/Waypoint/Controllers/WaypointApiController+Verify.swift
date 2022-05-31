@@ -215,13 +215,8 @@ extension WaypointApiController: ApiRepositoryVerificationController {
         
         let allLanguageCodesByPriority = try await req.allLanguageCodesByPriority()
         
-        let latestVerifiedWaypointModel = try await repository.detail(for: allLanguageCodesByPriority, needsToBeVerified: true, on: req.db, sort: .ascending)
-        var waypoint: WaypointDetailModel! = latestVerifiedWaypointModel
-        if waypoint == nil {
-            guard let oldestWaypointModel = try await repository.detail(for: allLanguageCodesByPriority, needsToBeVerified: false, on: req.db, sort: .ascending) else {
-                throw Abort(.internalServerError)
-            }
-            waypoint = oldestWaypointModel
+        guard let waypoint = try await repository.detail(for: allLanguageCodesByPriority, needsToBeVerified: false, on: req.db) else {
+            throw Abort(.internalServerError)
         }
         try await waypoint.$language.load(on: req.db)
         
