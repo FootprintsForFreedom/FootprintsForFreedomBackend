@@ -83,4 +83,13 @@ extension RepositoryModel {
         }
         return nil
     }
+    
+    func containsVerifiedDetail(_ db: Database) async throws -> Bool {
+        let verifiedDetailsCount = try await _$details
+            .query(on: db)
+            .filter(\._$verified == true)
+            .count()
+        
+        return verifiedDetailsCount > 0
+    }
 }
