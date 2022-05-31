@@ -49,6 +49,9 @@ enum TagMigrations {
                 .field(WaypointTagModel.FieldKeys.v1.waypointId, .uuid, .required)
                 .foreignKey(WaypointTagModel.FieldKeys.v1.waypointId, references: WaypointRepositoryModel.schema, .id)
             
+                .field(WaypointTagModel.FieldKeys.v1.verified, .bool, .required)
+                .field(WaypointTagModel.FieldKeys.v1.deleteRequested, .bool, .required)
+            
                 .create()
             
             try await db.schema(MediaTagModel.schema)
