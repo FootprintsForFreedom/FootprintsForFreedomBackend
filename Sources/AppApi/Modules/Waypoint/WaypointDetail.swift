@@ -31,27 +31,30 @@ public extension Waypoint.Detail {
         public let title: String
         public let detailText: String
         public let location: Waypoint.Location
+        public let tags: [Tag.Detail.List]
         public let languageCode: String
         public let verified: Bool?
         public let modelId: UUID?
         public let locationId: UUID?
         
-        public static func publicDetail(id: UUID, title: String, detailText: String, location: Waypoint.Location, languageCode: String) -> Self {
+        public static func publicDetail(id: UUID, title: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String) -> Self {
             return .init(
                 id: id,
                 title: title,
                 detailText: detailText,
                 location: location,
+                tags: tags,
                 languageCode: languageCode
             )
         }
         
-        public static func moderatorDetail(id: UUID, title: String, detailText: String, location: Waypoint.Location, languageCode: String, verified: Bool, modelId: UUID, locationId: UUID) -> Self {
+        public static func moderatorDetail(id: UUID, title: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, verified: Bool, modelId: UUID, locationId: UUID) -> Self {
             return .init(
                 id: id,
                 title: title,
                 detailText: detailText,
                 location: location,
+                tags: tags,
                 languageCode: languageCode,
                 verified: verified,
                 modelId: modelId,
@@ -59,22 +62,24 @@ public extension Waypoint.Detail {
             )
         }
         
-        private init(id: UUID, title: String, detailText: String, location: Waypoint.Location, languageCode: String) {
+        private init(id: UUID, title: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String) {
             self.id = id
             self.title = title
             self.detailText = detailText
             self.location = location
+            self.tags = tags
             self.languageCode = languageCode
             self.verified = nil
             self.modelId = nil
             self.locationId = nil
         }
         
-        private init(id: UUID, title: String, detailText: String, location: Waypoint.Location, languageCode: String, verified: Bool, modelId: UUID, locationId: UUID) {
+        private init(id: UUID, title: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, verified: Bool, modelId: UUID, locationId: UUID) {
             self.id = id
             self.title = title
             self.detailText = detailText
             self.location = location
+            self.tags = tags
             self.languageCode = languageCode
             self.verified = verified
             self.modelId = modelId

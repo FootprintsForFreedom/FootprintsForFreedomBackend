@@ -48,11 +48,37 @@ extension WaypointRepositoryModel {
         on db: Database,
         sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
     ) async throws -> WaypointLocationModel? {
-        var query = self.$locations.query(on: db)
-        if needsToBeVerified {
-            query = query.filter(\.$verified == true)
+        let verifiedLocation = try await $locations
+            .query(on: db)
+            .filter(\.$verified == true)
+            .sort(\.$updatedAt, sortDirection)
+            .first()
+        
+        if let verifiedLocation = verifiedLocation {
+            return verifiedLocation
+        } else if needsToBeVerified == false {
+            return try await $locations
+                .query(on: db)
+                .sort(\.$updatedAt, sortDirection)
+                .first()
+        } else {
+            return nil
         }
-        query = query.sort(\.$updatedAt, sortDirection)
-        return try await query.first()
+    }
+}
+
+extension WaypointRepositoryModel {
+    func tagList(_ req: Request) async throws -> [Tag.Detail.List] {
+        let verifiedTags = try await $tags.query(on: req.db)
+            .filter(WaypointTagModel.self, \.$verified == true)
+            .all()
+        
+        return try await verifiedTags.concurrentMap { tagRepository in
+            guard let detail = try await tagRepository.detail(for: req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db) else {
+                return nil
+            }
+            return try .init(id: tagRepository.requireID(), title: detail.title)
+        }
+        .compactMap { $0 }
     }
 }

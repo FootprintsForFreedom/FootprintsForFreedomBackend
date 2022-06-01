@@ -101,11 +101,12 @@ struct WaypointApiController: ApiRepositoryController {
         
         if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db), user.role >= .moderator && req.method == .GET {
             try await detail.$language.load(on: req.db)
-            return try .moderatorDetail(
-                id: repository.id!,
+            return try await .moderatorDetail(
+                id: repository.requireID(),
                 title: detail.title,
                 detailText: detail.detailText,
                 location: location.location,
+                tags: repository.tagList(req),
                 languageCode: detail.language.languageCode,
                 verified: detail.verified && location.verified,
                 modelId: detail.requireID(),
@@ -117,11 +118,12 @@ struct WaypointApiController: ApiRepositoryController {
     
     func detailOutput(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointDetailModel, _ location: WaypointLocationModel) async throws -> Waypoint.Detail.Detail {
         try await waypoint.$language.load(on: req.db)
-        return .publicDetail(
-            id: repository.id!,
+        return try await .publicDetail(
+            id: repository.requireID(),
             title: waypoint.title,
             detailText: waypoint.detailText,
             location: location.location,
+            tags: repository.tagList(req),
             languageCode: waypoint.language.languageCode
         )
     }
@@ -206,13 +208,8 @@ struct WaypointApiController: ApiRepositoryController {
     }
     
     func updateResponse(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointDetailModel) async throws -> Response {
-        let latestVerifiedLocation = try await repository.location(needsToBeVerified: true, on: req.db)
-        var location: WaypointLocationModel! = latestVerifiedLocation
-        if location == nil {
-            guard let oldestLocation = try await repository.location(needsToBeVerified: false, on: req.db) else {
-                throw Abort(.internalServerError)
-            }
-            location = oldestLocation
+        guard let location = try await repository.location(needsToBeVerified: false, on: req.db) else {
+            throw Abort(.internalServerError)
         }
         return try await detailOutput(req, repository, waypoint, location).encodeResponse(for: req)
     }
@@ -275,14 +272,10 @@ struct WaypointApiController: ApiRepositoryController {
             try await newLocation.create(on: req.db)
             location = newLocation
         } else {
-            let latestVerifiedLocation = try await repository.location(needsToBeVerified: true, on: req.db)
-            location = latestVerifiedLocation
-            if location == nil {
-                guard let oldestLocation = try await repository.location(needsToBeVerified: false, on: req.db) else {
-                    throw Abort(.internalServerError)
-                }
-                location = oldestLocation
+            guard let storedLocation = try await repository.location(needsToBeVerified: false, on: req.db) else {
+                throw Abort(.internalServerError)
             }
+            location = storedLocation
         }
         return (waypoint, location)
     }

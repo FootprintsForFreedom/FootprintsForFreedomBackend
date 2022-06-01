@@ -60,6 +60,7 @@ extension WaypointApiController: ApiRepositoryVerificationController {
             .join(children: \.$details)
             .join(children: \.$locations)
             .join(from: Detail.self, parent: \.$language)
+            .join(children: \.$tags.$pivots, method: .left)
             .group(.or) {
                 $0
                 // only get unverified locations
@@ -71,20 +72,17 @@ extension WaypointApiController: ApiRepositoryVerificationController {
                         // only select details which hava an active language
                             .filter(LanguageModel.self, \.$priority != nil)
                     }
+                    .filter(WaypointTagModel.self, \.$verified == false)
+                    .filter(WaypointTagModel.self, \.$deleteRequested == true)
             }
         // only select the id field and return each id only once
-            .field(\._$id)
+            .field(\.$id)
             .unique()
     }
     
     func listRepositoriesWithUnverifiedDetailsOutput(_ req: Request, _ repository: WaypointRepositoryModel, _ detail: Detail) async throws -> Waypoint.Detail.List {
-        let latestVerifiedLocation = try await repository.location(needsToBeVerified: true, on: req.db)
-        var location: WaypointLocationModel! = latestVerifiedLocation
-        if location == nil {
-            guard let oldestLocation = try await repository.location(needsToBeVerified: false, on: req.db) else {
-                throw Abort(.internalServerError)
-            }
-            location = oldestLocation
+        guard let location = try await repository.location(needsToBeVerified: false, on: req.db) else {
+            throw Abort(.internalServerError)
         }
         
         return try .init(
@@ -156,20 +154,16 @@ extension WaypointApiController: ApiRepositoryVerificationController {
     
     // POST: api/waypoints/:repositoryId/waypoints/verify/:waypointModelId
     func verifyDetailOutput(_ req: Request, _ repository: WaypointRepositoryModel, _ detail: Detail) async throws -> Waypoint.Detail.Detail {
-        let latestVerifiedLocation = try await repository.location(needsToBeVerified: true, on: req.db)
-        var location: WaypointLocationModel! = latestVerifiedLocation
-        if location == nil {
-            guard let oldestLocation = try await repository.location(needsToBeVerified: false, on: req.db) else {
-                throw Abort(.internalServerError)
-            }
-            location = oldestLocation
+        guard let location = try await repository.location(needsToBeVerified: false, on: req.db) else {
+            throw Abort(.internalServerError)
         }
         
-        return try .moderatorDetail(
-            id: repository.id!,
+        return try await .moderatorDetail(
+            id: repository.requireID(),
             title: detail.title,
             detailText: detail.detailText,
             location: location.location,
+            tags: repository.tagList(req),
             languageCode: detail.language.languageCode,
             verified: detail.verified && location.verified,
             modelId: detail.requireID(),
@@ -220,11 +214,12 @@ extension WaypointApiController: ApiRepositoryVerificationController {
         }
         try await waypoint.$language.load(on: req.db)
         
-        return try .moderatorDetail(
-            id: repository.id!,
+        return try await .moderatorDetail(
+            id: repository.requireID(),
             title: waypoint.title,
             detailText: waypoint.detailText,
             location: location.location,
+            tags: repository.tagList(req),
             languageCode: waypoint.language.languageCode,
             verified: waypoint.verified && location.verified,
             modelId: waypoint.requireID(),
