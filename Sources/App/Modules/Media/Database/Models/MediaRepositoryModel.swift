@@ -57,3 +57,19 @@ extension MediaRepositoryModel {
         // TODO: service that deletes soft delted entries after a certain time (-> .evn?) -> also delete the media fieles!
     }
 }
+
+extension MediaRepositoryModel {
+    func tagList(_ req: Request) async throws -> [Tag.Detail.List] {
+        let verifiedTags = try await $tags.query(on: req.db)
+            .filter(MediaTagModel.self, \.$verified == true)
+            .all()
+        
+        return try await verifiedTags.concurrentMap { tagRepository in
+            guard let detail = try await tagRepository.detail(for: req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db) else {
+                return nil
+            }
+            return try .init(id: tagRepository.requireID(), title: detail.title)
+        }
+        .compactMap { $0 }
+    }
+}

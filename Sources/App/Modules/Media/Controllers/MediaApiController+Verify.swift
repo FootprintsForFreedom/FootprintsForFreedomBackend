@@ -55,6 +55,29 @@ extension MediaApiController: ApiRepositoryVerificationController {
         try await req.onlyFor(.moderator)
     }
     
+    func beforeGetRepositories(_ req: Request, _ queryBuilder: QueryBuilder<MediaRepositoryModel>) async throws -> QueryBuilder<MediaRepositoryModel> {
+        queryBuilder
+            .join(children: \._$details)
+            .join(from: Detail.self, parent: \._$language)
+            .join(children: \.$tags.$pivots, method: .left)
+            .group(.or) { group in
+                group
+                    .group(.and) { group in
+                        group
+                        // only get unverified details
+                            .filter(Detail.self, \._$verified == false)
+                        // only select details which hava an active language
+                            .filter(LanguageModel.self, \.$priority != nil)
+                    }
+                    .filter(MediaTagModel.self, \.$verified == false)
+                    .filter(MediaTagModel.self, \.$deleteRequested == true)
+            }
+        // only select the id field and return each id only once
+            .field(\._$id)
+            .unique()
+        
+    }
+    
     func listRepositoriesWithUnverifiedDetailsOutput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: Detail) async throws -> Media.Detail.List {
         try await detail.$media.load(on: req.db)
         return try .init(
@@ -95,7 +118,7 @@ extension MediaApiController: ApiRepositoryVerificationController {
     
     // POST: api/media/:repositoryId/verify/:waypointModelId
     func verifyDetailOutput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: Detail) async throws -> Media.Detail.Detail {
-        return try .moderatorDetail(
+        return try await .moderatorDetail(
             id: repository.requireID(),
             languageCode: detail.language.languageCode,
             title: detail.title,
@@ -103,6 +126,7 @@ extension MediaApiController: ApiRepositoryVerificationController {
             source: detail.source,
             group: detail.media.group,
             filePath: detail.media.mediaDirectory,
+            tags: repository.tagList(req),
             verified: detail.verified, // TODO: && media.file.verififed
             detailId: detail.requireID()
         )

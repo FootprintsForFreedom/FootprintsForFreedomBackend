@@ -77,7 +77,7 @@ struct MediaApiController: ApiRepositoryController {
         try await detail.$language.load(on: req.db)
         
         if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db), user.role >= .moderator && req.method == .GET {
-            return try .moderatorDetail(
+            return try await .moderatorDetail(
                 id: repository.requireID(),
                 languageCode: detail.language.languageCode,
                 title: detail.title,
@@ -85,18 +85,20 @@ struct MediaApiController: ApiRepositoryController {
                 source: detail.source,
                 group: detail.media.group,
                 filePath: detail.media.mediaDirectory,
+                tags: repository.tagList(req),
                 verified: detail.verified,
                 detailId: detail.requireID()
             )
         } else {
-            return try .publicDetail(
+            return try await .publicDetail(
                 id: repository.requireID(),
                 languageCode: detail.language.languageCode,
                 title: detail.title,
                 detailText: detail.detailText,
                 source: detail.source,
                 group: detail.media.group,
-                filePath: detail.media.mediaDirectory
+                filePath: detail.media.mediaDirectory,
+                tags: repository.tagList(req)
             )
         }
     }

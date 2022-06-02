@@ -63,6 +63,9 @@ enum TagMigrations {
                 .field(MediaTagModel.FieldKeys.v1.mediaId, .uuid, .required)
                 .foreignKey(MediaTagModel.FieldKeys.v1.mediaId, references: MediaRepositoryModel.schema, .id)
             
+                .field(MediaTagModel.FieldKeys.v1.verified, .bool, .required)
+                .field(MediaTagModel.FieldKeys.v1.deleteRequested, .bool, .required)
+            
                 .create()
         }
         

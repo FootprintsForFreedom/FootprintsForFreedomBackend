@@ -34,22 +34,11 @@ public extension Media.Detail {
         public let source: String
         public let group: Group
         public let filePath: String
+        public let tags: [Tag.Detail.List]
         public let verified: Bool?
         public let detailId: UUID?
         
-        public static func publicDetail(id: UUID, languageCode: String, title: String, detailText: String, source: String, group: Group, filePath: String) -> Self {
-            return .init(
-                id: id,
-                languageCode: languageCode,
-                title: title,
-                detailText: detailText,
-                source: source,
-                group: group,
-                filePath: filePath
-            )
-        }
-        
-        public static func moderatorDetail(id: UUID, languageCode: String, title: String, detailText: String, source: String, group: Group, filePath: String, verified: Bool, detailId: UUID) -> Self {
+        public static func publicDetail(id: UUID, languageCode: String, title: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List]) -> Self {
             return .init(
                 id: id,
                 languageCode: languageCode,
@@ -58,12 +47,26 @@ public extension Media.Detail {
                 source: source,
                 group: group,
                 filePath: filePath,
+                tags: tags
+            )
+        }
+        
+        public static func moderatorDetail(id: UUID, languageCode: String, title: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List], verified: Bool, detailId: UUID) -> Self {
+            return .init(
+                id: id,
+                languageCode: languageCode,
+                title: title,
+                detailText: detailText,
+                source: source,
+                group: group,
+                filePath: filePath,
+                tags: tags,
                 verified: verified,
                 detailId: detailId
             )
         }
         
-        private init(id: UUID, languageCode: String, title: String, detailText: String, source: String, group: Group, filePath: String) {
+        private init(id: UUID, languageCode: String, title: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List]) {
             self.id = id
             self.languageCode = languageCode
             self.title = title
@@ -71,11 +74,12 @@ public extension Media.Detail {
             self.source = source
             self.group = group
             self.filePath = filePath
+            self.tags = tags
             self.verified = nil
             self.detailId = nil
         }
         
-        private init(id: UUID, languageCode: String, title: String, detailText: String, source: String, group: Group, filePath: String, verified: Bool, detailId: UUID) {
+        private init(id: UUID, languageCode: String, title: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List], verified: Bool, detailId: UUID) {
             self.id = id
             self.languageCode = languageCode
             self.title = title
@@ -83,6 +87,7 @@ public extension Media.Detail {
             self.source = source
             self.group = group
             self.filePath = filePath
+            self.tags = tags
             self.verified = verified
             self.detailId = detailId
         }

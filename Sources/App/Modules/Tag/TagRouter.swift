@@ -11,6 +11,7 @@ struct TagRouter: RouteCollection {
     
     let apiController = TagApiController()
     let waypointApiController = WaypointApiController()
+    let mediaApiController = MediaApiController()
     
     func boot(routes: RoutesBuilder) throws {
         
@@ -22,5 +23,6 @@ struct TagRouter: RouteCollection {
         apiController.setupRoutes(routes)
         apiController.setupVerificationRoutes(routes)
         waypointApiController.setupTagRoutes(routes)
+        mediaApiController.setupTagRoutes(routes)
     }
 }
