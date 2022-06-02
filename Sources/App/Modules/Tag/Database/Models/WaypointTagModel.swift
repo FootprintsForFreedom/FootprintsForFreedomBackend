@@ -35,5 +35,7 @@ final class WaypointTagModel: DatabaseModelInterface {
     init(waypoint: WaypointRepositoryModel, tag: TagRepositoryModel) throws {
         self.$waypoint.id = try waypoint.requireID()
         self.$tag.id = try tag.requireID()
+        self.verified = false
+        self.deleteRequested = false
     }
 }
