@@ -16,6 +16,7 @@ final class TagDetailModel: DetailModel {
         struct v1 {
             static var verified: FieldKey { "verified" }
             static var title: FieldKey { "title" }
+            static var slug: FieldKey { "slug" }
             static var keywords: FieldKey { "keywords" }
             static var languageId: FieldKey { "language_id" }
             static var repositoryId: FieldKey { "repository_id" }
@@ -29,6 +30,7 @@ final class TagDetailModel: DetailModel {
     @ID() var id: UUID?
     
     @Field(key: FieldKeys.v1.verified) var verified: Bool
+    @Field(key: FieldKeys.v1.slug) var slug: String
     @Field(key: FieldKeys.v1.title) var title: String
     @Field(key: FieldKeys.v1.keywords) var keywords: [String]
     
@@ -48,6 +50,7 @@ final class TagDetailModel: DetailModel {
     init(
         verified: Bool,
         title: String,
+        slug: String,
         keywords: [String],
         languageId: UUID,
         repositoryId: UUID,
@@ -55,6 +58,7 @@ final class TagDetailModel: DetailModel {
     ) {
         self.verified = verified
         self.title = title
+        self.slug = slug
         self.keywords = keywords
         self.$language.id = languageId
         self.$repository.id = repositoryId
@@ -68,4 +72,5 @@ extension TagDetailModel {
     var _$repository: ParentProperty<TagDetailModel, TagRepositoryModel> { $repository }
     var _$updatedAt: TimestampProperty<TagDetailModel, DefaultTimestampFormat> { $updatedAt }
     var _$user: OptionalParentProperty<TagDetailModel, UserAccountModel> { $user }
+    var _$slug: FieldProperty<TagDetailModel, String> { $slug }
 }

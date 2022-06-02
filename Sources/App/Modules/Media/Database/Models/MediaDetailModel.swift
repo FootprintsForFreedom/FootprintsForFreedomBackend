@@ -15,6 +15,7 @@ final class MediaDetailModel: DetailModel {
         struct v1 {
             static var verified: FieldKey { "verified" }
             static var title: FieldKey { "title" }
+            static var slug: FieldKey { "slug" }
             static var detailText: FieldKey { "detailText" }
             static var source: FieldKey { "source" }
             static var repositoryId: FieldKey { "repository_id" }
@@ -31,6 +32,7 @@ final class MediaDetailModel: DetailModel {
     @Field(key: FieldKeys.v1.verified) var verified: Bool
     
     @Field(key: FieldKeys.v1.title) var title: String
+    @Field(key: FieldKeys.v1.slug) var slug: String
     @Field(key: FieldKeys.v1.detailText) var detailText: String
     @Field(key: FieldKeys.v1.source) var source: String
     
@@ -51,6 +53,7 @@ final class MediaDetailModel: DetailModel {
     init(
         verified: Bool,
         title: String,
+        slug: String,
         detailText: String,
         source: String,
         languageId: UUID,
@@ -60,6 +63,7 @@ final class MediaDetailModel: DetailModel {
     ) {
         self.verified = verified
         self.title = title
+        self.slug = slug
         self.detailText = detailText
         self.source = source
         self.$language.id = languageId
@@ -75,6 +79,7 @@ extension MediaDetailModel {
     var _$updatedAt: TimestampProperty<MediaDetailModel, DefaultTimestampFormat> { $updatedAt }
     var _$repository: ParentProperty<MediaDetailModel, MediaRepositoryModel> { $repository }
     var _$user: OptionalParentProperty<MediaDetailModel, UserAccountModel> { $user }
+    var _$slug: FieldProperty<MediaDetailModel, String> { $slug }
 }
 
 // TODO: maybe hash the file contents to verify the file was not edited in the filesystem --> data integrity

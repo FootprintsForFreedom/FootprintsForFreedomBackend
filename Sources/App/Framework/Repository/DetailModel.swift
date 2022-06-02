@@ -11,6 +11,11 @@ import Fluent
 protocol DetailModel: DatabaseModelInterface {
     associatedtype Repository: RepositoryModel
     
+    var title: String { get set }
+    
+    var slug: String { get set }
+    var _$slug: FieldProperty<Self, String> { get }
+    
     var verified: Bool { get set }
     var _$verified: FieldProperty<Self, Bool> { get }
     
@@ -36,5 +41,20 @@ extension DetailModel {
             return try .publicDetail(id: user.requireID(), name: user.name, school: user.school)
         }
         return nil
+    }
+    
+    func generateSlug(with accuracy: Date.Accuracy = .none, on db: Database) async throws -> String {
+        let title = accuracy == .none ? self.title : self.title.appending(" ").appending((createdAt ?? Date()).toString(with: accuracy))
+        let slug = title.slugify()
+        let numberOfDetailsWithSlug = try await Self
+            .query(on: db)
+            .filter(\._$slug == slug)
+            .count()
+        if numberOfDetailsWithSlug == 0 {
+            return slug
+        } else {
+            let newAccuracy = accuracy.increased()
+            return try await generateSlug(with: newAccuracy, on: db)
+        }
     }
 }

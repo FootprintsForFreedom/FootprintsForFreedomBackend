@@ -59,7 +59,8 @@ struct TagApiController: ApiRepositoryController {
     func listOutput(_ req: Request, _ repository: Repository, _ detail: Detail) async throws -> Tag.Detail.List {
         return try .init(
             id: repository.requireID(),
-            title: detail.title
+            title: detail.title,
+            slug: detail.slug
         )
     }
     
@@ -73,6 +74,7 @@ struct TagApiController: ApiRepositoryController {
                 id: repository.requireID(),
                 title: detail.title,
                 keywords: detail.keywords,
+                slug: detail.slug,
                 languageCode: detail.language.languageCode,
                 verified: detail.verified,
                 detailId: detail.requireID()
@@ -82,6 +84,7 @@ struct TagApiController: ApiRepositoryController {
                 id: repository.requireID(),
                 title: detail.title,
                 keywords: detail.keywords,
+                slug: detail.slug,
                 languageCode: detail.language.languageCode
             )
         }

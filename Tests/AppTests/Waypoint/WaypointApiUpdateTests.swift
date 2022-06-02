@@ -59,6 +59,8 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
             .expect(Waypoint.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, waypointRepository.id)
                 XCTAssertEqual(content.title, updateContent.title)
+                XCTAssertNotEqual(content.slug, updateContent.title.slugify())
+                XCTAssertContains(content.slug, updateContent.title.slugify())
                 XCTAssertEqual(content.detailText, updateContent.detailText)
                 XCTAssertEqual(content.location, createdLocation.location)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
@@ -103,6 +105,8 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
             .expect(Waypoint.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, waypointRepository.id)
                 XCTAssertEqual(content.title, updateContent.title)
+                XCTAssertNotEqual(content.slug, updateContent.title.slugify())
+                XCTAssertContains(content.slug, updateContent.title.slugify())
                 XCTAssertEqual(content.detailText, updateContent.detailText)
                 XCTAssertEqual(content.location, createdLocation.location)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)

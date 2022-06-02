@@ -23,6 +23,7 @@ enum WaypointMigrations {
             
                 .field(WaypointDetailModel.FieldKeys.v1.verified, .bool, .required)
                 .field(WaypointDetailModel.FieldKeys.v1.title, .string , .required)
+                .field(WaypointDetailModel.FieldKeys.v1.slug, .string, .required)
                 .field(WaypointDetailModel.FieldKeys.v1.detailText, .string , .required)
             
                 .field(WaypointDetailModel.FieldKeys.v1.languageId, .uuid, .required)

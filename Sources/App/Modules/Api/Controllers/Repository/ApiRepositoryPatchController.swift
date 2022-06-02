@@ -35,6 +35,7 @@ extension ApiRepositoryPatchController {
         try await beforePatch(req, repository)
         let detail = Detail()
         try await patchInput(req, repository, detail, input)
+        detail.slug = try await detail.generateSlug(with: .day, on: req.db)
         try await repository.update(on: req.db)
         try await repository._$details.create(detail, on: req.db)
         return try await patchResponse(req, repository, detail)

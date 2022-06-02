@@ -68,7 +68,7 @@ extension MediaRepositoryModel {
             guard let detail = try await tagRepository.detail(for: req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db) else {
                 return nil
             }
-            return try .init(id: tagRepository.requireID(), title: detail.title)
+            return try .init(id: tagRepository.requireID(), title: detail.title, slug: detail.slug)
         }
         .compactMap { $0 }
     }

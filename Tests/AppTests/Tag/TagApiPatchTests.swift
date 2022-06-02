@@ -51,6 +51,8 @@ final class TagApiPatchTests: AppTestCase, TagTest {
             .expect(Tag.Detail.Detail.self) { content in
                 XCTAssertNotNil(content.id)
                 XCTAssertEqual(content.title, patchContent.title)
+                XCTAssertNotEqual(content.slug, patchContent.title!.slugify())
+                XCTAssertContains(content.slug, patchContent.title!.slugify())
                 XCTAssertEqual(content.keywords, detail.keywords)
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)
                 XCTAssertNil(content.verified)
@@ -73,6 +75,8 @@ final class TagApiPatchTests: AppTestCase, TagTest {
             .expect(Tag.Detail.Detail.self) { content in
                 XCTAssertNotNil(content.id)
                 XCTAssertEqual(content.title, detail.title)
+                XCTAssertNotEqual(content.slug, detail.title.slugify())
+                XCTAssertContains(content.slug, detail.title.slugify())
                 XCTAssertEqual(content.keywords, patchContent.keywords)
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)
                 XCTAssertNil(content.verified)

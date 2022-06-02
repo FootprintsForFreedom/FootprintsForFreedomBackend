@@ -83,6 +83,7 @@ struct WaypointApiController: ApiRepositoryController {
                     return try .init(
                         id: repository.requireID(),
                         title: detail.title,
+                        slug: detail.slug,
                         location: location.location
                     )
                 } else {
@@ -104,6 +105,7 @@ struct WaypointApiController: ApiRepositoryController {
             return try await .moderatorDetail(
                 id: repository.requireID(),
                 title: detail.title,
+                slug: detail.slug,
                 detailText: detail.detailText,
                 location: location.location,
                 tags: repository.tagList(req),
@@ -116,15 +118,16 @@ struct WaypointApiController: ApiRepositoryController {
         return try await detailOutput(req, repository, detail, location)
     }
     
-    func detailOutput(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointDetailModel, _ location: WaypointLocationModel) async throws -> Waypoint.Detail.Detail {
-        try await waypoint.$language.load(on: req.db)
+    func detailOutput(_ req: Request, _ repository: WaypointRepositoryModel, _ detail: WaypointDetailModel, _ location: WaypointLocationModel) async throws -> Waypoint.Detail.Detail {
+        try await detail.$language.load(on: req.db)
         return try await .publicDetail(
             id: repository.requireID(),
-            title: waypoint.title,
-            detailText: waypoint.detailText,
+            title: detail.title,
+            slug: detail.slug,
+            detailText: detail.detailText,
             location: location.location,
             tags: repository.tagList(req),
-            languageCode: waypoint.language.languageCode
+            languageCode: detail.language.languageCode
         )
     }
     
@@ -139,6 +142,7 @@ struct WaypointApiController: ApiRepositoryController {
         let detail = Detail()
         let location = WaypointLocationModel()
         try await createInput(req, repository, detail, location, input)
+        detail.slug = try await detail.generateSlug(with: .day, on: req.db)
         try await repository.$details.create(detail, on: req.db)
         try await repository.$locations.create(location, on: req.db)
         return try await createResponse(req, repository, detail, location)
@@ -221,9 +225,9 @@ struct WaypointApiController: ApiRepositoryController {
         let repository = try await findBy(identifier(req), on: req.db)
         let input = try req.content.decode(PatchObject.self)
         try await beforePatch(req, repository)
-        let (waypoint, location) = try await patchInput(req, repository, input)
+        let (detail, location) = try await patchInput(req, repository, input)
         try await afterPatch(req, repository)
-        return try await patchResponse(req, repository, waypoint, location)
+        return try await patchResponse(req, repository, detail, location)
     }
     
     func beforePatch(_ req: Request, _ model: WaypointRepositoryModel) async throws {
@@ -254,6 +258,7 @@ struct WaypointApiController: ApiRepositoryController {
             newWaypoint.$user.id = user.id
             newWaypoint.$language.id = waypointToPatch.$language.id
             newWaypoint.title = input.title ?? waypointToPatch.title
+            newWaypoint.slug = try await newWaypoint.generateSlug(with: .day, on: req.db)
             newWaypoint.detailText = input.detailText ?? waypointToPatch.detailText
             try await repository.$details.create(newWaypoint, on: req.db)
             waypoint = newWaypoint

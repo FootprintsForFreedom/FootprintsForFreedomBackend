@@ -25,6 +25,7 @@ final class MediaApiVerificationTests: AppTestCase, MediaTest {
             .expect(Media.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, repository.id)
                 XCTAssertEqual(content.title, detail.title)
+                XCTAssertEqual(content.slug, detail.title.slugify())
                 XCTAssertEqual(content.detailText, detail.detailText)
                 XCTAssertEqual(content.source, detail.source)
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)

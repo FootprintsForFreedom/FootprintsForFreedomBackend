@@ -74,6 +74,8 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
                     XCTAssertNotNil(content.id)
                     newRepositoryId = content.id
                     XCTAssertEqual(content.title, newMedia.title)
+                    XCTAssertNotEqual(content.slug, newMedia.title.slugify())
+                    XCTAssertContains(content.slug, newMedia.title.slugify())
                     XCTAssertEqual(content.detailText, newMedia.detailText)
                     XCTAssertEqual(content.source, newMedia.source)
                     XCTAssertEqual(content.languageCode, newMedia.languageCode)
@@ -138,6 +140,8 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
                     XCTAssertNotNil(content.id)
                     newRepositoryId = content.id
                     XCTAssertEqual(content.title, newMedia.title)
+                    XCTAssertNotEqual(content.slug, newMedia.title.slugify())
+                    XCTAssertContains(content.slug, newMedia.title.slugify())
                     XCTAssertEqual(content.detailText, newMedia.detailText)
                     XCTAssertEqual(content.source, newMedia.source)
                     XCTAssertEqual(content.languageCode, newMedia.languageCode)

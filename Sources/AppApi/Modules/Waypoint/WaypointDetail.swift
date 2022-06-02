@@ -17,18 +17,21 @@ public extension Waypoint.Detail {
     struct List: Codable {
         public let id: UUID
         public let title: String
+        public let slug: String
         public let location: Waypoint.Location
         
-        public init(id: UUID, title: String, location: Waypoint.Location) {
+        public init(id: UUID, title: String, slug: String, location: Waypoint.Location) {
             self.id = id
             self.title = title
             self.location = location
+            self.slug = slug
         }
     }
     
     struct Detail: Codable {
         public let id: UUID
         public let title: String
+        public let slug: String
         public let detailText: String
         public let location: Waypoint.Location
         public let tags: [Tag.Detail.List]
@@ -37,10 +40,11 @@ public extension Waypoint.Detail {
         public let modelId: UUID?
         public let locationId: UUID?
         
-        public static func publicDetail(id: UUID, title: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String) -> Self {
+        public static func publicDetail(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String) -> Self {
             return .init(
                 id: id,
                 title: title,
+                slug: slug,
                 detailText: detailText,
                 location: location,
                 tags: tags,
@@ -48,10 +52,11 @@ public extension Waypoint.Detail {
             )
         }
         
-        public static func moderatorDetail(id: UUID, title: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, verified: Bool, modelId: UUID, locationId: UUID) -> Self {
+        public static func moderatorDetail(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, verified: Bool, modelId: UUID, locationId: UUID) -> Self {
             return .init(
                 id: id,
                 title: title,
+                slug: slug,
                 detailText: detailText,
                 location: location,
                 tags: tags,
@@ -62,9 +67,10 @@ public extension Waypoint.Detail {
             )
         }
         
-        private init(id: UUID, title: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String) {
+        private init(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String) {
             self.id = id
             self.title = title
+            self.slug = slug
             self.detailText = detailText
             self.location = location
             self.tags = tags
@@ -74,9 +80,10 @@ public extension Waypoint.Detail {
             self.locationId = nil
         }
         
-        private init(id: UUID, title: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, verified: Bool, modelId: UUID, locationId: UUID) {
+        private init(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, verified: Bool, modelId: UUID, locationId: UUID) {
             self.id = id
             self.title = title
+            self.slug = slug
             self.detailText = detailText
             self.location = location
             self.tags = tags

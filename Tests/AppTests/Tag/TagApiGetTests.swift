@@ -216,6 +216,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
             .expect(Tag.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, repository.id)
                 XCTAssertEqual(content.title, detail.title)
+                XCTAssertEqual(content.slug, detail.slug)
                 XCTAssertEqual(content.keywords, detail.keywords)
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)
                 XCTAssertNil(content.verified)

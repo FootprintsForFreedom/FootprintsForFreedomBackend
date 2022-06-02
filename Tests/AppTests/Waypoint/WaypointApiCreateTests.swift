@@ -45,6 +45,8 @@ final class WaypointApiCreateTests: AppTestCase, WaypointTest {
                 XCTAssertNotNil(content.id)
                 newRepositoryId = content.id
                 XCTAssertEqual(content.title, newWaypoint.title)
+                XCTAssertNotEqual(content.slug, newWaypoint.title.slugify())
+                XCTAssertContains(content.slug, newWaypoint.title.slugify())
                 XCTAssertEqual(content.detailText, newWaypoint.detailText)
                 XCTAssertEqual(content.location, newWaypoint.location)
                 XCTAssertEqual(content.languageCode, newWaypoint.languageCode)
@@ -89,6 +91,8 @@ final class WaypointApiCreateTests: AppTestCase, WaypointTest {
                 XCTAssertNotNil(content.id)
                 newRepositoryId = content.id
                 XCTAssertEqual(content.title, newWaypoint.title)
+                XCTAssertNotEqual(content.slug, newWaypoint.title.slugify())
+                XCTAssertContains(content.slug, newWaypoint.title.slugify())
                 XCTAssertEqual(content.detailText, newWaypoint.detailText)
                 XCTAssertEqual(content.location, newWaypoint.location)
                 XCTAssertEqual(content.languageCode, newWaypoint.languageCode)

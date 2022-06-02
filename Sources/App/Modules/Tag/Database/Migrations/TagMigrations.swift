@@ -23,6 +23,7 @@ enum TagMigrations {
             
                 .field(TagDetailModel.FieldKeys.v1.verified, .bool, .required)
                 .field(TagDetailModel.FieldKeys.v1.title, .string , .required)
+                .field(TagDetailModel.FieldKeys.v1.slug, .string, .required)
                 .field(TagDetailModel.FieldKeys.v1.keywords, .array(of: .string), .required)
             
                 .field(TagDetailModel.FieldKeys.v1.languageId, .uuid, .required)

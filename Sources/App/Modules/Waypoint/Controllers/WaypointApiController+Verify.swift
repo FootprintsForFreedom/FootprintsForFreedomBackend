@@ -88,6 +88,7 @@ extension WaypointApiController: ApiRepositoryVerificationController {
         return try .init(
             id: repository.requireID(),
             title: detail.title,
+            slug: detail.slug,
             location: location.location
         )
     }
@@ -148,10 +149,6 @@ extension WaypointApiController: ApiRepositoryVerificationController {
         try await req.onlyFor(.moderator)
     }
     
-    func beforeGetDetailToVerify(_ req: Request, _ queryBuilder: QueryBuilder<Detail>) async throws -> QueryBuilder<Detail> {
-        queryBuilder.with(\.$language)
-    }
-    
     // POST: api/waypoints/:repositoryId/waypoints/verify/:waypointModelId
     func verifyDetailOutput(_ req: Request, _ repository: WaypointRepositoryModel, _ detail: Detail) async throws -> Waypoint.Detail.Detail {
         guard let location = try await repository.location(needsToBeVerified: false, on: req.db) else {
@@ -161,6 +158,7 @@ extension WaypointApiController: ApiRepositoryVerificationController {
         return try await .moderatorDetail(
             id: repository.requireID(),
             title: detail.title,
+            slug: detail.slug,
             detailText: detail.detailText,
             location: location.location,
             tags: repository.tagList(req),
@@ -209,20 +207,21 @@ extension WaypointApiController: ApiRepositoryVerificationController {
         
         let allLanguageCodesByPriority = try await req.allLanguageCodesByPriority()
         
-        guard let waypoint = try await repository.detail(for: allLanguageCodesByPriority, needsToBeVerified: false, on: req.db) else {
+        guard let detail = try await repository.detail(for: allLanguageCodesByPriority, needsToBeVerified: false, on: req.db) else {
             throw Abort(.internalServerError)
         }
-        try await waypoint.$language.load(on: req.db)
+        try await detail.$language.load(on: req.db)
         
         return try await .moderatorDetail(
             id: repository.requireID(),
-            title: waypoint.title,
-            detailText: waypoint.detailText,
+            title: detail.title,
+            slug: detail.slug,
+            detailText: detail.detailText,
             location: location.location,
             tags: repository.tagList(req),
-            languageCode: waypoint.language.languageCode,
-            verified: waypoint.verified && location.verified,
-            modelId: waypoint.requireID(),
+            languageCode: detail.language.languageCode,
+            verified: detail.verified && location.verified,
+            modelId: detail.requireID(),
             locationId: location.requireID()
         )
     }

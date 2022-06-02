@@ -227,6 +227,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
             .expect(Waypoint.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, waypointRepository.id)
                 XCTAssertEqual(content.title, waypoint.title)
+                XCTAssertEqual(content.slug, waypoint.slug)
                 XCTAssertEqual(content.detailText, waypoint.detailText)
                 XCTAssertEqual(content.location, location.location)
                 XCTAssertEqual(content.languageCode, waypoint.language.languageCode)

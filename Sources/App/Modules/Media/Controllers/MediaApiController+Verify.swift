@@ -83,6 +83,7 @@ extension MediaApiController: ApiRepositoryVerificationController {
         return try .init(
             id: repository.requireID(),
             title: detail.title,
+            slug: detail.slug,
             group: detail.media.group
         )
     }
@@ -113,7 +114,7 @@ extension MediaApiController: ApiRepositoryVerificationController {
     }
     
     func beforeGetDetailToVerify(_ req: Request, _ queryBuilder: QueryBuilder<Detail>) async throws -> QueryBuilder<Detail> {
-        queryBuilder.with(\.$language).with(\.$media)
+        queryBuilder.with(\.$media)
     }
     
     // POST: api/media/:repositoryId/verify/:waypointModelId
@@ -122,6 +123,7 @@ extension MediaApiController: ApiRepositoryVerificationController {
             id: repository.requireID(),
             languageCode: detail.language.languageCode,
             title: detail.title,
+            slug: detail.slug,
             detailText: detail.detailText,
             source: detail.source,
             group: detail.media.group,

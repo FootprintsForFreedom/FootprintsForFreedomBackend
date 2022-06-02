@@ -50,6 +50,7 @@ enum MediaMigrations {
                 .id()
                 .field(MediaDetailModel.FieldKeys.v1.verified, .bool, .required)
                 .field(MediaDetailModel.FieldKeys.v1.title, .string, .required)
+                .field(MediaDetailModel.FieldKeys.v1.slug, .string, .required)
                 .field(MediaDetailModel.FieldKeys.v1.detailText, .string, .required)
                 .field(MediaDetailModel.FieldKeys.v1.source, .string, .required)
             

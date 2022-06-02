@@ -66,6 +66,7 @@ struct MediaApiController: ApiRepositoryController {
         return .init(
             id: try repository.requireID(),
             title: detail.title,
+            slug: detail.slug,
             group: detail.media.group
         )
     }
@@ -81,6 +82,7 @@ struct MediaApiController: ApiRepositoryController {
                 id: repository.requireID(),
                 languageCode: detail.language.languageCode,
                 title: detail.title,
+                slug: detail.slug,
                 detailText: detail.detailText,
                 source: detail.source,
                 group: detail.media.group,
@@ -94,6 +96,7 @@ struct MediaApiController: ApiRepositoryController {
                 id: repository.requireID(),
                 languageCode: detail.language.languageCode,
                 title: detail.title,
+                slug: detail.slug,
                 detailText: detail.detailText,
                 source: detail.source,
                 group: detail.media.group,

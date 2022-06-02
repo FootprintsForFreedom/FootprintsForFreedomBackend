@@ -15,7 +15,7 @@ extension WaypointTest {
     var waypointsPath: String { "api/waypoints/" }
     
     func createNewWaypoint(
-        title: String = "New Waypoint Title",
+        title: String = "New Waypoint Title \(UUID())",
         detailText: String = "New Waypoint detail text",
         location: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
         verified: Bool = false,
@@ -61,6 +61,7 @@ extension WaypointTest {
 extension WaypointDetailModel {
     static func createWith(
         title: String,
+        slug: String? = nil,
         detailText: String,
         repositoryId: UUID,
         languageId: UUID,
@@ -68,9 +69,11 @@ extension WaypointDetailModel {
         verified: Bool,
         on db: Database
     ) async throws -> Self {
+        let slug = slug ?? title.appending(" ").appending(Date().toString(with: .day)).slugify()
         let waypoint = self.init(
             verified: verified,
             title: title,
+            slug: slug,
             detailText: detailText,
             languageId: languageId,
             repositoryId: repositoryId,

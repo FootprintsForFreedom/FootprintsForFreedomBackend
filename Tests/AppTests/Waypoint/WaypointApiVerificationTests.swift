@@ -27,6 +27,7 @@ final class WaypointApiVerificationTests: AppTestCase, WaypointTest {
             .expect(Waypoint.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, waypointRepository.id)
                 XCTAssertEqual(content.title, waypointModel.title)
+                XCTAssertEqual(content.slug, waypointModel.title.slugify())
                 XCTAssertEqual(content.detailText, waypointModel.detailText)
                 XCTAssertEqual(content.location, location.location)
                 XCTAssertEqual(content.languageCode, waypointModel.language.languageCode)

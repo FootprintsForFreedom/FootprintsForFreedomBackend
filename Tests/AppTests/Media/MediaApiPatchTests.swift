@@ -64,6 +64,8 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
             .expect(Media.Detail.Detail.self) { content in
                 XCTAssertNotNil(content.id)
                 XCTAssertEqual(content.title, patchContent.title)
+                XCTAssertNotEqual(content.slug, patchContent.title!.slugify())
+                XCTAssertContains(content.slug, patchContent.title!.slugify())
                 XCTAssertEqual(content.detailText, detail.detailText)
                 XCTAssertEqual(content.source, detail.source)
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)
@@ -99,6 +101,8 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
             .expect(Media.Detail.Detail.self) { content in
                 XCTAssertNotNil(content.id)
                 XCTAssertEqual(content.title, detail.title)
+                XCTAssertNotEqual(content.slug, detail.title.slugify())
+                XCTAssertContains(content.slug, detail.title.slugify())
                 XCTAssertEqual(content.detailText, patchContent.detailText)
                 XCTAssertEqual(content.source, detail.source)
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)
@@ -135,6 +139,8 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
             .expect(Media.Detail.Detail.self) { content in
                 XCTAssertNotNil(content.id)
                 XCTAssertEqual(content.title, detail.title)
+                XCTAssertNotEqual(content.slug, detail.title.slugify())
+                XCTAssertContains(content.slug, detail.title.slugify())
                 XCTAssertEqual(content.detailText, detail.detailText)
                 XCTAssertEqual(content.source, patchContent.source)
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)
@@ -174,6 +180,8 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
             .expect(Media.Detail.Detail.self) { content in
                 XCTAssertNotNil(content.id)
                 XCTAssertEqual(content.title, detail.title)
+                XCTAssertNotEqual(content.slug, detail.title.slugify())
+                XCTAssertContains(content.slug, detail.title.slugify())
                 XCTAssertEqual(content.detailText, detail.detailText)
                 XCTAssertEqual(content.source, detail.source)
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)

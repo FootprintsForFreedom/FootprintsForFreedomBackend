@@ -40,6 +40,7 @@ extension ApiRepositoryCreateController {
         try await create(req, repository)
         let detail = Detail()
         try await createInput(req, repository, detail, input)
+        detail.slug = try await detail.generateSlug(with: .day, on: req.db)
         try await repository._$details.create(detail, on: req.db)
         return try await createResponse(req, repository, detail)
     }

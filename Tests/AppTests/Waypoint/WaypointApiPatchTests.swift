@@ -56,6 +56,8 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
             .expect(Waypoint.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, waypointRepository.id)
                 XCTAssertEqual(content.title, patchContent.title)
+                XCTAssertNotEqual(content.slug, patchContent.title!.slugify())
+                XCTAssertContains(content.slug, patchContent.title!.slugify())
                 XCTAssertEqual(content.detailText, createdModel.detailText)
                 XCTAssertEqual(content.location, createdLocation.location)
                 XCTAssertEqual(content.languageCode, createdModel.language.languageCode)
@@ -88,6 +90,8 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
             .expect(Waypoint.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, waypointRepository.id)
                 XCTAssertEqual(content.title, createdModel.title)
+                XCTAssertNotEqual(content.slug, createdModel.title.slugify())
+                XCTAssertContains(content.slug, createdModel.title.slugify())
                 XCTAssertEqual(content.detailText, patchContent.detailText)
                 XCTAssertEqual(content.location, createdLocation.location)
                 XCTAssertEqual(content.languageCode, createdModel.language.languageCode)
@@ -120,6 +124,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
             .expect(Waypoint.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, waypointRepository.id)
                 XCTAssertEqual(content.title, createdModel.title)
+                XCTAssertEqual(content.slug, createdModel.slug)
                 XCTAssertEqual(content.detailText, createdModel.detailText)
                 XCTAssertEqual(content.location, patchContent.location)
                 XCTAssertEqual(content.languageCode, createdModel.language.languageCode)
@@ -152,6 +157,8 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
             .expect(Waypoint.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, waypointRepository.id)
                 XCTAssertEqual(content.title, patchContent.title)
+                XCTAssertNotEqual(content.slug, patchContent.title!.slugify())
+                XCTAssertContains(content.slug, patchContent.title!.slugify())
                 XCTAssertEqual(content.detailText, patchContent.detailText)
                 XCTAssertEqual(content.location, patchContent.location)
                 XCTAssertEqual(content.languageCode, createdModel.language.languageCode)

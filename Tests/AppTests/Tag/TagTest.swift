@@ -55,15 +55,18 @@ extension TagDetailModel {
     static func createWith(
         verified: Bool,
         title: String,
+        slug: String? = nil,
         keywords: [String],
         languageId: UUID,
         repositoryId: UUID,
         userId: UUID,
         on db: Database
     ) async throws -> Self {
+        let slug = slug ?? title.appending(" ").appending(Date().toString(with: .day)).slugify()
         let detail = self.init(
             verified: verified,
             title: title,
+            slug: slug,
             keywords: keywords,
             languageId: languageId,
             repositoryId: repositoryId,

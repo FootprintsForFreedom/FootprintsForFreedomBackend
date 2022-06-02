@@ -93,6 +93,7 @@ extension MediaDetailModel {
     static func createWith(
         verified: Bool,
         title: String,
+        slug: String? = nil,
         detailText: String,
         source: String,
         languageId: UUID,
@@ -101,9 +102,11 @@ extension MediaDetailModel {
         userId: UUID,
         on db: Database
     ) async throws -> Self {
+        let slug = slug ?? title.appending(" ").appending(Date().toString(with: .day)).slugify()
         let mediaDetail = self.init(
             verified: verified,
             title: title,
+            slug: slug,
             detailText: detailText,
             source: source,
             languageId: languageId,

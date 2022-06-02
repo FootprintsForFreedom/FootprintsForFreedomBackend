@@ -49,7 +49,8 @@ extension TagApiController: ApiRepositoryVerificationController {
     func listRepositoriesWithUnverifiedDetailsOutput(_ req: Request, _ repository: TagRepositoryModel, _ detail: Detail) async throws -> Tag.Detail.List {
         return try .init(
             id: repository.requireID(),
-            title: detail.title
+            title: detail.title,
+            slug: detail.slug
         )
     }
     
@@ -78,15 +79,12 @@ extension TagApiController: ApiRepositoryVerificationController {
         try await req.onlyFor(.moderator)
     }
     
-    func beforeGetDetailToVerify(_ req: Request, _ queryBuilder: QueryBuilder<Detail>) async throws -> QueryBuilder<Detail> {
-        queryBuilder.with(\.$language)
-    }
-    
     func verifyDetailOutput(_ req: Request, _ repository: TagRepositoryModel, _ detail: Detail) async throws -> Tag.Detail.Detail {
         return try .moderatorDetail(
             id: repository.requireID(),
             title: detail.title,
             keywords: detail.keywords,
+            slug: detail.slug,
             languageCode: detail.language.languageCode,
             verified: detail.verified,
             detailId: detail.requireID()

@@ -228,6 +228,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
             .expect(Media.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, mediaRepository.id)
                 XCTAssertEqual(content.title, media.title)
+                XCTAssertEqual(content.slug, media.slug)
                 XCTAssertEqual(content.detailText, media.detailText)
                 XCTAssertEqual(content.languageCode, media.language.languageCode)
                 XCTAssertEqual(content.group, file.group)
