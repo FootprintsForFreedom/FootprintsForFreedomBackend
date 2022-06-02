@@ -127,7 +127,7 @@ extension MediaApiController: ApiRepositoryVerificationController {
             group: detail.media.group,
             filePath: detail.media.mediaDirectory,
             tags: repository.tagList(req),
-            verified: detail.verified, // TODO: && media.file.verififed
+            verified: detail.verified,
             detailId: detail.requireID()
         )
     }
