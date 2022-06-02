@@ -267,6 +267,30 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
             .test()
     }
     
+    func testSuccessfulGetVerifiedMediaBySlug() async throws {
+        let language = try await createLanguage()
+        let (mediaRepository, media, file) = try await createNewMedia(verified: true, languageId: language.requireID())
+        try await media.$language.load(on: app.db)
+        
+        try app
+            .describe("Get verified media by slug should return ok")
+            .get(mediaPath.appending("find/\(media.slug)"))
+            .expect(.ok)
+            .expect(.json)
+            .expect(Media.Detail.Detail.self) { content in
+                XCTAssertEqual(content.id, mediaRepository.id)
+                XCTAssertEqual(content.title, media.title)
+                XCTAssertEqual(content.slug, media.slug)
+                XCTAssertEqual(content.detailText, media.detailText)
+                XCTAssertEqual(content.languageCode, media.language.languageCode)
+                XCTAssertEqual(content.group, file.group)
+                XCTAssertEqual(content.filePath, file.mediaDirectory)
+                XCTAssertNil(content.verified)
+                XCTAssertNil(content.detailId)
+            }
+            .test()
+    }
+    
     func testGetMediaForDeactivatedLanguageFails() async throws {
         let deactivatedLanguage = try await createLanguage()
         deactivatedLanguage.priority = nil

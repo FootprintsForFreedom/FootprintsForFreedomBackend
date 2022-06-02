@@ -264,6 +264,29 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
             .test()
     }
     
+    func testSuccessfulGetVerifiedWaypointBySlug() async throws {
+        let language = try await createLanguage()
+        let (waypointRepository, waypoint, location) = try await createNewWaypoint(verified: true, languageId: language.requireID())
+        try await waypoint.$language.load(on: app.db)
+        
+        try app
+            .describe("Get verified waypoint by slug should return ok")
+            .get(waypointsPath.appending("find/\(waypoint.slug)"))
+            .expect(.ok)
+            .expect(.json)
+            .expect(Waypoint.Detail.Detail.self) { content in
+                XCTAssertEqual(content.id, waypointRepository.id)
+                XCTAssertEqual(content.title, waypoint.title)
+                XCTAssertEqual(content.slug, waypoint.slug)
+                XCTAssertEqual(content.detailText, waypoint.detailText)
+                XCTAssertEqual(content.location, location.location)
+                XCTAssertEqual(content.languageCode, waypoint.language.languageCode)
+                XCTAssertNil(content.verified)
+                XCTAssertNil(content.modelId)
+            }
+            .test()
+    }
+    
     func testGetWaypointForDeactivatedLanguageFails() async throws {
         let deactivatedLanguage = try await createLanguage()
         deactivatedLanguage.priority = nil

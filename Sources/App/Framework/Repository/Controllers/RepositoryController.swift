@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-protocol RepositoryController {
+protocol RepositoryController where Repository.Detail.Repository == Repository {
     associatedtype ApiModel: ApiModelInterface
     associatedtype Repository: RepositoryModel
     typealias Detail = Repository.Detail
@@ -17,7 +17,9 @@ protocol RepositoryController {
     static var modelName: Name { get }
     
     func identifier(_ req: Request) throws -> UUID
+    func slug(_ req: Request) throws -> String
     func findBy(_ id: UUID, on: Database) async throws -> Repository
+    func findBy(_ slug: String, on: Database) async throws -> Detail
     func repository(_ req: Request) async throws -> Repository
     
     func getBaseRoutes(_ routes: RoutesBuilder) -> RoutesBuilder
@@ -37,11 +39,32 @@ extension RepositoryController {
         return uuid
     }
     
+    func slug(_ req: Request) throws -> String {
+        guard
+            let slug = req.parameters.get(ApiModel.pathIdKey),
+            slug == slug.slugify()
+        else {
+            throw Abort(.badRequest)
+        }
+        return slug
+    }
+    
     func findBy(_ id: UUID, on db: Database) async throws -> Repository {
         guard let repository = try await Repository.find(id, on: db) else {
             throw Abort(.notFound)
         }
         return repository
+    }
+    
+    func findBy(_ slug: String, on db: Database) async throws -> Detail {
+        guard let detail = try await Detail
+            .query(on: db)
+            .filter(\._$slug == slug)
+            .first()
+        else {
+            throw Abort(.notFound)
+        }
+        return detail
     }
     
     func repository(_ req: Request) async throws -> Repository {

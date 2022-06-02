@@ -250,6 +250,27 @@ final class TagApiGetTests: AppTestCase, TagTest {
             .test()
     }
     
+    func testSuccessfulGetVerifiedTagBySlug() async throws {
+        let (repository, detail) = try await createNewTag(verified: true)
+        try await detail.$language.load(on: app.db)
+        
+        try app
+            .describe("Get verified tag by slug should return ok")
+            .get(tagPath.appending("find/\(detail.slug)"))
+            .expect(.ok)
+            .expect(.json)
+            .expect(Tag.Detail.Detail.self) { content in
+                XCTAssertEqual(content.id, repository.id)
+                XCTAssertEqual(content.title, detail.title)
+                XCTAssertEqual(content.slug, detail.slug)
+                XCTAssertEqual(content.keywords, detail.keywords)
+                XCTAssertEqual(content.languageCode, detail.language.languageCode)
+                XCTAssertNil(content.verified)
+                XCTAssertNil(content.detailId)
+            }
+            .test()
+    }
+    
     func testGetTagForDeactivatedLanguageFails() async throws {
         let deactivatedLanguage = try await createLanguage()
         deactivatedLanguage.priority = nil
