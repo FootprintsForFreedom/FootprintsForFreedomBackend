@@ -44,10 +44,10 @@ enum TagMigrations {
                 .id()
             
                 .field(WaypointTagModel.FieldKeys.v1.tagId, .uuid, .required)
-                .foreignKey(WaypointTagModel.FieldKeys.v1.tagId, references: TagRepositoryModel.schema, .id)
+                .foreignKey(WaypointTagModel.FieldKeys.v1.tagId, references: TagRepositoryModel.schema, .id, onDelete: .cascade)
             
                 .field(WaypointTagModel.FieldKeys.v1.waypointId, .uuid, .required)
-                .foreignKey(WaypointTagModel.FieldKeys.v1.waypointId, references: WaypointRepositoryModel.schema, .id)
+                .foreignKey(WaypointTagModel.FieldKeys.v1.waypointId, references: WaypointRepositoryModel.schema, .id, onDelete: .cascade)
             
                 .field(WaypointTagModel.FieldKeys.v1.verified, .bool, .required)
                 .field(WaypointTagModel.FieldKeys.v1.deleteRequested, .bool, .required)
@@ -58,10 +58,10 @@ enum TagMigrations {
                 .id()
             
                 .field(MediaTagModel.FieldKeys.v1.tagId, .uuid, .required)
-                .foreignKey(MediaTagModel.FieldKeys.v1.tagId, references: TagRepositoryModel.schema, .id)
+                .foreignKey(MediaTagModel.FieldKeys.v1.tagId, references: TagRepositoryModel.schema, .id, onDelete: .cascade)
             
                 .field(MediaTagModel.FieldKeys.v1.mediaId, .uuid, .required)
-                .foreignKey(MediaTagModel.FieldKeys.v1.mediaId, references: MediaRepositoryModel.schema, .id)
+                .foreignKey(MediaTagModel.FieldKeys.v1.mediaId, references: MediaRepositoryModel.schema, .id, onDelete: .cascade)
             
                 .field(MediaTagModel.FieldKeys.v1.verified, .bool, .required)
                 .field(MediaTagModel.FieldKeys.v1.deleteRequested, .bool, .required)

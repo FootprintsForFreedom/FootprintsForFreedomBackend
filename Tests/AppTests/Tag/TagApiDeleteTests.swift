@@ -117,7 +117,89 @@ final class TagApiDeleteTests: AppTestCase, TagTest {
             .expect(.notFound)
             .test()
     }
+}
+
+extension TagApiDeleteTests: WaypointTest {
+    func testDeleteWaypointDeletesWaypointTagPivot() async throws {
+        let tagCount = try await TagRepositoryModel.query(on: app.db).count()
+        let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
+        let waypointTagPivotCount = try await WaypointTagModel.query(on: app.db).count()
+        
+        let tag = try await createNewTag()
+        let waypoint = try await createNewWaypoint()
+        try await waypoint.repository.$tags.attach(tag.repository, on: app.db)
+        
+        try await waypoint.repository.delete(force: true, on: app.db)
+        
+        let newTagCount = try await TagRepositoryModel.query(on: app.db).count()
+        let newWaypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
+        let newWaypointTagPivotCount = try await WaypointTagModel.query(on: app.db).count()
+        
+        XCTAssertEqual(tagCount, newTagCount - 1)
+        XCTAssertEqual(waypointCount, newWaypointCount)
+        XCTAssertEqual(waypointTagPivotCount, newWaypointTagPivotCount)
+    }
     
-    // TODO: test delete mediaTag/waypointTag when deleting tag itself
-    // TODO: delete tag pirvot when deleting media/waypoint/tag -> cascase on pivot?
+    func testDeleteTagDeletesWaypointTagPivot() async throws {
+        let tagCount = try await TagRepositoryModel.query(on: app.db).count()
+        let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
+        let waypointTagPivotCount = try await WaypointTagModel.query(on: app.db).count()
+        
+        let tag = try await createNewTag()
+        let waypoint = try await createNewWaypoint()
+        try await waypoint.repository.$tags.attach(tag.repository, on: app.db)
+        
+        try await tag.repository.delete(force: true, on: app.db)
+        
+        let newTagCount = try await TagRepositoryModel.query(on: app.db).count()
+        let newWaypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
+        let newWaypointTagPivotCount = try await WaypointTagModel.query(on: app.db).count()
+        
+        XCTAssertEqual(tagCount, newTagCount)
+        XCTAssertEqual(waypointCount, newWaypointCount - 1)
+        XCTAssertEqual(waypointTagPivotCount, newWaypointTagPivotCount)
+    }
+}
+
+extension TagApiDeleteTests: MediaTest {
+    func testDeleteMediaDeletesMediaTagPivot() async throws {
+        let tagCount = try await TagRepositoryModel.query(on: app.db).count()
+        let mediaCount = try await MediaRepositoryModel.query(on: app.db).count()
+        let mediaTagPivotCount = try await MediaTagModel.query(on: app.db).count()
+        
+        let tag = try await createNewTag()
+        let media = try await createNewMedia()
+        try await media.repository.$tags.attach(tag.repository, on: app.db)
+        
+        try await media.repository.delete(force: true, on: app.db)
+        
+        let newTagCount = try await TagRepositoryModel.query(on: app.db).count()
+        let newMediaCount = try await MediaRepositoryModel.query(on: app.db).count()
+        let newMediaTagPivotCount = try await MediaTagModel.query(on: app.db).count()
+        
+        XCTAssertEqual(tagCount, newTagCount - 1)
+        XCTAssertEqual(mediaCount, newMediaCount)
+        XCTAssertEqual(mediaTagPivotCount, newMediaTagPivotCount)
+    }
+    
+    func testDeleteTagDeletesMediaTagPivot() async throws {
+        let tagCount = try await TagRepositoryModel.query(on: app.db).count()
+        let mediaCount = try await MediaRepositoryModel.query(on: app.db).count()
+        let mediaTagPivotCount = try await MediaTagModel.query(on: app.db).count()
+        
+        let tag = try await createNewTag()
+        let media = try await createNewMedia()
+        try await media.repository.$tags.attach(tag.repository, on: app.db)
+        
+        try await tag.repository.delete(force: true, on: app.db)
+        
+        let newTagCount = try await TagRepositoryModel.query(on: app.db).count()
+        let newMediaCount = try await MediaRepositoryModel.query(on: app.db).count()
+        let newMediaTagPivotCount = try await MediaTagModel.query(on: app.db).count()
+        
+        XCTAssertEqual(tagCount, newTagCount)
+        XCTAssertEqual(mediaCount, newMediaCount - 1)
+        XCTAssertEqual(mediaTagPivotCount, newMediaTagPivotCount)
+    }
+
 }
