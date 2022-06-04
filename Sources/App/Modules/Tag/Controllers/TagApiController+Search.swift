@@ -1,0 +1,71 @@
+//
+//  TagApiController+Search.swift
+//  
+//
+//  Created by niklhut on 03.06.22.
+//
+
+import Vapor
+import Fluent
+import PostgresKit
+
+extension TagApiController {
+    
+    @AsyncValidatorBuilder
+    func searchValidatores() -> [AsyncValidator] {
+        KeyedContentValidator<String>.required("text", validateQuery: true)
+        KeyedContentValidator<String>.required("languageCode", validateQuery: true)
+    }
+    
+    struct SearchQuery: Codable {
+        let text: String
+        let languageCode: String
+    }
+    
+    // GET: api/tags/search?text=searchText
+    func searchApi(_ req: Request) async throws -> Page<Tag.Detail.List> {
+        try await RequestValidator(searchValidatores()).validate(req)
+        let searchQuery = try req.query.decode(SearchQuery.self)
+        
+        guard searchQuery.text.trimmingCharacters(in: .whitespacesAndNewlines) != "" else {
+            throw Abort(.badRequest)
+        }
+        
+        let filteredDetails = try await TagDetailModel
+            .query(on: req.db)
+        // only search verified details
+            .filter(\.$verified == true)
+            .join(parent: \.$language)
+        // only search details with given language
+            .filter(LanguageModel.self, \.$languageCode == searchQuery.languageCode)
+            .filter(LanguageModel.self, \.$priority != nil)
+        // get all verified details for the repository in the specified language
+            .all()
+        // group the details by repository id
+            .grouped(by: \.$repository.id)
+        // get the newest detail for each repository
+            .map { $1.sorted { $0.updatedAt! > $1.updatedAt! }.first! }
+        // filter the details according to the sarch text
+            .filter {
+                $0.title.lowercased().contains(searchQuery.text) ||
+                $0.keywords.contains { $0.lowercased().contains(searchQuery.text) }
+            }
+        
+        let count = filteredDetails.count
+        let page = try req.query.decode(PageRequest.self)
+        
+        let relevantDetails = filteredDetails.dropFirst((page.page - 1) * page.per).prefix(page.per)
+        
+        return try await Page(
+            items: relevantDetails.concurrentMap { detail in
+                return .init(id: detail.$repository.id, title: detail.title, slug: detail.slug)
+            },
+            metadata: PageMetadata(page: page.page, per: page.per, total: count)
+        )
+    }
+    
+    func setupSearchRoutes(_ routes: RoutesBuilder) {
+        let baseRoutes = getBaseRoutes(routes)
+        baseRoutes.get("search", use: searchApi)
+    }
+}
