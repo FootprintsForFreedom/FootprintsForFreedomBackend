@@ -21,7 +21,7 @@ extension WaypointTest {
         verified: Bool = false,
         languageId: UUID? = nil,
         userId: UUID? = nil
-    ) async throws -> (repository: WaypointRepositoryModel, model: WaypointDetailModel, location: WaypointLocationModel) {
+    ) async throws -> (repository: WaypointRepositoryModel, detail: WaypointDetailModel, location: WaypointLocationModel) {
         var userId: UUID! = userId
         if userId == nil {
             userId = try await getUser(role: .user).requireID()

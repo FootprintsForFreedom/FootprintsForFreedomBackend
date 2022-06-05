@@ -15,7 +15,7 @@ final class WaypointApiAddTagTests: AppTestCase, WaypointTest, TagTest {
         let token = try await getToken(for: .user, verified: true)
         let tag = try await createNewTag(verified: true)
         let waypoint = try await createNewWaypoint()
-        try await waypoint.model.$language.load(on: app.db)
+        try await waypoint.detail.$language.load(on: app.db)
         
         try app
             .describe("Add tag to waypoint should return ok and the waypoint")
@@ -25,10 +25,10 @@ final class WaypointApiAddTagTests: AppTestCase, WaypointTest, TagTest {
             .expect(.json)
             .expect(Waypoint.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, waypoint.repository.id)
-                XCTAssertEqual(content.title, waypoint.model.title)
-                XCTAssertEqual(content.detailText, waypoint.model.detailText)
+                XCTAssertEqual(content.title, waypoint.detail.title)
+                XCTAssertEqual(content.detailText, waypoint.detail.detailText)
                 XCTAssertEqual(content.location, waypoint.location.location)
-                XCTAssertEqual(content.languageCode, waypoint.model.language.languageCode)
+                XCTAssertEqual(content.languageCode, waypoint.detail.language.languageCode)
                 XCTAssert(!content.tags.contains { $0.id == tag.repository.id })
                 XCTAssertNil(content.verified)
                 XCTAssertNil(content.modelId)
