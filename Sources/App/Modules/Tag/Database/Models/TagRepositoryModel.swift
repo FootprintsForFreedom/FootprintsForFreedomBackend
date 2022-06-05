@@ -47,3 +47,13 @@ extension TagRepositoryModel {
             .delete()
     }
 }
+
+extension TagRepositoryModel: Hashable {
+    static func == (lhs: TagRepositoryModel, rhs: TagRepositoryModel) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+}
