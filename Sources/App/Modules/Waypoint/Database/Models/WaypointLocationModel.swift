@@ -63,3 +63,31 @@ extension WaypointLocationModel {
         .init(latitude: self.latitude, longitude: self.longitude)
     }
 }
+
+extension WaypointLocationModel {
+    static func `for`(
+        repositoryWithID repositoryId: UUID,
+        needsToBeVerified: Bool,
+        on db: Database,
+        sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
+    ) async throws -> WaypointLocationModel? {
+        let verifiedLocation = try await WaypointLocationModel
+            .query(on: db)
+            .filter(\.$repository.$id == repositoryId)
+            .filter(\.$verified == true)
+            .sort(\.$updatedAt, sortDirection)
+            .first()
+        
+        if let verifiedLocation = verifiedLocation {
+            return verifiedLocation
+        } else if needsToBeVerified == false {
+            return try await WaypointLocationModel
+                .query(on: db)
+                .filter(\.$repository.$id == repositoryId)
+                .sort(\.$updatedAt, sortDirection)
+                .first()
+        } else {
+            return nil
+        }
+    }
+}
