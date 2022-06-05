@@ -60,7 +60,7 @@ extension MediaApiController {
                     .map(\.$tag.id)
                 
                 let tagDetails = try await tagRepositoryIds
-                    .concurrentMap { repositoryId -> TagDetailModel? in
+                    .concurrentCompactMap { repositoryId -> TagDetailModel? in
                         if let detail = detailInLanguageForTagRepository[repositoryId] {
                             return detail
                         } else {
@@ -79,7 +79,6 @@ extension MediaApiController {
                             return detail
                         }
                     }
-                    .compactMap { $0 }
                 
                 return (mediaDetail, tagDetails)
             }

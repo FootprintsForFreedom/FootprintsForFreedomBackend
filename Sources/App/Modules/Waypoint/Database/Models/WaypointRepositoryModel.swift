@@ -73,12 +73,11 @@ extension WaypointRepositoryModel {
             .filter(WaypointTagModel.self, \.$verified == true)
             .all()
         
-        return try await verifiedTags.concurrentMap { tagRepository in
+        return try await verifiedTags.concurrentCompactMap { tagRepository in
             guard let detail = try await tagRepository.detail(for: req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db) else {
                 return nil
             }
             return try .init(id: tagRepository.requireID(), title: detail.title, slug: detail.slug)
         }
-        .compactMap { $0 }
     }
 }

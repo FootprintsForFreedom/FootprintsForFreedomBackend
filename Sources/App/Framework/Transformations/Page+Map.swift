@@ -9,8 +9,8 @@ import FluentKit
 
 extension Page {
     func concurrentMap<U>(_ transform: @escaping (T) async throws -> (U)) async throws -> Page<U> {
-        await .init(
-            items: try self.items.concurrentMap(transform),
+        try await .init(
+            items: self.items.concurrentMap(transform),
             metadata: self.metadata)
     }
     
@@ -19,6 +19,12 @@ extension Page {
             items: try self.items.compactMap(transform),
             metadata: self.metadata
         )
+    }
+    
+    func concurrentCompactMap<U>(_ transform: @escaping (T) async throws -> U?) async throws -> Page<U> {
+        try await .init(
+            items: self.items.concurrentCompactMap(transform),
+            metadata: self.metadata)
     }
 }
 

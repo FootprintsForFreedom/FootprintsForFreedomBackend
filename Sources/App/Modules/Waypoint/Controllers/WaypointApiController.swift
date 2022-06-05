@@ -73,7 +73,7 @@ struct WaypointApiController: ApiRepositoryController {
     func listOutput(_ req: Request, _ repositories: Page<WaypointRepositoryModel>) async throws -> Page<Waypoint.Detail.List> {
         // TODO: sort alphabetically
         return try await repositories
-            .concurrentMap { repository in
+            .concurrentCompactMap { repository in
                 /// this should not fail since the beforeList only loads repositories which fullfill this criteria
                 /// however, to ensure the list works return nil otherwise and use compact map to ensure all other waypoints are returned
                 if
@@ -90,7 +90,6 @@ struct WaypointApiController: ApiRepositoryController {
                     return nil
                 }
             }
-            .compactMap { $0 }
     }
     
     // MARK: - Detail
