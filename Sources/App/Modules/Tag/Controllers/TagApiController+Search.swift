@@ -7,7 +7,6 @@
 
 import Vapor
 import Fluent
-import PostgresKit
 
 extension TagApiController {
     
@@ -30,6 +29,7 @@ extension TagApiController {
         guard searchQuery.text.trimmingCharacters(in: .whitespacesAndNewlines) != "" else {
             throw Abort(.badRequest)
         }
+        let searchText = searchQuery.text.lowercased()
         
         let filteredDetails = try await TagDetailModel
             .query(on: req.db)
@@ -47,8 +47,8 @@ extension TagApiController {
             .map { $1.sorted { $0.updatedAt! > $1.updatedAt! }.first! }
         // filter the details according to the sarch text
             .filter {
-                $0.title.lowercased().contains(searchQuery.text) ||
-                $0.keywords.contains { $0.lowercased().contains(searchQuery.text) }
+                $0.title.lowercased().contains(searchText) ||
+                $0.keywords.contains { $0.lowercased().contains(searchText) }
             }
         
         let count = filteredDetails.count
@@ -56,8 +56,8 @@ extension TagApiController {
         
         let relevantDetails = filteredDetails.dropFirst((page.page - 1) * page.per).prefix(page.per)
         
-        return try await Page(
-            items: relevantDetails.concurrentMap { detail in
+        return Page(
+            items: relevantDetails.map { detail in
                 return .init(id: detail.$repository.id, title: detail.title, slug: detail.slug)
             },
             metadata: PageMetadata(page: page.page, per: page.per, total: count)
