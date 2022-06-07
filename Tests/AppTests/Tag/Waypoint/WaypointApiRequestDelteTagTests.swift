@@ -71,6 +71,27 @@ final class WaypointApiRequestDelteTagTests: AppTestCase, WaypointTest, TagTest 
             .test()
     }
     
+    func testRequestDeleteTagOnlyWorksWithVerifiedTag() async throws {
+        let token = try await getToken(for: .user, verified: true)
+        let tag = try await createNewTag(status: .verified)
+        let waypoint = try await createNewWaypoint()
+        try await waypoint.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
+        try await waypoint.detail.$language.load(on: app.db)
+        
+        let tagPivot = try await waypoint.repository.$tags.$pivots.query(on: app.db)
+            .filter(\.$waypoint.$id == waypoint.repository.requireID())
+            .filter(\.$tag.$id == tag.repository.requireID())
+            .first()!
+        try await tagPivot.save(on: app.db)
+        
+        try app
+            .describe("Request delete tag should only work with verified tag")
+            .delete(waypointsPath.appending("\(waypoint.repository.requireID())/tags/\(tag.repository.requireID())"))
+            .bearerToken(token)
+            .expect(.badRequest)
+            .test()
+    }
+    
     func testRequestDeleteTagNeedsValidWaypointId() async throws {
         let token = try await getToken(for: .user, verified: true)
         let tag = try await createNewTag(status: .verified)

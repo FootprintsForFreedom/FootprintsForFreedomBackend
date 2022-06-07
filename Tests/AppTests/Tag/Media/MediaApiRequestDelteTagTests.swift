@@ -71,6 +71,27 @@ final class MediaApiRequestDelteTagTests: AppTestCase, MediaTest, TagTest {
             .test()
     }
     
+    func testRequestDeleteTagOnlyWorksWithVerifiedTag() async throws {
+        let token = try await getToken(for: .user, verified: true)
+        let tag = try await createNewTag(status: .verified)
+        let media = try await createNewMedia()
+        try await media.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
+        try await media.detail.$language.load(on: app.db)
+        
+        let tagPivot = try await media.repository.$tags.$pivots.query(on: app.db)
+            .filter(\.$media.$id == media.repository.requireID())
+            .filter(\.$tag.$id == tag.repository.requireID())
+            .first()!
+        try await tagPivot.save(on: app.db)
+        
+        try app
+            .describe("Request delete tag should only work with verified tag")
+            .delete(mediaPath.appending("\(media.repository.requireID())/tags/\(tag.repository.requireID())"))
+            .bearerToken(token)
+            .expect(.badRequest)
+            .test()
+    }
+    
     func testRequestDeleteTagNeedsValidMediaId() async throws {
         let token = try await getToken(for: .user, verified: true)
         let tag = try await createNewTag(status: .verified)

@@ -106,7 +106,8 @@ extension MediaApiController {
             let tagPivot = try await repository.$tags.$pivots.query(on: req.db)
                 .filter(\.$media.$id == repository.requireID())
                 .filter(\.$tag.$id == tagId)
-                .first()
+                .first(),
+            tagPivot.status == .verified
         else {
             throw Abort(.badRequest)
         }
