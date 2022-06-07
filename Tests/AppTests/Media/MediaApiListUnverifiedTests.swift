@@ -22,10 +22,10 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
         // Create an unverified media
         let (unverifiedMediaRepository, createdUnverifiedDetail, _) = try await createNewMedia(languageId: language.requireID(), userId: userId)
         // Create a verified media
-        let (verifiedMediaRepository, createdVerifiedDetail, createdVerifiedFile) = try await createNewMedia(verified: true, languageId: language.requireID(), userId: userId)
+        let (verifiedMediaRepository, createdVerifiedDetail, createdVerifiedFile) = try await createNewMedia(status: .verified, languageId: language.requireID(), userId: userId)
         // Create a second not verified model for the verified media
         let _ = try await MediaDetailModel.createWith(
-            verified: false,
+            status: .pending,
             title: "Not visible",
             detailText: "Some invisible detailText",
             source: "What is this?",
@@ -36,7 +36,7 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
             on: app.db
         )
         // Create a media in the other language
-        let (verifiedMediaRepositoryInDifferentLanguage, _, _) = try await createNewMedia(verified: true, languageId: language2.requireID(), userId: userId)
+        let (verifiedMediaRepositoryInDifferentLanguage, _, _) = try await createNewMedia(status: .verified, languageId: language2.requireID(), userId: userId)
         
         // Get unverified media count
         let media = try await MediaRepositoryModel
@@ -47,8 +47,8 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
         
         let mediaCount = media.count
         
-        let verifiedMediaCount = media
-            .filter { $0.details.contains { !$0.verified && $0.language.priority != nil } || $0.$tags.pivots.contains { !$0.verified || $0.deleteRequested } }
+        let unverifiedMediaCount = media
+            .filter { $0.details.contains { [Status.pending, .deleteRequested].contains($0.status) && $0.language.priority != nil } || $0.$tags.pivots.contains { [Status.pending, .deleteRequested].contains($0.status) } }
             .count
         
         try app
@@ -59,10 +59,10 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
             .expect(.json)
             .expect(Page<Media.Detail.List>.self) { content in
                 XCTAssertEqual(content.metadata.total, content.items.count)
-                XCTAssertEqual(content.items.count, verifiedMediaCount)
-                XCTAssertEqual(content.items.map { $0.id }.uniqued().count, verifiedMediaCount)
+                XCTAssertEqual(content.items.count, unverifiedMediaCount)
+                XCTAssertEqual(content.items.map { $0.id }.uniqued().count, unverifiedMediaCount)
                 XCTAssert(content.items.map { $0.id }.uniqued().count == content.items.count)
-                XCTAssertEqual(content.metadata.total, verifiedMediaCount)
+                XCTAssertEqual(content.metadata.total, unverifiedMediaCount)
                 
                 XCTAssert(content.items.contains { $0.id == unverifiedMediaRepository.id })
                 if let unverifiedMedia = content.items.first(where: { $0.id == unverifiedMediaRepository.id }) {
@@ -116,7 +116,7 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
         try await createdUnverifiedDetail.$language.load(on: app.db)
         // Create a verified media for the same repository
         let verifiedDetail = try await MediaDetailModel.createWith(
-            verified: true,
+            status: .verified,
             title: "Verified Media",
             detailText: "This is text",
             source: "What is this?",
@@ -128,7 +128,7 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
         )
         // Create a second not verified media for the same repository
         let secondCreatedUnverifiedDetail = try await MediaDetailModel.createWith(
-            verified: false,
+            status: .pending,
             title: "Not visible",
             detailText: "Some invisible detailText",
             source: "What is that?",
@@ -141,7 +141,7 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
         try await secondCreatedUnverifiedDetail.$language.load(on: app.db)
         // Create a second not verified media for the same repository in another language
         let createdUnverifiedDetailInDifferentLanguage = try await MediaDetailModel.createWith(
-            verified: false,
+            status: .pending,
             title: "Different Language",
             detailText: "Not visible detailText, other language",
             source: "Hallo, was ist das?",
@@ -162,7 +162,7 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
 
         let unverifiedMediaForRepositoryCount = try await MediaDetailModel
             .query(on: app.db)
-            .filter(\.$verified == false)
+            .filter(\.$status ~~ [.pending, .deleteRequested])
             .filter(\.$repository.$id == mediaRepository.requireID())
             .count()
 

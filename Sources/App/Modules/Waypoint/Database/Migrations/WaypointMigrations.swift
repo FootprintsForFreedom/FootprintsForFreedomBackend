@@ -18,10 +18,12 @@ enum WaypointMigrations {
                 .field(WaypointRepositoryModel.FieldKeys.v1.deletedAt, .datetime)
                 .create()
             
+            let statusType = try await db.enum(Status.pathKey).read()
+            
             try await db.schema(WaypointDetailModel.schema)
                 .id()
             
-                .field(WaypointDetailModel.FieldKeys.v1.verified, .bool, .required)
+                .field(WaypointDetailModel.FieldKeys.v1.status, statusType, .required)
                 .field(WaypointDetailModel.FieldKeys.v1.title, .string , .required)
                 .field(WaypointDetailModel.FieldKeys.v1.slug, .string, .required)
                 .field(WaypointDetailModel.FieldKeys.v1.detailText, .string , .required)
@@ -43,7 +45,7 @@ enum WaypointMigrations {
             
             try await db.schema(WaypointLocationModel.schema)
                 .id()
-                .field(WaypointLocationModel.FieldKeys.v1.verified, .bool, .required)
+                .field(WaypointLocationModel.FieldKeys.v1.status, statusType, .required)
                 .field(WaypointLocationModel.FieldKeys.v1.latitude, .double, .required)
                 .field(WaypointLocationModel.FieldKeys.v1.longitude, .double, .required)
             

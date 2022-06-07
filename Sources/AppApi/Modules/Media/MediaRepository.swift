@@ -29,19 +29,15 @@ public extension Media.Repository {
         }
     }
     
-    enum ChangeAction: Codable {
-        case verify, delete
-    }
-    
     struct ListUnverifiedTags: Codable {
         public let tagId: UUID
         public let title: String
-        public let changeAction: ChangeAction
+        public let status: Status
         
-        public init(tagId: UUID, title: String, changeAction: ChangeAction) {
+        public init(tagId: UUID, title: String, status: Status) {
             self.tagId = tagId
             self.title = title
-            self.changeAction = changeAction
+            self.status = status
         }
     }
     

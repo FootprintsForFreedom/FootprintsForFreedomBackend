@@ -33,7 +33,7 @@ extension ApiRepositoryListUnverifiedDetailsController {
         
         let unverifiedDetailsQuery = repository._$details
             .query(on: req.db)
-            .filter(\._$verified == false)
+            .filter(\._$status ~~ [.pending, .deleteRequested])
             .sort(\._$updatedAt, .ascending) // oldest first
         
         let unverifiedDetails = try await beforeGetUnverifiedDetail(req, unverifiedDetailsQuery).paginate(for: req)

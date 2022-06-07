@@ -38,7 +38,7 @@ public extension Media.Detail {
         public let group: Group
         public let filePath: String
         public let tags: [Tag.Detail.List]
-        public let verified: Bool?
+        public let status: Status?
         public let detailId: UUID?
         
         public static func publicDetail(id: UUID, languageCode: String, title: String, slug: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List]) -> Self {
@@ -55,7 +55,7 @@ public extension Media.Detail {
             )
         }
         
-        public static func moderatorDetail(id: UUID, languageCode: String, title: String, slug: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List], verified: Bool, detailId: UUID) -> Self {
+        public static func moderatorDetail(id: UUID, languageCode: String, title: String, slug: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List], status: Status, detailId: UUID) -> Self {
             return .init(
                 id: id,
                 languageCode: languageCode,
@@ -66,7 +66,7 @@ public extension Media.Detail {
                 group: group,
                 filePath: filePath,
                 tags: tags,
-                verified: verified,
+                status: status,
                 detailId: detailId
             )
         }
@@ -81,11 +81,11 @@ public extension Media.Detail {
             self.group = group
             self.filePath = filePath
             self.tags = tags
-            self.verified = nil
+            self.status = nil
             self.detailId = nil
         }
         
-        private init(id: UUID, languageCode: String, title: String, slug: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List], verified: Bool, detailId: UUID) {
+        private init(id: UUID, languageCode: String, title: String, slug: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List], status: Status, detailId: UUID) {
             self.id = id
             self.languageCode = languageCode
             self.title = title
@@ -95,7 +95,7 @@ public extension Media.Detail {
             self.group = group
             self.filePath = filePath
             self.tags = tags
-            self.verified = verified
+            self.status = status
             self.detailId = detailId
         }
     }

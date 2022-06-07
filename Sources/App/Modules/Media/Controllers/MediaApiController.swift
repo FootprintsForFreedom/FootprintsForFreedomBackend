@@ -88,7 +88,7 @@ struct MediaApiController: ApiRepositoryController {
                 group: detail.media.group,
                 filePath: detail.media.mediaDirectory,
                 tags: repository.tagList(req),
-                verified: detail.verified,
+                status: detail.status,
                 detailId: detail.requireID()
             )
         } else {
@@ -168,7 +168,6 @@ struct MediaApiController: ApiRepositoryController {
         try await mediaFile.create(on: req.db)
         
         detail.$media.id = try mediaFile.requireID()
-        detail.verified = false
         detail.title = input.title
         detail.detailText = input.detailText
         detail.source = input.source
@@ -205,7 +204,6 @@ struct MediaApiController: ApiRepositoryController {
             throw Abort(.badRequest)
         }
         
-        detail.verified = false
         detail.title = input.title
         detail.detailText = input.detailText
         detail.source = input.source
@@ -270,7 +268,6 @@ struct MediaApiController: ApiRepositoryController {
             throw Abort(.badRequest)
         }
         
-        detail.verified = false
         detail.title = input.title ?? mediaToPatch.title
         detail.detailText = input.detailText ?? mediaToPatch.detailText
         detail.source = input.source ?? mediaToPatch.source

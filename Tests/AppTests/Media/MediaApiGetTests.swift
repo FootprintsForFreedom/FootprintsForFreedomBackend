@@ -21,11 +21,11 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
         // Create an unverified media
         let (unverifiedMediaRepository, _, _) = try await createNewMedia(languageId: language.requireID(), userId: userId)
         // Create a verified media
-        let (verifiedMediaRepository, createdVerifiedMedia, _) = try await createNewMedia(verified: true, languageId: language.requireID(), userId: userId)
+        let (verifiedMediaRepository, createdVerifiedMedia, _) = try await createNewMedia(status: .verified, languageId: language.requireID(), userId: userId)
         try await createdVerifiedMedia.$language.load(on: app.db)
         // Create a second not verified model for the verified media that should not be returned
         let _ = try await MediaDetailModel.createWith(
-            verified: false,
+            status: .pending,
             title: "Not visible",
             detailText: "Not visible",
             source: "Any source",
@@ -36,13 +36,13 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
             on: app.db
         )
         // Create a reposiotry that is only available in the other language
-        let (verifiedMediaRepositoryInDifferentLanguage, createdVerifiedMediaInDifferentLanguage, _) = try await createNewMedia(verified: true, languageId: language2.requireID(), userId: userId)
+        let (verifiedMediaRepositoryInDifferentLanguage, createdVerifiedMediaInDifferentLanguage, _) = try await createNewMedia(status: .verified, languageId: language2.requireID(), userId: userId)
         try await createdVerifiedMediaInDifferentLanguage.$language.load(on: app.db)
         // Create a reposiotry that is available in both languages
-        let (verifiedMediaRepositoryWithMultipleLanguages, _, _) = try await createNewMedia(verified: true, languageId: language2.requireID(), userId: userId)
+        let (verifiedMediaRepositoryWithMultipleLanguages, _, _) = try await createNewMedia(status: .verified, languageId: language2.requireID(), userId: userId)
         // Create a second model in the other language
         let createdVerifiedMediaInLanguage1 = try await MediaDetailModel.createWith(
-            verified: true,
+            status: .verified,
             title: "Language 2",
             detailText: "Second detailText",
             source: "Some source",
@@ -63,7 +63,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
         let mediaCount = media.count
         
         let verifiedMediaCount = media
-            .filter { $0.details.contains { $0.verified && $0.language.priority != nil } }
+            .filter { $0.details.contains { [Status.verified, .deleteRequested].contains($0.status) && $0.language.priority != nil } }
             .count
         
         try app
@@ -108,10 +108,10 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
         // Create an unverified media
         let (unverifiedMediaRepository, _, _) = try await createNewMedia(languageId: language.requireID(), userId: userId)
         // Create a verified media
-        let (verifiedMediaRepository, createdVerifiedMedia, _) = try await createNewMedia(verified: true, languageId: language.requireID(), userId: userId)
+        let (verifiedMediaRepository, createdVerifiedMedia, _) = try await createNewMedia(status: .verified, languageId: language.requireID(), userId: userId)
         // Create a second not verified model for the verified media that should not be returned
         let _ = try await MediaDetailModel.createWith(
-            verified: false,
+            status: .pending,
             title: "Not visible",
             detailText: "Not visible",
             source: "Any source",
@@ -122,13 +122,13 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
             on: app.db
         )
         // Create a reposiotry that is only available in the other language
-        let (verifiedMediaRepositoryInDifferentLanguage, createdVerifiedMediaInDifferentLanguage, _) = try await createNewMedia(verified: true, languageId: language2.requireID(), userId: userId)
+        let (verifiedMediaRepositoryInDifferentLanguage, createdVerifiedMediaInDifferentLanguage, _) = try await createNewMedia(status: .verified, languageId: language2.requireID(), userId: userId)
         try await createdVerifiedMediaInDifferentLanguage.$language.load(on: app.db)
         // Create a reposiotry that is available in both languages
-        let (verifiedMediaRepositoryWithMultipleLanguages, _, _) = try await createNewMedia(verified: true, languageId: language2.requireID(), userId: userId)
+        let (verifiedMediaRepositoryWithMultipleLanguages, _, _) = try await createNewMedia(status: .verified, languageId: language2.requireID(), userId: userId)
         // Create a second model in the other language
         let createdVerifiedMediaInLanguage1 = try await MediaDetailModel.createWith(
-            verified: true,
+            status: .verified,
             title: "Language 2",
             detailText: "Second detailText",
             source: "Some source",
@@ -148,7 +148,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
         let mediaCount = media.count
         
         let verifiedMediaCount = media
-            .filter { $0.details.contains { $0.verified && $0.language.priority != nil } }
+            .filter { $0.details.contains { [Status.verified, .deleteRequested].contains($0.status) && $0.language.priority != nil } }
             .count
         
         try app
@@ -188,10 +188,10 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
         let userId = try await getUser(role: .user).requireID()
         
         // Create a verified media
-        let (verifiedMediaRepository, _, _) = try await createNewMedia(verified: true, languageId: language.requireID(), userId: userId)
+        let (verifiedMediaRepository, _, _) = try await createNewMedia(status: .verified, languageId: language.requireID(), userId: userId)
         
         // Create a media for a deactivated language
-        let (verifiedMediaRepositoryForDeactivatedLanguage, _, _) = try await createNewMedia(verified: true, languageId: deactivatedLanguage.requireID(), userId: userId)
+        let (verifiedMediaRepositoryForDeactivatedLanguage, _, _) = try await createNewMedia(status: .verified, languageId: deactivatedLanguage.requireID(), userId: userId)
         
         // Get media count
         let media = try await MediaRepositoryModel
@@ -217,7 +217,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
     // but there is no crator?!
     func testSuccessfullGetVerifiedMedia() async throws {
         let language = try await createLanguage()
-        let (mediaRepository, media, file) = try await createNewMedia(verified: true, languageId: language.requireID())
+        let (mediaRepository, media, file) = try await createNewMedia(status: .verified, languageId: language.requireID())
         try await media.$language.load(on: app.db)
         
         try app
@@ -233,7 +233,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.languageCode, media.language.languageCode)
                 XCTAssertEqual(content.group, file.group)
                 XCTAssertEqual(content.filePath, file.mediaDirectory)
-                XCTAssertNil(content.verified)
+                XCTAssertNil(content.status)
                 XCTAssertNil(content.detailId)
             }
             .test()
@@ -241,7 +241,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
     
     func testSuccessfullGetVerifiedMediaAsModerator() async throws {
         let language = try await createLanguage()
-        let (mediaRepository, media, file) = try await createNewMedia(verified: true, languageId: language.requireID())
+        let (mediaRepository, media, file) = try await createNewMedia(status: .verified, languageId: language.requireID())
         try await media.$language.load(on: app.db)
         
         let moderatorToken = try await getToken(for: .moderator)
@@ -259,8 +259,8 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.languageCode, media.language.languageCode)
                 XCTAssertEqual(content.group, file.group)
                 XCTAssertEqual(content.filePath, file.mediaDirectory)
-                XCTAssertNotNil(content.verified)
-                XCTAssertEqual(content.verified, media.verified)
+                XCTAssertNotNil(content.status)
+                XCTAssertEqual(content.status, media.status)
                 XCTAssertNotNil(content.detailId)
                 XCTAssertEqual(content.detailId, media.id!)
             }
@@ -269,7 +269,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
     
     func testSuccessfulGetVerifiedMediaBySlug() async throws {
         let language = try await createLanguage()
-        let (mediaRepository, media, file) = try await createNewMedia(verified: true, languageId: language.requireID())
+        let (mediaRepository, media, file) = try await createNewMedia(status: .verified, languageId: language.requireID())
         try await media.$language.load(on: app.db)
         
         try app
@@ -285,7 +285,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.languageCode, media.language.languageCode)
                 XCTAssertEqual(content.group, file.group)
                 XCTAssertEqual(content.filePath, file.mediaDirectory)
-                XCTAssertNil(content.verified)
+                XCTAssertNil(content.status)
                 XCTAssertNil(content.detailId)
             }
             .test()
@@ -296,7 +296,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
         deactivatedLanguage.priority = nil
         try await deactivatedLanguage.update(on: app.db)
         
-        let (mediaRepositoryForDeactivatedLanguage, _, _) = try await createNewMedia(verified: true, languageId: deactivatedLanguage.requireID())
+        let (mediaRepositoryForDeactivatedLanguage, _, _) = try await createNewMedia(status: .verified, languageId: deactivatedLanguage.requireID())
         
         let adminToken = try await getToken(for: .admin)
         
@@ -309,7 +309,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
     }
     
     func testGetUnverifiedMediaFails() async throws {
-        let (mediaRepository, _, _) = try await createNewMedia(verified: false)
+        let (mediaRepository, _, _) = try await createNewMedia(status: .pending)
         let userToken = try await getToken(for: .user)
         
         try app

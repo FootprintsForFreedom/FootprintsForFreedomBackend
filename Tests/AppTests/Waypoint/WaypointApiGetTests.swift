@@ -21,7 +21,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
         // Create an unverified waypoint
         let (unverifiedWaypointRepository, _, _) = try await createNewWaypoint(languageId: language.requireID(), userId: userId)
         // Create a verified waypoint
-        let (verifiedWaypointRepository, createdVerifiedWaypoint, _) = try await createNewWaypoint(verified: true, languageId: language.requireID(), userId: userId)
+        let (verifiedWaypointRepository, createdVerifiedWaypoint, _) = try await createNewWaypoint(status: .verified, languageId: language.requireID(), userId: userId)
         try await createdVerifiedWaypoint.$language.load(on: app.db)
         // Create a second not verified model for the verified waypoint that should not be returned
         let _ = try await WaypointDetailModel.createWith(
@@ -30,14 +30,14 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
             repositoryId: verifiedWaypointRepository.requireID(),
             languageId: language.requireID(),
             userId: userId,
-            verified: false,
+            status: .pending,
             on: app.db
         )
         // Create a reposiotry that is only available in the other language
-        let (verifiedWaypointRepositoryInDifferentLanguage, createdVerifiedWaypointInDifferentLanguage, _) = try await createNewWaypoint(verified: true, languageId: language2.requireID(), userId: userId)
+        let (verifiedWaypointRepositoryInDifferentLanguage, createdVerifiedWaypointInDifferentLanguage, _) = try await createNewWaypoint(status: .verified, languageId: language2.requireID(), userId: userId)
         try await createdVerifiedWaypointInDifferentLanguage.$language.load(on: app.db)
         // Create a reposiotry that is available in both languages
-        let (verifiedWaypointRepositoryWithMultipleLanguages, _, _) = try await createNewWaypoint(verified: true, languageId: language2.requireID(), userId: userId)
+        let (verifiedWaypointRepositoryWithMultipleLanguages, _, _) = try await createNewWaypoint(status: .verified, languageId: language2.requireID(), userId: userId)
         // Create a second model in the other language
         let createdVerifiedWaypointInLanguage1 = try await WaypointDetailModel.createWith(
             title: "Language 2",
@@ -45,7 +45,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
             repositoryId: verifiedWaypointRepositoryWithMultipleLanguages.requireID(),
             languageId: language.requireID(),
             userId: userId,
-            verified: true,
+            status: .verified,
             on: app.db
         )
         try await createdVerifiedWaypointInLanguage1.$language.load(on: app.db)
@@ -60,7 +60,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
         let waypointCount = waypoints.count
         
         let verifiedWaypointCount = waypoints
-            .filter { $0.details.contains { $0.verified && $0.language.priority != nil } && $0.locations.contains { $0.verified } }
+            .filter { $0.details.contains { [Status.verified, .deleteRequested].contains($0.status) && $0.language.priority != nil } && $0.locations.contains { [Status.verified, .deleteRequested].contains($0.status) } }
             .count
         
         try app
@@ -108,7 +108,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
         // Create an unverified waypoint
         let (unverifiedWaypointRepository, _, _) = try await createNewWaypoint(languageId: language.requireID(), userId: userId)
         // Create a verified waypoint
-        let (verifiedWaypointRepository, createdVerifiedWaypoint, _) = try await createNewWaypoint(verified: true, languageId: language.requireID(), userId: userId)
+        let (verifiedWaypointRepository, createdVerifiedWaypoint, _) = try await createNewWaypoint(status: .verified, languageId: language.requireID(), userId: userId)
         // Create a second not verified model for the verified waypoint that should not be returned
         let _ = try await WaypointDetailModel.createWith(
             title: "Not visible",
@@ -116,14 +116,14 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
             repositoryId: verifiedWaypointRepository.requireID(),
             languageId: language.requireID(),
             userId: userId,
-            verified: false,
+            status: .pending,
             on: app.db
         )
         // Create a reposiotry that is only available in the other language
-        let (verifiedWaypointRepositoryInDifferentLanguage, createdVerifiedWaypointInDifferentLanguage, _) = try await createNewWaypoint(verified: true, languageId: language2.requireID(), userId: userId)
+        let (verifiedWaypointRepositoryInDifferentLanguage, createdVerifiedWaypointInDifferentLanguage, _) = try await createNewWaypoint(status: .verified, languageId: language2.requireID(), userId: userId)
         try await createdVerifiedWaypointInDifferentLanguage.$language.load(on: app.db)
         // Create a reposiotry that is available in both languages
-        let (verifiedWaypointRepositoryWithMultipleLanguages, _, _) = try await createNewWaypoint(verified: true, languageId: language2.requireID(), userId: userId)
+        let (verifiedWaypointRepositoryWithMultipleLanguages, _, _) = try await createNewWaypoint(status: .verified, languageId: language2.requireID(), userId: userId)
         // Create a second model in the other language
         let createdVerifiedWaypointInLanguage1 = try await WaypointDetailModel.createWith(
             title: "Language 2",
@@ -131,7 +131,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
             repositoryId: verifiedWaypointRepositoryWithMultipleLanguages.requireID(),
             languageId: language.requireID(),
             userId: userId,
-            verified: true,
+            status: .verified,
             on: app.db
         )
         
@@ -144,7 +144,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
         let waypointCount = waypoints.count
         
         let verifiedWaypointCount = waypoints
-            .filter { $0.details.contains { $0.verified && $0.language.priority != nil } }
+            .filter { $0.details.contains { [Status.verified, .deleteRequested].contains($0.status) && $0.language.priority != nil } }
             .count
         
         try app
@@ -187,10 +187,10 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
         let userId = try await getUser(role: .user).requireID()
         
         // Create a verified waypoint
-        let (verifiedWaypointRepository, _, _) = try await createNewWaypoint(verified: true, languageId: language.requireID(), userId: userId)
+        let (verifiedWaypointRepository, _, _) = try await createNewWaypoint(status: .verified, languageId: language.requireID(), userId: userId)
         
         // Create a waypoint for a deactivated language
-        let (verifiedWaypointRepositoryForDeactivatedLanguage, _, _) = try await createNewWaypoint(verified: true, languageId: deactivatedLanguage.requireID(), userId: userId)
+        let (verifiedWaypointRepositoryForDeactivatedLanguage, _, _) = try await createNewWaypoint(status: .verified, languageId: deactivatedLanguage.requireID(), userId: userId)
         
         // Get waypoint count
         let waypoints = try await WaypointRepositoryModel
@@ -216,7 +216,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
     // but there is no crator?!
     func testSuccessfullGetVerifiedWaypoint() async throws {
         let language = try await createLanguage()
-        let (waypointRepository, waypoint, location) = try await createNewWaypoint(verified: true, languageId: language.requireID())
+        let (waypointRepository, waypoint, location) = try await createNewWaypoint(status: .verified, languageId: language.requireID())
         try await waypoint.$language.load(on: app.db)
         
         try app
@@ -231,7 +231,8 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.detailText, waypoint.detailText)
                 XCTAssertEqual(content.location, location.location)
                 XCTAssertEqual(content.languageCode, waypoint.language.languageCode)
-                XCTAssertNil(content.verified)
+                XCTAssertNil(content.detailStatus)
+                XCTAssertNil(content.locationStatus)
                 XCTAssertNil(content.modelId)
             }
             .test()
@@ -239,7 +240,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
     
     func testSuccessfullGetVerifiedWaypointAsModerator() async throws {
         let language = try await createLanguage()
-        let (waypointRepository, waypoint, location) = try await createNewWaypoint(verified: true, languageId: language.requireID())
+        let (waypointRepository, waypoint, location) = try await createNewWaypoint(status: .verified, languageId: language.requireID())
         try await waypoint.$language.load(on: app.db)
         
         let moderatorToken = try await getToken(for: .moderator)
@@ -256,8 +257,10 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.detailText, waypoint.detailText)
                 XCTAssertEqual(content.location, location.location)
                 XCTAssertEqual(content.languageCode, waypoint.language.languageCode)
-                XCTAssertNotNil(content.verified)
-                XCTAssertEqual(content.verified, waypoint.verified)
+                XCTAssertNotNil(content.detailStatus)
+                XCTAssertNotNil(content.locationStatus)
+                XCTAssertEqual(content.detailStatus, waypoint.status)
+                XCTAssertEqual(content.locationStatus, location.status)
                 XCTAssertNotNil(content.modelId)
                 XCTAssertEqual(content.modelId, waypoint.id!)
             }
@@ -266,7 +269,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
     
     func testSuccessfulGetVerifiedWaypointBySlug() async throws {
         let language = try await createLanguage()
-        let (waypointRepository, waypoint, location) = try await createNewWaypoint(verified: true, languageId: language.requireID())
+        let (waypointRepository, waypoint, location) = try await createNewWaypoint(status: .verified, languageId: language.requireID())
         try await waypoint.$language.load(on: app.db)
         
         try app
@@ -281,7 +284,8 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.detailText, waypoint.detailText)
                 XCTAssertEqual(content.location, location.location)
                 XCTAssertEqual(content.languageCode, waypoint.language.languageCode)
-                XCTAssertNil(content.verified)
+                XCTAssertNil(content.detailStatus)
+                XCTAssertNil(content.locationStatus)
                 XCTAssertNil(content.modelId)
             }
             .test()
@@ -292,7 +296,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
         deactivatedLanguage.priority = nil
         try await deactivatedLanguage.update(on: app.db)
         
-        let (waypointRepositoryForDeactivatedLanguage, _, _) = try await createNewWaypoint(verified: true, languageId: deactivatedLanguage.requireID())
+        let (waypointRepositoryForDeactivatedLanguage, _, _) = try await createNewWaypoint(status: .verified, languageId: deactivatedLanguage.requireID())
         
         let adminToken = try await getToken(for: .admin)
         
@@ -305,7 +309,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
     }
     
     func testGetUnverifiedWaypointFails() async throws {
-        let (waypointRepository, _, _) = try await createNewWaypoint(verified: false)
+        let (waypointRepository, _, _) = try await createNewWaypoint(status: .pending)
         let userToken = try await getToken(for: .user)
         
         try app

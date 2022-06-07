@@ -13,7 +13,7 @@ final class WaypointLocationModel: DatabaseModelInterface {
     
     struct FieldKeys {
         struct v1 {
-            static var verified: FieldKey { "verified" }
+            static var status: FieldKey { "status" }
             static var latitude: FieldKey { "latitude" }
             static var longitude: FieldKey { "longitude" }
             static var repositoryId: FieldKey { "repository_id" }
@@ -26,7 +26,8 @@ final class WaypointLocationModel: DatabaseModelInterface {
     
     
     @ID() var id: UUID?
-    @Field(key: FieldKeys.v1.verified) var verified: Bool
+    @Enum(key: FieldKeys.v1.status) var status: Status
+    
     @Field(key: FieldKeys.v1.latitude) var latitude: Double
     @Field(key: FieldKeys.v1.longitude) var longitude: Double
     
@@ -39,18 +40,20 @@ final class WaypointLocationModel: DatabaseModelInterface {
     // MARK: soft delete
     @Timestamp(key: FieldKeys.v1.deletedAt, on: .delete) var deletedAt: Date?
     
-    init() { }
+    init() {
+        self.status = .pending
+    }
     
     init(
         id: UUID? = nil,
-        verified: Bool = false,
+        status: Status = .pending,
         latitude: Double,
         longitude: Double,
         repositoryId: UUID,
         userId: UUID
     ) {
         self.id = id
-        self.verified = verified
+        self.status = status
         self.latitude = latitude
         self.longitude = longitude
         self.$repository.id = repositoryId
@@ -74,7 +77,7 @@ extension WaypointLocationModel {
         let verifiedLocation = try await WaypointLocationModel
             .query(on: db)
             .filter(\.$repository.$id == repositoryId)
-            .filter(\.$verified == true)
+            .filter(\.$status ~~ [.verified, .deleteRequested])
             .sort(\.$updatedAt, sortDirection)
             .first()
         

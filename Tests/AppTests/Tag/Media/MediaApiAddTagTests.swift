@@ -13,7 +13,7 @@ import Spec
 final class MediaApiAddTagTests: AppTestCase, MediaTest, TagTest {
     func testSuccessfulAddTagToMedia() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let tag = try await createNewTag(verified: true)
+        let tag = try await createNewTag(status: .verified)
         let media = try await createNewMedia()
         try await media.detail.$language.load(on: app.db)
         
@@ -31,7 +31,7 @@ final class MediaApiAddTagTests: AppTestCase, MediaTest, TagTest {
                 XCTAssertEqual(content.group, media.file.group)
                 XCTAssertEqual(content.filePath, media.file.mediaDirectory)
                 XCTAssert(!content.tags.contains { $0.id == tag.repository.id })
-                XCTAssertNil(content.verified)
+                XCTAssertNil(content.status)
                 XCTAssertNil(content.detailId)
             }
             .test()
@@ -39,7 +39,7 @@ final class MediaApiAddTagTests: AppTestCase, MediaTest, TagTest {
     
     func testAddTagToMediaAsUnverifiedUserFails() async throws {
         let token = try await getToken(for: .user, verified: false)
-        let tag = try await createNewTag(verified: true)
+        let tag = try await createNewTag(status: .verified)
         let media = try await createNewMedia()
         
         try app
@@ -51,7 +51,7 @@ final class MediaApiAddTagTests: AppTestCase, MediaTest, TagTest {
     }
     
     func testAddTagToMediasWithoutTokenFails() async throws {
-        let tag = try await createNewTag(verified: true)
+        let tag = try await createNewTag(status: .verified)
         let media = try await createNewMedia()
         
         try app
@@ -63,7 +63,7 @@ final class MediaApiAddTagTests: AppTestCase, MediaTest, TagTest {
     
     func testAddTagToMediasNeedsValidMediaId() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let tag = try await createNewTag(verified: true)
+        let tag = try await createNewTag(status: .verified)
         
         try app
             .describe("Add tag to media requires valid (but not necessarily verified) media id")

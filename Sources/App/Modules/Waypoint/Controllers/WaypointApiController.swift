@@ -63,7 +63,7 @@ struct WaypointApiController: ApiRepositoryController {
         queryBuilder
         // also make sure the location is verified
             .join(WaypointLocationModel.self, on: \WaypointLocationModel.$repository.$id == \WaypointRepositoryModel.$id)
-            .filter(WaypointLocationModel.self, \.$verified == true)
+            .filter(WaypointLocationModel.self, \.$status ~~ [.verified, .deleteRequested])
     }
     
     func listOutput(_ req: Request, _ repository: WaypointRepositoryModel, _ detail: Detail) async throws -> Waypoint.Detail.List {
@@ -109,7 +109,8 @@ struct WaypointApiController: ApiRepositoryController {
                 location: location.location,
                 tags: repository.tagList(req),
                 languageCode: detail.language.languageCode,
-                verified: detail.verified && location.verified,
+                detailStatus: detail.status,
+                locationStatus: location.status,
                 modelId: detail.requireID(),
                 locationId: location.requireID()
             )
@@ -168,13 +169,11 @@ struct WaypointApiController: ApiRepositoryController {
             throw Abort(.badRequest)
         }
         
-        detail.verified = false
         detail.title = input.title
         detail.detailText = input.detailText
         detail.$language.id = languageId
         detail.$user.id = user.id
         
-        location.verified = false
         location.latitude = input.location.latitude
         location.longitude = input.location.longitude
         location.$user.id = user.id
@@ -203,7 +202,6 @@ struct WaypointApiController: ApiRepositoryController {
             throw Abort(.badRequest)
         }
         
-        detail.verified = false
         detail.title = input.title
         detail.detailText = input.detailText
         detail.$language.id = languageId
@@ -253,7 +251,6 @@ struct WaypointApiController: ApiRepositoryController {
         var waypoint: WaypointDetailModel! = nil
         if input.title != nil || input.detailText != nil {
             let newWaypoint = WaypointDetailModel()
-            newWaypoint.verified = false
             newWaypoint.$user.id = user.id
             newWaypoint.$language.id = waypointToPatch.$language.id
             newWaypoint.title = input.title ?? waypointToPatch.title

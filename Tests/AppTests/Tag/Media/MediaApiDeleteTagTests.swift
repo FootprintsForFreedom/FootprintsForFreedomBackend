@@ -13,7 +13,7 @@ import Spec
 final class MediaApiDeleteTagTests: AppTestCase, MediaTest, TagTest {
     func testSuccessfulDeleteTagOnMedia() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verified: true)
+        let tag = try await createNewTag(status: .verified)
         let media = try await createNewMedia()
         try await media.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         try await media.detail.$language.load(on: app.db)
@@ -22,7 +22,7 @@ final class MediaApiDeleteTagTests: AppTestCase, MediaTest, TagTest {
             .filter(\.$media.$id == media.repository.requireID())
             .filter(\.$tag.$id == tag.repository.requireID())
             .first()!
-        tagPivot.verified = true
+        tagPivot.status = .verified
         try await tagPivot.save(on: app.db)
         
         try app
@@ -39,7 +39,7 @@ final class MediaApiDeleteTagTests: AppTestCase, MediaTest, TagTest {
                 XCTAssertEqual(content.group, media.file.group)
                 XCTAssertEqual(content.filePath, media.file.mediaDirectory)
                 XCTAssert(!content.tags.contains { $0.id == tag.repository.id })
-                XCTAssertNil(content.verified)
+                XCTAssertNil(content.status)
                 XCTAssertNil(content.detailId)
             }
             .test()
@@ -47,7 +47,7 @@ final class MediaApiDeleteTagTests: AppTestCase, MediaTest, TagTest {
     
     func testDeleteTagOnMediaAsUserFails() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let tag = try await createNewTag(verified: true)
+        let tag = try await createNewTag(status: .verified)
         let media = try await createNewMedia()
         try await media.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -60,7 +60,7 @@ final class MediaApiDeleteTagTests: AppTestCase, MediaTest, TagTest {
     }
     
     func testDeleteTagOnMediaWithoutTokenFails() async throws {
-        let tag = try await createNewTag(verified: true)
+        let tag = try await createNewTag(status: .verified)
         let media = try await createNewMedia()
         try await media.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -73,7 +73,7 @@ final class MediaApiDeleteTagTests: AppTestCase, MediaTest, TagTest {
     
     func testDeleteTagOnMediaNeedsValidMediaId() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verified: true)
+        let tag = try await createNewTag(status: .verified)
         
         try app
             .describe("Delete tag on media required valid media id")

@@ -76,7 +76,7 @@ struct TagApiController: ApiRepositoryController {
                 keywords: detail.keywords,
                 slug: detail.slug,
                 languageCode: detail.language.languageCode,
-                verified: detail.verified,
+                status: detail.status,
                 detailId: detail.requireID()
             )
         } else {
@@ -114,7 +114,6 @@ struct TagApiController: ApiRepositoryController {
             throw Abort(.badRequest, reason: "The keywords are invalid")
         }
         
-        detail.verified = false
         detail.title = input.title
         detail.keywords = keywords
         detail.$language.id = languageId
@@ -145,7 +144,6 @@ struct TagApiController: ApiRepositoryController {
             throw Abort(.badRequest, reason: "The keywords are invalid")
         }
         
-        detail.verified = false
         detail.title = input.title
         detail.keywords = keywords
         detail.$language.id = languageId
@@ -170,7 +168,6 @@ struct TagApiController: ApiRepositoryController {
             throw Abort(.badRequest)
         }
         
-        detail.verified = false
         detail.title = input.title ?? tagToPatch.title
         
         if let keywords = input.keywords {

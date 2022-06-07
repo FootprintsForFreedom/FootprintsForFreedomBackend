@@ -65,12 +65,11 @@ extension MediaApiController: ApiRepositoryVerificationController {
                     .group(.and) { group in
                         group
                         // only get unverified details
-                            .filter(Detail.self, \._$verified == false)
+                            .filter(Detail.self, \.$status ~~ [.pending, .deleteRequested])
                         // only select details which hava an active language
                             .filter(LanguageModel.self, \.$priority != nil)
                     }
-                    .filter(MediaTagModel.self, \.$verified == false)
-                    .filter(MediaTagModel.self, \.$deleteRequested == true)
+                    .filter(MediaTagModel.self,\.$status ~~ [.pending, .deleteRequested])
             }
         // only select the id field and return each id only once
             .field(\._$id)
@@ -129,7 +128,7 @@ extension MediaApiController: ApiRepositoryVerificationController {
             group: detail.media.group,
             filePath: detail.media.mediaDirectory,
             tags: repository.tagList(req),
-            verified: detail.verified,
+            status: detail.status,
             detailId: detail.requireID()
         )
     }

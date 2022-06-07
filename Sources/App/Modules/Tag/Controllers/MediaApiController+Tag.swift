@@ -84,12 +84,12 @@ extension MediaApiController {
                 .filter(\.$media.$id == repository.requireID())
                 .filter(\.$tag.$id == tagId)
                 .first(),
-            tagPivot.verified == false
+            tagPivot.status == .pending
         else {
             throw Abort(.badRequest)
         }
         
-        tagPivot.verified = true
+        tagPivot.status = .verified
         try await tagPivot.save(on: req.db)
         
         return try await detailOutput(req, repository, detail)
@@ -111,7 +111,7 @@ extension MediaApiController {
             throw Abort(.badRequest)
         }
         
-        tagPivot.deleteRequested = true
+        tagPivot.status = .deleteRequested
         try await tagPivot.save(on: req.db)
         
         return try await detailOutput(req, repository, detail)
@@ -139,10 +139,7 @@ extension MediaApiController {
         
         let unverifiedTags = try await repository.$tags.$pivots
             .query(on: req.db)
-            .group(.or) { group in
-                group.filter(\.$verified == false)
-                    .filter(\.$deleteRequested == true)
-            }
+            .filter(\.$status ~~ [.pending, .deleteRequested])
             .all()
         
         return try await unverifiedTags.concurrentMap { tag in
@@ -153,7 +150,7 @@ extension MediaApiController {
             return try .init(
                 tagId: tag.tag.requireID(),
                 title: detail.title,
-                changeAction: tag.verified == false ? .verify : .delete
+                status: tag.status
             )
         }
     }

@@ -47,7 +47,7 @@ extension RepositoryModel {
             .filter(LanguageModel.self, \.$languageCode == languageCode)
             .filter(LanguageModel.self, \.$priority != nil)
             .sort(\._$updatedAt, sortDirection)
-            .filter(\._$verified == true)
+            .filter(\._$status ~~ [.verified, .deleteRequested])
             .first()
         
         if let verifiedDetail = verifiedDetail {
@@ -87,7 +87,7 @@ extension RepositoryModel {
     func containsVerifiedDetail(_ db: Database) async throws -> Bool {
         let verifiedDetailsCount = try await _$details
             .query(on: db)
-            .filter(\._$verified == true)
+            .filter(\._$status ~~ [.verified, .deleteRequested])
             .count()
         
         return verifiedDetailsCount > 0

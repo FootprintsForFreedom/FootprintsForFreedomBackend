@@ -38,7 +38,7 @@ extension ApiRepositoryVerifyDetailController {
             try await previousDetail.update(on: req.db)
         }
         detail.slug = try await detail.generateSlug(with: .none, on: req.db)
-        detail.verified = true
+        detail.status = .verified
         try await detail.update(on: req.db)
     }
     
@@ -58,7 +58,7 @@ extension ApiRepositoryVerifyDetailController {
             .query(on: req.db)
             .filter(\._$id == detailtId)
             .filter(\._$repository.$id == repository.requireID())
-            .filter(\._$verified == false)
+            .filter(\._$status ~~ [.pending, .deleteRequested])
             .with(\._$language)
         
         guard let detail = try await beforeGetDetailToVerify(req, detailQuery).first() else {

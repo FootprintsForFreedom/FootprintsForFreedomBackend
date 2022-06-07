@@ -17,7 +17,7 @@ extension TagTest {
     func createNewTag(
         title: String = "New Tag title \(UUID())",
         keywords: [String] = (1...5).map { _ in String(Int.random(in: 10...100)) }, // array with 5 random numbers between 10 and 100
-        verified: Bool = false,
+        status: Status = .pending,
         languageId: UUID? = nil,
         userId: UUID? = nil
     ) async throws -> (repository: TagRepositoryModel, detail: TagDetailModel) {
@@ -38,7 +38,7 @@ extension TagTest {
         try await repository.create(on: app.db)
         
         let detail = try await TagDetailModel.createWith(
-            verified: verified,
+            status: status,
             title: title,
             keywords: keywords,
             languageId: languageId,
@@ -53,7 +53,7 @@ extension TagTest {
 
 extension TagDetailModel {
     static func createWith(
-        verified: Bool,
+        status: Status,
         title: String,
         slug: String? = nil,
         keywords: [String],
@@ -64,7 +64,7 @@ extension TagDetailModel {
     ) async throws -> Self {
         let slug = slug ?? title.appending(" ").appending(Date().toString(with: .day)).slugify()
         let detail = self.init(
-            verified: verified,
+            status: status,
             title: title,
             slug: slug,
             keywords: keywords,

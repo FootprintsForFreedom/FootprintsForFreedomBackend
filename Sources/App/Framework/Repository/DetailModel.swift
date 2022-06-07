@@ -16,8 +16,8 @@ protocol DetailModel: DatabaseModelInterface {
     var slug: String { get set }
     var _$slug: FieldProperty<Self, String> { get }
     
-    var verified: Bool { get set }
-    var _$verified: FieldProperty<Self, Bool> { get }
+    var status: Status { get set }
+    var _$status: EnumProperty<Self, Status> { get }
     
     var language: LanguageModel { get }
     var _$language: ParentProperty<Self, LanguageModel> { get }

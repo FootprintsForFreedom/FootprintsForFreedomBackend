@@ -87,12 +87,12 @@ extension WaypointApiController {
                 .filter(\.$waypoint.$id == repository.requireID())
                 .filter(\.$tag.$id == tagId)
                 .first(),
-            tagPivot.verified == false
+            tagPivot.status == .pending
         else {
             throw Abort(.badRequest)
         }
         
-        tagPivot.verified = true
+        tagPivot.status = .verified
         try await tagPivot.save(on: req.db)
         
         return try await detailOutput(req, repository, detail, location)
@@ -114,7 +114,7 @@ extension WaypointApiController {
             throw Abort(.badRequest)
         }
         
-        tagPivot.deleteRequested = true
+        tagPivot.status = .deleteRequested
         try await tagPivot.save(on: req.db)
         
         return try await detailOutput(req, repository, detail, location)
@@ -142,10 +142,7 @@ extension WaypointApiController {
         
         let unverifiedTags = try await repository.$tags.$pivots
             .query(on: req.db)
-            .group(.or) { group in
-                group.filter(\.$verified == false)
-                    .filter(\.$deleteRequested == true)
-            }
+            .filter(\.$status ~~ [.pending, .deleteRequested])
             .all()
         
         return try await unverifiedTags.concurrentMap { tag in
@@ -156,7 +153,7 @@ extension WaypointApiController {
             return try .init(
                 tagId: tag.tag.requireID(),
                 title: detail.title,
-                changeAction: tag.verified == false ? .verify : .delete
+                status: tag.status
             )
         }
     }

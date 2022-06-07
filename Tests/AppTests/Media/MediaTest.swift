@@ -19,7 +19,7 @@ extension MediaTest {
         detailText: String = "New Media Desscription",
         source: String = "New Media Source",
         group: Media.Detail.Group = .image,
-        verified: Bool = false,
+        status: Status = .pending,
         waypointId: UUID? = nil,
         languageId: UUID? = nil,
         userId: UUID? = nil
@@ -57,7 +57,7 @@ extension MediaTest {
         )
         
         let mediaDetail = try await MediaDetailModel.createWith(
-            verified: verified,
+            status: status,
             title: title,
             detailText: detailText,
             source: source,
@@ -91,7 +91,7 @@ extension MediaFileModel {
 
 extension MediaDetailModel {
     static func createWith(
-        verified: Bool,
+        status: Status,
         title: String,
         slug: String? = nil,
         detailText: String,
@@ -104,7 +104,7 @@ extension MediaDetailModel {
     ) async throws -> Self {
         let slug = slug ?? title.appending(" ").appending(Date().toString(with: .day)).slugify()
         let mediaDetail = self.init(
-            verified: verified,
+            status: status,
             title: title,
             slug: slug,
             detailText: detailText,

@@ -18,10 +18,12 @@ enum TagMigrations {
                 .field(TagRepositoryModel.FieldKeys.v1.deletedAt, .datetime)
                 .create()
             
+            let statusType = try await db.enum(Status.pathKey).read()
+            
             try await db.schema(TagDetailModel.schema)
                 .id()
             
-                .field(TagDetailModel.FieldKeys.v1.verified, .bool, .required)
+                .field(TagDetailModel.FieldKeys.v1.status, statusType, .required)
                 .field(TagDetailModel.FieldKeys.v1.title, .string , .required)
                 .field(TagDetailModel.FieldKeys.v1.slug, .string, .required)
                 .field(TagDetailModel.FieldKeys.v1.keywords, .array(of: .string), .required)
@@ -44,28 +46,26 @@ enum TagMigrations {
             try await db.schema(WaypointTagModel.schema)
                 .id()
             
+                .field(WaypointTagModel.FieldKeys.v1.status, statusType, .required)
+            
                 .field(WaypointTagModel.FieldKeys.v1.tagId, .uuid, .required)
                 .foreignKey(WaypointTagModel.FieldKeys.v1.tagId, references: TagRepositoryModel.schema, .id, onDelete: .cascade)
             
                 .field(WaypointTagModel.FieldKeys.v1.waypointId, .uuid, .required)
                 .foreignKey(WaypointTagModel.FieldKeys.v1.waypointId, references: WaypointRepositoryModel.schema, .id, onDelete: .cascade)
             
-                .field(WaypointTagModel.FieldKeys.v1.verified, .bool, .required)
-                .field(WaypointTagModel.FieldKeys.v1.deleteRequested, .bool, .required)
-            
                 .create()
             
             try await db.schema(MediaTagModel.schema)
                 .id()
+            
+                .field(MediaTagModel.FieldKeys.v1.status, statusType, .required)
             
                 .field(MediaTagModel.FieldKeys.v1.tagId, .uuid, .required)
                 .foreignKey(MediaTagModel.FieldKeys.v1.tagId, references: TagRepositoryModel.schema, .id, onDelete: .cascade)
             
                 .field(MediaTagModel.FieldKeys.v1.mediaId, .uuid, .required)
                 .foreignKey(MediaTagModel.FieldKeys.v1.mediaId, references: MediaRepositoryModel.schema, .id, onDelete: .cascade)
-            
-                .field(MediaTagModel.FieldKeys.v1.verified, .bool, .required)
-                .field(MediaTagModel.FieldKeys.v1.deleteRequested, .bool, .required)
             
                 .create()
         }

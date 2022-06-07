@@ -13,7 +13,7 @@ final class WaypointDetailModel: DetailModel {
     
     struct FieldKeys {
         struct v1 {
-            static var verified: FieldKey { "verified" }
+            static var status: FieldKey { "status" }
             static var title: FieldKey { "title" }
             static var slug: FieldKey { "slug" }
             static var detailText: FieldKey { "detailText" }
@@ -27,7 +27,8 @@ final class WaypointDetailModel: DetailModel {
     }
     
     @ID() var id: UUID?
-    @Field(key: FieldKeys.v1.verified) var verified: Bool
+    @Enum(key: FieldKeys.v1.status) var status: Status
+    
     @Field(key: FieldKeys.v1.title) var title: String
     @Field(key: FieldKeys.v1.slug) var slug: String
     @Field(key: FieldKeys.v1.detailText) var detailText: String
@@ -45,11 +46,13 @@ final class WaypointDetailModel: DetailModel {
     // MARK: soft delete
     @Timestamp(key: FieldKeys.v1.deletedAt, on: .delete) var deletedAt: Date?
     
-    init() { }
+    init() {
+        self.status = .pending
+    }
     
     init(
         id: UUID? = nil,
-        verified: Bool = false,
+        status: Status = .pending,
         title: String,
         slug: String,
         detailText: String,
@@ -58,7 +61,7 @@ final class WaypointDetailModel: DetailModel {
         userId: UUID
     ) {
         self.id = id
-        self.verified = verified
+        self.status = status
         self.title = title
         self.slug = slug
         self.detailText = detailText
@@ -69,7 +72,7 @@ final class WaypointDetailModel: DetailModel {
 }
 
 extension WaypointDetailModel {
-    var _$verified: FieldProperty<WaypointDetailModel, Bool> { $verified }
+    var _$status: EnumProperty<WaypointDetailModel, Status> { $status }
     var _$language: ParentProperty<WaypointDetailModel, LanguageModel> { $language }
     var _$updatedAt: TimestampProperty<WaypointDetailModel, DefaultTimestampFormat> { $updatedAt }
     var _$repository: ParentProperty<WaypointDetailModel, WaypointRepositoryModel> { $repository }

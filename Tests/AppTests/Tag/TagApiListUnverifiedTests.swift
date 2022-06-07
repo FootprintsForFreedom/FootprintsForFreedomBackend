@@ -22,10 +22,10 @@ final class TagApiListUnverifiedTests: AppTestCase, TagTest {
         // Create an unverified tag
         let (unverifiedTagRepository, createdUnverifiedDetail) = try await createNewTag(languageId: language.requireID(), userId: userId)
         // Create a verified tag
-        let (verifiedTagRepository, createdVerifiedDetail) = try await createNewTag(verified: true, languageId: language.requireID(), userId: userId)
+        let (verifiedTagRepository, createdVerifiedDetail) = try await createNewTag(status: .verified, languageId: language.requireID(), userId: userId)
         // Create a second not verified model for the verified tag
         let _ = try await TagDetailModel.createWith(
-            verified: false,
+            status: .pending,
             title: "Not visible",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
@@ -34,7 +34,7 @@ final class TagApiListUnverifiedTests: AppTestCase, TagTest {
             on: app.db
         )
         // Create a tag in the other language
-        let (verifiedTagRepositoryInDifferentLanguage, _) = try await createNewTag(verified: true, languageId: language2.requireID(), userId: userId)
+        let (verifiedTagRepositoryInDifferentLanguage, _) = try await createNewTag(status: .verified, languageId: language2.requireID(), userId: userId)
         
         // Get unverified tag count
         let tag = try await TagRepositoryModel
@@ -44,8 +44,8 @@ final class TagApiListUnverifiedTests: AppTestCase, TagTest {
         
         let tagCount = tag.count
         
-        let verifiedTagCount = tag
-            .filter { $0.details.contains { !$0.verified && $0.language.priority != nil } }
+        let unverifiedTagCount = tag
+            .filter { $0.details.contains { [Status.pending, .deleteRequested].contains($0.status) && $0.language.priority != nil } }
             .count
         
         try app
@@ -56,10 +56,10 @@ final class TagApiListUnverifiedTests: AppTestCase, TagTest {
             .expect(.json)
             .expect(Page<Tag.Detail.List>.self) { content in
                 XCTAssertEqual(content.metadata.total, content.items.count)
-                XCTAssertEqual(content.items.count, verifiedTagCount)
-                XCTAssertEqual(content.items.map { $0.id }.uniqued().count, verifiedTagCount)
+                XCTAssertEqual(content.items.count, unverifiedTagCount)
+                XCTAssertEqual(content.items.map { $0.id }.uniqued().count, unverifiedTagCount)
                 XCTAssert(content.items.map { $0.id }.uniqued().count == content.items.count)
-                XCTAssertEqual(content.metadata.total, verifiedTagCount)
+                XCTAssertEqual(content.metadata.total, unverifiedTagCount)
                 
                 XCTAssert(content.items.contains { $0.id == unverifiedTagRepository.id })
                 if let unverifiedTag = content.items.first(where: { $0.id == unverifiedTagRepository.id }) {
@@ -112,7 +112,7 @@ final class TagApiListUnverifiedTests: AppTestCase, TagTest {
         try await createdUnverifiedDetail.$language.load(on: app.db)
         // Create a verified tag for the same repository
         let verifiedDetail = try await TagDetailModel.createWith(
-            verified: true,
+            status: .verified,
             title: "Verified Tag",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
@@ -122,7 +122,7 @@ final class TagApiListUnverifiedTests: AppTestCase, TagTest {
         )
         // Create a second not verified tag for the same repository
         let secondCreatedUnverifiedDetail = try await TagDetailModel.createWith(
-            verified: false,
+            status: .pending,
             title: "Not visible",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
@@ -133,7 +133,7 @@ final class TagApiListUnverifiedTests: AppTestCase, TagTest {
         try await secondCreatedUnverifiedDetail.$language.load(on: app.db)
         // Create a second not verified tag for the same repository in another language
         let createdUnverifiedDetailInDifferentLanguage = try await TagDetailModel.createWith(
-            verified: false,
+            status: .pending,
             title: "Different language",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language2.requireID(),
@@ -152,7 +152,7 @@ final class TagApiListUnverifiedTests: AppTestCase, TagTest {
         
         let unverifiedTagForRepositoryCount = try await TagDetailModel
             .query(on: app.db)
-            .filter(\.$verified == false)
+            .filter(\.$status ~~ [.pending, .deleteRequested])
             .filter(\.$repository.$id == tagRepository.requireID())
             .count()
         

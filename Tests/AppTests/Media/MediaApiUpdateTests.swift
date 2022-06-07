@@ -24,13 +24,13 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
         updateLanguageCode: String? = nil,
         waypointId: UUID? = nil,
         setMediaIdForFile: Bool = true,
-        verified: Bool = false
+        status: Status = .pending
     ) async throws -> (mediaRepository: MediaRepositoryModel, createdMediaDetail: MediaDetailModel, createdMediaFile: MediaFileModel, updateContent: Media.Detail.Update) {
         let (repository, detail, file) = try await createNewMedia(
             title: title,
             detailText: detailText,
             source: source,
-            verified: verified,
+            status: status,
             waypointId: waypointId,
             languageId: languageId
         )
@@ -56,7 +56,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
     
     func testSuccessfulUpdateMedia() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, _, file, updateContent) = try await getMediaUpdateContent(verified: true)
+        let (repository, _, file, updateContent) = try await getMediaUpdateContent(status: .verified)
         
         let query = try URLEncodedFormEncoder().encode(updateContent)
         
@@ -76,7 +76,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
                 XCTAssertEqual(content.group, file.group)
                 XCTAssertEqual(content.filePath, file.mediaDirectory)
-                XCTAssertNil(content.verified)
+                XCTAssertNil(content.status)
             }
             .test()
         
@@ -87,12 +87,12 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
             .first()!
         
         XCTAssertNotNil(newMediaModel.id)
-        XCTAssertFalse(newMediaModel.verified)
+        XCTAssertEqual(newMediaModel.status, .pending)
     }
     
     func testSuccessfulUpdateMediaWithFile() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, _, file, updateContent) = try await getMediaUpdateContent(setMediaIdForFile: false, verified: true)
+        let (repository, _, file, updateContent) = try await getMediaUpdateContent(setMediaIdForFile: false, status: .verified)
         
         let query = try URLEncodedFormEncoder().encode(updateContent)
         let newFile = TestFile(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png")
@@ -114,7 +114,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.source, updateContent.source)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
                 XCTAssertNotEqual(content.filePath, file.mediaDirectory)
-                XCTAssertNil(content.verified)
+                XCTAssertNil(content.status)
             }
             .test()
         
@@ -125,13 +125,13 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
             .first()!
         
         XCTAssertNotNil(newMediaModel.id)
-        XCTAssertFalse(newMediaModel.verified)
+        XCTAssertEqual(newMediaModel.status, .pending)
     }
     
     func testSucessfulUpdateWithNewLanguage() async throws {
         let token = try await getToken(for: .user, verified: true)
         let secondLanguage = try await createLanguage(languageCode: UUID().uuidString, name: UUID().uuidString, isRTL: false)
-        let (repository, _, file, updateContent) = try await getMediaUpdateContent(updateLanguageCode: secondLanguage.languageCode, verified: true)
+        let (repository, _, file, updateContent) = try await getMediaUpdateContent(updateLanguageCode: secondLanguage.languageCode, status: .verified)
         
         let query = try URLEncodedFormEncoder().encode(updateContent)
         
@@ -149,7 +149,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
                 XCTAssertEqual(content.group, file.group)
                 XCTAssertEqual(content.filePath, file.mediaDirectory)
-                XCTAssertNil(content.verified)
+                XCTAssertNil(content.status)
             }
             .test()
         
@@ -160,12 +160,12 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
             .first()!
         
         XCTAssertNotNil(newMediaModel.id)
-        XCTAssertFalse(newMediaModel.verified)
+        XCTAssertEqual(newMediaModel.status, .pending)
     }
     
     func testUpdateMediaAsUnverifiedUserFails() async throws {
         let token = try await getToken(for: .user, verified: false)
-        let (repository, _, _, updateContent) = try await getMediaUpdateContent(verified: true)
+        let (repository, _, _, updateContent) = try await getMediaUpdateContent(status: .verified)
         let query = try URLEncodedFormEncoder().encode(updateContent)
         
         try app
@@ -177,7 +177,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
     }
     
     func testUpdateMediaWithoutTokenFails() async throws {
-        let (repository, _, _, updateContent) = try await getMediaUpdateContent(verified: true)
+        let (repository, _, _, updateContent) = try await getMediaUpdateContent(status: .verified)
         let query = try URLEncodedFormEncoder().encode(updateContent)
         
         try app
@@ -189,7 +189,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
     
     func testUpdateMediaNeedsValidTitle() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, _, _, updateContent) = try await getMediaUpdateContent(updatedTitle: "", verified: true)
+        let (repository, _, _, updateContent) = try await getMediaUpdateContent(updatedTitle: "", status: .verified)
         let query = try URLEncodedFormEncoder().encode(updateContent)
         
         try app
@@ -202,7 +202,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
     
     func testUpdateMediaNeedsValidDetailText() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, _, _, updateContent) = try await getMediaUpdateContent(updatedDetailText: "", verified: true)
+        let (repository, _, _, updateContent) = try await getMediaUpdateContent(updatedDetailText: "", status: .verified)
         let query = try URLEncodedFormEncoder().encode(updateContent)
         
         try app
@@ -215,7 +215,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
     
     func testUpdateMediaNeedsValidSource() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, _, _, updateContent) = try await getMediaUpdateContent(updatedSource: "", verified: true)
+        let (repository, _, _, updateContent) = try await getMediaUpdateContent(updatedSource: "", status: .verified)
         let query = try URLEncodedFormEncoder().encode(updateContent)
         
         try app
@@ -228,7 +228,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
     
     func testUpdateMediaNeedsValidContentType() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, _, _, updateContent) = try await getMediaUpdateContent(setMediaIdForFile: false, verified: true)
+        let (repository, _, _, updateContent) = try await getMediaUpdateContent(setMediaIdForFile: false, status: .verified)
         
         let query = try URLEncodedFormEncoder().encode(updateContent)
         let newFile = TestFile(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png")
@@ -246,9 +246,9 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
     
     func testUpdateMediaNeedsValidLanguageCode() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository1, _, _, updateContent1) = try await getMediaUpdateContent(updateLanguageCode: "", verified: true)
+        let (repository1, _, _, updateContent1) = try await getMediaUpdateContent(updateLanguageCode: "", status: .verified)
         let query1 = try URLEncodedFormEncoder().encode(updateContent1)
-        let (repository2, _, _, updateContent2) = try await getMediaUpdateContent(updateLanguageCode: "hi", verified: true)
+        let (repository2, _, _, updateContent2) = try await getMediaUpdateContent(updateLanguageCode: "hi", status: .verified)
         let query2 = try URLEncodedFormEncoder().encode(updateContent2)
         
         try app

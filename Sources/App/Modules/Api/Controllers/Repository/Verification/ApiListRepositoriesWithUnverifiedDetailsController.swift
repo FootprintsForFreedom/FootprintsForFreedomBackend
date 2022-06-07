@@ -26,7 +26,7 @@ extension ApiListRepositoriesWithUnverifiedDetailsController {
         queryBuilder
         // only get unverified models
             .join(children: \._$details)
-            .filter(Detail.self, \._$verified == false)
+            .filter(Detail.self, \._$status ~~ [.pending, .deleteRequested])
         // only select details which hava an active language
             .join(from: Detail.self, parent: \._$language)
             .filter(LanguageModel.self, \.$priority != nil)

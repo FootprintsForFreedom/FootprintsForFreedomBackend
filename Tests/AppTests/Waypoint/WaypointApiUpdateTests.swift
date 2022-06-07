@@ -22,14 +22,14 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
         updatedLocation: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
         languageId: UUID? = nil,
         updateLangugageCode: String = "de",
-        verified: Bool = false,
+        status: Status = .pending,
         userId: UUID? = nil
     ) async throws -> (repository: WaypointRepositoryModel, createdLocation: WaypointLocationModel, updateContent: Waypoint.Detail.Update) {
         let (waypointRepository, _, createdLocation) = try await createNewWaypoint(
             title: title,
             detailText: detailText,
             location: location,
-            verified: verified,
+            status: status,
             languageId: languageId,
             userId: userId
         )
@@ -64,7 +64,8 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.detailText, updateContent.detailText)
                 XCTAssertEqual(content.location, createdLocation.location)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
-                XCTAssertNil(content.verified)
+                XCTAssertNil(content.detailStatus)
+                XCTAssertNil(content.locationStatus)
             }
             .test()
         
@@ -75,7 +76,7 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
             .first()!
         
         XCTAssertNotNil(newWaypointModel.id)
-        XCTAssertFalse(newWaypointModel.verified)
+        XCTAssertEqual(newWaypointModel.status, .pending)
         
         // test it does not update the location
         let newLocationCount = try await WaypointLocationModel
@@ -110,7 +111,8 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.detailText, updateContent.detailText)
                 XCTAssertEqual(content.location, createdLocation.location)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
-                XCTAssertNil(content.verified)
+                XCTAssertNil(content.detailStatus)
+                XCTAssertNil(content.locationStatus)
             }
             .test()
         
@@ -121,7 +123,7 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
             .first()!
         
         XCTAssertNotNil(newWaypointModel.id)
-        XCTAssertFalse(newWaypointModel.verified)
+        XCTAssertEqual(newWaypointModel.status, .pending)
     }
     
     func testUpdateWaypointAsUnverifiedUserFails() async throws {

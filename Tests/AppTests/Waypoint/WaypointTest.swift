@@ -18,7 +18,7 @@ extension WaypointTest {
         title: String = "New Waypoint Title \(UUID())",
         detailText: String = "New Waypoint detail text",
         location: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
-        verified: Bool = false,
+        status: Status = .pending,
         languageId: UUID? = nil,
         userId: UUID? = nil
     ) async throws -> (repository: WaypointRepositoryModel, detail: WaypointDetailModel, location: WaypointLocationModel) {
@@ -43,14 +43,14 @@ extension WaypointTest {
             repositoryId: waypointRepository.requireID(),
             languageId: languageId,
             userId: userId,
-            verified: verified,
+            status: status,
             on: app.db
         )
         let location = try await WaypointLocationModel.createWith(
             location: location,
             repositoryId: waypointRepository.requireID(),
             userId: userId,
-            verified: verified,
+            status: status,
             on: app.db
         )
         
@@ -66,12 +66,12 @@ extension WaypointDetailModel {
         repositoryId: UUID,
         languageId: UUID,
         userId: UUID,
-        verified: Bool,
+        status: Status,
         on db: Database
     ) async throws -> Self {
         let slug = slug ?? title.appending(" ").appending(Date().toString(with: .day)).slugify()
         let waypoint = self.init(
-            verified: verified,
+            status: status,
             title: title,
             slug: slug,
             detailText: detailText,
@@ -89,11 +89,11 @@ extension WaypointLocationModel {
         location: Waypoint.Location,
         repositoryId: UUID,
         userId: UUID,
-        verified: Bool,
+        status: Status,
         on db: Database
     ) async throws -> Self {
         let location = self.init(
-            verified: verified,
+            status: status,
             latitude: location.latitude,
             longitude: location.longitude,
             repositoryId: repositoryId,

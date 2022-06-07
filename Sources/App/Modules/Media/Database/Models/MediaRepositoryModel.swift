@@ -61,7 +61,7 @@ extension MediaRepositoryModel {
 extension MediaRepositoryModel {
     func tagList(_ req: Request) async throws -> [Tag.Detail.List] {
         let verifiedTags = try await $tags.query(on: req.db)
-            .filter(MediaTagModel.self, \.$verified == true)
+            .filter(MediaTagModel.self, \.$status ~~ [.verified, .deleteRequested])
             .all()
         
         return try await verifiedTags.concurrentCompactMap { tagRepository in

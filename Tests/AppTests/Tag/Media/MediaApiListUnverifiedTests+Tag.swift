@@ -13,8 +13,8 @@ import Spec
 extension MediaApiListUnverifiedTests: TagTest {
     func testSuccessfulListRepositoriesWithUnverifiedModelsReturnsModelsWithUnverifiedTags() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verified: true)
-        let media = try await createNewMedia(verified: true)
+        let tag = try await createNewTag(status: .verified)
+        let media = try await createNewMedia(status: .verified)
         
         try await media.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -37,8 +37,8 @@ extension MediaApiListUnverifiedTests: TagTest {
     
     func testSuccessfulListRepositoriesWithUnverifiedModelsReturnsModelsWithRequestDeltedTags() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verified: true)
-        let media = try await createNewMedia(verified: true)
+        let tag = try await createNewTag(status: .verified)
+        let media = try await createNewMedia(status: .verified)
         
         try await media.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -46,8 +46,7 @@ extension MediaApiListUnverifiedTests: TagTest {
             .filter(\.$media.$id == media.repository.requireID())
             .filter(\.$tag.$id == tag.repository.requireID())
             .first()!
-        tagPivot.verified = true
-        tagPivot.deleteRequested = true
+        tagPivot.status = .deleteRequested
         try await tagPivot.save(on: app.db)
         
         let mediaCount = try await MediaRepositoryModel

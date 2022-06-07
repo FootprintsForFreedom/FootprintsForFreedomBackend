@@ -64,16 +64,15 @@ extension WaypointApiController: ApiRepositoryVerificationController {
             .group(.or) {
                 $0
                 // only get unverified locations
-                    .filter(WaypointLocationModel.self, \.$verified == false)
+                    .filter(WaypointLocationModel.self, \.$status ~~ [.pending, .deleteRequested])
                     .group(.and) {
                         $0
                         // only get unverified details
-                            .filter(WaypointDetailModel.self, \.$verified == false)
+                            .filter(WaypointDetailModel.self, \.$status ~~ [.pending, .deleteRequested])
                         // only select details which hava an active language
                             .filter(LanguageModel.self, \.$priority != nil)
                     }
-                    .filter(WaypointTagModel.self, \.$verified == false)
-                    .filter(WaypointTagModel.self, \.$deleteRequested == true)
+                    .filter(WaypointTagModel.self, \.$status ~~ [.pending, .deleteRequested])
             }
         // only select the id field and return each id only once
             .field(\.$id)
@@ -131,7 +130,7 @@ extension WaypointApiController: ApiRepositoryVerificationController {
         
         let unverifiedLocations = try await repository.$locations
             .query(on: req.db)
-            .filter(\.$verified == false)
+            .filter(\.$status ~~ [.pending, .deleteRequested])
             .sort(\.$updatedAt, .ascending) // oldest first
             .paginate(for: req)
         
@@ -163,7 +162,8 @@ extension WaypointApiController: ApiRepositoryVerificationController {
             location: location.location,
             tags: repository.tagList(req),
             languageCode: detail.language.languageCode,
-            verified: detail.verified && location.verified,
+            detailStatus: detail.status,
+            locationStatus: location.status,
             modelId: detail.requireID(),
             locationId: location.requireID()
         )
@@ -197,12 +197,12 @@ extension WaypointApiController: ApiRepositoryVerificationController {
             .query(on: req.db)
             .filter(\._$id == locationId)
             .filter(\.$repository.$id == repository.requireID())
-            .filter(\.$verified == false)
+            .filter(\.$status ~~ [.pending, .deleteRequested])
             .first()
         else {
             throw Abort(.badRequest)
         }
-        location.verified = true
+        location.status = .verified
         try await location.update(on: req.db)
         
         let allLanguageCodesByPriority = try await req.allLanguageCodesByPriority()
@@ -220,7 +220,8 @@ extension WaypointApiController: ApiRepositoryVerificationController {
             location: location.location,
             tags: repository.tagList(req),
             languageCode: detail.language.languageCode,
-            verified: detail.verified && location.verified,
+            detailStatus: detail.status,
+            locationStatus: location.status,
             modelId: detail.requireID(),
             locationId: location.requireID()
         )

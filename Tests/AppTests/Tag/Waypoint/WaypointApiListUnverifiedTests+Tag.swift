@@ -13,8 +13,8 @@ import Spec
 extension WaypointApiListUnverifiedTests: TagTest {
     func testSuccessfulListRepositoriesWithUnverifiedModelsReturnsModelsWithUnverifiedTags() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verified: true)
-        let waypoint = try await createNewWaypoint(verified: true)
+        let tag = try await createNewTag(status: .verified)
+        let waypoint = try await createNewWaypoint(status: .verified)
         
         try await waypoint.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -37,8 +37,8 @@ extension WaypointApiListUnverifiedTests: TagTest {
     
     func testSuccessfulListRepositoriesWithUnverifiedModelsReturnsModelsWithRequestDeltedTags() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verified: true)
-        let waypoint = try await createNewWaypoint(verified: true)
+        let tag = try await createNewTag(status: .verified)
+        let waypoint = try await createNewWaypoint(status: .verified)
         
         try await waypoint.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -46,8 +46,7 @@ extension WaypointApiListUnverifiedTests: TagTest {
             .filter(\.$waypoint.$id == waypoint.repository.requireID())
             .filter(\.$tag.$id == tag.repository.requireID())
             .first()!
-        tagPivot.verified = true
-        tagPivot.deleteRequested = true
+        tagPivot.status = .deleteRequested
         try await tagPivot.save(on: app.db)
         
         let waypointCount = try await WaypointRepositoryModel

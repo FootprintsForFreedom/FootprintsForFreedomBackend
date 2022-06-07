@@ -50,7 +50,7 @@ extension WaypointRepositoryModel {
     ) async throws -> WaypointLocationModel? {
         let verifiedLocation = try await $locations
             .query(on: db)
-            .filter(\.$verified == true)
+            .filter(\.$status ~~ [.verified, .deleteRequested])
             .sort(\.$updatedAt, sortDirection)
             .first()
         
@@ -70,7 +70,7 @@ extension WaypointRepositoryModel {
 extension WaypointRepositoryModel {
     func tagList(_ req: Request) async throws -> [Tag.Detail.List] {
         let verifiedTags = try await $tags.query(on: req.db)
-            .filter(WaypointTagModel.self, \.$verified == true)
+            .filter(WaypointTagModel.self, \.$status ~~ [.verified, .deleteRequested])
             .all()
         
         return try await verifiedTags.concurrentCompactMap { tagRepository in

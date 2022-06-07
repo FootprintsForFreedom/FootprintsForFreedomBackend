@@ -18,14 +18,14 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
         updatedTitle: String = "Updated Title",
         keywords: [String] = (1...5).map { _ in String(Int.random(in: 10...100)) }, // array with 5 random numbers between 10 and 100
         updatedKeywords: [String] = (1...5).map { _ in String(Int.random(in: 10...100)) },
-        verified: Bool = false,
+        status: Status = .pending,
         languageId: UUID? = nil,
         updateLanguageCode: String? = nil
     ) async throws -> (repository: TagRepositoryModel, detail: TagDetailModel, updateContent: Tag.Detail.Update) {
         let (repository, detail) = try await createNewTag(
             title: title,
             keywords: keywords,
-            verified: verified,
+            status: status,
             languageId: languageId
         )
         
@@ -42,7 +42,7 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
     
     func testSuccessfulUpdateTag() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, _, updateContent) = try await getTagUpdateContent(verified: true)
+        let (repository, _, updateContent) = try await getTagUpdateContent(status: .verified)
         
         try app
             .describe("Update tag should return ok")
@@ -58,7 +58,7 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
                 XCTAssertContains(content.slug, updateContent.title.slugify())
                 XCTAssertEqual(content.keywords, updateContent.keywords)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
-                XCTAssertNil(content.verified)
+                XCTAssertNil(content.status)
             }
             .test()
         
@@ -69,13 +69,13 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
             .first()!
         
         XCTAssertNotNil(newTagDetail.id)
-        XCTAssertFalse(newTagDetail.verified)
+        XCTAssertEqual(newTagDetail.status, .pending)
     }
     
     func testSuccessfulUpdateWithNewLanguage() async throws {
         let token = try await getToken(for: .user, verified: true)
         let secondLanguage = try await createLanguage()
-        let (repository, _, updateContent) = try await getTagUpdateContent(verified: true, updateLanguageCode: secondLanguage.languageCode)
+        let (repository, _, updateContent) = try await getTagUpdateContent(status: .verified, updateLanguageCode: secondLanguage.languageCode)
         
         try app
             .describe("Update tag with new language should return ok")
@@ -91,7 +91,7 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
                 XCTAssertContains(content.slug, updateContent.title.slugify())
                 XCTAssertEqual(content.keywords, updateContent.keywords)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
-                XCTAssertNil(content.verified)
+                XCTAssertNil(content.status)
             }
             .test()
         
@@ -102,12 +102,12 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
             .first()!
         
         XCTAssertNotNil(newTagDetail.id)
-        XCTAssertFalse(newTagDetail.verified)
+        XCTAssertEqual(newTagDetail.status, .pending)
     }
     
     func testUpdateTagAsUnverifiedUserFails() async throws {
         let token = try await getToken(for: .user, verified: false)
-        let (repository, _, updateContent) = try await getTagUpdateContent(verified: true)
+        let (repository, _, updateContent) = try await getTagUpdateContent(status: .verified)
         
         try app
             .describe("Update tag as unverified user should fail")
@@ -119,7 +119,7 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
     }
     
     func testUpdateTagWithoutTokenFails() async throws {
-        let (repository, _, updateContent) = try await getTagUpdateContent(verified: true)
+        let (repository, _, updateContent) = try await getTagUpdateContent(status: .verified)
         
         try app
             .describe("Update tag as unverified user should fail")
@@ -131,7 +131,7 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
     
     func testUpdateTagNeedsValidTitle() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, _, updateContent) = try await getTagUpdateContent(updatedTitle: "", verified: true)
+        let (repository, _, updateContent) = try await getTagUpdateContent(updatedTitle: "", status: .verified)
         
         try app
             .describe("Update tag should require valid title")
@@ -144,7 +144,7 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
     
     func testUpdateTagNeedsValidKeywords() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, _, updateContent) = try await getTagUpdateContent(updatedKeywords: [String](), verified: true)
+        let (repository, _, updateContent) = try await getTagUpdateContent(updatedKeywords: [String](), status: .verified)
         
         try app
             .describe("Update tag should require valid keywords")
@@ -154,7 +154,7 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
             .expect(.badRequest)
             .test()
         
-        let (repository2, _, updateContent2) = try await getTagUpdateContent(updatedKeywords: [""], verified: true)
+        let (repository2, _, updateContent2) = try await getTagUpdateContent(updatedKeywords: [""], status: .verified)
         
         try app
             .describe("Update tag should require valid keywords")
@@ -167,7 +167,7 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
     
     func testUpdateTagIgnoresEmptyKeywords() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, detail, updateContent) = try await getTagUpdateContent(updatedKeywords: ["hallo", "test", "", "\n", "was ist das", " "], verified: true)
+        let (repository, detail, updateContent) = try await getTagUpdateContent(updatedKeywords: ["hallo", "test", "", "\n", "was ist das", " "], status: .verified)
         try await detail.$language.load(on: app.db)
         
         try app
@@ -183,15 +183,15 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
                 XCTAssertNotEqual(content.keywords, updateContent.keywords)
                 XCTAssertEqual(content.keywords, updateContent.keywords.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty })
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
-                XCTAssertNil(content.verified)
+                XCTAssertNil(content.status)
             }
             .test()
     }
     
     func testUpdateTagNeedsValidLangaugeCode() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository1, _, updateContent1) = try await getTagUpdateContent(verified: true, updateLanguageCode: "")
-        let (repository2, _, updateContent2) = try await getTagUpdateContent(verified: true, updateLanguageCode: "hi")
+        let (repository1, _, updateContent1) = try await getTagUpdateContent(status: .verified, updateLanguageCode: "")
+        let (repository2, _, updateContent2) = try await getTagUpdateContent(status: .verified, updateLanguageCode: "hi")
         
         try app
             .describe("Update media should need valid language code or fail")

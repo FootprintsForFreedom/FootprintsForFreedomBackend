@@ -13,29 +13,29 @@ final class WaypointTagModel: DatabaseModelInterface {
     
     struct FieldKeys {
         struct v1 {
-            static var verified: FieldKey { "verified" }
-            static var deleteRequested: FieldKey { "delete_requested" }
+            static var status: FieldKey { "status" }
             static var tagId: FieldKey { "tag_id" }
             static var waypointId: FieldKey { "waypoint_id" }
         }
     }
     
     @ID() var id: UUID?
+    @Enum(key: FieldKeys.v1.status) var status: Status
+    
     @Parent(key: FieldKeys.v1.tagId) var tag: TagRepositoryModel
     @Parent(key: FieldKeys.v1.waypointId) var waypoint: WaypointRepositoryModel
     
-    @Field(key: FieldKeys.v1.verified) var verified: Bool
-    @Field(key: FieldKeys.v1.deleteRequested) var deleteRequested: Bool
-    
     init() {
-        self.verified = false
-        self.deleteRequested = false
+        self.status = .pending
     }
     
-    init(waypoint: WaypointRepositoryModel, tag: TagRepositoryModel) throws {
+    init(
+        waypoint: WaypointRepositoryModel,
+        tag: TagRepositoryModel,
+        status: Status = .pending
+    ) throws {
         self.$waypoint.id = try waypoint.requireID()
         self.$tag.id = try tag.requireID()
-        self.verified = false
-        self.deleteRequested = false
+        self.status = status
     }
 }

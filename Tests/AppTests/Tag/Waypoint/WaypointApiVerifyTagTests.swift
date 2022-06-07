@@ -13,7 +13,7 @@ import Spec
 final class WaypointApiVerifyTagTests: AppTestCase, WaypointTest, TagTest {
     func testSuccessfulVerifyTagOnWaypoint() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verified: true)
+        let tag = try await createNewTag(status: .verified)
         let waypoint = try await createNewWaypoint()
         try await waypoint.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         try await waypoint.detail.$language.load(on: app.db)
@@ -31,7 +31,8 @@ final class WaypointApiVerifyTagTests: AppTestCase, WaypointTest, TagTest {
                 XCTAssertEqual(content.location, waypoint.location.location)
                 XCTAssertEqual(content.languageCode, waypoint.detail.language.languageCode)
                 XCTAssert(content.tags.contains { $0.id == tag.repository.id })
-                XCTAssertNil(content.verified)
+                XCTAssertNil(content.detailStatus)
+                XCTAssertNil(content.locationStatus)
                 XCTAssertNil(content.modelId)
             }
             .test()
@@ -39,7 +40,7 @@ final class WaypointApiVerifyTagTests: AppTestCase, WaypointTest, TagTest {
     
     func testVerifyTagOnWaypointAsUserFails() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let tag = try await createNewTag(verified: true)
+        let tag = try await createNewTag(status: .verified)
         let waypoint = try await createNewWaypoint()
         try await waypoint.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -52,7 +53,7 @@ final class WaypointApiVerifyTagTests: AppTestCase, WaypointTest, TagTest {
     }
     
     func testVerifyTagOnWaypointWithoutTokenFails() async throws {
-        let tag = try await createNewTag(verified: true)
+        let tag = try await createNewTag(status: .verified)
         let waypoint = try await createNewWaypoint()
         try await waypoint.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -65,7 +66,7 @@ final class WaypointApiVerifyTagTests: AppTestCase, WaypointTest, TagTest {
     
     func testVerifyTagOnWaypointNeedsValidWaypointId() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verified: true)
+        let tag = try await createNewTag(status: .verified)
         
         try app
             .describe("Verify tag on waypoint required valid waypoint id")
@@ -89,7 +90,7 @@ final class WaypointApiVerifyTagTests: AppTestCase, WaypointTest, TagTest {
     
     func testVerifyTagOnWaypointNeedsConnectedTagAndWaypoint() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verified: true)
+        let tag = try await createNewTag(status: .verified)
         let waypoint = try await createNewWaypoint()
         
         try app
@@ -102,7 +103,7 @@ final class WaypointApiVerifyTagTests: AppTestCase, WaypointTest, TagTest {
     
     func testVerifyTagOnWaypointWithAlreadyVerifiedTagFails() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verified: true)
+        let tag = try await createNewTag(status: .verified)
         let waypoint = try await createNewWaypoint()
         try await waypoint.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -110,7 +111,7 @@ final class WaypointApiVerifyTagTests: AppTestCase, WaypointTest, TagTest {
             .filter(\.$waypoint.$id == waypoint.repository.requireID())
             .filter(\.$tag.$id == tag.repository.requireID())
             .first()!
-        tagPivot.verified = true
+        tagPivot.status = .verified
         try await tagPivot.save(on: app.db)
         
         try app

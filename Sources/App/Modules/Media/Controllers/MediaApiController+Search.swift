@@ -33,7 +33,7 @@ extension MediaApiController {
         let allDetails = try await MediaDetailModel
             .query(on: req.db)
         // only search verified details
-            .filter(\.$verified == true)
+            .filter(\.$status ~~ [.verified, .deleteRequested])
             .join(parent: \.$language)
         // only search details with given language
             .filter(LanguageModel.self, \.$languageCode == searchQuery.languageCode)
@@ -69,7 +69,7 @@ extension MediaApiController {
                                 .join(parent: \.$language)
                                 .filter(LanguageModel.self, \.$languageCode == searchQuery.languageCode)
                                 .filter(\.$repository.$id == repositoryId)
-                                .filter(\.$verified == true)
+                                .filter(\.$status ~~ [.verified, .deleteRequested])
                                 .sort(\.$updatedAt, .descending) // newest first
                                 .first()
                             else {

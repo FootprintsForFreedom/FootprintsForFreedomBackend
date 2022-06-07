@@ -34,7 +34,7 @@ extension TagApiController {
         let filteredDetails = try await TagDetailModel
             .query(on: req.db)
         // only search verified details
-            .filter(\.$verified == true)
+            .filter(\.$status ~~ [.verified, .deleteRequested])
             .join(parent: \.$language)
         // only search details with given language
             .filter(LanguageModel.self, \.$languageCode == searchQuery.languageCode)

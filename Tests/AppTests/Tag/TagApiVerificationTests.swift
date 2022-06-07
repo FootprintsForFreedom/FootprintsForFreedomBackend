@@ -28,7 +28,7 @@ final class TagApiVerificationTests: AppTestCase, TagTest {
                 XCTAssertEqual(content.slug, detail.title.slugify())
                 XCTAssertEqual(content.keywords, detail.keywords)
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)
-                XCTAssertEqual(content.verified, true)
+                XCTAssertEqual(content.status, .verified)
             }
             .test()
     }
@@ -57,7 +57,7 @@ final class TagApiVerificationTests: AppTestCase, TagTest {
     
     func testVerifyTagWithAlreadyVerifiedTagFails() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let (repository, detail) = try await createNewTag(verified: true)
+        let (repository, detail) = try await createNewTag(status: .verified)
         
         try app
             .describe("Verify tag for already verified tag should fail")

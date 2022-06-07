@@ -36,7 +36,8 @@ public extension Waypoint.Detail {
         public let location: Waypoint.Location
         public let tags: [Tag.Detail.List]
         public let languageCode: String
-        public let verified: Bool?
+        public let detailStatus: Status?
+        public let locationStatus: Status?
         public let modelId: UUID?
         public let locationId: UUID?
         
@@ -52,7 +53,7 @@ public extension Waypoint.Detail {
             )
         }
         
-        public static func moderatorDetail(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, verified: Bool, modelId: UUID, locationId: UUID) -> Self {
+        public static func moderatorDetail(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, detailStatus: Status, locationStatus: Status, modelId: UUID, locationId: UUID) -> Self {
             return .init(
                 id: id,
                 title: title,
@@ -61,7 +62,8 @@ public extension Waypoint.Detail {
                 location: location,
                 tags: tags,
                 languageCode: languageCode,
-                verified: verified,
+                detailStatus: detailStatus,
+                locationStatus: locationStatus,
                 modelId: modelId,
                 locationId: locationId
             )
@@ -75,12 +77,13 @@ public extension Waypoint.Detail {
             self.location = location
             self.tags = tags
             self.languageCode = languageCode
-            self.verified = nil
+            self.detailStatus = nil
+            self.locationStatus = nil
             self.modelId = nil
             self.locationId = nil
         }
         
-        private init(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, verified: Bool, modelId: UUID, locationId: UUID) {
+        private init(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, detailStatus: Status, locationStatus: Status, modelId: UUID, locationId: UUID) {
             self.id = id
             self.title = title
             self.slug = slug
@@ -88,7 +91,8 @@ public extension Waypoint.Detail {
             self.location = location
             self.tags = tags
             self.languageCode = languageCode
-            self.verified = verified
+            self.detailStatus = detailStatus
+            self.locationStatus = locationStatus
             self.modelId = modelId
             self.locationId = locationId
         }

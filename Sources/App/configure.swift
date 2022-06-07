@@ -36,6 +36,7 @@ public func configure(_ app: Application) throws {
     /// setup modules
     let modules: [ModuleInterface] = [
 //        WebModule(),
+        StatusModule(),
         UserModule(),
         LanguageModule(),
         WaypointModule(),

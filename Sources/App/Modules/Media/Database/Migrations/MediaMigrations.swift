@@ -46,9 +46,11 @@ enum MediaMigrations {
             
                 .create()
             
+            let statusType = try await db.enum(Status.pathKey).read()
+            
             try await db.schema(MediaDetailModel.schema)
                 .id()
-                .field(MediaDetailModel.FieldKeys.v1.verified, .bool, .required)
+                .field(MediaDetailModel.FieldKeys.v1.status, statusType, .required)
                 .field(MediaDetailModel.FieldKeys.v1.title, .string, .required)
                 .field(MediaDetailModel.FieldKeys.v1.slug, .string, .required)
                 .field(MediaDetailModel.FieldKeys.v1.detailText, .string, .required)

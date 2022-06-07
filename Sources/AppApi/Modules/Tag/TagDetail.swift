@@ -32,7 +32,7 @@ public extension Tag.Detail {
         public let keywords: [String]
         public let slug: String
         public let languageCode: String
-        public let verified: Bool?
+        public let status: Status?
         public let detailId: UUID?
         
         public static func publicDetail(id: UUID, title: String, keywords: [String], slug: String, languageCode: String) -> Self {
@@ -45,14 +45,14 @@ public extension Tag.Detail {
             )
         }
         
-        public static func moderatorDetail(id: UUID, title: String, keywords: [String], slug: String, languageCode: String, verified: Bool, detailId: UUID) -> Self {
+        public static func moderatorDetail(id: UUID, title: String, keywords: [String], slug: String, languageCode: String, status: Status, detailId: UUID) -> Self {
             return .init(
                 id: id,
                 title: title,
                 keywords: keywords,
                 slug: slug,
                 languageCode: languageCode,
-                verified: verified,
+                status: status,
                 detailId: detailId
             )
         }
@@ -63,17 +63,17 @@ public extension Tag.Detail {
             self.keywords = keywords
             self.slug = slug
             self.languageCode = languageCode
-            self.verified = nil
+            self.status = nil
             self.detailId = nil
         }
         
-        private init(id: UUID, title: String, keywords: [String], slug: String, languageCode: String, verified: Bool, detailId: UUID) {
+        private init(id: UUID, title: String, keywords: [String], slug: String, languageCode: String, status: Status, detailId: UUID) {
             self.id = id
             self.title = title
             self.keywords = keywords
             self.slug = slug
             self.languageCode = languageCode
-            self.verified = verified
+            self.status = status
             self.detailId = detailId
         }
     }

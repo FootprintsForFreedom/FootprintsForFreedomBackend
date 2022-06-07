@@ -13,7 +13,7 @@ final class MediaDetailModel: DetailModel {
     
     struct FieldKeys {
         struct v1 {
-            static var verified: FieldKey { "verified" }
+            static var status: FieldKey { "status" }
             static var title: FieldKey { "title" }
             static var slug: FieldKey { "slug" }
             static var detailText: FieldKey { "detailText" }
@@ -29,8 +29,8 @@ final class MediaDetailModel: DetailModel {
     }
     
     @ID() var id: UUID?
-    @Field(key: FieldKeys.v1.verified) var verified: Bool
-    
+    @Enum(key: FieldKeys.v1.status) var status: Status
+
     @Field(key: FieldKeys.v1.title) var title: String
     @Field(key: FieldKeys.v1.slug) var slug: String
     @Field(key: FieldKeys.v1.detailText) var detailText: String
@@ -48,10 +48,12 @@ final class MediaDetailModel: DetailModel {
     // MARK: soft delete
     @Timestamp(key: FieldKeys.v1.deletedAt, on: .delete) var deletedAt: Date?
     
-    init() { }
+    init() {
+        self.status = .pending
+    }
     
     init(
-        verified: Bool,
+        status: Status,
         title: String,
         slug: String,
         detailText: String,
@@ -61,7 +63,7 @@ final class MediaDetailModel: DetailModel {
         fileId: UUID,
         userId: UUID
     ) {
-        self.verified = verified
+        self.status = status
         self.title = title
         self.slug = slug
         self.detailText = detailText
@@ -74,8 +76,8 @@ final class MediaDetailModel: DetailModel {
 }
 
 extension MediaDetailModel {
+    var _$status: EnumProperty<MediaDetailModel, Status> { $status }
     var _$language: ParentProperty<MediaDetailModel, LanguageModel> { $language }
-    var _$verified: FieldProperty<MediaDetailModel, Bool> { $verified }
     var _$updatedAt: TimestampProperty<MediaDetailModel, DefaultTimestampFormat> { $updatedAt }
     var _$repository: ParentProperty<MediaDetailModel, MediaRepositoryModel> { $repository }
     var _$user: OptionalParentProperty<MediaDetailModel, UserAccountModel> { $user }

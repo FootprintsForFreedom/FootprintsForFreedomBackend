@@ -86,7 +86,7 @@ extension TagApiController: ApiRepositoryVerificationController {
             keywords: detail.keywords,
             slug: detail.slug,
             languageCode: detail.language.languageCode,
-            verified: detail.verified,
+            status: detail.status,
             detailId: detail.requireID()
         )
     }
