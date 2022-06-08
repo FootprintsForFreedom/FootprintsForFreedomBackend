@@ -26,7 +26,7 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
         )
         let secondMediaDetail = try await MediaDetailModel.createWith(
             status: .pending,
-            title: "Another different title",
+            title: "Another different title \(UUID())",
             detailText: "This is a mew detailText",
             source: "Some other source",
             languageId: language.requireID(),
@@ -64,7 +64,7 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
         let (mediaRepository, mediaDetail, mediaFile) = try await createNewMedia(waypointId: waypointRepository.requireID(), languageId: language.requireID())
         let secondMediaDetail = try await MediaDetailModel.createWith(
             status: .pending,
-            title: "Another different title",
+            title: "Another different title \(UUID())",
             detailText: "This is a mew detailText",
             source: "Some other source",
             languageId: language.requireID(),
@@ -89,7 +89,7 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
         let (mediaRepository, mediaDetail, mediaFile) = try await createNewMedia(waypointId: waypointRepository.requireID(), languageId: language.requireID())
         let secondMediaDetail = try await MediaDetailModel.createWith(
             status: .pending,
-            title: "Another different title",
+            title: "Another different title \(UUID())",
             detailText: "This is a mew detailText",
             source: "Some other source",
             languageId: language.requireID(),

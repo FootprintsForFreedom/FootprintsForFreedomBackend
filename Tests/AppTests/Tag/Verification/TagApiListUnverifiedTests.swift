@@ -26,7 +26,7 @@ final class TagApiListUnverifiedTests: AppTestCase, TagTest {
         // Create a second not verified model for the verified tag
         let _ = try await TagDetailModel.createWith(
             status: .pending,
-            title: "Not visible",
+            title: "Not visible \(UUID())",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
             repositoryId: verifiedTagRepository.requireID(),
@@ -113,7 +113,7 @@ final class TagApiListUnverifiedTests: AppTestCase, TagTest {
         // Create a verified tag for the same repository
         let verifiedDetail = try await TagDetailModel.createWith(
             status: .verified,
-            title: "Verified Tag",
+            title: "Verified Tag \(UUID())",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
             repositoryId: tagRepository.requireID(),
@@ -123,7 +123,7 @@ final class TagApiListUnverifiedTests: AppTestCase, TagTest {
         // Create a second not verified tag for the same repository
         let secondCreatedUnverifiedDetail = try await TagDetailModel.createWith(
             status: .pending,
-            title: "Not visible",
+            title: "Not visible \(UUID())",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
             repositoryId: tagRepository.requireID(),
@@ -134,7 +134,7 @@ final class TagApiListUnverifiedTests: AppTestCase, TagTest {
         // Create a second not verified tag for the same repository in another language
         let createdUnverifiedDetailInDifferentLanguage = try await TagDetailModel.createWith(
             status: .pending,
-            title: "Different language",
+            title: "Different language \(UUID())",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language2.requireID(),
             repositoryId: tagRepository.requireID(),

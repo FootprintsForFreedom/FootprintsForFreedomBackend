@@ -25,7 +25,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
         try await createdVerifiedWaypoint.$language.load(on: app.db)
         // Create a second not verified model for the verified waypoint that should not be returned
         let _ = try await WaypointDetailModel.createWith(
-            title: "Not visible",
+            title: "Not visible \(UUID())",
             detailText: "Not visible",
             repositoryId: verifiedWaypointRepository.requireID(),
             languageId: language.requireID(),
@@ -40,8 +40,8 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
         let (verifiedWaypointRepositoryWithMultipleLanguages, _, _) = try await createNewWaypoint(status: .verified, languageId: language2.requireID(), userId: userId)
         // Create a second model in the other language
         let createdVerifiedWaypointInLanguage1 = try await WaypointDetailModel.createWith(
-            title: "Language 2",
-                    detailText: "Second detailText",
+            title: "Language 2 \(UUID())",
+            detailText: "Second detailText",
             repositoryId: verifiedWaypointRepositoryWithMultipleLanguages.requireID(),
             languageId: language.requireID(),
             userId: userId,
@@ -111,8 +111,8 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
         let (verifiedWaypointRepository, createdVerifiedWaypoint, _) = try await createNewWaypoint(status: .verified, languageId: language.requireID(), userId: userId)
         // Create a second not verified model for the verified waypoint that should not be returned
         let _ = try await WaypointDetailModel.createWith(
-            title: "Not visible",
-                    detailText: "Not visible",
+            title: "Not visible \(UUID())",
+            detailText: "Not visible",
             repositoryId: verifiedWaypointRepository.requireID(),
             languageId: language.requireID(),
             userId: userId,
@@ -126,8 +126,8 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
         let (verifiedWaypointRepositoryWithMultipleLanguages, _, _) = try await createNewWaypoint(status: .verified, languageId: language2.requireID(), userId: userId)
         // Create a second model in the other language
         let createdVerifiedWaypointInLanguage1 = try await WaypointDetailModel.createWith(
-            title: "Language 2",
-                    detailText: "Second detailText",
+            title: "Language 2 \(UUID())",
+            detailText: "Second detailText",
             repositoryId: verifiedWaypointRepositoryWithMultipleLanguages.requireID(),
             languageId: language.requireID(),
             userId: userId,

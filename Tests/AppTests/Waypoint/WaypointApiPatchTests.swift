@@ -14,7 +14,7 @@ extension Waypoint.Detail.Patch: Content { }
 
 final class WaypointApiPatchTests: AppTestCase, WaypointTest {
     private func getWaypointPatchContent(
-        title: String = "New Waypoint Title",
+        title: String = "New Waypoint Title \(UUID())",
         patchedTitle: String? = nil,
         detailText: String = "New Waypoint detail text",
         patchedDetailText: String? = nil,
@@ -43,7 +43,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
     
     func testSuccessfulPatchWaypointTitle() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(patchedTitle: "The patched title", status: .verified)
+        let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(patchedTitle: "The patched title \(UUID())", status: .verified)
         try await createdModel.$language.load(on: app.db)
         
         try app
@@ -147,7 +147,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
     
     func testSuccessfulPatchWithoutVerifiedModelInSpecifiedLanguageWhenAllParametersAreSet() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (waypointRepository, createdModel, _, patchContent) = try await getWaypointPatchContent(patchedTitle: "The patched title", patchedDetailText: "The patched detailText", patchedLocation: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)))
+        let (waypointRepository, createdModel, _, patchContent) = try await getWaypointPatchContent(patchedTitle: "The patched title \(UUID())", patchedDetailText: "The patched detailText", patchedLocation: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)))
         try await createdModel.$language.load(on: app.db)
         
         try app

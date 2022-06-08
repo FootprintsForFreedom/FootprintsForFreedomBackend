@@ -53,6 +53,7 @@ enum MediaMigrations {
                 .field(MediaDetailModel.FieldKeys.v1.status, statusType, .required)
                 .field(MediaDetailModel.FieldKeys.v1.title, .string, .required)
                 .field(MediaDetailModel.FieldKeys.v1.slug, .string, .required)
+                .unique(on: MediaDetailModel.FieldKeys.v1.slug)
                 .field(MediaDetailModel.FieldKeys.v1.detailText, .string, .required)
                 .field(MediaDetailModel.FieldKeys.v1.source, .string, .required)
             
@@ -80,6 +81,7 @@ enum MediaMigrations {
                 .field(MediaReportModel.FieldKeys.v1.status, statusType, .required)
                 .field(MediaReportModel.FieldKeys.v1.title, .string , .required)
                 .field(MediaReportModel.FieldKeys.v1.slug, .string, .required)
+                .unique(on: MediaReportModel.FieldKeys.v1.slug)
                 .field(MediaReportModel.FieldKeys.v1.reason, .string, .required)
             
                 .field(MediaReportModel.FieldKeys.v1.visibleDetailId, .uuid)

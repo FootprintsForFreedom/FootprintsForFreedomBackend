@@ -26,7 +26,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
         // Create a second not verified model for the verified media that should not be returned
         let _ = try await MediaDetailModel.createWith(
             status: .pending,
-            title: "Not visible",
+            title: "Not visible \(UUID())",
             detailText: "Not visible",
             source: "Any source",
             languageId: language.requireID(),
@@ -43,7 +43,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
         // Create a second model in the other language
         let createdVerifiedMediaInLanguage1 = try await MediaDetailModel.createWith(
             status: .verified,
-            title: "Language 2",
+            title: "Language 2 \(UUID())",
             detailText: "Second detailText",
             source: "Some source",
             languageId: language.requireID(),
@@ -112,7 +112,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
         // Create a second not verified model for the verified media that should not be returned
         let _ = try await MediaDetailModel.createWith(
             status: .pending,
-            title: "Not visible",
+            title: "Not visible \(UUID())",
             detailText: "Not visible",
             source: "Any source",
             languageId: language.requireID(),
@@ -129,7 +129,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
         // Create a second model in the other language
         let createdVerifiedMediaInLanguage1 = try await MediaDetailModel.createWith(
             status: .verified,
-            title: "Language 2",
+            title: "Language 2 \(UUID())",
             detailText: "Second detailText",
             source: "Some source",
             languageId: language.requireID(),

@@ -18,7 +18,7 @@ final class WaypointApiDetailWaypointChangesTests: AppTestCase, WaypointTest {
         let language =  try await createLanguage()
         let (waypointRepository, waypointModel, _) = try await createNewWaypoint(languageId: language.requireID())
         let secondWaypointModel = try await WaypointDetailModel.createWith(
-            title: "Another different title",
+            title: "Another different title \(UUID())",
             detailText: "This is a new detailText",
             repositoryId: waypointRepository.requireID(),
             languageId: language.requireID(),
@@ -49,7 +49,7 @@ final class WaypointApiDetailWaypointChangesTests: AppTestCase, WaypointTest {
         let language =  try await createLanguage()
         let (waypointRepository, waypointModel, _) = try await createNewWaypoint(languageId: language.requireID())
         let secondWaypointModel = try await WaypointDetailModel.createWith(
-            title: "Another different title",
+            title: "Another different title \(UUID())",
             detailText: "This is a new detailText",
             repositoryId: waypointRepository.requireID(),
             languageId: language.requireID(),
@@ -71,7 +71,7 @@ final class WaypointApiDetailWaypointChangesTests: AppTestCase, WaypointTest {
         let language =  try await createLanguage()
         let (waypointRepository, waypointModel, _) = try await createNewWaypoint(languageId: language.requireID())
         let secondWaypointModel = try await WaypointDetailModel.createWith(
-            title: "Another different title",
+            title: "Another different title \(UUID())",
             detailText: "This is a new detailText",
             repositoryId: waypointRepository.requireID(),
             languageId: language.requireID(),

@@ -26,6 +26,7 @@ enum TagMigrations {
                 .field(TagDetailModel.FieldKeys.v1.status, statusType, .required)
                 .field(TagDetailModel.FieldKeys.v1.title, .string , .required)
                 .field(TagDetailModel.FieldKeys.v1.slug, .string, .required)
+                .unique(on: TagDetailModel.FieldKeys.v1.slug)
                 .field(TagDetailModel.FieldKeys.v1.keywords, .array(of: .string), .required)
             
                 .field(TagDetailModel.FieldKeys.v1.languageId, .uuid, .required)
@@ -49,6 +50,7 @@ enum TagMigrations {
                 .field(TagReportModel.FieldKeys.v1.status, statusType, .required)
                 .field(TagReportModel.FieldKeys.v1.title, .string , .required)
                 .field(TagReportModel.FieldKeys.v1.slug, .string, .required)
+                .unique(on: TagReportModel.FieldKeys.v1.slug)
                 .field(TagReportModel.FieldKeys.v1.reason, .string, .required)
             
                 .field(TagReportModel.FieldKeys.v1.visibleDetailId, .uuid)

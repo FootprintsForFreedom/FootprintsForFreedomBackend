@@ -26,7 +26,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
         // Create a second not verified model for the verified tag that should not be returned
         let _ = try await TagDetailModel.createWith(
             status: .pending,
-            title: "Not visible",
+            title: "Not visible \(UUID())",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
             repositoryId: verifiedTagRepository.requireID(),
@@ -41,7 +41,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
         // Create a second model in the other language
         let createdVerifiedTagInLanguage1 = try await TagDetailModel.createWith(
             status: .verified,
-            title: "Language 2",
+            title: "Language 2 \(UUID())",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
             repositoryId: verifiedTagRepositoryWithMultipleLanguages.requireID(),
@@ -108,7 +108,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
         // Create a second not verified model for the verified tag that should not be returned
         let _ = try await TagDetailModel.createWith(
             status: .pending,
-            title: "Not visible",
+            title: "Not visible \(UUID())",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
             repositoryId: verifiedTagRepository.requireID(),
@@ -123,7 +123,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
         // Create a second model in the other language
         let createdVerifiedTagInLanguage1 = try await TagDetailModel.createWith(
             status: .verified,
-            title: "Language 2",
+            title: "Language 2 \(UUID())",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
             repositoryId: verifiedTagRepositoryWithMultipleLanguages.requireID(),

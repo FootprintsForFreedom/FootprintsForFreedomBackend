@@ -19,7 +19,7 @@ final class TagApiDetailChangesTests: AppTestCase, TagTest {
         let (repository, detail) = try await createNewTag(languageId: language.requireID())
         let secondTagDetail = try await TagDetailModel.createWith(
             status: .pending,
-            title: "A different title",
+            title: "A different title \(UUID())",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
             repositoryId: repository.requireID(),
@@ -50,7 +50,7 @@ final class TagApiDetailChangesTests: AppTestCase, TagTest {
         let (repository, detail) = try await createNewTag(languageId: language.requireID())
         let secondTagDetail = try await TagDetailModel.createWith(
             status: .pending,
-            title: "A different title",
+            title: "A different title \(UUID())",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
             repositoryId: repository.requireID(),
@@ -72,7 +72,7 @@ final class TagApiDetailChangesTests: AppTestCase, TagTest {
         let (repository, detail) = try await createNewTag(languageId: language.requireID())
         let secondTagDetail = try await TagDetailModel.createWith(
             status: .pending,
-            title: "A different title",
+            title: "A different title \(UUID())",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
             repositoryId: repository.requireID(),

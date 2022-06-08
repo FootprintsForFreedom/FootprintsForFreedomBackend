@@ -25,7 +25,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
         let (verifiedWaypointRepository, createdVerifiedWaypoint, _) = try await createNewWaypoint(status: .verified, languageId: language.requireID(), userId: userId)
         // Create a second not verified model for the verified waypoint
         let _ = try await WaypointDetailModel.createWith(
-            title: "Not visible",
+            title: "Not visible \(UUID())",
             detailText: "Not visible",
             repositoryId: verifiedWaypointRepository.requireID(),
             languageId: language.requireID(),
@@ -116,7 +116,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
         try await createdUnverifiedWaypoint.$language.load(on: app.db)
         // Create a verified waypoint for the same repository
         let verifiedWaypoint = try await WaypointDetailModel.createWith(
-            title: "Verified Waypoint",
+            title: "Verified Waypoint \(UUID())",
             detailText: "This is text",
             repositoryId: waypointRepository.requireID(),
             languageId: language.requireID(),
@@ -126,7 +126,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
         )
         // Create a second not verified waypoint for the same repository
         let secondCreatedUnverifiedWaypoint = try await WaypointDetailModel.createWith(
-            title: "Not visible",
+            title: "Not visible \(UUID())",
             detailText: "Not visible",
             repositoryId: waypointRepository.requireID(),
             languageId: language.requireID(),
@@ -137,7 +137,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
         try await secondCreatedUnverifiedWaypoint.$language.load(on: app.db)
         // Create a second not verified waypoint for the same repository in another language
         let createdUnverifiedWaypointInDifferentLanguage = try await WaypointDetailModel.createWith(
-            title: "Different Language",
+            title: "Different Language \(UUID())",
             detailText: "Not visible, other language",
             repositoryId: waypointRepository.requireID(),
             languageId: language2.requireID(),

@@ -14,7 +14,7 @@ extension Waypoint.Detail.Update: Content { }
 
 final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
     private func getWaypointUpdateContent(
-        title: String = "New Waypoint Title",
+        title: String = "New Waypoint Title \(UUID())",
         updatedTitle: String = "Updated Title for Waypoint",
         detailText: String = "New Waypoint detail text",
         updatedDetailText: String = "Updated detailText for Waypoint",

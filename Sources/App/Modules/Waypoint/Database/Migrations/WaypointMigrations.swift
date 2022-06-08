@@ -26,6 +26,7 @@ enum WaypointMigrations {
                 .field(WaypointDetailModel.FieldKeys.v1.status, statusType, .required)
                 .field(WaypointDetailModel.FieldKeys.v1.title, .string , .required)
                 .field(WaypointDetailModel.FieldKeys.v1.slug, .string, .required)
+                .unique(on: WaypointDetailModel.FieldKeys.v1.slug)
                 .field(WaypointDetailModel.FieldKeys.v1.detailText, .string , .required)
             
                 .field(WaypointDetailModel.FieldKeys.v1.languageId, .uuid, .required)
@@ -67,6 +68,7 @@ enum WaypointMigrations {
                 .field(WaypointReportModel.FieldKeys.v1.status, statusType, .required)
                 .field(WaypointReportModel.FieldKeys.v1.title, .string , .required)
                 .field(WaypointReportModel.FieldKeys.v1.slug, .string, .required)
+                .unique(on: WaypointReportModel.FieldKeys.v1.slug)
                 .field(WaypointReportModel.FieldKeys.v1.reason, .string, .required)
             
                 .field(WaypointReportModel.FieldKeys.v1.visibleDetailId, .uuid)

@@ -26,7 +26,7 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
         // Create a second not verified model for the verified media
         let _ = try await MediaDetailModel.createWith(
             status: .pending,
-            title: "Not visible",
+            title: "Not visible \(UUID())",
             detailText: "Some invisible detailText",
             source: "What is this?",
             languageId: language.requireID(),
@@ -117,7 +117,7 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
         // Create a verified media for the same repository
         let verifiedDetail = try await MediaDetailModel.createWith(
             status: .verified,
-            title: "Verified Media",
+            title: "Verified Media \(UUID())",
             detailText: "This is text",
             source: "What is this?",
             languageId: language.requireID(),
@@ -129,7 +129,7 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
         // Create a second not verified media for the same repository
         let secondCreatedUnverifiedDetail = try await MediaDetailModel.createWith(
             status: .pending,
-            title: "Not visible",
+            title: "Not visible \(UUID())",
             detailText: "Some invisible detailText",
             source: "What is that?",
             languageId: language.requireID(),
@@ -142,7 +142,7 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
         // Create a second not verified media for the same repository in another language
         let createdUnverifiedDetailInDifferentLanguage = try await MediaDetailModel.createWith(
             status: .pending,
-            title: "Different Language",
+            title: "Different Language \(UUID())",
             detailText: "Not visible detailText, other language",
             source: "Hallo, was ist das?",
             languageId: language2.requireID(),
