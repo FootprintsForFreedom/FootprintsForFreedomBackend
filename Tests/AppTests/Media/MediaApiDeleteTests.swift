@@ -121,3 +121,31 @@ final class MediaApiDeleteTests: AppTestCase, MediaTest {
             .test()
     }
 }
+
+extension MediaApiDeleteTests {
+    func testDelteMediaDeletesReports() async throws {
+        let mediaCount = try await MediaRepositoryModel.query(on: app.db).count()
+        let reportCount = try await MediaReportModel.query(on: app.db).count()
+        
+        let media = try await createNewMedia()
+        let title = "I don't like this \(UUID())"
+        let report = try await MediaReportModel(
+            status: .pending,
+            title: title,
+            slug: title.slugify(),
+            reason: "Just because",
+            visibleDetailId: media.detail.requireID(),
+            repositoryId: media.repository.requireID(),
+            userId: getUser(role: .user).requireID()
+        )
+        try await report.create(on: app.db)
+        
+        try await media.repository.delete(force: true, on: app.db)
+        
+        let newMediaCount = try await MediaRepositoryModel.query(on: app.db).count()
+        let newReportCount = try await MediaReportModel.query(on: app.db).count()
+        
+        XCTAssertEqual(mediaCount, newMediaCount)
+        XCTAssertEqual(reportCount, newReportCount)
+    }
+}

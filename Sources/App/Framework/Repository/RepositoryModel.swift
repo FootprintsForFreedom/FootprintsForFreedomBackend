@@ -8,15 +8,15 @@
 import Vapor
 import Fluent
 
-protocol RepositoryModel: DatabaseModelInterface {
+protocol RepositoryModel: DatabaseModelInterface, Timestamped {
     associatedtype Detail: DetailModel
+    associatedtype Report: ReportModel
     
     var details: [Detail] { get }
     var _$details: ChildrenProperty<Self, Detail> { get }
     
-    var createdAt: Date? { get }
-    var updatedAt: Date? { get }
-    var deletedAt: Date? { get }
+    var reports: [Report] { get }
+    var _$reports: ChildrenProperty<Self, Report> { get }
     
     func detail(
         for languageCode: String,

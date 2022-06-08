@@ -124,3 +124,31 @@ final class WaypointApiDeleteTests: AppTestCase, WaypointTest {
             .test()
     }
 }
+
+extension WaypointApiDeleteTests {
+    func testDelteWaypointDeletesReports() async throws {
+        let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
+        let reportCount = try await WaypointReportModel.query(on: app.db).count()
+        
+        let waypoint = try await createNewWaypoint()
+        let title = "I don't like this \(UUID())"
+        let report = try await WaypointReportModel(
+            status: .pending,
+            title: title,
+            slug: title.slugify(),
+            reason: "Just because",
+            visibleDetailId: waypoint.detail.requireID(),
+            repositoryId: waypoint.repository.requireID(),
+            userId: getUser(role: .user).requireID()
+        )
+        try await report.create(on: app.db)
+        
+        try await waypoint.repository.delete(force: true, on: app.db)
+        
+        let newWaypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
+        let newReportCount = try await WaypointReportModel.query(on: app.db).count()
+        
+        XCTAssertEqual(waypointCount, newWaypointCount)
+        XCTAssertEqual(reportCount, newReportCount)
+    }
+}

@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class WaypointTagModel: DatabaseModelInterface {
+final class WaypointTagModel: DatabaseModelInterface, TagPivot {
     typealias Module = WaypointModule
     
     struct FieldKeys {
@@ -38,4 +38,8 @@ final class WaypointTagModel: DatabaseModelInterface {
         self.$tag.id = try tag.requireID()
         self.status = status
     }
+}
+
+extension WaypointTagModel {
+    var _$status: EnumProperty<WaypointTagModel, Status> { $status }
 }

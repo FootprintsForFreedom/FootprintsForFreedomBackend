@@ -201,5 +201,32 @@ extension TagApiDeleteTests: MediaTest {
         XCTAssertEqual(mediaCount, newMediaCount - 1)
         XCTAssertEqual(mediaTagPivotCount, newMediaTagPivotCount)
     }
+}
 
+extension TagApiDeleteTests {
+    func testDelteTagDeletesReports() async throws {
+        let tagCount = try await TagRepositoryModel.query(on: app.db).count()
+        let reportCount = try await TagReportModel.query(on: app.db).count()
+        
+        let tag = try await createNewTag()
+        let title = "I don't like this \(UUID())"
+        let report = try await TagReportModel(
+            status: .pending,
+            title: title,
+            slug: title.slugify(),
+            reason: "Just because",
+            visibleDetailId: tag.detail.requireID(),
+            repositoryId: tag.repository.requireID(),
+            userId: getUser(role: .user).requireID()
+        )
+        try await report.create(on: app.db)
+        
+        try await tag.repository.delete(force: true, on: app.db)
+        
+        let newTagCount = try await TagRepositoryModel.query(on: app.db).count()
+        let newReportCount = try await TagReportModel.query(on: app.db).count()
+        
+        XCTAssertEqual(tagCount, newTagCount)
+        XCTAssertEqual(reportCount, newReportCount)
+    }
 }

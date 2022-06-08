@@ -12,6 +12,7 @@ protocol RepositoryController where Repository.Detail.Repository == Repository {
     associatedtype ApiModel: ApiModelInterface
     associatedtype Repository: RepositoryModel
     typealias Detail = Repository.Detail
+    typealias Report = Repository.Report
     
     static var moduleName: String { get }
     static var modelName: Name { get }

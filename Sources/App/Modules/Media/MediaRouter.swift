@@ -22,6 +22,7 @@ struct MediaRouter: RouteCollection {
         apiController.setupRoutes(routes)
         apiController.setupSearchRoutes(routes)
         apiController.setupVerificationRoutes(routes)
+        apiController.setupReportRoutes(routes)
         waypointApiController.setupMediaRoute(routes)
     }
 }

@@ -8,9 +8,8 @@
 import Vapor
 import Fluent
 
-final class MediaRepositoryModel: RepositoryModel {
+final class MediaRepositoryModel: RepositoryModel, Tagable {
     typealias Module = MediaModule
-    typealias Detail = MediaDetailModel
     
     static var identifier: String { "repositories" }
     
@@ -28,6 +27,7 @@ final class MediaRepositoryModel: RepositoryModel {
     @Parent(key: FieldKeys.v1.waypointId) var waypoint: WaypointRepositoryModel
     
     @Children(for: \.$repository) var details: [MediaDetailModel]
+    @Children(for: \.$repository) var reports: [MediaReportModel]
     
     @Siblings(through: MediaTagModel.self, from: \.$media, to: \.$tag) var tags: [TagRepositoryModel]
     
@@ -42,6 +42,8 @@ final class MediaRepositoryModel: RepositoryModel {
 
 extension MediaRepositoryModel {
     var _$details: ChildrenProperty<MediaRepositoryModel, MediaDetailModel> { $details }
+    var _$reports: ChildrenProperty<MediaRepositoryModel, MediaReportModel> { $reports }
+    var _$tags: SiblingsProperty<MediaRepositoryModel, TagRepositoryModel, MediaTagModel> { $tags }
 }
 
 extension MediaRepositoryModel {
@@ -55,20 +57,5 @@ extension MediaRepositoryModel {
         
         try await $details.query(on: database).delete()
         // TODO: service that deletes soft delted entries after a certain time (-> .evn?) -> also delete the media fieles!
-    }
-}
-
-extension MediaRepositoryModel {
-    func tagList(_ req: Request) async throws -> [Tag.Detail.List] {
-        let verifiedTags = try await $tags.query(on: req.db)
-            .filter(MediaTagModel.self, \.$status ~~ [.verified, .deleteRequested])
-            .all()
-        
-        return try await verifiedTags.concurrentCompactMap { tagRepository in
-            guard let detail = try await tagRepository.detail(for: req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db) else {
-                return nil
-            }
-            return try .init(id: tagRepository.requireID(), title: detail.title, slug: detail.slug)
-        }
     }
 }

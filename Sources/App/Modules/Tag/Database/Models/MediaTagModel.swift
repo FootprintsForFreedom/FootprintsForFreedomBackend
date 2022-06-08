@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class MediaTagModel: DatabaseModelInterface {
+final class MediaTagModel: DatabaseModelInterface, TagPivot {
     typealias Module = MediaModule
     
     struct FieldKeys {
@@ -38,4 +38,8 @@ final class MediaTagModel: DatabaseModelInterface {
         self.$tag.id = try tag.requireID()
         self.status = status
     }
+}
+
+extension MediaTagModel {
+    var _$status: EnumProperty<MediaTagModel, Status> { $status }
 }

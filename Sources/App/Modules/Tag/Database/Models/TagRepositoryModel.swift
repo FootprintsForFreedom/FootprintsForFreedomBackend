@@ -23,6 +23,7 @@ final class TagRepositoryModel: RepositoryModel {
     
     @ID() var id: UUID?
     @Children(for: \.$repository) var details: [TagDetailModel]
+    @Children(for: \.$repository) var reports: [TagReportModel]
     
     @Siblings(through: WaypointTagModel.self, from: \.$tag, to: \.$waypoint) var waypoints: [WaypointRepositoryModel]
     @Siblings(through: MediaTagModel.self, from: \.$tag, to: \.$media) var media: [MediaRepositoryModel]
@@ -38,6 +39,7 @@ final class TagRepositoryModel: RepositoryModel {
 
 extension TagRepositoryModel {
     var _$details: ChildrenProperty<TagRepositoryModel, TagDetailModel> { $details }
+    var _$reports: ChildrenProperty<TagRepositoryModel, TagReportModel> { $reports }
 }
 
 extension TagRepositoryModel {

@@ -8,9 +8,8 @@
 import Vapor
 import Fluent
 
-final class WaypointRepositoryModel: RepositoryModel {
+final class WaypointRepositoryModel: RepositoryModel, Tagable {
     typealias Module = WaypointModule
-    typealias Detail = WaypointDetailModel
     
     static var identifier: String { "repositories" }
     
@@ -26,6 +25,7 @@ final class WaypointRepositoryModel: RepositoryModel {
     @Children(for: \.$repository) var details: [WaypointDetailModel]
     @Children(for: \.$repository) var locations: [WaypointLocationModel]
     @Children(for: \.$waypoint) var media: [MediaRepositoryModel]
+    @Children(for: \.$repository) var reports: [WaypointReportModel]
     
     @Siblings(through: WaypointTagModel.self, from: \.$waypoint, to: \.$tag) var tags: [TagRepositoryModel]
     
@@ -40,6 +40,8 @@ final class WaypointRepositoryModel: RepositoryModel {
 
 extension WaypointRepositoryModel {
     var _$details: ChildrenProperty<WaypointRepositoryModel, WaypointDetailModel> { $details }
+    var _$reports: ChildrenProperty<WaypointRepositoryModel, WaypointReportModel> { $reports }
+    var _$tags: SiblingsProperty<WaypointRepositoryModel, TagRepositoryModel, WaypointTagModel> { $tags }
 }
 
 extension WaypointRepositoryModel {
@@ -63,21 +65,6 @@ extension WaypointRepositoryModel {
                 .first()
         } else {
             return nil
-        }
-    }
-}
-
-extension WaypointRepositoryModel {
-    func tagList(_ req: Request) async throws -> [Tag.Detail.List] {
-        let verifiedTags = try await $tags.query(on: req.db)
-            .filter(WaypointTagModel.self, \.$status ~~ [.verified, .deleteRequested])
-            .all()
-        
-        return try await verifiedTags.concurrentCompactMap { tagRepository in
-            guard let detail = try await tagRepository.detail(for: req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db) else {
-                return nil
-            }
-            return try .init(id: tagRepository.requireID(), title: detail.title, slug: detail.slug)
         }
     }
 }

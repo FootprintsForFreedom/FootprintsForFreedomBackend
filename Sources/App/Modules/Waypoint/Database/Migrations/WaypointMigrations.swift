@@ -60,9 +60,33 @@ enum WaypointMigrations {
                 .field(WaypointLocationModel.FieldKeys.v1.deletedAt, .datetime)
             
                 .create()
+            
+            try await db.schema(WaypointReportModel.schema)
+                .id()
+            
+                .field(WaypointReportModel.FieldKeys.v1.status, statusType, .required)
+                .field(WaypointReportModel.FieldKeys.v1.title, .string , .required)
+                .field(WaypointReportModel.FieldKeys.v1.slug, .string, .required)
+                .field(WaypointReportModel.FieldKeys.v1.reason, .string, .required)
+            
+                .field(WaypointReportModel.FieldKeys.v1.visibleDetailId, .uuid)
+                .foreignKey(WaypointReportModel.FieldKeys.v1.visibleDetailId, references: WaypointDetailModel.schema, .id, onDelete: .setNull)
+            
+                .field(WaypointReportModel.FieldKeys.v1.repositoryId, .uuid, .required)
+                .foreignKey(WaypointReportModel.FieldKeys.v1.repositoryId, references: WaypointRepositoryModel.schema, .id, onDelete: .cascade)
+            
+                .field(WaypointReportModel.FieldKeys.v1.userId, .uuid)
+                .foreignKey(WaypointReportModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
+            
+                .field(WaypointReportModel.FieldKeys.v1.createdAt, .datetime, .required)
+                .field(WaypointReportModel.FieldKeys.v1.updatedAt, .datetime, .required)
+                .field(WaypointReportModel.FieldKeys.v1.deletedAt, .datetime)
+            
+                .create()
         }
         
         func revert(on db: Database) async throws {
+            try await db.schema(WaypointReportModel.schema).delete()
             try await db.schema(WaypointDetailModel.schema).delete()
             try await db.schema(WaypointLocationModel.schema).delete()
             try await db.schema(WaypointRepositoryModel.schema).delete()

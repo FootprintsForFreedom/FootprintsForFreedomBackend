@@ -43,6 +43,29 @@ enum TagMigrations {
             
                 .create()
             
+            try await db.schema(TagReportModel.schema)
+                .id()
+            
+                .field(TagReportModel.FieldKeys.v1.status, statusType, .required)
+                .field(TagReportModel.FieldKeys.v1.title, .string , .required)
+                .field(TagReportModel.FieldKeys.v1.slug, .string, .required)
+                .field(TagReportModel.FieldKeys.v1.reason, .string, .required)
+            
+                .field(TagReportModel.FieldKeys.v1.visibleDetailId, .uuid)
+                .foreignKey(TagReportModel.FieldKeys.v1.visibleDetailId, references: TagDetailModel.schema, .id, onDelete: .setNull)
+            
+                .field(TagReportModel.FieldKeys.v1.repositoryId, .uuid, .required)
+                .foreignKey(TagReportModel.FieldKeys.v1.repositoryId, references: TagRepositoryModel.schema, .id, onDelete: .cascade)
+            
+                .field(TagReportModel.FieldKeys.v1.userId, .uuid)
+                .foreignKey(TagReportModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
+            
+                .field(TagReportModel.FieldKeys.v1.createdAt, .datetime, .required)
+                .field(TagReportModel.FieldKeys.v1.updatedAt, .datetime, .required)
+                .field(TagReportModel.FieldKeys.v1.deletedAt, .datetime)
+            
+                .create()
+            
             try await db.schema(WaypointTagModel.schema)
                 .id()
             
@@ -71,6 +94,7 @@ enum TagMigrations {
         }
         
         func revert(on db: Database) async throws {
+            try await db.schema(TagReportModel.schema).delete()
             try await db.schema(TagDetailModel.schema).delete()
             try await db.schema(WaypointTagModel.schema).delete()
             try await db.schema(MediaTagModel.schema).delete()
