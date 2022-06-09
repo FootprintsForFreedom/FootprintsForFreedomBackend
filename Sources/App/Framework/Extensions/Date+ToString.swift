@@ -29,7 +29,7 @@ extension Date {
         case .none: break
         case .year: dateFormatter.dateFormat = "yyyy"
         case .month: dateFormatter.dateFormat = "yyyy-MM"
-        case .day: dateFormatter.dateFormat = "yyyy-MM-dd'T'"
+        case .day: dateFormatter.dateFormat = "yyyy-MM-dd"
         case .time: dateFormatter.dateFormat = "yyyy-MM-dd'T'-HH:mm:ss'Z'"
         case .exact: dateFormatter.dateFormat = "yyyy-MM-dd'T'-HH:mm:ss.SSS'Z'"
         }
