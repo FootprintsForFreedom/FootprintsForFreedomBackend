@@ -69,6 +69,29 @@ final class TagApiCreateTests: AppTestCase, TagTest {
             .test()
     }
     
+    func testSuccessfulCreateTagWithDuplicateTitle() async throws {
+        let token = try await getToken(for: .user, verified: true)
+        let tag = try await createNewTag()
+        let newTag = try await getTagCreateContent(title: tag.detail.title)
+        
+        try app
+            .describe("Create tag with duplicate title should return ok")
+            .post(tagPath)
+            .body(newTag)
+            .bearerToken(token)
+            .expect(.created)
+            .expect(Tag.Detail.Detail.self) { content in
+                XCTAssertNotNil(content.id)
+                XCTAssertEqual(content.title, newTag.title)
+                XCTAssertNotEqual(content.slug, newTag.title.slugify())
+                XCTAssertContains(content.slug, newTag.title.slugify())
+                XCTAssertEqual(content.keywords, newTag.keywords)
+                XCTAssertEqual(content.languageCode, newTag.languageCode)
+                XCTAssertNil(content.status)
+            }
+            .test()
+    }
+    
     func testCreateTagAsUnverifiedUserFails() async throws {
         let token = try await getToken(for: .user, verified: false)
         let newTag = try await getTagCreateContent()

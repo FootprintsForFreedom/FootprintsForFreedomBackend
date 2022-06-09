@@ -59,6 +59,7 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
             .init(mimeType: "application/pdf", filename: "SamplePdf", fileExtension: "pdf")
         ]
         
+        // this already tests for duplicate titles since the title is the same for each different file
         for file in testFiles {
             let fileData = try data(for: file.filename, withExtension: file.fileExtension)
             

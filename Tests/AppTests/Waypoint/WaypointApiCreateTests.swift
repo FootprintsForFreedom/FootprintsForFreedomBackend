@@ -120,6 +120,32 @@ final class WaypointApiCreateTests: AppTestCase, WaypointTest {
         }
     }
     
+    func testSuccessfulCreateWaypointWithDuplicateTitle() async throws {
+        let token = try await getToken(for: .user, verified: true)
+        let waypoint = try await createNewWaypoint()
+        let newWaypoint = try await getWaypointCreateContent(title: waypoint.detail.title)
+        
+        try app
+            .describe("Create waypoint should return ok")
+            .post(waypointsPath)
+            .body(newWaypoint)
+            .bearerToken(token)
+            .expect(.created)
+            .expect(.json)
+            .expect(Waypoint.Detail.Detail.self) { content in
+                XCTAssertNotNil(content.id)
+                XCTAssertEqual(content.title, newWaypoint.title)
+                XCTAssertNotEqual(content.slug, newWaypoint.title.slugify())
+                XCTAssertContains(content.slug, newWaypoint.title.slugify())
+                XCTAssertEqual(content.detailText, newWaypoint.detailText)
+                XCTAssertEqual(content.location, newWaypoint.location)
+                XCTAssertEqual(content.languageCode, newWaypoint.languageCode)
+                XCTAssertNil(content.detailStatus)
+                XCTAssertNil(content.locationStatus)
+            }
+            .test()
+    }
+    
     func testCreateWaypointAsUnverifiedUserFails() async throws {
         let token = try await getToken(for: .user, verified: false)
         let newWaypoint = try await getWaypointCreateContent()

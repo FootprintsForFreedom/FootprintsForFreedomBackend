@@ -72,6 +72,39 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
         XCTAssertEqual(newTagDetail.status, .pending)
     }
     
+    func testSuccessfulUpdateTagWithDuplicateTitle() async throws {
+        let token = try await getToken(for: .user, verified: true)
+        let title = "My new title \(UUID())"
+        let (repository, _, updateContent) = try await getTagUpdateContent(title: title, updatedTitle: title, status: .verified)
+        
+        try app
+            .describe("Update tag should return ok")
+            .put(tagPath.appending(repository.requireID().uuidString))
+            .body(updateContent)
+            .bearerToken(token)
+            .expect(.ok)
+            .expect(.json)
+            .expect(Tag.Detail.Detail.self) { content in
+                XCTAssertNotNil(content.id)
+                XCTAssertEqual(content.title, updateContent.title)
+                XCTAssertNotEqual(content.slug, updateContent.title.slugify())
+                XCTAssertContains(content.slug, updateContent.title.slugify())
+                XCTAssertEqual(content.keywords, updateContent.keywords)
+                XCTAssertEqual(content.languageCode, updateContent.languageCode)
+                XCTAssertNil(content.status)
+            }
+            .test()
+        
+        // Test the new tag detail was created correctly
+        let newTagDetail = try await repository.$details
+            .query(on: app.db)
+            .sort(\.$updatedAt, .descending)
+            .first()!
+        
+        XCTAssertNotNil(newTagDetail.id)
+        XCTAssertEqual(newTagDetail.status, .pending)
+    }
+    
     func testSuccessfulUpdateWithNewLanguage() async throws {
         let token = try await getToken(for: .user, verified: true)
         let secondLanguage = try await createLanguage()

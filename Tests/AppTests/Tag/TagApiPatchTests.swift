@@ -60,6 +60,31 @@ final class TagApiPatchTests: AppTestCase, TagTest {
             .test()
     }
     
+    func testSuccessfulPatchTagTitleWithDuplicateTitle() async throws {
+        let token = try await getToken(for: .user, verified: true)
+        let title = "My new title \(UUID())"
+        let (repository, detail, patchContent) = try await getTagPatchContent(title: title, patchedTitle: title, status: .verified)
+        try await detail.$language.load(on: app.db)
+        
+        try app
+            .describe("Patch tag title should return ok")
+            .patch(tagPath.appending(repository.requireID().uuidString))
+            .body(patchContent)
+            .bearerToken(token)
+            .expect(.ok)
+            .expect(.json)
+            .expect(Tag.Detail.Detail.self) { content in
+                XCTAssertNotNil(content.id)
+                XCTAssertEqual(content.title, patchContent.title)
+                XCTAssertNotEqual(content.slug, patchContent.title!.slugify())
+                XCTAssertContains(content.slug, patchContent.title!.slugify())
+                XCTAssertEqual(content.keywords, detail.keywords)
+                XCTAssertEqual(content.languageCode, detail.language.languageCode)
+                XCTAssertNil(content.status)
+            }
+            .test()
+    }
+    
     func testSuccessfulPatchTagKeywords() async throws {
         let token = try await getToken(for: .user, verified: true)
         let (repository, detail, patchContent) = try await getTagPatchContent(patchedKeywords: (1...5).map { _ in String(Int.random(in: 10...100)) }, status: .verified)

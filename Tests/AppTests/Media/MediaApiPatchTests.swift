@@ -85,6 +85,35 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
         XCTAssertEqual(newMediaModel.status, .pending)
     }
     
+    func testSuccessfulPatchMediaTitleWithDuplicateTitle() async throws {
+        let token = try await getToken(for: .user, verified: true)
+        let title = "My new title \(UUID())"
+        let (repository, detail, file, patchContent) = try await getMediaPatchContent(title: title, patchedTitle: title, status: .verified)
+        try await detail.$language.load(on: app.db)
+        
+        let query = try URLEncodedFormEncoder().encode(patchContent)
+        
+        try app
+            .describe("Patch media title should return ok")
+            .patch(mediaPath.appending("\(repository.requireID().uuidString)/?\(query)"))
+            .bearerToken(token)
+            .expect(.ok)
+            .expect(.json)
+            .expect(Media.Detail.Detail.self) { content in
+                XCTAssertNotNil(content.id)
+                XCTAssertEqual(content.title, patchContent.title)
+                XCTAssertNotEqual(content.slug, patchContent.title!.slugify())
+                XCTAssertContains(content.slug, patchContent.title!.slugify())
+                XCTAssertEqual(content.detailText, detail.detailText)
+                XCTAssertEqual(content.source, detail.source)
+                XCTAssertEqual(content.languageCode, detail.language.languageCode)
+                XCTAssertEqual(content.group, file.group)
+                XCTAssertEqual(content.filePath, file.mediaDirectory)
+                XCTAssertNil(content.status)
+            }
+            .test()
+    }
+    
     func testSuccessfulPatchMediaDetail() async throws {
         let token = try await getToken(for: .user, verified: true)
         let (repository, detail, file, patchContent) = try await getMediaPatchContent(patchedDetailText: "The patched detailText", status: .verified)

@@ -76,6 +76,34 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
         XCTAssertEqual(newWaypointModel.status, .pending)
     }
     
+    func testSuccessfulPatchWaypointTitleWithDuplicateTitle() async throws {
+        let token = try await getToken(for: .user, verified: true)
+        let title = "My new title \(UUID())"
+        let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(title: title, patchedTitle: title, status: .verified)
+        try await createdModel.$language.load(on: app.db)
+        
+        try app
+            .describe("Patch waypoint title should return ok")
+            .patch(waypointsPath.appending(waypointRepository.requireID().uuidString))
+            .body(patchContent)
+            .bearerToken(token)
+            .expect(.ok)
+            .expect(.json)
+            .expect(Waypoint.Detail.Detail.self) { content in
+                XCTAssertEqual(content.id, waypointRepository.id)
+                XCTAssertEqual(content.title, patchContent.title)
+                XCTAssertNotEqual(content.slug, patchContent.title!.slugify())
+                XCTAssertContains(content.slug, patchContent.title!.slugify())
+                XCTAssertEqual(content.detailText, createdModel.detailText)
+                XCTAssertEqual(content.location, createdLocation.location)
+                XCTAssertEqual(content.languageCode, createdModel.language.languageCode)
+                XCTAssertNil(content.detailStatus)
+                XCTAssertNil(content.locationStatus)
+            }
+            .test()
+    }
+
+    
     func testSuccessfulPatchWaypointDetailText() async throws {
         let token = try await getToken(for: .user, verified: true)
         let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(patchedDetailText: "The patched detailText", status: .verified)

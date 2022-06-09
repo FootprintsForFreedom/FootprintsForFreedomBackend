@@ -85,6 +85,32 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
         XCTAssertEqual(locationCount, newLocationCount)
     }
     
+    func testSucessfulUpdateWaypointWithDuplicateTitle() async throws {
+        let token = try await getToken(for: .user, verified: true)
+        let title = "My new title \(UUID())"
+        let (waypointRepository, createdLocation, updateContent) = try await getWaypointUpdateContent(title: title, updatedTitle: title)
+        
+        try app
+            .describe("Update waypoint should return ok and the new waypoint content")
+            .put(waypointsPath.appending(waypointRepository.requireID().uuidString))
+            .body(updateContent)
+            .bearerToken(token)
+            .expect(.ok)
+            .expect(.json)
+            .expect(Waypoint.Detail.Detail.self) { content in
+                XCTAssertEqual(content.id, waypointRepository.id)
+                XCTAssertEqual(content.title, updateContent.title)
+                XCTAssertNotEqual(content.slug, updateContent.title.slugify())
+                XCTAssertContains(content.slug, updateContent.title.slugify())
+                XCTAssertEqual(content.detailText, updateContent.detailText)
+                XCTAssertEqual(content.location, createdLocation.location)
+                XCTAssertEqual(content.languageCode, updateContent.languageCode)
+                XCTAssertNil(content.detailStatus)
+                XCTAssertNil(content.locationStatus)
+            }
+            .test()
+    }
+    
     func testSuccessfulUpdateWithNewLanguage() async throws {
         let token = try await getToken(for: .user, verified: true)
         let (waypointRepository, _, createdLocation) = try await createNewWaypoint()
