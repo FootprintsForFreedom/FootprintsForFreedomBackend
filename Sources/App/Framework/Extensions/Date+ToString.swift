@@ -10,12 +10,11 @@ import Foundation
 extension Date {
     enum Accuracy: Int, CaseIterable {
         case none = 0
-        case month = 1
-        case day = 2
-        case hour = 3
-        case minute = 4
-        case second = 5
-        case exact = 6
+        case year = 1
+        case month = 2
+        case day = 3
+        case time = 4
+        case exact = 5
         
         func increased() -> Self {
             let allCases = type(of: self).allCases
@@ -28,15 +27,13 @@ extension Date {
         
         switch accuracy {
         case .none: break
+        case .year: dateFormatter.dateFormat = "yyyy"
         case .month: dateFormatter.dateFormat = "yyyy-MM"
-        case .day: dateFormatter.dateFormat = "yyyy-MM-dd"
-        case .hour: dateFormatter.dateFormat = "yyyy-MM-dd-HH"
-        case .minute: dateFormatter.dateFormat = "yyyy-MM-dd-HH.mm"
-        case .second: dateFormatter.dateFormat = "yyyy-MM-dd-HH.mm.ss"
-        case .exact: dateFormatter.dateFormat = "yyyy-MM-dd-HH.mm.ss.SSS"
+        case .day: dateFormatter.dateFormat = "yyyy-MM-dd'T'"
+        case .time: dateFormatter.dateFormat = "yyyy-MM-dd'T'-HH:mm:ss'Z'"
+        case .exact: dateFormatter.dateFormat = "yyyy-MM-dd'T'-HH:mm:ss.SSS'Z'"
         }
         
-        return dateFormatter.string(from: Date())
-
+        return dateFormatter.string(from: self)
     }
 }
