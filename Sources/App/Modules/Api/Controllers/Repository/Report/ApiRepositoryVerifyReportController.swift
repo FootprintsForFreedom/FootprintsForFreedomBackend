@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-protocol ApiRepositoryVerifyReportController: RepositoryController {
+protocol ApiRepositoryVerifyReportController: RepositoryController where Repository: Reportable {
     associatedtype ReportDetailObject: Content
     associatedtype DetailObject: InitializableById
     

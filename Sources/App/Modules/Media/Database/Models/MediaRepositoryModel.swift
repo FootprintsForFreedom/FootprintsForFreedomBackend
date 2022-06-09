@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class MediaRepositoryModel: RepositoryModel, Tagable {
+final class MediaRepositoryModel: RepositoryModel, Tagable, Reportable {
     typealias Module = MediaModule
     
     static var identifier: String { "repositories" }

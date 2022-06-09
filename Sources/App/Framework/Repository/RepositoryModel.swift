@@ -10,13 +10,9 @@ import Fluent
 
 protocol RepositoryModel: DatabaseModelInterface, Timestamped {
     associatedtype Detail: DetailModel
-    associatedtype Report: ReportModel
     
     var details: [Detail] { get }
     var _$details: ChildrenProperty<Self, Detail> { get }
-    
-    var reports: [Report] { get }
-    var _$reports: ChildrenProperty<Self, Report> { get }
     
     func detail(
         for languageCode: String,

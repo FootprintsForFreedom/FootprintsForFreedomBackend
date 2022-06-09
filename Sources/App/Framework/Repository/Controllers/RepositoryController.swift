@@ -12,7 +12,6 @@ protocol RepositoryController where Repository.Detail.Repository == Repository {
     associatedtype ApiModel: ApiModelInterface
     associatedtype Repository: RepositoryModel
     typealias Detail = Repository.Detail
-    typealias Report = Repository.Report
     
     static var moduleName: String { get }
     static var modelName: Name { get }
@@ -24,6 +23,10 @@ protocol RepositoryController where Repository.Detail.Repository == Repository {
     func repository(_ req: Request) async throws -> Repository
     
     func getBaseRoutes(_ routes: RoutesBuilder) -> RoutesBuilder
+}
+
+extension RepositoryController where Repository: Reportable {
+    typealias Report = Repository.Report
 }
 
 extension RepositoryController {

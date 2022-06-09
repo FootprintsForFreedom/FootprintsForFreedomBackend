@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class WaypointRepositoryModel: RepositoryModel, Tagable {
+final class WaypointRepositoryModel: RepositoryModel, Tagable, Reportable {
     typealias Module = WaypointModule
     
     static var identifier: String { "repositories" }

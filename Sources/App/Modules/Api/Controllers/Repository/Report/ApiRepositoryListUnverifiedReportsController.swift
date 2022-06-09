@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-protocol ApiRepositoryListUnverifiedReportsController: RepositoryController {
+protocol ApiRepositoryListUnverifiedReportsController: RepositoryController where Repository: Reportable {
     associatedtype ReportListObject: Codable
     
     func beforeListUnverifiedReports(_ req: Request) async throws

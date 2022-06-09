@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class TagRepositoryModel: RepositoryModel {
+final class TagRepositoryModel: RepositoryModel, Reportable {
     typealias Module = TagModule
     
     static var identifier = "repositories"
