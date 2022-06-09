@@ -32,47 +32,52 @@ public extension Tag.Detail {
         public let keywords: [String]
         public let slug: String
         public let languageCode: String
+        public let availableLanguageCodes: [String]
         public let status: Status?
         public let detailId: UUID?
         
-        public static func publicDetail(id: UUID, title: String, keywords: [String], slug: String, languageCode: String) -> Self {
-            return .init(
-                id: id,
-                title: title,
-                keywords: keywords,
-                slug: slug,
-                languageCode: languageCode
-            )
-        }
-        
-        public static func moderatorDetail(id: UUID, title: String, keywords: [String], slug: String, languageCode: String, status: Status, detailId: UUID) -> Self {
+        public static func publicDetail(id: UUID, title: String, keywords: [String], slug: String, languageCode: String, availableLanguageCodes: [String]) -> Self {
             return .init(
                 id: id,
                 title: title,
                 keywords: keywords,
                 slug: slug,
                 languageCode: languageCode,
+                availableLanguageCodes: availableLanguageCodes
+            )
+        }
+        
+        public static func moderatorDetail(id: UUID, title: String, keywords: [String], slug: String, languageCode: String, availableLanguageCodes: [String], status: Status, detailId: UUID) -> Self {
+            return .init(
+                id: id,
+                title: title,
+                keywords: keywords,
+                slug: slug,
+                languageCode: languageCode,
+                availableLanguageCodes: availableLanguageCodes,
                 status: status,
                 detailId: detailId
             )
         }
         
-        private init(id: UUID, title: String, keywords: [String], slug: String, languageCode: String) {
+        private init(id: UUID, title: String, keywords: [String], slug: String, languageCode: String, availableLanguageCodes: [String]) {
             self.id = id
             self.title = title
             self.keywords = keywords
             self.slug = slug
             self.languageCode = languageCode
+            self.availableLanguageCodes = availableLanguageCodes
             self.status = nil
             self.detailId = nil
         }
         
-        private init(id: UUID, title: String, keywords: [String], slug: String, languageCode: String, status: Status, detailId: UUID) {
+        private init(id: UUID, title: String, keywords: [String], slug: String, languageCode: String, availableLanguageCodes: [String], status: Status, detailId: UUID) {
             self.id = id
             self.title = title
             self.keywords = keywords
             self.slug = slug
             self.languageCode = languageCode
+            self.availableLanguageCodes = availableLanguageCodes
             self.status = status
             self.detailId = detailId
         }

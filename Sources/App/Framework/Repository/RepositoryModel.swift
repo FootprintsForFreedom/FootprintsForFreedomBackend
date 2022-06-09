@@ -92,4 +92,24 @@ extension RepositoryModel {
         
         return verifiedDetailsCount > 0
     }
+    
+    func availableLanguages(_ db: Database) async throws -> [LanguageModel] {
+        let languageIds = try await self._$details
+            .query(on: db)
+            .join(parent: \._$language)
+            .filter(LanguageModel.self, \.$priority != nil)
+            .filter(\._$status ~~ [.verified, .deleteRequested])
+            .field(\._$language.$id)
+            .unique()
+            .all()
+            .map(\._$language.id)
+        
+        return try await languageIds.concurrentCompactMap { languageId in
+            return try await LanguageModel.find(languageId, on: db)
+        }
+    }
+    
+    func availableLanguageCodes(_ db: Database) async throws -> [String] {
+        return try await availableLanguages(db).map(\.languageCode)
+    }
 }

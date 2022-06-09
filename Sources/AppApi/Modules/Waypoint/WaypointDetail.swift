@@ -36,24 +36,13 @@ public extension Waypoint.Detail {
         public let location: Waypoint.Location
         public let tags: [Tag.Detail.List]
         public let languageCode: String
+        public let availableLanguageCodes: [String]
         public let detailStatus: Status?
         public let locationStatus: Status?
         public let modelId: UUID?
         public let locationId: UUID?
         
-        public static func publicDetail(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String) -> Self {
-            return .init(
-                id: id,
-                title: title,
-                slug: slug,
-                detailText: detailText,
-                location: location,
-                tags: tags,
-                languageCode: languageCode
-            )
-        }
-        
-        public static func moderatorDetail(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, detailStatus: Status, locationStatus: Status, modelId: UUID, locationId: UUID) -> Self {
+        public static func publicDetail(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, availableLanguageCodes: [String]) -> Self {
             return .init(
                 id: id,
                 title: title,
@@ -62,6 +51,20 @@ public extension Waypoint.Detail {
                 location: location,
                 tags: tags,
                 languageCode: languageCode,
+                availableLanguageCodes: availableLanguageCodes
+            )
+        }
+        
+        public static func moderatorDetail(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, availableLanguageCodes: [String], detailStatus: Status, locationStatus: Status, modelId: UUID, locationId: UUID) -> Self {
+            return .init(
+                id: id,
+                title: title,
+                slug: slug,
+                detailText: detailText,
+                location: location,
+                tags: tags,
+                languageCode: languageCode,
+                availableLanguageCodes: availableLanguageCodes,
                 detailStatus: detailStatus,
                 locationStatus: locationStatus,
                 modelId: modelId,
@@ -69,7 +72,7 @@ public extension Waypoint.Detail {
             )
         }
         
-        private init(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String) {
+        private init(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, availableLanguageCodes: [String]) {
             self.id = id
             self.title = title
             self.slug = slug
@@ -77,13 +80,14 @@ public extension Waypoint.Detail {
             self.location = location
             self.tags = tags
             self.languageCode = languageCode
+            self.availableLanguageCodes = availableLanguageCodes
             self.detailStatus = nil
             self.locationStatus = nil
             self.modelId = nil
             self.locationId = nil
         }
         
-        private init(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, detailStatus: Status, locationStatus: Status, modelId: UUID, locationId: UUID) {
+        private init(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, availableLanguageCodes: [String], detailStatus: Status, locationStatus: Status, modelId: UUID, locationId: UUID) {
             self.id = id
             self.title = title
             self.slug = slug
@@ -91,6 +95,7 @@ public extension Waypoint.Detail {
             self.location = location
             self.tags = tags
             self.languageCode = languageCode
+            self.availableLanguageCodes = availableLanguageCodes
             self.detailStatus = detailStatus
             self.locationStatus = locationStatus
             self.modelId = modelId

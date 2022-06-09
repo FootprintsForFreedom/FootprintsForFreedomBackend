@@ -109,6 +109,7 @@ struct WaypointApiController: ApiRepositoryController {
                 location: location.location,
                 tags: repository.tagList(req),
                 languageCode: detail.language.languageCode,
+                availableLanguageCodes: repository.availableLanguageCodes(req.db),
                 detailStatus: detail.status,
                 locationStatus: location.status,
                 modelId: detail.requireID(),
@@ -127,7 +128,8 @@ struct WaypointApiController: ApiRepositoryController {
             detailText: detail.detailText,
             location: location.location,
             tags: repository.tagList(req),
-            languageCode: detail.language.languageCode
+            languageCode: detail.language.languageCode,
+            availableLanguageCodes: repository.availableLanguageCodes(req.db)
         )
     }
     

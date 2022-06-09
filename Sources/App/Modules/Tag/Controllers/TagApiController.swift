@@ -70,22 +70,24 @@ struct TagApiController: ApiRepositoryController {
         try await detail.$language.load(on: req.db)
         
         if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db), user.role >= .moderator && req.method == .GET {
-            return try .moderatorDetail(
+            return try await .moderatorDetail(
                 id: repository.requireID(),
                 title: detail.title,
                 keywords: detail.keywords,
                 slug: detail.slug,
                 languageCode: detail.language.languageCode,
+                availableLanguageCodes: repository.availableLanguageCodes(req.db),
                 status: detail.status,
                 detailId: detail.requireID()
             )
         } else {
-            return try .publicDetail(
+            return try await .publicDetail(
                 id: repository.requireID(),
                 title: detail.title,
                 keywords: detail.keywords,
                 slug: detail.slug,
-                languageCode: detail.language.languageCode
+                languageCode: detail.language.languageCode,
+                availableLanguageCodes: repository.availableLanguageCodes(req.db)
             )
         }
     }

@@ -22,6 +22,7 @@ extension Media.Detail.Detail: InitializableById {
         self = try await Self.publicDetail(
             id: repository.requireID(),
             languageCode: detail.language.languageCode,
+            availableLanguageCodes: repository.availableLanguageCodes(db),
             title: detail.title,
             slug: detail.slug,
             detailText: detail.detailText,

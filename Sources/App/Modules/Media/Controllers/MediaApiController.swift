@@ -81,6 +81,7 @@ struct MediaApiController: ApiRepositoryController {
             return try await .moderatorDetail(
                 id: repository.requireID(),
                 languageCode: detail.language.languageCode,
+                availableLanguageCodes: repository.availableLanguageCodes(req.db),
                 title: detail.title,
                 slug: detail.slug,
                 detailText: detail.detailText,
@@ -95,6 +96,7 @@ struct MediaApiController: ApiRepositoryController {
             return try await .publicDetail(
                 id: repository.requireID(),
                 languageCode: detail.language.languageCode,
+                availableLanguageCodes: repository.availableLanguageCodes(req.db),
                 title: detail.title,
                 slug: detail.slug,
                 detailText: detail.detailText,

@@ -31,6 +31,7 @@ public extension Media.Detail {
     struct Detail: Codable {
         public let id: UUID
         public let languageCode: String
+        public let availableLanguageCodes: [String]
         public let title: String
         public let slug: String
         public let detailText: String
@@ -41,10 +42,11 @@ public extension Media.Detail {
         public let status: Status?
         public let detailId: UUID?
         
-        public static func publicDetail(id: UUID, languageCode: String, title: String, slug: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List]) -> Self {
+        public static func publicDetail(id: UUID, languageCode: String, availableLanguageCodes: [String], title: String, slug: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List]) -> Self {
             return .init(
                 id: id,
                 languageCode: languageCode,
+                availableLanguageCodes: availableLanguageCodes,
                 title: title,
                 slug: slug,
                 detailText: detailText,
@@ -55,10 +57,11 @@ public extension Media.Detail {
             )
         }
         
-        public static func moderatorDetail(id: UUID, languageCode: String, title: String, slug: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List], status: Status, detailId: UUID) -> Self {
+        public static func moderatorDetail(id: UUID, languageCode: String, availableLanguageCodes: [String], title: String, slug: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List], status: Status, detailId: UUID) -> Self {
             return .init(
                 id: id,
                 languageCode: languageCode,
+                availableLanguageCodes: availableLanguageCodes,
                 title: title,
                 slug: slug,
                 detailText: detailText,
@@ -71,9 +74,10 @@ public extension Media.Detail {
             )
         }
         
-        private init(id: UUID, languageCode: String, title: String, slug: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List]) {
+        private init(id: UUID, languageCode: String, availableLanguageCodes: [String], title: String, slug: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List]) {
             self.id = id
             self.languageCode = languageCode
+            self.availableLanguageCodes = availableLanguageCodes
             self.title = title
             self.slug = slug
             self.detailText = detailText
@@ -85,9 +89,10 @@ public extension Media.Detail {
             self.detailId = nil
         }
         
-        private init(id: UUID, languageCode: String, title: String, slug: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List], status: Status, detailId: UUID) {
+        private init(id: UUID, languageCode: String, availableLanguageCodes: [String], title: String, slug: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List], status: Status, detailId: UUID) {
             self.id = id
             self.languageCode = languageCode
+            self.availableLanguageCodes = availableLanguageCodes
             self.title = title
             self.slug = slug
             self.detailText = detailText
