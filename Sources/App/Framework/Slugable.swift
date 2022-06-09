@@ -15,8 +15,8 @@ protocol Slugable: Fluent.Model {
 
 extension Slugable {
     func generateSlug(for title: String, _ date: Date? = nil, with accuracy: Date.Accuracy = .none, on db: Database) async throws -> String {
-        let title = accuracy == .none ? title : title.appending(" ").appending((date ?? Date()).toString(with: accuracy))
-        let slug = title.slugify()
+        let newTitle = accuracy == .none ? title : title.appending(" ").appending((date ?? Date()).toString(with: accuracy))
+        let slug = newTitle.slugify()
         let numberOfDetailsWithSlug = try await Self
             .query(on: db)
             .filter(\._$slug == slug)
