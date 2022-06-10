@@ -39,6 +39,7 @@ public func configure(_ app: Application) throws {
         StatusModule(),
         UserModule(),
         LanguageModule(),
+        StaticContentModule(),
         WaypointModule(),
         MediaModule(),
         TagModule(),
