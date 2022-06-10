@@ -14,8 +14,11 @@ protocol RepositoryDeleteController: RepositoryController {
 }
 
 extension RepositoryDeleteController {
-    func beforeDelete(_ req: Request, _ repository: Repository) async throws {}
-    func afterDelete(_ req: Request, _ repository: Repository) async throws {}
+    func beforeDelete(_ req: Request, _ repository: Repository) async throws { }
+    
+    func afterDelete(_ req: Request, _ repository: Repository) async throws {
+        try await repository.deleteDependencies(on: req.db)
+    }
     
     func delete(_ req: Request, _ repository: Repository) async throws {
         try await beforeDelete(req, repository)

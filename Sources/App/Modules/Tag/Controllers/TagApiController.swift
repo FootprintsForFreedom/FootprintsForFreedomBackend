@@ -191,8 +191,4 @@ struct TagApiController: ApiRepositoryController {
     func beforeDelete(_ req: Request, _ repository: TagRepositoryModel) async throws {
         try await req.onlyFor(.moderator)
     }
-    
-    func afterDelete(_ req: Request, _ repository: TagRepositoryModel) async throws {
-        try await repository.deleteDependencies(on: req.db)
-    }
 }

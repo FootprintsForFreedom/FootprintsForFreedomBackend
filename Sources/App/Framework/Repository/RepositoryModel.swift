@@ -27,6 +27,8 @@ protocol RepositoryModel: DatabaseModelInterface, Timestamped {
         on db: Database,
         sort sortDirection: DatabaseQuery.Sort.Direction
     ) async throws -> Detail?
+    
+    func deleteDependencies(on db: Database) async throws
 }
 
 extension RepositoryModel {
@@ -107,5 +109,23 @@ extension RepositoryModel {
     
     func availableLanguageCodes(_ db: Database) async throws -> [String] {
         return try await availableLanguages(db).map(\.languageCode)
+    }
+    
+    func deleteDependencies(on db: Database) async throws {
+        try await _$details
+            .query(on: db)
+            .delete()
+    }
+}
+
+extension RepositoryModel where Self: Reportable {
+    func deleteDependencies(on db: Database) async throws {
+        try await _$details
+            .query(on: db)
+            .delete()
+        
+        try await _$reports
+            .query(on: db)
+            .delete()
     }
 }

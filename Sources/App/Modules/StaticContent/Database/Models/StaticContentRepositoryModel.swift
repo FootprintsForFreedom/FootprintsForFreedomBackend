@@ -43,12 +43,3 @@ final class StaticContentRepositoryModel: RepositoryModel {
 extension StaticContentRepositoryModel {
     var _$details: ChildrenProperty<StaticContentRepositoryModel, StaticContentDetailModel> { $details }
 }
-
-// TODO: move to protocol
-extension StaticContentRepositoryModel {
-    func deleteDependencies(on database: Database) async throws {
-        try await $details
-            .query(on: database)
-            .delete()
-    }
-}

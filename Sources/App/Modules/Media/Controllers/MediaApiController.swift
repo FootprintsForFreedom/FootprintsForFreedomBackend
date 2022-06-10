@@ -300,8 +300,4 @@ struct MediaApiController: ApiRepositoryController {
     func beforeDelete(_ req: Request, _ repository: MediaRepositoryModel) async throws {
         try await req.onlyFor(.moderator)
     }
-    
-    func afterDelete(_ req: Request, _ repository: MediaRepositoryModel) async throws {
-        try await repository.deleteDependencies(on: req.db)
-    }
 }

@@ -309,11 +309,4 @@ struct WaypointApiController: ApiRepositoryController {
             throw Abort(.forbidden)
         }
     }
-    
-    func afterDelete(_ req: Request, _ model: WaypointRepositoryModel) async throws {
-        try await model.$details.query(on: req.db).delete()
-        try await model.$locations.query(on: req.db).delete()
-        try await model.$media.query(on: req.db).all().concurrentForEach { try await $0.deleteDependencies(on: req.db) }
-        try await model.$media.query(on: req.db).delete()
-    }
 }

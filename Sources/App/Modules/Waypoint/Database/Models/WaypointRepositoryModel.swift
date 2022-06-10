@@ -67,4 +67,11 @@ extension WaypointRepositoryModel {
             return nil
         }
     }
+    
+    func deleteDependencies(on db: Database) async throws {
+        try await $details.query(on: db).delete()
+        try await $locations.query(on: db).delete()
+        try await $media.query(on: db).all().concurrentForEach { try await $0.deleteDependencies(on: db) }
+        try await $media.query(on: db).delete()
+    }
 }

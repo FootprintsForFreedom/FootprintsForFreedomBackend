@@ -232,8 +232,4 @@ struct StaticContentApiController: ApiRepositoryController {
     func beforeDelete(_ req: Request, _ repository: StaticContentRepositoryModel) async throws {
         try await req.onlyFor(.admin)
     }
-    
-    func afterDelete(_ req: Request, _ repository: StaticContentRepositoryModel) async throws {
-        try await repository.deleteDependencies(on: req.db)
-    }
 }

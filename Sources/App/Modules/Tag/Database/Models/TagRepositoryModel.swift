@@ -42,14 +42,6 @@ extension TagRepositoryModel {
     var _$reports: ChildrenProperty<TagRepositoryModel, TagReportModel> { $reports }
 }
 
-extension TagRepositoryModel {
-    func deleteDependencies(on database: Database) async throws {
-        try await $details
-            .query(on: database)
-            .delete()
-    }
-}
-
 extension TagRepositoryModel: Hashable {
     static func == (lhs: TagRepositoryModel, rhs: TagRepositoryModel) -> Bool {
         lhs.id == rhs.id
