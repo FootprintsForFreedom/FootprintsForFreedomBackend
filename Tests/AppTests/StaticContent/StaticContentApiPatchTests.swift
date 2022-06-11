@@ -15,6 +15,7 @@ extension StaticContent.Detail.Patch: Content { }
 final class StaticContentApiPatchTests: AppTestCase, StaticContentTest {
     private func getStaticContentPatchContent(
         repositoryTitle: String = "New title \(UUID())",
+        requiredSnippets: [StaticContent.Snippet] = [],
         title: String = "New StaticContent title \(UUID())",
         patchedTitle: String? = nil,
         text: String = "This is a text",
@@ -23,6 +24,7 @@ final class StaticContentApiPatchTests: AppTestCase, StaticContentTest {
     ) async throws -> (repository: StaticContentRepositoryModel, detail: StaticContentDetailModel, patchContent: StaticContent.Detail.Patch) {
         let (repository, detail) = try await createNewStaticContent(
             repositoryTitle: repositoryTitle,
+            requiredSnippets: requiredSnippets,
             title: title,
             text: text,
             languageId: languageId
@@ -100,6 +102,27 @@ final class StaticContentApiPatchTests: AppTestCase, StaticContentTest {
             .test()
     }
     
+    func testSuccessfulPatchStaticContentTextWithRequiredSnippets() async throws {
+        let adminToken = try await getToken(for: .admin, verified: true)
+        let (repository, detail, patchContent) = try await getStaticContentPatchContent(requiredSnippets: StaticContent.Snippet.allCases, patchedText: "This is a new text with \(StaticContent.Snippet.allCases.map(\.rawValue))")
+        try await detail.$language.load(on: app.db)
+        
+        try app
+            .describe("Patch staticContent text should return ok")
+            .patch(staticContentPath.appending(repository.requireID().uuidString))
+            .body(patchContent)
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .expect(StaticContent.Detail.Detail.self) { content in
+                XCTAssertNotNil(content.id)
+                XCTAssertEqual(content.title, detail.title)
+                XCTAssertEqual(content.text, patchContent.text)
+                XCTAssertEqual(content.languageCode, detail.language.languageCode)
+            }
+            .test()
+    }
+    
     func testPatchStaticContentTitleAsModeratorFails() async throws {
         let moderatorToken = try await getToken(for: .moderator, verified: true)
         let (repository, detail, patchContent) = try await getStaticContentPatchContent(patchedTitle: "The patched title")
@@ -143,6 +166,19 @@ final class StaticContentApiPatchTests: AppTestCase, StaticContentTest {
     func testPatchStaticContentNeedsValidText() async throws {
         let adminToken = try await getToken(for: .admin, verified: true)
         let (repository, _, patchContent) = try await getStaticContentPatchContent(patchedText: "")
+        
+        try app
+            .describe("Patch staticContent title should require valid text")
+            .patch(staticContentPath.appending(repository.requireID().uuidString))
+            .body(patchContent)
+            .bearerToken(adminToken)
+            .expect(.badRequest)
+            .test()
+    }
+    
+    func testPatchStaticContentNeedsTextWithRequiredSnippets() async throws {
+        let adminToken = try await getToken(for: .admin, verified: true)
+        let (repository, _, patchContent) = try await getStaticContentPatchContent(requiredSnippets: StaticContent.Snippet.allCases, patchedText: "this is a text without snippets")
         
         try app
             .describe("Patch staticContent title should require valid text")

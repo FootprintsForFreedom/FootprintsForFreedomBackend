@@ -11,11 +11,19 @@ import Fluent
 enum StaticContentMigrations {
     struct v1: AsyncMigration {
         func prepare(on db: Database) async throws {
+            let _ = try await db.enum(StaticContent.Snippet.pathKey)
+                .case(StaticContent.Snippet.username.rawValue)
+                .case(StaticContent.Snippet.appName.rawValue)
+                .case(StaticContent.Snippet.verificationLink.rawValue)
+                .create()
+            
             try await db.schema(StaticContentRepositoryModel.schema)
                 .id()
             
                 .field(StaticContentRepositoryModel.FieldKeys.v1.slug, .string, .required)
                 .unique(on: StaticContentRepositoryModel.FieldKeys.v1.slug)
+            
+                .field(StaticContentRepositoryModel.FieldKeys.v1.requiredSnippets, .sql(raw: "text[]"), .required)
             
                 .field(StaticContentRepositoryModel.FieldKeys.v1.createdAt, .datetime, .required)
                 .field(StaticContentRepositoryModel.FieldKeys.v1.updatedAt, .datetime, .required)
@@ -53,6 +61,7 @@ enum StaticContentMigrations {
         func revert(on db: Database) async throws {
             try await db.schema(StaticContentDetailModel.schema).delete()
             try await db.schema(StaticContentRepositoryModel.schema).delete()
+            try await db.enum(StaticContent.Snippet.pathKey).delete()
         }
     }
 }

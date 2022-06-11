@@ -15,6 +15,7 @@ extension StaticContent.Detail.Update: Content { }
 final class StaticContentApiUpdateTests: AppTestCase, StaticContentTest {
     private func getStaticContentUpdateContent(
         repositoryTitle: String = "New title \(UUID())",
+        requiredSnippets: [StaticContent.Snippet] = [],
         title: String = "New StaticContent title \(UUID())",
         updatedTitle: String = "Updated Title",
         text: String = "This is a text",
@@ -24,6 +25,7 @@ final class StaticContentApiUpdateTests: AppTestCase, StaticContentTest {
     ) async throws -> (repository: StaticContentRepositoryModel, detail: StaticContentDetailModel, updateContent: StaticContent.Detail.Update) {
         let (repository, detail) = try await createNewStaticContent(
             repositoryTitle: repositoryTitle,
+            requiredSnippets: requiredSnippets,
             title: title,
             text: text,
             languageId: languageId
@@ -43,6 +45,35 @@ final class StaticContentApiUpdateTests: AppTestCase, StaticContentTest {
     func testSuccessfulUpdateStaticContent() async throws {
         let token = try await getToken(for: .admin, verified: true)
         let (repository, _, updateContent) = try await getStaticContentUpdateContent()
+        
+        try app
+            .describe("Update staticContent should return ok")
+            .put(staticContentPath.appending(repository.requireID().uuidString))
+            .body(updateContent)
+            .bearerToken(token)
+            .expect(.ok)
+            .expect(.json)
+            .expect(StaticContent.Detail.Detail.self) { content in
+                XCTAssertNotNil(content.id)
+                XCTAssertEqual(content.title, updateContent.title)
+                XCTAssertEqual(content.text, updateContent.text)
+                XCTAssertEqual(content.languageCode, updateContent.languageCode)
+            }
+            .test()
+        
+        // Test the new staticContent detail was created correctly
+        let newStaticContentDetail = try await repository.$details
+            .query(on: app.db)
+            .sort(\.$updatedAt, .descending)
+            .first()!
+        
+        XCTAssertNotNil(newStaticContentDetail.id)
+        XCTAssertEqual(newStaticContentDetail.status, .verified)
+    }
+    
+    func testSuccessfulUpdateStaticContentWithRequiredSnippets() async throws {
+        let token = try await getToken(for: .admin, verified: true)
+        let (repository, _, updateContent) = try await getStaticContentUpdateContent(requiredSnippets: StaticContent.Snippet.allCases, updatedText: "This is a new text with \(StaticContent.Snippet.allCases.map(\.rawValue))")
         
         try app
             .describe("Update staticContent should return ok")
@@ -127,6 +158,19 @@ final class StaticContentApiUpdateTests: AppTestCase, StaticContentTest {
         
         XCTAssertNotNil(newStaticContentDetail.id)
         XCTAssertEqual(newStaticContentDetail.status, .verified)
+    }
+    
+    func testUpdateStaticContentWithoutRequiredSnippetsInTextFails() async throws {
+        let token = try await getToken(for: .admin, verified: true)
+        let (repository, _, updateContent) = try await getStaticContentUpdateContent(requiredSnippets: StaticContent.Snippet.allCases, updatedText: "This is a new text without snippets")
+        
+        try app
+            .describe("Update staticContent should return ok")
+            .put(staticContentPath.appending(repository.requireID().uuidString))
+            .body(updateContent)
+            .bearerToken(token)
+            .expect(.badRequest)
+            .test()
     }
     
     func testUpdateStaticContentAsModeratorFails() async throws {

@@ -112,7 +112,7 @@ final class StaticContentApiGetTests: AppTestCase, StaticContentTest {
     // MARK: - Get
     
     func testSuccessfulGetStaticContentById() async throws {
-        let staticContent = try await createNewStaticContent()
+        let staticContent = try await createNewStaticContent(requiredSnippets: [.username])
         try await staticContent.detail.$language.load(on: app.db)
         
         try app
@@ -125,13 +125,14 @@ final class StaticContentApiGetTests: AppTestCase, StaticContentTest {
                 XCTAssertEqual(content.title, staticContent.detail.title)
                 XCTAssertEqual(content.text, staticContent.detail.text)
                 XCTAssertEqual(content.languageCode, staticContent.detail.language.languageCode)
+                XCTAssertNil(content.requiredSnippets)
                 XCTAssertNil(content.detailId)
             }
             .test()
     }
     
     func testSuccessfulGetStaticContentByRepositorySlug() async throws {
-        let staticContent = try await createNewStaticContent()
+        let staticContent = try await createNewStaticContent(requiredSnippets: [.username])
         try await staticContent.detail.$language.load(on: app.db)
         
         try app
@@ -144,6 +145,7 @@ final class StaticContentApiGetTests: AppTestCase, StaticContentTest {
                 XCTAssertEqual(content.title, staticContent.detail.title)
                 XCTAssertEqual(content.text, staticContent.detail.text)
                 XCTAssertEqual(content.languageCode, staticContent.detail.language.languageCode)
+                XCTAssertNil(content.requiredSnippets)
                 XCTAssertNil(content.detailId)
             }
             .test()
@@ -152,7 +154,7 @@ final class StaticContentApiGetTests: AppTestCase, StaticContentTest {
     func testSuccessfulGetStaticContentByIdAsAdmin() async throws {
         let adminToken = try await getToken(for: .admin, verified: true)
         
-        let staticContent = try await createNewStaticContent()
+        let staticContent = try await createNewStaticContent(requiredSnippets: [.username])
         try await staticContent.detail.$language.load(on: app.db)
         
         try app
@@ -166,6 +168,8 @@ final class StaticContentApiGetTests: AppTestCase, StaticContentTest {
                 XCTAssertEqual(content.title, staticContent.detail.title)
                 XCTAssertEqual(content.text, staticContent.detail.text)
                 XCTAssertEqual(content.languageCode, staticContent.detail.language.languageCode)
+                XCTAssertNotNil(content.requiredSnippets)
+                XCTAssertEqual(content.requiredSnippets, staticContent.repository.requiredSnippets)
                 XCTAssertNotNil(content.detailId)
                 XCTAssertEqual(content.detailId, staticContent.detail.id!)
             }
@@ -175,7 +179,7 @@ final class StaticContentApiGetTests: AppTestCase, StaticContentTest {
     func testSuccessfulGetStaticContentByRepositorySlugAsAdmin() async throws {
         let adminToken = try await getToken(for: .admin, verified: true)
         
-        let staticContent = try await createNewStaticContent()
+        let staticContent = try await createNewStaticContent(requiredSnippets: [.username])
         try await staticContent.detail.$language.load(on: app.db)
         
         try app
@@ -189,6 +193,8 @@ final class StaticContentApiGetTests: AppTestCase, StaticContentTest {
                 XCTAssertEqual(content.title, staticContent.detail.title)
                 XCTAssertEqual(content.text, staticContent.detail.text)
                 XCTAssertEqual(content.languageCode, staticContent.detail.language.languageCode)
+                XCTAssertNotNil(content.requiredSnippets)
+                XCTAssertEqual(content.requiredSnippets, staticContent.repository.requiredSnippets)
                 XCTAssertNotNil(content.detailId)
                 XCTAssertEqual(content.detailId, staticContent.detail.id!)
             }

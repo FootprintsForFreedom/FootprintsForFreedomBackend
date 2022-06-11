@@ -16,6 +16,7 @@ final class StaticContentRepositoryModel: RepositoryModel {
     struct FieldKeys {
         struct v1 {
             static var slug: FieldKey { "slug" }
+            static var requiredSnippets: FieldKey { "required_snippets" }
             static var createdAt: FieldKey { "created_at" }
             static var updatedAt: FieldKey { "updated_at" }
             static var deletedAt: FieldKey { "deleted_at" }
@@ -24,6 +25,7 @@ final class StaticContentRepositoryModel: RepositoryModel {
     
     @ID() var id: UUID?
     @Field(key: FieldKeys.v1.slug) var slug: String
+    @Field(key: FieldKeys.v1.requiredSnippets) var requiredSnippets: [StaticContent.Snippet]
     
     @Children(for: \.$repository) var details: [StaticContentDetailModel]
     
@@ -35,8 +37,9 @@ final class StaticContentRepositoryModel: RepositoryModel {
     
     init() { }
     
-    init(slug: String) {
+    init(slug: String, requiredSnippets: [StaticContent.Snippet] = []) {
         self.slug = slug
+        self.requiredSnippets = requiredSnippets
     }
 }
 

@@ -30,6 +30,7 @@ public extension StaticContent.Detail {
         public let text: String
         public let languageCode: String
         public let availableLanguageCodes: [String]
+        public let requiredSnippets: [StaticContent.Snippet]?
         public let detailId: UUID?
         
         public static func publicDetail(id: UUID, title: String, text: String, languageCode: String, availableLanguageCodes: [String]) -> Self {
@@ -42,13 +43,14 @@ public extension StaticContent.Detail {
             )
         }
         
-        public static func administratorDetail(id: UUID, title: String, text: String, languageCode: String, availableLanguageCodes: [String], detailId: UUID) -> Self {
+        public static func administratorDetail(id: UUID, title: String, text: String, languageCode: String, availableLanguageCodes: [String], requiredSnippets: [StaticContent.Snippet]?, detailId: UUID) -> Self {
             return .init(
                 id: id,
                 title: title,
                 text: text,
                 languageCode: languageCode,
                 availableLanguageCodes: availableLanguageCodes,
+                requiredSnippets: requiredSnippets,
                 detailId: detailId
             )
         }
@@ -59,15 +61,17 @@ public extension StaticContent.Detail {
             self.text = text
             self.languageCode = languageCode
             self.availableLanguageCodes = availableLanguageCodes
+            self.requiredSnippets = nil
             self.detailId = nil
         }
         
-        private init(id: UUID, title: String, text: String, languageCode: String, availableLanguageCodes: [String], detailId: UUID) {
+        private init(id: UUID, title: String, text: String, languageCode: String, availableLanguageCodes: [String], requiredSnippets: [StaticContent.Snippet]?, detailId: UUID) {
             self.id = id
             self.title = title
             self.text = text
             self.languageCode = languageCode
             self.availableLanguageCodes = availableLanguageCodes
+            self.requiredSnippets = requiredSnippets
             self.detailId = detailId
         }
     }
@@ -76,12 +80,14 @@ public extension StaticContent.Detail {
         public let repositoryTitle: String
         public let title: String
         public let text: String
+        public let requiredSnippets: [StaticContent.Snippet]?
         public let languageCode: String
         
-        public init(repositoryTitle: String, title: String, text: String, languageCode: String) {
+        public init(repositoryTitle: String, title: String, text: String, requiredSnippets: [StaticContent.Snippet], languageCode: String) {
             self.repositoryTitle = repositoryTitle
             self.title = title
             self.text = text
+            self.requiredSnippets = requiredSnippets
             self.languageCode = languageCode
         }
     }

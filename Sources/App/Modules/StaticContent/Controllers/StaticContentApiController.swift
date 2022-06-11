@@ -20,6 +20,7 @@ struct StaticContentApiController: ApiRepositoryController {
     @AsyncValidatorBuilder
     func createValidators() -> [AsyncValidator] {
         KeyedContentValidator<String>.required("repositoryTitle")
+        KeyedContentValidator<[StaticContent.Snippet]>.required("requiredSnippets", optional: true)
         KeyedContentValidator<String>.required("title")
         KeyedContentValidator<String>.required("text")
         KeyedContentValidator<String>.required("languageCode")
@@ -124,6 +125,7 @@ struct StaticContentApiController: ApiRepositoryController {
                 text: detail.text,
                 languageCode: detail.language.languageCode,
                 availableLanguageCodes: repository.availableLanguageCodes(req.db),
+                requiredSnippets: repository.requiredSnippets,
                 detailId: detail.requireID()
             )
         } else {
@@ -143,6 +145,14 @@ struct StaticContentApiController: ApiRepositoryController {
         try await req.onlyFor(.admin)
     }
     
+    func getCreateInput(_ req: Request) throws -> CreateObject {
+        do {
+            return try req.content.decode(CreateObject.self)
+        } catch {
+            throw Abort(.badRequest)
+        }
+    }
+    
     func createRepositoryInput(_ req: Request, _ repository: StaticContentRepositoryModel, _ input: StaticContent.Detail.Create) async throws {
         let slug = input.repositoryTitle.slugify()
         
@@ -156,6 +166,7 @@ struct StaticContentApiController: ApiRepositoryController {
         }
         
         repository.slug = slug
+        repository.requiredSnippets = input.requiredSnippets ?? []
     }
     
     func createInput(_ req: Request, _ repository: StaticContentRepositoryModel, _ detail: Detail, _ input: StaticContent.Detail.Create) async throws {
@@ -169,6 +180,12 @@ struct StaticContentApiController: ApiRepositoryController {
                 .requireID()
         else {
             throw Abort(.badRequest, reason: "The language code is invalid")
+        }
+        
+        for requiredSnippet in repository.requiredSnippets {
+            guard input.text.contains(requiredSnippet.rawValue) else {
+                throw Abort(.badRequest, reason: "Text must contain \(requiredSnippet.rawValue)")
+            }
         }
         
         detail.title = input.title
@@ -196,6 +213,12 @@ struct StaticContentApiController: ApiRepositoryController {
             throw Abort(.badRequest, reason: "The language code is invalid")
         }
         
+        for requiredSnippet in repository.requiredSnippets {
+            guard input.text.contains(requiredSnippet.rawValue) else {
+                throw Abort(.badRequest, reason: "Text must contain \(requiredSnippet.rawValue)")
+            }
+        }
+        
         detail.title = input.title
         detail.text = input.text
         detail.$language.id = languageId
@@ -220,6 +243,13 @@ struct StaticContentApiController: ApiRepositoryController {
             throw Abort(.badRequest)
         }
         
+        if let newText = input.text {
+            for requiredSnippet in repository.requiredSnippets {
+                guard newText.contains(requiredSnippet.rawValue) else {
+                    throw Abort(.badRequest, reason: "Text must contain \(requiredSnippet.rawValue)")
+                }
+            }
+        }
         
         detail.title = input.title ?? staticContentToPatch.title
         detail.text = input.text ?? staticContentToPatch.text

@@ -16,6 +16,7 @@ extension StaticContentTest {
     
     func createNewStaticContent(
         repositoryTitle: String = "New title \(UUID())",
+        requiredSnippets: [StaticContent.Snippet] = [],
         title: String = "New StaticContent title \(UUID())",
         text: String = "This is a text",
         languageId: UUID? = nil,
@@ -34,7 +35,7 @@ extension StaticContentTest {
             }
         }()
         
-        let repository = StaticContentRepositoryModel(slug: repositoryTitle.slugify())
+        let repository = StaticContentRepositoryModel(slug: repositoryTitle.slugify(), requiredSnippets: requiredSnippets)
         try await repository.create(on: app.db)
         
         let detail = try await StaticContentDetailModel.createWith(
