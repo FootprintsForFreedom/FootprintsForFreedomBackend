@@ -10,6 +10,8 @@ import XCTVapor
 import Fluent
 import Spec
 
+extension User.Account.Login: Content { }
+
 final class UserApiSignInTests: AppTestCase {
     let signInPath = "/api/sign-in/"
     
@@ -30,7 +32,7 @@ final class UserApiSignInTests: AppTestCase {
     func testSuccessfulLogin() async throws {
         let (user, password) = try await createNewUser()
         
-        let credentials = UserLogin(email: user.email, password: password)
+        let credentials = User.Account.Login(email: user.email, password: password)
         
         try app
             .describe("Credentials login should return ok")
@@ -46,7 +48,7 @@ final class UserApiSignInTests: AppTestCase {
     }
     
     func testLoginWithNonExistingUserFails() throws {
-        let credentials = UserLogin(email: "thisemail.doesntexist@example.com", password: "123")
+        let credentials = User.Account.Login(email: "thisemail.doesntexist@example.com", password: "123")
         
         try app
             .describe("Credentials Login with non existing user should fail")
@@ -59,7 +61,7 @@ final class UserApiSignInTests: AppTestCase {
     func testLoginWithIncorrectPasswordFails() async throws {
         let (user, _) = try await createNewUser()
         
-        let credentials = UserLogin(email: user.email, password: "wrongPassword")
+        let credentials = User.Account.Login(email: user.email, password: "wrongPassword")
         
         try app
             .describe("Credentials Login should return ok")
@@ -73,8 +75,8 @@ final class UserApiSignInTests: AppTestCase {
         let (user1, password1) = try await createNewUser()
         let (user2, password2) = try await createNewUser(email: "test-user.\(UUID())@example.com")
         
-        let credentials1 = UserLogin(email: user1.email, password: password1)
-        let credentials2 = UserLogin(email: user2.email, password: password2)
+        let credentials1 = User.Account.Login(email: user1.email, password: password1)
+        let credentials2 = User.Account.Login(email: user2.email, password: password2)
         
         var token1: String!
         

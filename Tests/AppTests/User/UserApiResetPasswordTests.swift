@@ -148,7 +148,7 @@ final class UserApiResetPasswordTests: AppTestCase, UserTest {
         
         // test user can sign in with new password
         let signInPath = "/api/sign-in/"
-        let credentials = UserLogin(email: user.email, password: newPassword)
+        let credentials = User.Account.Login(email: user.email, password: newPassword)
         
         try app
             .describe("Credentials login should return ok with new password")
@@ -163,7 +163,7 @@ final class UserApiResetPasswordTests: AppTestCase, UserTest {
             .test()
         
         // test user cannot sign in with old password
-        let oldCredentials = UserLogin(email: user.email, password: password)
+        let oldCredentials = User.Account.Login(email: user.email, password: password)
         
         try app
             .describe("Credentials login should fail with old password")

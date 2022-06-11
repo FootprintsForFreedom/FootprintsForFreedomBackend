@@ -16,11 +16,6 @@ extension Environment {
 open class AppTestCase: XCTestCase {
     var app: Application!
     
-    struct UserLogin: Content {
-        let email: String
-        let password: String
-    }
-    
     func createTestApp() async throws -> Application {
         let app = Application(.testing)
         
@@ -49,23 +44,6 @@ open class AppTestCase: XCTestCase {
             try await app.autoRevert()
         }
         app.shutdown()
-    }
-    
-    func getApiToken(_ user: UserLogin) throws -> User.Token.Detail {
-        var token: User.Token.Detail?
-        
-        try app.test(.POST, "/api/sign-in/", beforeRequest: { req in
-            try req.content.encode(user)
-        }, afterResponse: { res in
-            XCTAssertContent(User.Token.Detail.self, res) { content in
-                token = content
-            }
-        })
-        guard let result = token else {
-            XCTFail("Login failed")
-            throw Abort(.unauthorized)
-        }
-        return result
     }
     
     func getUser(role: User.Role, verified: Bool = false) async throws -> UserAccountModel {
