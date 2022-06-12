@@ -106,8 +106,7 @@ struct UserApiController: ApiController {
             model.verified = false
             try await createVerification(req, model)
             try await model.$verificationToken.load(on: req.db)
-            let userUpdateAccountMail = try UserUpdateEmailAccountTemplate(user: model, oldEmail: previousEmail)
-            try await userUpdateAccountMail.send(on: req)
+            try await UserUpdateEmailAccountTemplate.send(for: model, on: req)
         }
     }
     
@@ -126,8 +125,7 @@ struct UserApiController: ApiController {
             model.verified = false
             try await createVerification(req, model)
             try await model.$verificationToken.load(on: req.db)
-            let userUpdateAccountMail = try UserUpdateEmailAccountTemplate(user: model, oldEmail: previousEmail)
-            try await userUpdateAccountMail.send(on: req)
+            try await UserUpdateEmailAccountTemplate.send(for: model, on: req)
         }
     }
     

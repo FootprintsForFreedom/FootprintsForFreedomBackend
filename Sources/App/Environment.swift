@@ -15,10 +15,7 @@ extension Environment {
     static let pgDbName = Self.get("POSTGRES_DB")!
     
     static let appUrl = Self.get("APP_URL")!
+    static let appName = Self.get("APP_NAME")!
     
-    static let emailHost = Self.get("EMAIL_HOST")!
-    static let emailAdress = Self.get("EMAIL_ADRESS")!
-    static let emailPassword = Self.get("EMAIL_PASSWORD")!
-    static let emailPort = Self.get("EMAIL_PORT")
-    static let emailSenderName = Self.get("EMAIL_SENDER_NAME")!
+    static let emailAddress = Self.get("SMTP_USERNAME")!
 }

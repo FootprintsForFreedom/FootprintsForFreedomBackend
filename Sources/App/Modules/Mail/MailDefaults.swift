@@ -6,12 +6,12 @@
 //
 
 import Vapor
-import SMTPKitten
+import SwiftSMTP
 
 struct MailDefaults {
-    static var sender: MailUser {
-        let email = Environment.emailAdress
-        let name = Environment.emailSenderName
-        return MailUser(name: name, email: email)
+    static var sender: Email.Contact {
+        let email = Environment.emailAddress
+        let name = Environment.appName
+        return Email.Contact(name: name, emailAddress: email)
     }
 }

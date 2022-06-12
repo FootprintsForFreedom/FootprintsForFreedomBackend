@@ -29,8 +29,8 @@ extension UserApiController: ApiResetPasswordController {
     
     func requestResetPasswordResponse(_ req: Request, _ model: UserAccountModel) async throws -> HTTPStatus {
         try await model.$verificationToken.load(on: req.db)
-        let userRequestPasswordResetMail = try UserRequestPasswordResetMail(user: model)
-        try await userRequestPasswordResetMail.send(on: req)
+//        let userRequestPasswordResetMail = try UserRequestPasswordResetMail(user: model)
+//        try await userRequestPasswordResetMail.send(on: req)
         return .ok
     }
     

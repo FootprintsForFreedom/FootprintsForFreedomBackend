@@ -2,6 +2,7 @@ import Fluent
 import FluentPostgresDriver
 import Vapor
 import Liquid
+import SwiftSMTPVapor
 @_exported import AppApi
 @_exported import CollectionConcurrencyKit
 
@@ -31,7 +32,9 @@ public func configure(_ app: Application) throws {
 //    app.sessions.use(.fluent)
 //    app.migrations.add(SessionRecord.migration)
 //    app.middleware.use(app.sessions.middleware)
-
+    
+    /// Initialize SwiftSMTP
+    app.swiftSMTP.initialize(with: .fromEnvironment())
     
     /// setup modules
     let modules: [ModuleInterface] = [

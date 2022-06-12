@@ -61,7 +61,7 @@ enum UserMigrations {
         func prepare(on db: Database) async throws {
             let email = "root@localhost.com"
             let password = "ChangeMe1"
-            let user = UserAccountModel(name: "Test", email: email, school: "schule", password: try Bcrypt.hash(password), verified: true, role: .superAdmin)
+            let user = UserAccountModel(name: "MyAdmin", email: email, school: "schule", password: try Bcrypt.hash(password), verified: true, role: .superAdmin)
             user.role = .superAdmin
             try await user.create(on: db)
         }

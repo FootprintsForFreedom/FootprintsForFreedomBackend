@@ -36,8 +36,7 @@ extension UserApiController: ApiEmailVerificationController {
     
     func requestVerificationResponse(_ req: Request, _ model: UserAccountModel) async throws -> HTTPStatus {
         try await model.$verificationToken.load(on: req.db)
-        let userVerifyAccountMail = try UserVerifyAccountTemplate(user: model)
-        try await userVerifyAccountMail.send(on: req)
+        try await UserVerifyAccountTemplate.send(for: model, on: req)
         return .ok
     }
         
@@ -67,8 +66,7 @@ extension UserApiController: ApiEmailVerificationController {
     func afterCreate(_ req: Request, _ model: UserAccountModel) async throws {
         try await createVerification(req, model)
         try await model.$verificationToken.load(on: req.db)
-        let userCreateAccountMail = try UserCreateAccountTemplate(user: model)
-        try await userCreateAccountMail.send(on: req)
+        return try await UserCreateAccountTemplate.send(for: model, on: req)
     }
     
     func verificationResponse(_ req: Request, _ model: UserAccountModel) async throws -> Response {
