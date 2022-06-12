@@ -17,6 +17,7 @@ extension StaticContentTest {
     func createNewStaticContent(
         repositoryTitle: String = "New title \(UUID())",
         requiredSnippets: [StaticContent.Snippet] = [],
+        moderationTitle: String = "Moderation title \(UUID())",
         title: String = "New StaticContent title \(UUID())",
         text: String = "This is a text",
         languageId: UUID? = nil,
@@ -39,6 +40,7 @@ extension StaticContentTest {
         try await repository.create(on: app.db)
         
         let detail = try await StaticContentDetailModel.createWith(
+            moderationTitle: moderationTitle,
             title: title,
             text: text,
             languageId: languageId,
@@ -53,18 +55,20 @@ extension StaticContentTest {
 
 extension StaticContentDetailModel {
     static func createWith(
-        title: String,
+        moderationTitle: String,
         slug: String? = nil,
+        title: String,
         text: String,
         languageId: UUID,
         repositoryId: UUID,
         userId: UUID,
         on db: Database
     ) async throws -> Self {
-        let slug = slug ?? title.appending(" ").appending(Date().toString(with: .day)).slugify()
+        let slug = slug ?? moderationTitle.appending(" ").appending(Date().toString(with: .day)).slugify()
         let detail = self.init(
-            title: title,
+            moderationTitle: moderationTitle,
             slug: slug,
+            title: title,
             text: text,
             languageId: languageId,
             repositoryId: repositoryId,

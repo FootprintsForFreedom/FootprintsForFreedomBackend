@@ -14,7 +14,7 @@ final class StaticContentApiGetTests: AppTestCase, StaticContentTest {
     
     // MARK: - List
     
-    func testSuccessfulListStaticConten() async throws {
+    func testSuccessfulListStaticContent() async throws {
         let adminToken = try await getToken(for: .admin, verified: true)
         let language = try await createLanguage()
         let language2 = try await createLanguage()
@@ -27,6 +27,7 @@ final class StaticContentApiGetTests: AppTestCase, StaticContentTest {
         try await staticContentWithLanguage1and2.detail.$language.load(on: app.db)
         // add a detail in a different language
         let _ = try await StaticContentDetailModel.createWith(
+            moderationTitle: "Some moderation title \(UUID())",
             title: "Different language \(UUID())",
             text: "Some text",
             languageId: language2.requireID(),

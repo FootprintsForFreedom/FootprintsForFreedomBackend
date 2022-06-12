@@ -20,6 +20,7 @@ struct StaticContentApiController: ApiRepositoryController {
     @AsyncValidatorBuilder
     func createValidators() -> [AsyncValidator] {
         KeyedContentValidator<String>.required("repositoryTitle")
+        KeyedContentValidator<String>.required("moderationTitle")
         KeyedContentValidator<[StaticContent.Snippet]>.required("requiredSnippets", optional: true)
         KeyedContentValidator<String>.required("title")
         KeyedContentValidator<String>.required("text")
@@ -28,6 +29,7 @@ struct StaticContentApiController: ApiRepositoryController {
     
     @AsyncValidatorBuilder
     func updateValidators() -> [AsyncValidator] {
+        KeyedContentValidator<String>.required("moderationTitle")
         KeyedContentValidator<String>.required("title")
         KeyedContentValidator<String>.required("text")
         KeyedContentValidator<String>.required("languageCode")
@@ -35,6 +37,7 @@ struct StaticContentApiController: ApiRepositoryController {
     
     @AsyncValidatorBuilder
     func patchValidators() -> [AsyncValidator] {
+        KeyedContentValidator<String>.required("moderationTitle", optional: true)
         KeyedContentValidator<String>.required("title", optional: true)
         KeyedContentValidator<String>.required("text", optional: true)
         KeyedContentValidator<UUID>.required("idForStaticContentDetailToPatch")
@@ -125,6 +128,7 @@ struct StaticContentApiController: ApiRepositoryController {
                 text: detail.text,
                 languageCode: detail.language.languageCode,
                 availableLanguageCodes: repository.availableLanguageCodes(req.db),
+                moderationTitle: detail.moderationTitle,
                 requiredSnippets: repository.requiredSnippets,
                 detailId: detail.requireID()
             )
@@ -188,6 +192,7 @@ struct StaticContentApiController: ApiRepositoryController {
             }
         }
         
+        detail.moderationTitle = input.moderationTitle
         detail.title = input.title
         detail.text = input.text
         detail.$language.id = languageId
@@ -219,6 +224,7 @@ struct StaticContentApiController: ApiRepositoryController {
             }
         }
         
+        detail.moderationTitle = input.moderationTitle
         detail.title = input.title
         detail.text = input.text
         detail.$language.id = languageId
@@ -239,7 +245,7 @@ struct StaticContentApiController: ApiRepositoryController {
             throw Abort(.badRequest, reason: "No static content with the given id could be found")
         }
         
-        guard input.title != nil || input.text != nil else {
+        guard input.title != nil || input.text != nil || input.moderationTitle != nil else {
             throw Abort(.badRequest)
         }
         
@@ -251,6 +257,7 @@ struct StaticContentApiController: ApiRepositoryController {
             }
         }
         
+        detail.moderationTitle = input.moderationTitle ?? staticContentToPatch.moderationTitle
         detail.title = input.title ?? staticContentToPatch.title
         detail.text = input.text ?? staticContentToPatch.text
         detail.$language.id = staticContentToPatch.$language.id

@@ -14,6 +14,7 @@ final class StaticContentDetailModel: DetailModel {
     struct FieldKeys {
         struct v1 {
             static var status: FieldKey { "status" }
+            static var moderationTitle: FieldKey { "moderation_title" }
             static var title: FieldKey { "title" }
             static var slug: FieldKey { "slug" }
             static var text: FieldKey { "text" }
@@ -29,6 +30,7 @@ final class StaticContentDetailModel: DetailModel {
     @ID() var id: UUID?
     @Enum(key: FieldKeys.v1.status) var status: Status
     
+    @Field(key: FieldKeys.v1.moderationTitle) var moderationTitle: String
     @Field(key: FieldKeys.v1.title) var title: String
     @Field(key: FieldKeys.v1.slug) var slug: String
     @Field(key: FieldKeys.v1.text) var text: String
@@ -50,8 +52,9 @@ final class StaticContentDetailModel: DetailModel {
     
     init(
         id: UUID? = nil,
+        moderationTitle: String,
+        slug: String? = nil,
         title: String,
-        slug: String,
         text: String,
         languageId: UUID,
         repositoryId: UUID,
@@ -59,8 +62,9 @@ final class StaticContentDetailModel: DetailModel {
     ) {
         self.status = .verified
         self.id = id
+        self.moderationTitle = moderationTitle
+        self.slug = slug ?? moderationTitle.slugify()
         self.title = title
-        self.slug = slug
         self.text = text
         self.$language.id = languageId
         self.$repository.id = repositoryId
@@ -75,4 +79,10 @@ extension StaticContentDetailModel {
     var _$repository: FluentKit.ParentProperty<StaticContentDetailModel, StaticContentRepositoryModel> { $repository }
     var _$user: FluentKit.OptionalParentProperty<StaticContentDetailModel, UserAccountModel> { $user }
     var _$updatedAt: FluentKit.TimestampProperty<StaticContentDetailModel, FluentKit.DefaultTimestampFormat> { $updatedAt }
+}
+
+extension StaticContentDetailModel {
+    func generateSlug(with accuracy: Date.Accuracy = .none, on db: Database) async throws -> String {
+        try await generateSlug(for: self.moderationTitle, self.createdAt, with: accuracy, on: db)
+    }
 }

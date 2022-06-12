@@ -37,9 +37,10 @@ enum StaticContentMigrations {
                 .id()
             
                 .field(StaticContentDetailModel.FieldKeys.v1.status, statusType, .required)
-                .field(StaticContentDetailModel.FieldKeys.v1.title, .string , .required)
+                .field(StaticContentDetailModel.FieldKeys.v1.moderationTitle, .string , .required)
                 .field(StaticContentDetailModel.FieldKeys.v1.slug, .string, .required)
                 .unique(on: StaticContentDetailModel.FieldKeys.v1.slug)
+                .field(StaticContentDetailModel.FieldKeys.v1.title, .string , .required)
                 .field(StaticContentDetailModel.FieldKeys.v1.text, .string, .required)
             
                 .field(StaticContentDetailModel.FieldKeys.v1.languageId, .uuid, .required)

@@ -16,6 +16,8 @@ final class StaticContentApiUpdateTests: AppTestCase, StaticContentTest {
     private func getStaticContentUpdateContent(
         repositoryTitle: String = "New title \(UUID())",
         requiredSnippets: [StaticContent.Snippet] = [],
+        moderationTitle: String = "Moderation title \(UUID())",
+        updatedModerationTitle: String = "New Moderation title \(UUID())",
         title: String = "New StaticContent title \(UUID())",
         updatedTitle: String = "Updated Title",
         text: String = "This is a text",
@@ -26,6 +28,7 @@ final class StaticContentApiUpdateTests: AppTestCase, StaticContentTest {
         let (repository, detail) = try await createNewStaticContent(
             repositoryTitle: repositoryTitle,
             requiredSnippets: requiredSnippets,
+            moderationTitle: moderationTitle,
             title: title,
             text: text,
             languageId: languageId
@@ -35,6 +38,7 @@ final class StaticContentApiUpdateTests: AppTestCase, StaticContentTest {
             try await detail.$language.load(on: app.db)
         }
         let updateContent = StaticContent.Detail.Update(
+            moderationTitle: updatedModerationTitle,
             title: updatedTitle,
             text: updatedText,
             languageCode: updateLanguageCode ?? detail.language.languageCode
@@ -194,6 +198,19 @@ final class StaticContentApiUpdateTests: AppTestCase, StaticContentTest {
             .put(staticContentPath.appending(repository.requireID().uuidString))
             .body(updateContent)
             .expect(.unauthorized)
+            .test()
+    }
+    
+    func testUpdateStaticContentNeedsValidModerationTitle() async throws {
+        let token = try await getToken(for: .admin, verified: true)
+        let (repository, _, updateContent) = try await getStaticContentUpdateContent(updatedModerationTitle: "")
+        
+        try app
+            .describe("Update staticContent should require valid title")
+            .put(staticContentPath.appending(repository.requireID().uuidString))
+            .body(updateContent)
+            .bearerToken(token)
+            .expect(.badRequest)
             .test()
     }
     

@@ -15,6 +15,7 @@ extension StaticContent.Detail.Create: Content { }
 final class StaticContentApiCreateTests: AppTestCase, StaticContentTest {
     private func getStaticContentCreateContent(
         repositoryTitle: String = "New text \(UUID())",
+        moderationTitle: String = "Moderation title \(UUID())",
         requiredSnippets: [StaticContent.Snippet] = [],
         title: String = "New StaticContent title \(UUID())",
         text: String = "This is a text",
@@ -24,7 +25,7 @@ final class StaticContentApiCreateTests: AppTestCase, StaticContentTest {
         if languageCode == nil {
             languageCode = try await createLanguage().languageCode
         }
-        return .init(repositoryTitle: repositoryTitle, title: title, text: text, requiredSnippets: requiredSnippets, languageCode: languageCode)
+        return .init(repositoryTitle: repositoryTitle, moderationTitle: moderationTitle, title: title, text: text, requiredSnippets: requiredSnippets, languageCode: languageCode)
     }
     
     func testSuccessfulCretateStaticContentAsAdmin() async throws {
@@ -70,12 +71,13 @@ final class StaticContentApiCreateTests: AppTestCase, StaticContentTest {
         
         struct Create: Content {
             let repositoryTitle: String
+            let moderationTitle: String
             let title: String
             let text: String
             let languageCode: String
         }
         let languageCode = try await createLanguage().languageCode
-        let newStaticContent = Create(repositoryTitle: "My title \(UUID())", title: "The localized title \(UUID())", text: "Hello hello", languageCode: languageCode)
+        let newStaticContent = Create(repositoryTitle: "My title \(UUID())", moderationTitle: "Some moderation title \(UUID())", title: "The localized title \(UUID())", text: "Hello hello", languageCode: languageCode)
         
         try app
             .describe("Create staticContent as admin with required snippets should return ok")
@@ -189,6 +191,19 @@ final class StaticContentApiCreateTests: AppTestCase, StaticContentTest {
     func testCreateStaticContentNeedsValidRepositoryTitle() async throws {
         let token = try await getToken(for: .admin, verified: true)
         let newStaticContent = try await getStaticContentCreateContent(repositoryTitle: "")
+        
+        try app
+            .describe("Create staticContent with empty repository title should fail")
+            .post(staticContentPath)
+            .body(newStaticContent)
+            .bearerToken(token)
+            .expect(.badRequest)
+            .test()
+    }
+    
+    func testCreateStaticContentNeedsValidModerationTitle() async throws {
+        let token = try await getToken(for: .admin, verified: true)
+        let newStaticContent = try await getStaticContentCreateContent(moderationTitle: "")
         
         try app
             .describe("Create staticContent with empty repository title should fail")
