@@ -17,7 +17,7 @@ final class StaticContentApiPatchTests: AppTestCase, StaticContentTest {
         repositoryTitle: String = "New title \(UUID())",
         requiredSnippets: [StaticContent.Snippet] = [],
         moderationTitle: String = "Moderation title \(UUID())",
-        patchedModerationTitle: String = "New Moderation title \(UUID())",
+        patchedModerationTitle: String? = nil,
         title: String = "New StaticContent title \(UUID())",
         patchedTitle: String? = nil,
         text: String = "This is a text",
