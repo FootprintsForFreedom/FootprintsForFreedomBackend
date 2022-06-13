@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import DiffMatchPatch
+import SwiftDiff
 
 public extension Media {
     enum Repository: ApiModelInterface {

@@ -7,7 +7,7 @@
 
 import Vapor
 import Fluent
-import DiffMatchPatch
+import SwiftDiff
 
 extension Media.Repository.Changes: Content { }
 
@@ -26,15 +26,9 @@ extension MediaApiController: ApiRepositoryVerificationController {
     // GET: api/media/:mediaId/changes/?from=modelId1&to=modelId2
     func detailChangesOutput(_ req: Request, _ model1: Detail, _ model2: Detail) async throws -> Media.Repository.Changes {
         /// compute the diffs
-        let titleDiff = computeDiff(model1.title, model2.title)
-            .cleaningUpSemantics()
-            .converted()
-        let detailTextDiff = computeDiff(model1.detailText, model2.detailText)
-            .cleaningUpSemantics()
-            .converted()
-        let sourceDiff = computeDiff(model1.source, model2.source)
-            .cleaningUpSemantics()
-            .converted()
+        let titleDiff = diff(text1: model1.title, text2: model2.title).cleaningUpSemantics()
+        let detailTextDiff = diff(text1: model1.detailText, text2: model2.detailText).cleaningUpSemantics()
+        let sourceDiff = diff(text1: model1.source, text2: model2.source).cleaningUpSemantics()
         
         return try .init(
             titleDiff: titleDiff,

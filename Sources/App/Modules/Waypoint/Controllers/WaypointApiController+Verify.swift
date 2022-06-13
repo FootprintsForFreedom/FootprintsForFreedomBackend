@@ -7,7 +7,7 @@
 
 import Vapor
 import Fluent
-import DiffMatchPatch
+import SwiftDiff
 
 extension Waypoint.Repository.Changes: Content { }
 
@@ -26,12 +26,8 @@ extension WaypointApiController: ApiRepositoryVerificationController {
     // GET: api/wayponts/:repositoryID/waypoints/changes/?from=model1ID&to=model2ID
     func detailChangesOutput(_ req: Request, _ model1: Detail, _ model2: Detail) async throws -> Waypoint.Repository.Changes {
         /// compute the diffs
-        let titleDiff = computeDiff(model1.title, model2.title)
-            .cleaningUpSemantics()
-            .converted()
-        let detailTextDiff = computeDiff(model1.detailText, model2.detailText)
-            .cleaningUpSemantics()
-            .converted()
+        let titleDiff = diff(text1: model1.title, text2: model2.title).cleaningUpSemantics()
+        let detailTextDiff = diff(text1: model1.detailText, text2: model2.detailText).cleaningUpSemantics()
         
         return try .init(
             titleDiff: titleDiff,

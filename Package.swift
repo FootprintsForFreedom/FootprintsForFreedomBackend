@@ -21,14 +21,11 @@ let package = Package(
         .package(url: "https://github.com/binarybirds/spec", from: "1.2.0"),
         .package(url: "https://github.com/JohnSundell/CollectionConcurrencyKit.git", from: "0.1.0"),
         .package(url: "https://github.com/vapor/queues-redis-driver.git", from: "1.0.0"),
+        .package(url: "https://github.com/niklhut/SwiftDiff.git", branch: "master")
     ],
     targets: [
-        .target(name: "diff_match_patch"),
-        .target(name: "DiffMatchPatch", dependencies: [
-            .target(name: "diff_match_patch"),
-        ]),
         .target(name: "AppApi", dependencies: [
-            .target(name: "DiffMatchPatch")
+            .product(name: "SwiftDiff", package: "SwiftDiff"),
         ]),
         .target(
             name: "App",
@@ -41,8 +38,8 @@ let package = Package(
                 .product(name: "LiquidLocalDriver", package: "liquid-local-driver"),
                 .product(name: "CollectionConcurrencyKit", package: "CollectionConcurrencyKit"),
                 .product(name: "QueuesRedisDriver", package: "queues-redis-driver"),
-                
-                .target(name: "DiffMatchPatch"),
+                .product(name: "SwiftDiff", package: "SwiftDiff"),
+//                .target(name: "DiffMatchPatch"),
                 .target(name: "AppApi")
             ],
             swiftSettings: [

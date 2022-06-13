@@ -7,7 +7,7 @@
 
 import Vapor
 import Fluent
-import DiffMatchPatch
+import SwiftDiff
 
 extension Tag.Repository.Changes: Content { }
 
@@ -24,9 +24,7 @@ extension TagApiController: ApiRepositoryVerificationController {
     }
     
     func detailChangesOutput(_ req: Request, _ model1: Detail, _ model2: Detail) async throws -> Tag.Repository.Changes {
-        let titleDiff = computeDiff(model1.title, model2.title)
-            .cleaningUpSemantics()
-            .converted()
+        let titleDiff = diff(text1: model1.title, text2: model2.title).cleaningUpSemantics()
         
         let keywordDiff = model1.keywords.difference(from: model2.keywords)
         
