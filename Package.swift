@@ -21,7 +21,7 @@ let package = Package(
         .package(url: "https://github.com/binarybirds/spec", from: "1.2.0"),
         .package(url: "https://github.com/JohnSundell/CollectionConcurrencyKit.git", from: "0.1.0"),
         .package(url: "https://github.com/vapor/queues-redis-driver.git", from: "1.0.0"),
-        .package(url: "https://github.com/niklhut/SwiftDiff.git", branch: "master")
+        .package(url: "https://github.com/niklhut/SwiftDiff.git", from: "1.0.0")
     ],
     targets: [
         .target(name: "AppApi", dependencies: [
