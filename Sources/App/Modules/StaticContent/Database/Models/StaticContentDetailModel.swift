@@ -79,6 +79,7 @@ extension StaticContentDetailModel {
     var _$repository: FluentKit.ParentProperty<StaticContentDetailModel, StaticContentRepositoryModel> { $repository }
     var _$user: FluentKit.OptionalParentProperty<StaticContentDetailModel, UserAccountModel> { $user }
     var _$updatedAt: FluentKit.TimestampProperty<StaticContentDetailModel, FluentKit.DefaultTimestampFormat> { $updatedAt }
+    var _$deletedAt: TimestampProperty<StaticContentDetailModel, DefaultTimestampFormat> { $deletedAt }
 }
 
 extension StaticContentDetailModel {

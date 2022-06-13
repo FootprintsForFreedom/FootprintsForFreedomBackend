@@ -40,6 +40,8 @@ final class TagRepositoryModel: RepositoryModel, Reportable {
 extension TagRepositoryModel {
     var _$details: ChildrenProperty<TagRepositoryModel, TagDetailModel> { $details }
     var _$reports: ChildrenProperty<TagRepositoryModel, TagReportModel> { $reports }
+    var _$updatedAt: TimestampProperty<TagRepositoryModel, DefaultTimestampFormat> { $updatedAt }
+    var _$deletedAt: TimestampProperty<TagRepositoryModel, DefaultTimestampFormat> { $deletedAt }
 }
 
 extension TagRepositoryModel: Hashable {

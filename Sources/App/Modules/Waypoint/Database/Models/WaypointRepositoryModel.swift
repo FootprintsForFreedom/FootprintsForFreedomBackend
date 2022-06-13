@@ -42,6 +42,8 @@ extension WaypointRepositoryModel {
     var _$details: ChildrenProperty<WaypointRepositoryModel, WaypointDetailModel> { $details }
     var _$reports: ChildrenProperty<WaypointRepositoryModel, WaypointReportModel> { $reports }
     var _$tags: SiblingsProperty<WaypointRepositoryModel, TagRepositoryModel, WaypointTagModel> { $tags }
+    var _$updatedAt: TimestampProperty<WaypointRepositoryModel, DefaultTimestampFormat> { $updatedAt }
+    var _$deletedAt: TimestampProperty<WaypointRepositoryModel, DefaultTimestampFormat> { $deletedAt }
 }
 
 extension WaypointRepositoryModel {

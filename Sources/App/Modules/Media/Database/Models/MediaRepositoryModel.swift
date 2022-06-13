@@ -44,6 +44,8 @@ extension MediaRepositoryModel {
     var _$details: ChildrenProperty<MediaRepositoryModel, MediaDetailModel> { $details }
     var _$reports: ChildrenProperty<MediaRepositoryModel, MediaReportModel> { $reports }
     var _$tags: SiblingsProperty<MediaRepositoryModel, TagRepositoryModel, MediaTagModel> { $tags }
+    var _$updatedAt: TimestampProperty<MediaRepositoryModel, DefaultTimestampFormat> { $updatedAt }
+    var _$deletedAt: TimestampProperty<MediaRepositoryModel, DefaultTimestampFormat> { $deletedAt}
 }
 
 extension MediaRepositoryModel {

@@ -74,4 +74,5 @@ extension WaypointReportModel {
     var _$repository: ParentProperty<WaypointReportModel, WaypointRepositoryModel> { $repository }
     var _$user: OptionalParentProperty<WaypointReportModel, UserAccountModel> { $user }
     var _$updatedAt: TimestampProperty<WaypointReportModel, DefaultTimestampFormat> { $updatedAt }
+    var _$deletedAt: TimestampProperty<WaypointReportModel, DefaultTimestampFormat> { $deletedAt }
 }

@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class MediaFileModel: DatabaseModelInterface {
+final class MediaFileModel: DatabaseModelInterface, Timestamped {
     typealias Module = MediaModule
     
     struct FieldKeys {
@@ -48,4 +48,9 @@ final class MediaFileModel: DatabaseModelInterface {
         self.group = group
         self.$user.id = userId
     }
+}
+
+extension MediaFileModel {
+    var _$updatedAt: TimestampProperty<MediaFileModel, DefaultTimestampFormat> { $updatedAt }
+    var _$deletedAt: TimestampProperty<MediaFileModel, DefaultTimestampFormat> { $deletedAt }
 }

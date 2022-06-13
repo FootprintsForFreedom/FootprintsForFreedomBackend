@@ -75,6 +75,7 @@ extension WaypointDetailModel {
     var _$status: EnumProperty<WaypointDetailModel, Status> { $status }
     var _$language: ParentProperty<WaypointDetailModel, LanguageModel> { $language }
     var _$updatedAt: TimestampProperty<WaypointDetailModel, DefaultTimestampFormat> { $updatedAt }
+    var _$deletedAt: TimestampProperty<WaypointDetailModel, DefaultTimestampFormat> { $deletedAt }
     var _$repository: ParentProperty<WaypointDetailModel, WaypointRepositoryModel> { $repository }
     var _$user: OptionalParentProperty<WaypointDetailModel, UserAccountModel> { $user }
     var _$slug: FieldProperty<WaypointDetailModel, String> { $slug }

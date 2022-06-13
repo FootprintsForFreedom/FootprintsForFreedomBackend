@@ -74,4 +74,5 @@ extension TagReportModel {
     var _$repository: ParentProperty<TagReportModel, TagRepositoryModel> { $repository }
     var _$user: OptionalParentProperty<TagReportModel, UserAccountModel> { $user }
     var _$updatedAt: TimestampProperty<TagReportModel, DefaultTimestampFormat> { $updatedAt }
+    var _$deletedAt: TimestampProperty<TagReportModel, DefaultTimestampFormat> { $deletedAt }
 }

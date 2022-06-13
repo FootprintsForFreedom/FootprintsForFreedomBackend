@@ -79,6 +79,7 @@ extension MediaDetailModel {
     var _$status: EnumProperty<MediaDetailModel, Status> { $status }
     var _$language: ParentProperty<MediaDetailModel, LanguageModel> { $language }
     var _$updatedAt: TimestampProperty<MediaDetailModel, DefaultTimestampFormat> { $updatedAt }
+    var _$deletedAt: TimestampProperty<MediaDetailModel, DefaultTimestampFormat> { $deletedAt }
     var _$repository: ParentProperty<MediaDetailModel, MediaRepositoryModel> { $repository }
     var _$user: OptionalParentProperty<MediaDetailModel, UserAccountModel> { $user }
     var _$slug: FieldProperty<MediaDetailModel, String> { $slug }

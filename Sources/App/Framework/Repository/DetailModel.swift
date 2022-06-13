@@ -24,8 +24,6 @@ protocol DetailModel: DatabaseModelInterface, Timestamped, Titled, Slugable {
     
     var user: UserAccountModel? { get }
     var _$user: OptionalParentProperty<Self, UserAccountModel> { get }
-    
-    var _$updatedAt: TimestampProperty<Self, DefaultTimestampFormat> { get }
 }
 
 extension DetailModel {

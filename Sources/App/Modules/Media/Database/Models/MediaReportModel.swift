@@ -74,4 +74,5 @@ extension MediaReportModel {
     var _$repository: ParentProperty<MediaReportModel, MediaRepositoryModel> { $repository }
     var _$user: OptionalParentProperty<MediaReportModel, UserAccountModel> { $user }
     var _$updatedAt: TimestampProperty<MediaReportModel, DefaultTimestampFormat> { $updatedAt }
+    var _$deletedAt: TimestampProperty<MediaReportModel, DefaultTimestampFormat> { $deletedAt }
 }

@@ -20,6 +20,7 @@ let package = Package(
         .package(url: "https://github.com/binarybirds/liquid-local-driver", from: "1.3.0"),
         .package(url: "https://github.com/binarybirds/spec", from: "1.2.0"),
         .package(url: "https://github.com/JohnSundell/CollectionConcurrencyKit.git", from: "0.1.0"),
+        .package(url: "https://github.com/vapor/queues-redis-driver.git", from: "1.0.0"),
     ],
     targets: [
         .target(name: "diff_match_patch"),
@@ -39,6 +40,7 @@ let package = Package(
                 .product(name: "Liquid", package: "liquid"),
                 .product(name: "LiquidLocalDriver", package: "liquid-local-driver"),
                 .product(name: "CollectionConcurrencyKit", package: "CollectionConcurrencyKit"),
+                .product(name: "QueuesRedisDriver", package: "queues-redis-driver"),
                 
                 .target(name: "DiffMatchPatch"),
                 .target(name: "AppApi")

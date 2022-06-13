@@ -45,4 +45,6 @@ final class StaticContentRepositoryModel: RepositoryModel {
 
 extension StaticContentRepositoryModel {
     var _$details: ChildrenProperty<StaticContentRepositoryModel, StaticContentDetailModel> { $details }
+    var _$updatedAt: TimestampProperty<StaticContentRepositoryModel, DefaultTimestampFormat> { $updatedAt }
+    var _$deletedAt: TimestampProperty<StaticContentRepositoryModel, DefaultTimestampFormat> { $deletedAt }
 }

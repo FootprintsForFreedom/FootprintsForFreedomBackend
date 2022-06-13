@@ -72,6 +72,7 @@ extension TagDetailModel {
     var _$language: ParentProperty<TagDetailModel, LanguageModel> { $language }
     var _$repository: ParentProperty<TagDetailModel, TagRepositoryModel> { $repository }
     var _$updatedAt: TimestampProperty<TagDetailModel, DefaultTimestampFormat> { $updatedAt }
+    var _$deletedAt: TimestampProperty<TagDetailModel, DefaultTimestampFormat> { $deletedAt }
     var _$user: OptionalParentProperty<TagDetailModel, UserAccountModel> { $user }
     var _$slug: FieldProperty<TagDetailModel, String> { $slug }
 }

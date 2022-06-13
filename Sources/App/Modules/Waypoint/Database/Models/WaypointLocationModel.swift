@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class WaypointLocationModel: DatabaseModelInterface {
+final class WaypointLocationModel: DatabaseModelInterface, Timestamped {
     typealias Module = WaypointModule
     
     struct FieldKeys {
@@ -59,6 +59,11 @@ final class WaypointLocationModel: DatabaseModelInterface {
         self.$repository.id = repositoryId
         self.$user.id = userId
     }
+}
+
+extension WaypointLocationModel {
+    var _$updatedAt: TimestampProperty<WaypointLocationModel, DefaultTimestampFormat> { $updatedAt }
+    var _$deletedAt: TimestampProperty<WaypointLocationModel, DefaultTimestampFormat> { $deletedAt }
 }
 
 extension WaypointLocationModel {

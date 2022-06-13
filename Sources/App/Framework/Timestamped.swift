@@ -10,6 +10,10 @@ import Fluent
 
 protocol Timestamped: Fluent.Model {
     var createdAt: Date? { get }
+    
     var updatedAt: Date? { get }
+    var _$updatedAt: TimestampProperty<Self, DefaultTimestampFormat> { get }
+    
     var deletedAt: Date? { get }
+    var _$deletedAt: TimestampProperty<Self, DefaultTimestampFormat> { get }
 }
