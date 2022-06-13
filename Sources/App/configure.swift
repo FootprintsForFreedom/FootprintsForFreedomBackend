@@ -3,6 +3,7 @@ import FluentPostgresDriver
 import Vapor
 import Liquid
 import SwiftSMTPVapor
+import QueuesRedisDriver
 @_exported import AppApi
 @_exported import CollectionConcurrencyKit
 
@@ -18,7 +19,20 @@ public func configure(_ app: Application) throws {
         password: Environment.pgPassword,
         database: Environment.pgDbName
     ), as: .psql)
-
+    
+    // setup queues
+    try app.queues.use(.redis(url: "redis://127.0.0.1:6379"))
+    
+    app.queues.schedule(CleanupEmptyRepositoriesJob())
+        .weekly()
+        .on(.tuesday)
+        .at(2, 0)
+    
+    app.queues.schedule(CleanupSoftDeletedModelsJob())
+        .weekly()
+        .on(.wednesday)
+        .at(2, 0)
+    
     /// set the max file upload limit
 //    app.routes.defaultMaxBodySize = "10mb"
     

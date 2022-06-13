@@ -14,6 +14,6 @@ protocol Timestamped: Fluent.Model {
     var updatedAt: Date? { get }
     var _$updatedAt: TimestampProperty<Self, DefaultTimestampFormat> { get }
     
-    var deletedAt: Date? { get }
+    var deletedAt: Date? { get set }
     var _$deletedAt: TimestampProperty<Self, DefaultTimestampFormat> { get }
 }
