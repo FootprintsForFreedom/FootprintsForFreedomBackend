@@ -11,7 +11,7 @@ import Fluent
 extension WaypointApiController {
     
     @AsyncValidatorBuilder
-    func searchValidatores() -> [AsyncValidator] {
+    func searchValidators() -> [AsyncValidator] {
         KeyedContentValidator<String>.required("text", validateQuery: true)
         KeyedContentValidator<String>.required("languageCode", validateQuery: true)
     }
@@ -22,7 +22,7 @@ extension WaypointApiController {
     }
     
     func searchApi(_ req: Request) async throws -> Page<Waypoint.Detail.List> {
-        try await RequestValidator(searchValidatores()).validate(req)
+        try await RequestValidator(searchValidators()).validate(req)
         let searchQuery = try req.query.decode(SearchQuery.self)
         
         guard searchQuery.text.trimmingCharacters(in: .whitespacesAndNewlines) != "" else {
@@ -108,8 +108,60 @@ extension WaypointApiController {
         )
     }
     
+    @AsyncValidatorBuilder
+    func getInCoordinatesValidators() -> [AsyncValidator] {
+        KeyedContentValidator<Double>.required("tepLeftLatitude", validateQuery: true)
+        KeyedContentValidator<Double>.required("tepLeftLongitude", validateQuery: true)
+        KeyedContentValidator<Double>.required("bottomRightLatitude", validateQuery: true)
+        KeyedContentValidator<Double>.required("bottomRightLongitude", validateQuery: true)
+    }
+    
+    struct GetInRangeQuery: Codable {
+        let tepLeftLatitude: Double
+        let tepLeftLongitude: Double
+        let bottomRightLatitude: Double
+        let bottomRightLongitude: Double
+    }
+    
+    func getInCoordinatesApi(_ req: Request) async throws -> [Waypoint.Detail.List] {
+        try await RequestValidator(getInCoordinatesValidators()).validate(req)
+        let getInRangeQuery = try req.query.decode(GetInRangeQuery.self)
+        
+        // filters all locations - also those that are no longer the newest ones
+        // this might lead to a few more wayponts in the results but should still be more performant than further in memory processing
+        let repositoryIds = try await WaypointLocationModel
+            .query(on: req.db)
+            .filter(\.$status ~~ [.verified, .deleteRequested])
+            .filter(\.$latitude <= getInRangeQuery.tepLeftLatitude)
+            .filter(\.$latitude >= getInRangeQuery.bottomRightLatitude)
+            .filter(\.$longitude <= getInRangeQuery.tepLeftLongitude)
+            .filter(\.$longitude >= getInRangeQuery.bottomRightLongitude)
+            .field(\.$repository.$id)
+            .unique()
+            .all()
+            .map(\.$repository.id)
+        
+        
+        return try await repositoryIds.concurrentCompactMap { repositoryId in
+            guard
+                let repository = try await WaypointRepositoryModel.find(repositoryId, on: req.db),
+                let detail = try await repository.detail(for: req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db),
+                let location = try await repository.location(needsToBeVerified: true, on: req.db)
+            else {
+                return nil
+            }
+            return .init(
+                id: repositoryId,
+                title: detail.title,
+                slug: detail.slug,
+                location: location.location
+            )
+        }
+    }
+    
     func setupSearchRoutes(_ routes: RoutesBuilder) {
         let baseRoutes = getBaseRoutes(routes)
         baseRoutes.get("search", use: searchApi)
+        baseRoutes.get("in", use: getInCoordinatesApi)
     }
 }
