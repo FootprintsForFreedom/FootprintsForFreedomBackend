@@ -14,18 +14,7 @@ final class WaypointApiListUnverifiedReportsTests: AppTestCase, WaypointTest {
     func testSuccessfulListUnverifiedReportsListsUnverifiedReports() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let waypoint = try await createNewWaypoint()
-        let title = "I don't like this \(UUID())"
-        let report = try await WaypointReportModel(
-            status: .pending,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: waypoint.detail.requireID(),
-            repositoryId: waypoint.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
-        
+        let _ = try await createNewWaypointReport(waypoint: waypoint)
         let reportsCount = try await WaypointReportModel.query(on: app.db).count()
         
         try app
@@ -43,18 +32,7 @@ final class WaypointApiListUnverifiedReportsTests: AppTestCase, WaypointTest {
     func testSuccessfulListUnverifiedReportsDoesNotListVerifiedReports() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let waypoint = try await createNewWaypoint()
-        let title = "I don't like this \(UUID())"
-        let report = try await WaypointReportModel(
-            status: .verified,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: waypoint.detail.requireID(),
-            repositoryId: waypoint.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
-        
+        let _ = try await createNewWaypointReport(waypoint: waypoint, status: .verified)
         let reportsCount = try await WaypointReportModel.query(on: app.db).count()
         
         try app
@@ -72,18 +50,7 @@ final class WaypointApiListUnverifiedReportsTests: AppTestCase, WaypointTest {
     func testListUnverifiedReportsAsUserFails() async throws {
         let token = try await getToken(for: .user)
         let waypoint = try await createNewWaypoint()
-        let title = "I don't like this \(UUID())"
-        let report = try await WaypointReportModel(
-            status: .pending,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: waypoint.detail.requireID(),
-            repositoryId: waypoint.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
-        
+        let _ = try await createNewWaypointReport(waypoint: waypoint)
         let reportsCount = try await WaypointReportModel.query(on: app.db).count()
         
         try app
@@ -96,18 +63,7 @@ final class WaypointApiListUnverifiedReportsTests: AppTestCase, WaypointTest {
     
     func testListUnverifiedReportsWithoutTokenFails() async throws {
         let waypoint = try await createNewWaypoint()
-        let title = "I don't like this \(UUID())"
-        let report = try await WaypointReportModel(
-            status: .pending,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: waypoint.detail.requireID(),
-            repositoryId: waypoint.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
-        
+        let _ = try await createNewWaypointReport(waypoint: waypoint)
         let reportsCount = try await WaypointReportModel.query(on: app.db).count()
         
         try app

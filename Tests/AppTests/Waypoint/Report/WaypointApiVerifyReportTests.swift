@@ -14,17 +14,7 @@ final class WaypointApiVerifyReportTests: AppTestCase, WaypointTest {
     func testSuccessfulVerifyReport() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let waypoint = try await createNewWaypoint()
-        let title = "I don't like this \(UUID())"
-        let report = try await WaypointReportModel(
-            status: .pending,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: waypoint.detail.requireID(),
-            repositoryId: waypoint.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
+        let report = try await createNewWaypointReport(waypoint: waypoint)
         try await waypoint.detail.$language.load(on: app.db)
         
         try app
@@ -56,18 +46,7 @@ final class WaypointApiVerifyReportTests: AppTestCase, WaypointTest {
     func testSuccessfulVerifyReportWithDeletedVisbleDetail() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let waypoint = try await createNewWaypoint()
-        let title = "I don't like this \(UUID())"
-        let report = try await WaypointReportModel(
-            status: .pending,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: waypoint.detail.requireID(),
-            repositoryId: waypoint.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
-        
+        let report = try await createNewWaypointReport(waypoint: waypoint)
         try await waypoint.detail.delete(force: true, on: app.db)
         
         try app
@@ -88,17 +67,7 @@ final class WaypointApiVerifyReportTests: AppTestCase, WaypointTest {
     func testVerifyReportAsUserFails() async throws {
         let token = try await getToken(for: .user)
         let waypoint = try await createNewWaypoint()
-        let title = "I don't like this \(UUID())"
-        let report = try await WaypointReportModel(
-            status: .pending,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: waypoint.detail.requireID(),
-            repositoryId: waypoint.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
+        let report = try await createNewWaypointReport(waypoint: waypoint)
         try await waypoint.detail.$language.load(on: app.db)
         
         try app
@@ -111,17 +80,7 @@ final class WaypointApiVerifyReportTests: AppTestCase, WaypointTest {
     
     func testVerifyReportWithoutTokenFails() async throws {
         let waypoint = try await createNewWaypoint()
-        let title = "I don't like this \(UUID())"
-        let report = try await WaypointReportModel(
-            status: .pending,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: waypoint.detail.requireID(),
-            repositoryId: waypoint.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
+        let report = try await createNewWaypointReport(waypoint: waypoint)
         try await waypoint.detail.$language.load(on: app.db)
         
         try app
@@ -134,17 +93,7 @@ final class WaypointApiVerifyReportTests: AppTestCase, WaypointTest {
     func testVerifyReportWithAlreadyVerifiedReportFails() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let waypoint = try await createNewWaypoint()
-        let title = "I don't like this \(UUID())"
-        let report = try await WaypointReportModel(
-            status: .verified,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: waypoint.detail.requireID(),
-            repositoryId: waypoint.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
+        let report = try await createNewWaypointReport(waypoint: waypoint, status: .verified)
         try await waypoint.detail.$language.load(on: app.db)
         
         try app

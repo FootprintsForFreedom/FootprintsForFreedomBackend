@@ -14,17 +14,7 @@ final class MediaApiVerifyReportTests: AppTestCase, MediaTest {
     func testSuccessfulVerifyReport() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let media = try await createNewMedia()
-        let title = "I don't like this \(UUID())"
-        let report = try await MediaReportModel(
-            status: .pending,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: media.detail.requireID(),
-            repositoryId: media.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
+        let report = try await createNewMediaReport(media: media)
         try await media.detail.$language.load(on: app.db)
         
         try app
@@ -56,18 +46,7 @@ final class MediaApiVerifyReportTests: AppTestCase, MediaTest {
     func testSuccessfulVerifyReportWithDeletedVisbleDetail() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let media = try await createNewMedia()
-        let title = "I don't like this \(UUID())"
-        let report = try await MediaReportModel(
-            status: .pending,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: media.detail.requireID(),
-            repositoryId: media.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
-        
+        let report = try await createNewMediaReport(media: media)
         try await media.detail.delete(force: true, on: app.db)
         
         try app
@@ -88,17 +67,7 @@ final class MediaApiVerifyReportTests: AppTestCase, MediaTest {
     func testVerifyReportAsUserFails() async throws {
         let token = try await getToken(for: .user)
         let media = try await createNewMedia()
-        let title = "I don't like this \(UUID())"
-        let report = try await MediaReportModel(
-            status: .pending,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: media.detail.requireID(),
-            repositoryId: media.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
+        let report = try await createNewMediaReport(media: media)
         try await media.detail.$language.load(on: app.db)
         
         try app
@@ -111,17 +80,7 @@ final class MediaApiVerifyReportTests: AppTestCase, MediaTest {
     
     func testVerifyReportWithoutTokenFails() async throws {
         let media = try await createNewMedia()
-        let title = "I don't like this \(UUID())"
-        let report = try await MediaReportModel(
-            status: .pending,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: media.detail.requireID(),
-            repositoryId: media.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
+        let report = try await createNewMediaReport(media: media)
         try await media.detail.$language.load(on: app.db)
         
         try app
@@ -134,17 +93,7 @@ final class MediaApiVerifyReportTests: AppTestCase, MediaTest {
     func testVerifyReportWithAlreadyVerifiedReportFails() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let media = try await createNewMedia()
-        let title = "I don't like this \(UUID())"
-        let report = try await MediaReportModel(
-            status: .verified,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: media.detail.requireID(),
-            repositoryId: media.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
+        let report = try await createNewMediaReport(media: media, status: .verified)
         try await media.detail.$language.load(on: app.db)
         
         try app

@@ -14,18 +14,7 @@ final class MediaApiListUnverifiedReportsTests: AppTestCase, MediaTest {
     func testSuccessfulListUnverifiedReportsListsUnverifiedReports() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let media = try await createNewMedia()
-        let title = "I don't like this \(UUID())"
-        let report = try await MediaReportModel(
-            status: .pending,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: media.detail.requireID(),
-            repositoryId: media.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
-        
+        let _ = try await createNewMediaReport(media: media)
         let reportsCount = try await MediaReportModel.query(on: app.db).count()
         
         try app
@@ -43,18 +32,7 @@ final class MediaApiListUnverifiedReportsTests: AppTestCase, MediaTest {
     func testSuccessfulListUnverifiedReportsDoesNotListVerifiedReports() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let media = try await createNewMedia()
-        let title = "I don't like this \(UUID())"
-        let report = try await MediaReportModel(
-            status: .verified,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: media.detail.requireID(),
-            repositoryId: media.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
-        
+        let _ = try await createNewMediaReport(media: media, status: .verified)
         let reportsCount = try await MediaReportModel.query(on: app.db).count()
         
         try app
@@ -72,18 +50,7 @@ final class MediaApiListUnverifiedReportsTests: AppTestCase, MediaTest {
     func testListUnverifiedReportsAsUserFails() async throws {
         let token = try await getToken(for: .user)
         let media = try await createNewMedia()
-        let title = "I don't like this \(UUID())"
-        let report = try await MediaReportModel(
-            status: .pending,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: media.detail.requireID(),
-            repositoryId: media.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
-        
+        let _ = try await createNewMediaReport(media: media)
         let reportsCount = try await MediaReportModel.query(on: app.db).count()
         
         try app
@@ -96,18 +63,7 @@ final class MediaApiListUnverifiedReportsTests: AppTestCase, MediaTest {
     
     func testListUnverifiedReportsWithoutTokenFails() async throws {
         let media = try await createNewMedia()
-        let title = "I don't like this \(UUID())"
-        let report = try await MediaReportModel(
-            status: .pending,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: media.detail.requireID(),
-            repositoryId: media.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
-        
+        let _ = try await createNewMediaReport(media: media)
         let reportsCount = try await MediaReportModel.query(on: app.db).count()
         
         try app

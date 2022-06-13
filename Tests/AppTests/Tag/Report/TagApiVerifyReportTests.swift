@@ -14,17 +14,7 @@ final class TagApiVerifyReportTests: AppTestCase, TagTest {
     func testSuccessfulVerifyReport() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let tag = try await createNewTag()
-        let title = "I don't like this \(UUID())"
-        let report = try await TagReportModel(
-            status: .pending,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: tag.detail.requireID(),
-            repositoryId: tag.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
+        let report = try await createNewTagReport(tag: tag)
         try await tag.detail.$language.load(on: app.db)
         
         try app
@@ -54,18 +44,7 @@ final class TagApiVerifyReportTests: AppTestCase, TagTest {
     func testSuccessfulVerifyReportWithDeletedVisbleDetail() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let tag = try await createNewTag()
-        let title = "I don't like this \(UUID())"
-        let report = try await TagReportModel(
-            status: .pending,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: tag.detail.requireID(),
-            repositoryId: tag.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
-        
+        let report = try await createNewTagReport(tag: tag)
         try await tag.detail.delete(force: true, on: app.db)
         
         try app
@@ -86,17 +65,7 @@ final class TagApiVerifyReportTests: AppTestCase, TagTest {
     func testVerifyReportAsUserFails() async throws {
         let token = try await getToken(for: .user)
         let tag = try await createNewTag()
-        let title = "I don't like this \(UUID())"
-        let report = try await TagReportModel(
-            status: .pending,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: tag.detail.requireID(),
-            repositoryId: tag.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
+        let report = try await createNewTagReport(tag: tag)
         try await tag.detail.$language.load(on: app.db)
         
         try app
@@ -109,17 +78,7 @@ final class TagApiVerifyReportTests: AppTestCase, TagTest {
     
     func testVerifyReportWithoutTokenFails() async throws {
         let tag = try await createNewTag()
-        let title = "I don't like this \(UUID())"
-        let report = try await TagReportModel(
-            status: .pending,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: tag.detail.requireID(),
-            repositoryId: tag.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
+        let report = try await createNewTagReport(tag: tag)
         try await tag.detail.$language.load(on: app.db)
         
         try app
@@ -132,17 +91,7 @@ final class TagApiVerifyReportTests: AppTestCase, TagTest {
     func testVerifyReportWithAlreadyVerifiedReportFails() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let tag = try await createNewTag()
-        let title = "I don't like this \(UUID())"
-        let report = try await TagReportModel(
-            status: .verified,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: tag.detail.requireID(),
-            repositoryId: tag.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
+        let report = try await createNewTagReport(tag: tag, status: .verified)
         try await tag.detail.$language.load(on: app.db)
         
         try app

@@ -14,18 +14,7 @@ final class TagApiListUnverifiedReportsTests: AppTestCase, TagTest {
     func testSuccessfulListUnverifiedReportsListsUnverifiedReports() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let tag = try await createNewTag()
-        let title = "I don't like this \(UUID())"
-        let report = try await TagReportModel(
-            status: .pending,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: tag.detail.requireID(),
-            repositoryId: tag.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
-        
+        let _ = try await createNewTagReport(tag: tag)
         let reportsCount = try await TagReportModel.query(on: app.db).count()
         
         try app
@@ -43,18 +32,7 @@ final class TagApiListUnverifiedReportsTests: AppTestCase, TagTest {
     func testSuccessfulListUnverifiedReportsDoesNotListVerifiedReports() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let tag = try await createNewTag()
-        let title = "I don't like this \(UUID())"
-        let report = try await TagReportModel(
-            status: .verified,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: tag.detail.requireID(),
-            repositoryId: tag.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
-        
+        let _ = try await createNewTagReport(tag: tag, status: .verified)
         let reportsCount = try await TagReportModel.query(on: app.db).count()
         
         try app
@@ -72,18 +50,7 @@ final class TagApiListUnverifiedReportsTests: AppTestCase, TagTest {
     func testListUnverifiedReportsAsUserFails() async throws {
         let token = try await getToken(for: .user)
         let tag = try await createNewTag()
-        let title = "I don't like this \(UUID())"
-        let report = try await TagReportModel(
-            status: .pending,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: tag.detail.requireID(),
-            repositoryId: tag.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
-        
+        let _ = try await createNewTagReport(tag: tag)
         let reportsCount = try await TagReportModel.query(on: app.db).count()
         
         try app
@@ -96,18 +63,7 @@ final class TagApiListUnverifiedReportsTests: AppTestCase, TagTest {
     
     func testListUnverifiedReportsWithoutTokenFails() async throws {
         let tag = try await createNewTag()
-        let title = "I don't like this \(UUID())"
-        let report = try await TagReportModel(
-            status: .pending,
-            title: title,
-            slug: title.slugify(),
-            reason: "Just because",
-            visibleDetailId: tag.detail.requireID(),
-            repositoryId: tag.repository.requireID(),
-            userId: getUser(role: .user).requireID()
-        )
-        try await report.create(on: app.db)
-        
+        let _ = try await createNewTagReport(tag: tag)
         let reportsCount = try await TagReportModel.query(on: app.db).count()
         
         try app
