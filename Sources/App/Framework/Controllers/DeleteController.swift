@@ -7,9 +7,26 @@
 
 import Vapor
 
-protocol DeleteController: ModelController {
+/// Streamlines deleting ``ModelController/DatabaseModel``s from the database
+public protocol DeleteController: ModelController {
+    /// Action perfomed prior to deleting model from database.
+    /// - Parameters:
+    ///   - req: The `Request` on which the model will be deleted.
+    ///   - model: The ``ModelController/DatabaseModel``whichthat wil be deleted.
     func beforeDelete(_ req: Request, _ model: DatabaseModel) async throws
+    
+    /// Action perfomed after deleting model from database.
+    /// - Parameters:
+    ///   - req: The `Request` on which the model was deleted.
+    ///   - model: The deleted ``ModelController/DatabaseModel``.
     func afterDelete(_ req: Request, _ model: DatabaseModel) async throws
+    
+    /// Action performed to delete model from database.
+    ///
+    /// This function should call ``beforeDelete(_:_:)`` prior to deleting the model from the database and ``afterDelete(_:_:)`` after deleting the model from the database.
+    /// - Parameters:
+    ///   - req: The `Request` on which the model should be deleted.
+    ///   - model: The ``ModelController/DatabaseModel`` which should be deleted.
     func delete(_ req: Request, _ model: DatabaseModel) async throws
 }
 

@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-protocol ModelController {
+public protocol ModelController {
     associatedtype ApiModel: ApiModelInterface
     associatedtype DatabaseModel: DatabaseModelInterface
     
@@ -22,10 +22,9 @@ protocol ModelController {
 }
 
 extension ModelController {
-    
     static var moduleName: String { DatabaseModel.Module.identifier.capitalized }
     static var modelName: Name { .init(singular: String(DatabaseModel.identifier.dropLast(1))) }
-
+    
     func identifier(_ req: Request) throws -> UUID {
         guard
             let id = req.parameters.get(ApiModel.pathIdKey),
@@ -35,7 +34,7 @@ extension ModelController {
         }
         return uuid
     }
-
+    
     func findBy(_ id: UUID, on db: Database) async throws -> DatabaseModel {
         guard let model = try await DatabaseModel.find(id, on: db) else {
             throw Abort(.notFound)

@@ -7,9 +7,27 @@
 
 import Vapor
 
+/// Streamlines patching ``ModelController/DatabaseModel``s on the database.
 protocol PatchController: ModelController {
+    
+    /// Action performed prior to patching a model on the database.
+    /// - Parameters:
+    ///   - req: The `Request` on which the model will be patched.
+    ///   - model: The ``ModelController/DatabaseModel`` which will be patched.
     func beforePatch(_ req: Request, _ model: DatabaseModel) async throws
+    
+    /// Action performed after patching a model on the database.
+    /// - Parameters:
+    ///   - req: The `Reqeust` on which the model was patched.
+    ///   - model: The patched ``ModelController/DatabaseModel``.
     func afterPatch(_ req: Request, _ model: DatabaseModel) async throws
+    
+    /// Action performed to patch a model on the database.
+    ///
+    /// This function should call ``beforePatch(_:_:)`` prior to patching the model on the database and ``afterPatch(_:_:)`` after patching the model on the database.
+    /// - Parameters:
+    ///   - req: The `Request` on which the model should be patched.
+    ///   - model: The ``ModelController/DatabaseModel`` which should be patched.
     func patch(_ req: Request, _ model: DatabaseModel) async throws
 }
 

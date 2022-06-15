@@ -8,6 +8,10 @@
 import Vapor
 
 struct FileStorage {
+    /// Saves the data encoded into the body of the request to the filesystem at the spcified path.
+    /// - Parameters:
+    ///   - req: The `Request`of which the body stream should be saved to the file system.
+    ///   - path: The absolute path on the file system were the bodyStream should be saved.
     static func saveBodyStream(of req: Request, to path: String) async throws {
         guard req.application.environment != .testing else { return }
         do {
@@ -57,6 +61,8 @@ struct FileStorage {
         }
     }
     
+    /// Deletes the file at the specified path from the file system
+    /// - Parameter path: The absolute path of the file on the file system
     static func delete(at path: String) throws  {
         guard exists(at: path) else {
             return
@@ -64,6 +70,9 @@ struct FileStorage {
         try FileManager.default.removeItem(atPath: path)
     }
     
+    /// Checks if a file at the given path exists.
+    /// - Parameter path: The path at which should be checked if a file exists.
+    /// - Returns: A bool wether or not a file exists.
     static func exists(at path: String) -> Bool {
         return FileManager.default.fileExists(atPath: path)
     }

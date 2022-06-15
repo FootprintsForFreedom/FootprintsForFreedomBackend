@@ -8,6 +8,10 @@
 import Foundation
 
 extension String {
+    /// Generate a slug for a string.
+    ///
+    /// A slug can be used as a request parameter. Therefore it does not consist of any special characters and is lowercased.
+    /// - Returns: The slugified string.
     public func slugify() -> String {
         let allowed = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyz0123456789-_.")
         return self.trimmingCharacters(in: .whitespacesAndNewlines)
