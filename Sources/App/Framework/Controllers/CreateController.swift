@@ -13,7 +13,7 @@ protocol CreateController: ModelController {
     /// Action performed prior to saving model to database.
     /// - Parameters:
     ///   - req: The `Request` on which the model will be created.
-    ///   - model: The ``ModelController/DatabaseModel`` which wil be created.
+    ///   - model: The ``ModelController/DatabaseModel`` which will be created.
     func beforeCreate(_ req: Request, _ model: DatabaseModel) async throws
     
     /// Action performed after saving model to database.

@@ -34,7 +34,6 @@ protocol DetailController: ModelController {
 }
 
 extension DetailController {
-    
     func beforeDetail(_ req: Request, _ queryBuilder: QueryBuilder<DatabaseModel>) async throws -> QueryBuilder<DatabaseModel> {
         queryBuilder
     }
