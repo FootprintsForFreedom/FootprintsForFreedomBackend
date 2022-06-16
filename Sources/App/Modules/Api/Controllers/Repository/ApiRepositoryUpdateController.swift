@@ -8,15 +8,13 @@
 import Vapor
 import Fluent
 
-protocol ApiRepositoryUpdateController: RepositoryUpdateController {
+protocol ApiRepositoryUpdateController: RepositoryController, UpdateController {
     associatedtype UpdateObject: Decodable
     
     func updateValidators() -> [AsyncValidator]
     func getUpdateInput(_ req: Request) throws -> UpdateObject
-    func updateInput(_ req: Request, _ repository: Repository, _ detail: Detail, _ input: UpdateObject) async throws
-    func updateApi(_ req: Request) async throws -> Response
-    func updateResponse(_ req: Request, _ repository: Repository, _ detail: Detail) async throws -> Response
-    func setupUpdateRoutes(_ routes: RoutesBuilder)
+    func updateInput(_ req: Request, _ repository: DatabaseModel, _ detail: Detail, _ input: UpdateObject) async throws
+    func updateResponse(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> Response
 }
 
 extension ApiRepositoryUpdateController {

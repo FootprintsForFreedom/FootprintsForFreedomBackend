@@ -12,17 +12,17 @@ protocol ApiListRepositoriesWithUnverifiedDetailsController: RepositoryControlle
     associatedtype RepositoriesWithUnverifiedDetailsResponseObject: Codable
     
     func beforeListRepositoriesWithUnverifiedDetails(_ req: Request) async throws
-    func beforeGetRepositories(_ req: Request, _ queryBuilder: QueryBuilder<Repository>) async throws -> QueryBuilder<Repository>
+    func beforeGetRepositories(_ req: Request, _ queryBuilder: QueryBuilder<DatabaseModel>) async throws -> QueryBuilder<DatabaseModel>
     func listRepositoriesWithUnverifiedDetailsApi(_ req: Request) async throws -> Page<RepositoriesWithUnverifiedDetailsResponseObject>
-    func listRepositoriesWithUnverifiedDetailsOutput(_ req: Request, _ repositories: Page<Repository>) async throws -> Page<RepositoriesWithUnverifiedDetailsResponseObject>
-    func listRepositoriesWithUnverifiedDetailsOutput(_ req: Request, _ repository: Repository, _ detail: Detail) async throws -> RepositoriesWithUnverifiedDetailsResponseObject
+    func listRepositoriesWithUnverifiedDetailsOutput(_ req: Request, _ repositories: Page<DatabaseModel>) async throws -> Page<RepositoriesWithUnverifiedDetailsResponseObject>
+    func listRepositoriesWithUnverifiedDetailsOutput(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> RepositoriesWithUnverifiedDetailsResponseObject
     func setuplistRepositoriesWithUnverifiedDetailsRoutes(_ routes: RoutesBuilder)
 }
 
 extension ApiListRepositoriesWithUnverifiedDetailsController {
     func beforeListRepositoriesWithUnverifiedDetails(_ req: Request) async throws { }
     
-    func beforeGetRepositories(_ req: Request, _ queryBuilder: QueryBuilder<Repository>) async throws -> QueryBuilder<Repository> {
+    func beforeGetRepositories(_ req: Request, _ queryBuilder: QueryBuilder<DatabaseModel>) async throws -> QueryBuilder<DatabaseModel> {
         queryBuilder
         // only get unverified models
             .join(children: \._$details)
@@ -38,14 +38,14 @@ extension ApiListRepositoriesWithUnverifiedDetailsController {
     func listRepositoriesWithUnverifiedDetailsApi(_ req: Request) async throws -> Page<RepositoriesWithUnverifiedDetailsResponseObject> {
         try await beforeListRepositoriesWithUnverifiedDetails(req)
         
-        let repositoriesWithUnverifiedModelsQuery = Repository.query(on: req.db)
+        let repositoriesWithUnverifiedModelsQuery = DatabaseModel.query(on: req.db)
         
         let repositoriesWithUnverifiedModels = try await beforeGetRepositories(req, repositoriesWithUnverifiedModelsQuery).paginate(for: req)
         
         return try await listRepositoriesWithUnverifiedDetailsOutput(req, repositoriesWithUnverifiedModels)
     }
     
-    func listRepositoriesWithUnverifiedDetailsOutput(_ req: Request, _ repositories: Page<Repository>) async throws -> Page<RepositoriesWithUnverifiedDetailsResponseObject> {
+    func listRepositoriesWithUnverifiedDetailsOutput(_ req: Request, _ repositories: Page<DatabaseModel>) async throws -> Page<RepositoriesWithUnverifiedDetailsResponseObject> {
         let allLanguageCodesByPriority = try await req.allLanguageCodesByPriority()
         return try await repositories
             .concurrentMap { repository in

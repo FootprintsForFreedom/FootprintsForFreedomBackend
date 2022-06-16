@@ -14,7 +14,7 @@ protocol ApiRepositoryController:
     ApiRepositoryCreateController,
     ApiRepositoryUpdateController,
     ApiRepositoryPatchController,
-    ApiRepositoryDeleteController
+    ApiDeleteController
 {
     func validators(optional: Bool) -> [AsyncValidator]
     
@@ -38,15 +38,15 @@ extension ApiRepositoryController {
         validators(optional: true)
     }
     
-    func createResponse(_ req: Request, _ repository: Repository, _ detail: Detail) async throws -> Response {
+    func createResponse(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> Response {
         try await detailOutput(req, repository, detail).encodeResponse(status: .created, for: req)
     }
     
-    func updateResponse(_ req: Request, _ repository: Repository, _ detail: Detail) async throws -> Response {
+    func updateResponse(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> Response {
         try await detailOutput(req, repository, detail).encodeResponse(for: req)
     }
     
-    func patchResponse(_ req: Request, _ repository: Repository, _ detail: Detail) async throws -> Response {
+    func patchResponse(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> Response {
         try await detailOutput(req, repository, detail).encodeResponse(for: req)
     }
     

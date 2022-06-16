@@ -8,41 +8,19 @@
 import Vapor
 import Fluent
 
-protocol RepositoryController where Repository.Detail.Repository == Repository {
-    associatedtype ApiModel: ApiModelInterface
-    associatedtype Repository: RepositoryModel
-    typealias Detail = Repository.Detail
+protocol RepositoryController: ModelController where DatabaseModel: RepositoryModel, DatabaseModel.Detail.Repository == DatabaseModel {
+    typealias Detail = DatabaseModel.Detail
     
-    static var moduleName: String { get }
-    static var modelName: Name { get }
-    
-    func identifier(_ req: Request) throws -> UUID
     func slug(_ req: Request) throws -> String
-    func findBy(_ id: UUID, on: Database) async throws -> Repository
-    func findBy(_ slug: String, on: Database) async throws -> Detail
-    func repository(_ req: Request) async throws -> Repository
-    
-    func getBaseRoutes(_ routes: RoutesBuilder) -> RoutesBuilder
+    func findBy(_ slug: String, on db: Database) async throws -> Detail
+    func repository(_ req: Request) async throws -> DatabaseModel
 }
 
-extension RepositoryController where Repository: Reportable {
-    typealias Report = Repository.Report
+extension RepositoryController where DatabaseModel: Reportable  {
+    typealias Report = DatabaseModel.Report
 }
 
 extension RepositoryController {
-    static var moduleName: String { Repository.Module.identifier.capitalized }
-    static var modelName: Name { .init(singular: String(Repository.identifier.dropLast(1))) }
-    
-    func identifier(_ req: Request) throws -> UUID {
-        guard
-            let id = req.parameters.get(ApiModel.pathIdKey),
-            let uuid = UUID(uuidString: id)
-        else {
-            throw Abort(.badRequest)
-        }
-        return uuid
-    }
-    
     func slug(_ req: Request) throws -> String {
         guard
             let slug = req.parameters.get(ApiModel.pathIdKey),
@@ -51,13 +29,6 @@ extension RepositoryController {
             throw Abort(.badRequest)
         }
         return slug
-    }
-    
-    func findBy(_ id: UUID, on db: Database) async throws -> Repository {
-        guard let repository = try await Repository.find(id, on: db) else {
-            throw Abort(.notFound)
-        }
-        return repository
     }
     
     func findBy(_ slug: String, on db: Database) async throws -> Detail {
@@ -71,12 +42,7 @@ extension RepositoryController {
         return detail
     }
     
-    func repository(_ req: Request) async throws -> Repository {
+    func repository(_ req: Request) async throws -> DatabaseModel {
         return try await findBy(identifier(req), on: req.db)
-    }
-    
-    func getBaseRoutes(_ routes: RoutesBuilder) -> RoutesBuilder {
-        routes.grouped(ApiModel.Module.pathKey.pathComponents)
-            .grouped(ApiModel.pathKey.pathComponents)
     }
 }

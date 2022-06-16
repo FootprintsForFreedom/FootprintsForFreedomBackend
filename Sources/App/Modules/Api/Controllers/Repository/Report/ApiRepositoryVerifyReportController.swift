@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-protocol ApiRepositoryVerifyReportController: RepositoryController where Repository: Reportable {
+protocol ApiRepositoryVerifyReportController: RepositoryController where DatabaseModel: Reportable {
     associatedtype ReportDetailObject: Content
     associatedtype DetailObject: InitializableById
     
@@ -16,9 +16,9 @@ protocol ApiRepositoryVerifyReportController: RepositoryController where Reposit
     var reportPathIdComponent: PathComponent { get }
     
     func beforeVerifyReport(_ req: Request) async throws
-    func verifyReport(_ req: Request, _ repository: Repository, _ report: Report) async throws
+    func verifyReport(_ req: Request, _ repository: DatabaseModel, _ report: Report) async throws
     func verifyReportApi(_ req: Request) async throws -> ReportDetailObject
-    func verifyReportOutput(_ req: Request, _ repository: Repository, _ report: Report) async throws -> ReportDetailObject
+    func verifyReportOutput(_ req: Request, _ repository: DatabaseModel, _ report: Report) async throws -> ReportDetailObject
     func setupVerifyReportRoutes(_ routes: RoutesBuilder)
 }
 
@@ -28,7 +28,7 @@ extension ApiRepositoryVerifyReportController {
     
     func beforeVerifyReport(_ req: Request) async throws { }
     
-    func verifyReport(_ req: Request, _ repository: Repository, _ report: Report) async throws {
+    func verifyReport(_ req: Request, _ repository: DatabaseModel, _ report: Report) async throws {
         report.status = .verified
         try await report.update(on: req.db)
     }
@@ -77,7 +77,7 @@ extension ApiRepositoryVerifyReportController where ReportDetailObject == AppApi
         try await req.onlyFor(.moderator)
     }
     
-    func verifyReportOutput(_ req: Request, _ repository: Repository, _ report: Report) async throws -> ReportDetailObject {
+    func verifyReportOutput(_ req: Request, _ repository: DatabaseModel, _ report: Report) async throws -> ReportDetailObject {
         return try await .init(
             id: repository.requireID(),
             title: report.title,

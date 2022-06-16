@@ -11,7 +11,7 @@ import Fluent
 protocol ApiRepositoryDetailController: RepositoryDetailController {
     associatedtype DetailObject: Content
     
-    func detailOutput(_ req: Request, _ repository: Repository, _ detail: Detail) async throws -> DetailObject
+    func detailOutput(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> DetailObject
     func detailApi(_ req: Request) async throws -> DetailObject
     func detailBySlugApi(_ req: Request) async throws -> DetailObject
     func setupDetailRoutes(_ routes: RoutesBuilder)

@@ -13,7 +13,7 @@ extension Media.Detail.Detail: Content { }
 
 struct MediaApiController: ApiRepositoryController {
     typealias ApiModel = Media.Detail
-    typealias Repository = MediaRepositoryModel
+    typealias DatabaseModel = MediaRepositoryModel
     
     // MARK: - Validators
     

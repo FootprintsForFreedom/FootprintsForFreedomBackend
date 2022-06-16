@@ -13,7 +13,7 @@ extension Tag.Detail.Detail: Content { }
 
 struct TagApiController: ApiRepositoryController {
     typealias ApiModel = Tag.Detail
-    typealias Repository = TagRepositoryModel
+    typealias DatabaseModel = TagRepositoryModel
     
     // MARK: - Validators
     
@@ -56,7 +56,7 @@ struct TagApiController: ApiRepositoryController {
     
     // MARK: - List
     
-    func listOutput(_ req: Request, _ repository: Repository, _ detail: Detail) async throws -> Tag.Detail.List {
+    func listOutput(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> Tag.Detail.List {
         return try .init(
             id: repository.requireID(),
             title: detail.title,
@@ -66,7 +66,7 @@ struct TagApiController: ApiRepositoryController {
     
     // MARK: - Detail
     
-    func detailOutput(_ req: Request, _ repository: Repository, _ detail: Detail) async throws -> Tag.Detail.Detail {
+    func detailOutput(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> Tag.Detail.Detail {
         try await detail.$language.load(on: req.db)
         
         if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db), user.role >= .moderator && req.method == .GET {

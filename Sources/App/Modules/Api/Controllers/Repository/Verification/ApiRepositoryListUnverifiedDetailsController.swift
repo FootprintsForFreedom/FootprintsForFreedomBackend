@@ -14,8 +14,8 @@ protocol ApiRepositoryListUnverifiedDetailsController: RepositoryController {
     func beforeListUnverifiedDetails(_ req: Request) async throws
     func beforeGetUnverifiedDetail(_ req: Request, _ queryBuilder: QueryBuilder<Detail>) async throws -> QueryBuilder<Detail>
     func listUnverifiedDetailsApi(_ req: Request) async throws -> Page<ListUnverifiedDetailObject>
-    func listUnverifiedDetailsOutput(_ req: Request, _ repository: Repository, _ details: Page<Detail>) async throws -> Page<ListUnverifiedDetailObject>
-    func listUnverifiedDetailsOutput(_ req: Request,  _ repository: Repository, _ detail: Detail) async throws -> ListUnverifiedDetailObject
+    func listUnverifiedDetailsOutput(_ req: Request, _ repository: DatabaseModel, _ details: Page<Detail>) async throws -> Page<ListUnverifiedDetailObject>
+    func listUnverifiedDetailsOutput(_ req: Request,  _ repository: DatabaseModel, _ detail: Detail) async throws -> ListUnverifiedDetailObject
     func setupListUnverifiedDetailsRoutes(_ routes: RoutesBuilder)
 }
 
@@ -41,7 +41,7 @@ extension ApiRepositoryListUnverifiedDetailsController {
         return try await listUnverifiedDetailsOutput(req, repository, unverifiedDetails)
     }
     
-    func listUnverifiedDetailsOutput(_ req: Request, _ repository: Repository, _ details: Page<Detail>) async throws -> Page<ListUnverifiedDetailObject> {
+    func listUnverifiedDetailsOutput(_ req: Request, _ repository: DatabaseModel, _ details: Page<Detail>) async throws -> Page<ListUnverifiedDetailObject> {
         return try await details
             .concurrentMap { detail in
                 return try await listUnverifiedDetailsOutput(req, repository, detail)

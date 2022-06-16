@@ -8,13 +8,13 @@
 import Vapor
 import Fluent
 
-protocol ApiRepositoryListUnverifiedReportsController: RepositoryController where Repository: Reportable {
+protocol ApiRepositoryListUnverifiedReportsController: RepositoryController where DatabaseModel: Reportable {
     associatedtype ReportListObject: Codable
     
     func beforeListUnverifiedReports(_ req: Request) async throws
     func listUnverifiedReportsApi(_ req: Request) async throws -> Page<ReportListObject>
-    func listUnverifiedReportsOutput(_ req: Request, _ repository: Repository, _ reports: Page<Report>) async throws -> Page<ReportListObject>
-    func listUnverifiedReportsOutput(_ req: Request,  _ repository: Repository, _ report: Report) async throws -> ReportListObject
+    func listUnverifiedReportsOutput(_ req: Request, _ repository: DatabaseModel, _ reports: Page<Report>) async throws -> Page<ReportListObject>
+    func listUnverifiedReportsOutput(_ req: Request,  _ repository: DatabaseModel, _ report: Report) async throws -> ReportListObject
     func setupListUnverifiedReportsRoutes(_ routes: RoutesBuilder)
 }
 
@@ -35,7 +35,7 @@ extension ApiRepositoryListUnverifiedReportsController {
         return try await listUnverifiedReportsOutput(req, repository, unverifiedReports)
     }
     
-    func listUnverifiedReportsOutput(_ req: Request, _ repository: Repository, _ reports: Page<Report>) async throws -> Page<ReportListObject> {
+    func listUnverifiedReportsOutput(_ req: Request, _ repository: DatabaseModel, _ reports: Page<Report>) async throws -> Page<ReportListObject> {
         return try await reports
             .concurrentMap { report in
                 return try await listUnverifiedReportsOutput(req, repository, report)
@@ -56,7 +56,7 @@ extension ApiRepositoryListUnverifiedReportsController where ReportListObject ==
         try await req.onlyFor(.moderator)
     }
     
-    func listUnverifiedReportsOutput(_ req: Request,  _ repository: Repository, _ report: Report) async throws -> ReportListObject {
+    func listUnverifiedReportsOutput(_ req: Request,  _ repository: DatabaseModel, _ report: Report) async throws -> ReportListObject {
         return try .init(
             id: repository.requireID(),
             title: report.title,

@@ -8,15 +8,14 @@
 import Vapor
 import Fluent
 
-protocol ApiRepositoryPatchController: RepositoryPatchController {
+protocol ApiRepositoryPatchController: RepositoryController, PatchController {
     associatedtype PatchObject: Decodable
     
     func patchValidators() -> [AsyncValidator]
     func getPatchInput(_ req: Request) throws -> PatchObject
-    func patchInput(_ req: Request, _ repository: Repository, _ detail: Detail, _ input: PatchObject) async throws
+    func patchInput(_ req: Request, _ repository: DatabaseModel, _ detail: Detail, _ input: PatchObject) async throws
     func patchApi(_ req: Request) async throws -> Response
-    func patchResponse(_ req: Request, _ repository: Repository, _ detail: Detail) async throws -> Response
-    func setupPatchRoutes(_ routes: RoutesBuilder)
+    func patchResponse(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> Response
 }
 
 extension ApiRepositoryPatchController {

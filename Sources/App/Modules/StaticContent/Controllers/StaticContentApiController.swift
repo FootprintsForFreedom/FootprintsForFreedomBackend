@@ -13,7 +13,7 @@ extension StaticContent.Detail.Detail: Content { }
 
 struct StaticContentApiController: ApiRepositoryController {
     typealias ApiModel = StaticContent.Detail
-    typealias Repository = StaticContentRepositoryModel
+    typealias DatabaseModel = StaticContentRepositoryModel
     
     // MARK: - Validators
     
@@ -66,7 +66,7 @@ struct StaticContentApiController: ApiRepositoryController {
         return queryBuilder
     }
     
-    func listOutput(_ req: Request, _ repositories: Page<Repository>) async throws -> Page<StaticContent.Detail.List> {
+    func listOutput(_ req: Request, _ repositories: Page<DatabaseModel>) async throws -> Page<StaticContent.Detail.List> {
         return try await repositories
             .concurrentCompactMap { repository in
                 // load the repository with all fields since the passed parameter can only contain the id field
@@ -94,15 +94,15 @@ struct StaticContentApiController: ApiRepositoryController {
     }
     
     func detailApi(_ req: Request) async throws -> StaticContent.Detail.Detail {
-        let repository: Repository? = try await {
+        let repository: DatabaseModel? = try await {
             guard let parameter = req.parameters.get(ApiModel.pathIdKey) else {
                 throw Abort(.badRequest)
             }
             
             if let id = UUID(uuidString: parameter) {
-                return try await Repository.find(id, on: req.db)
+                return try await DatabaseModel.find(id, on: req.db)
             } else if parameter == parameter.slugify() {
-                return try await Repository
+                return try await DatabaseModel
                     .query(on: req.db)
                     .filter(\.$slug == parameter)
                     .first()
@@ -160,7 +160,7 @@ struct StaticContentApiController: ApiRepositoryController {
     func createRepositoryInput(_ req: Request, _ repository: StaticContentRepositoryModel, _ input: StaticContent.Detail.Create) async throws {
         let slug = input.repositoryTitle.slugify()
         
-        let numberOfDetailsWithSlug = try await Repository
+        let numberOfDetailsWithSlug = try await DatabaseModel
             .query(on: req.db)
             .filter(\.$slug == slug)
             .count()

@@ -8,16 +8,16 @@
 import Vapor
 import Fluent
 
-protocol ApiRepositoryCreateReportController: RepositoryController where Repository: Reportable {
+protocol ApiRepositoryCreateReportController: RepositoryController where DatabaseModel: Reportable {
     associatedtype ReportCreateObject: Codable
     associatedtype ReportDetailObject: Content
     associatedtype DetailObject: InitializableById
     
     func beforeReport(_ req: Request) async throws
     func reportValidators() -> [AsyncValidator]
-    func reportInput(_ req: Request, _ repository: Repository, _ report: Report, _ input: ReportCreateObject) async throws
+    func reportInput(_ req: Request, _ repository: DatabaseModel, _ report: Report, _ input: ReportCreateObject) async throws
     func reportApi(_ req: Request) async throws -> Response
-    func reportResponse(_ req: Request, _ repository: Repository, _ report: Report) async throws -> ReportDetailObject
+    func reportResponse(_ req: Request, _ repository: DatabaseModel, _ report: Report) async throws -> ReportDetailObject
     func setupCreateReportRoutes(_ routes: RoutesBuilder)
 }
 
@@ -60,7 +60,7 @@ extension ApiRepositoryCreateReportController where ReportCreateObject == AppApi
         try await req.onlyForVerifiedUser()
     }
     
-    func reportInput(_ req: Request, _ repository: Repository, _ report: Report, _ input: ReportCreateObject) async throws {
+    func reportInput(_ req: Request, _ repository: DatabaseModel, _ report: Report, _ input: ReportCreateObject) async throws {
         /// Require user to be signed in
         let user = try req.auth.require(AuthenticatedUser.self)
         
@@ -79,7 +79,7 @@ extension ApiRepositoryCreateReportController where ReportCreateObject == AppApi
         report._$user.id = user.id
     }
     
-    func reportResponse(_ req: Request, _ repository: Repository, _ report: Report) async throws -> ReportDetailObject {
+    func reportResponse(_ req: Request, _ repository: DatabaseModel, _ report: Report) async throws -> ReportDetailObject {
         return try await .init(
             id: repository.requireID(),
             title: report.title,

@@ -8,11 +8,11 @@
 import Vapor
 import Fluent
 
-protocol ApiRepositoryPagedListController: RepositoryPagedListController {
+protocol ApiRepositoryPagedListController: RepositoryController, PagedListController  {
     associatedtype ListObject: Content
     
-    func listOutput(_ req: Request, _ repositories: Page<Repository>) async throws -> Page<ListObject>
-    func listOutput(_ req: Request, _ repository: Repository, _ detail: Detail) async throws -> ListObject
+    func listOutput(_ req: Request, _ repositories: Page<DatabaseModel>) async throws -> Page<ListObject>
+    func listOutput(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> ListObject
     func listApi(_ req: Request) async throws -> Page<ListObject>
     func setupListRoutes(_ routes: RoutesBuilder)
 }
@@ -23,7 +23,7 @@ extension ApiRepositoryPagedListController {
         return try await listOutput(req, repositories)
     }
     
-    func listOutput(_ req: Request, _ repositories: Page<Repository>) async throws -> Page<ListObject> {
+    func listOutput(_ req: Request, _ repositories: Page<DatabaseModel>) async throws -> Page<ListObject> {
         return try await repositories
             .concurrentCompactMap { repository in
                 // get a detail model for the repository

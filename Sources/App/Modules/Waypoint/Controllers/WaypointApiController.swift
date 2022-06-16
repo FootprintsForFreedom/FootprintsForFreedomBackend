@@ -13,7 +13,7 @@ extension Waypoint.Detail.Detail: Content { }
 
 struct WaypointApiController: ApiRepositoryController {
     typealias ApiModel = Waypoint.Detail
-    typealias Repository = WaypointRepositoryModel
+    typealias DatabaseModel = WaypointRepositoryModel
     
     // MARK: - Validators
     
@@ -138,7 +138,7 @@ struct WaypointApiController: ApiRepositoryController {
     func createApi(_ req: Request) async throws -> Response {
         try await RequestValidator(createValidators()).validate(req)
         let input = try getCreateInput(req)
-        let repository = Repository()
+        let repository = DatabaseModel()
         try await createRepositoryInput(req, repository, input)
         try await create(req, repository)
         let detail = Detail()

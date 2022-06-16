@@ -16,9 +16,9 @@ protocol ApiRepositoryVerifyDetailController: RepositoryController {
     
     func beforeVerifyDetail(_ req: Request) async throws
     func beforeGetDetailToVerify(_ req: Request, _ queryBuilder: QueryBuilder<Detail>) async throws -> QueryBuilder<Detail>
-    func verifyDetail(_ req: Request, _ repository: Repository, _ detail: Detail) async throws
+    func verifyDetail(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws
     func verifyDetailApi(_ req: Request) async throws -> DetailObject
-    func verifyDetailOutput(_ req: Request, _ repository: Repository, _ detail: Detail) async throws -> DetailObject
+    func verifyDetailOutput(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> DetailObject
     func setupVerifyDetailRoutes(_ routes: RoutesBuilder)
 }
 
@@ -32,7 +32,7 @@ extension ApiRepositoryVerifyDetailController {
         queryBuilder
     }
     
-    func verifyDetail(_ req: Request, _ repository: Repository, _ detail: Detail) async throws {
+    func verifyDetail(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws {
         if let previousDetail = try await repository.detail(for: detail.language.languageCode, needsToBeVerified: true, on: req.db) {
             previousDetail.slug = try await previousDetail.generateSlug(with: .day, on: req.db)
             try await previousDetail.update(on: req.db)
