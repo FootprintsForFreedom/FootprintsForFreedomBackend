@@ -65,4 +65,8 @@ extension UserAccountModel {
         /// Update the password
         self.password = try req.application.password.hash(newPassword)
     }
+    
+    func publicDetail() throws -> User.Account.Detail {
+        return try .publicDetail(id: self.requireID(), name: self.name, school: self.school)
+    }
 }

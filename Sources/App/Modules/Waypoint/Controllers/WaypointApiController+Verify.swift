@@ -23,7 +23,7 @@ extension WaypointApiController: ApiRepositoryVerificationController {
         queryBuilder.with(\.$user)
     }
     
-    // GET: api/wayponts/:repositoryID/waypoints/changes/?from=model1ID&to=model2ID
+    // GET: api/waypoints/:repositoryID/waypoints/changes/?from=model1ID&to=model2ID
     func detailChangesOutput(_ req: Request, _ model1: Detail, _ model2: Detail) async throws -> Waypoint.Repository.Changes {
         /// compute the diffs
         let titleDiff = diff(text1: model1.title, text2: model2.title).cleaningUpSemantics()
@@ -32,8 +32,8 @@ extension WaypointApiController: ApiRepositoryVerificationController {
         return try .init(
             titleDiff: titleDiff,
             detailTextDiff: detailTextDiff,
-            fromUser: model1.user(),
-            toUser: model2.user()
+            fromUser: model1.user?.publicDetail(),
+            toUser: model2.user?.publicDetail()
         )
     }
     

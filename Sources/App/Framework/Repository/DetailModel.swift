@@ -38,12 +38,3 @@ protocol DetailModel: DatabaseModelInterface, Timestamped, Titled, Slugable {
     /// If the user was deleted after creating the detail model, the user is set to nil.
     var _$user: OptionalParentProperty<Self, UserAccountModel> { get }
 }
-
-extension DetailModel {
-    func user() throws -> User.Account.Detail? {
-        if let user = user {
-            return try .publicDetail(id: user.requireID(), name: user.name, school: user.school)
-        }
-        return nil
-    }
-}

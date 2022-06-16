@@ -38,8 +38,8 @@ extension MediaApiController: ApiRepositoryVerificationController {
             toGroup: model2.media.group,
             fromFilePath: model1.media.mediaDirectory,
             toFilePath: model2.media.mediaDirectory,
-            fromUser: model1.user(),
-            toUser: model2.user()
+            fromUser: model1.user?.publicDetail(),
+            toUser: model2.user?.publicDetail()
         )
     }
     
@@ -60,7 +60,7 @@ extension MediaApiController: ApiRepositoryVerificationController {
                         group
                         // only get unverified details
                             .filter(Detail.self, \.$status ~~ [.pending, .deleteRequested])
-                        // only select details which hava an active language
+                        // only select details which have an active language
                             .filter(LanguageModel.self, \.$priority != nil)
                     }
                     .filter(MediaTagModel.self,\.$status ~~ [.pending, .deleteRequested])

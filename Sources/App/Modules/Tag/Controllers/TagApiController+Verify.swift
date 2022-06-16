@@ -33,8 +33,8 @@ extension TagApiController: ApiRepositoryVerificationController {
             equalKeywords: keywordDiff.equal,
             deletedKeywords: keywordDiff.deleted,
             insertedKeywords: keywordDiff.inserted,
-            fromUser: model1.user(),
-            toUser: model2.user()
+            fromUser: model1.user?.publicDetail(),
+            toUser: model2.user?.publicDetail()
         )
     }
     
