@@ -12,7 +12,7 @@ protocol ApiRepositoryPatchController: RepositoryController, PatchController {
     associatedtype PatchObject: Decodable
     
     func patchValidators() -> [AsyncValidator]
-    func getPatchInput(_ req: Request) throws -> PatchObject
+    func getPatchInput(_ req: Request) async throws -> PatchObject
     func patchInput(_ req: Request, _ repository: DatabaseModel, _ detail: Detail, _ input: PatchObject) async throws
     func patchApi(_ req: Request) async throws -> Response
     func patchResponse(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> Response
@@ -23,14 +23,14 @@ extension ApiRepositoryPatchController {
         []
     }
     
-    func getPatchInput(_ req: Request) throws -> PatchObject {
-        try req.content.decode(PatchObject.self)
+    func getPatchInput(_ req: Request) async throws -> PatchObject {
+        try await RequestValidator(patchValidators()).validate(req)
+        return try req.content.decode(PatchObject.self)
     }
     
     func patchApi(_ req: Request) async throws -> Response {
-        try await RequestValidator(patchValidators()).validate(req)
         let repository = try await findBy(identifier(req), on: req.db)
-        let input = try getPatchInput(req)
+        let input = try await getPatchInput(req)
         try await beforePatch(req, repository)
         let detail = Detail()
         try await patchInput(req, repository, detail, input)

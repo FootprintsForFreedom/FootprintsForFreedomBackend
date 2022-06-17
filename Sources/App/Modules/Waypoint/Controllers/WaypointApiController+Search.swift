@@ -12,8 +12,8 @@ extension WaypointApiController {
     
     @AsyncValidatorBuilder
     func searchValidators() -> [AsyncValidator] {
-        KeyedContentValidator<String>.required("text", validateQuery: true)
-        KeyedContentValidator<String>.required("languageCode", validateQuery: true)
+        KeyedContentValidator<String>.required("text")
+        KeyedContentValidator<String>.required("languageCode")
     }
     
     struct SearchQuery: Codable {
@@ -22,7 +22,7 @@ extension WaypointApiController {
     }
     
     func searchApi(_ req: Request) async throws -> Page<Waypoint.Detail.List> {
-        try await RequestValidator(searchValidators()).validate(req)
+        try await RequestValidator(searchValidators()).validate(req, .query)
         let searchQuery = try req.query.decode(SearchQuery.self)
         
         guard searchQuery.text.trimmingCharacters(in: .whitespacesAndNewlines) != "" else {
@@ -110,10 +110,10 @@ extension WaypointApiController {
     
     @AsyncValidatorBuilder
     func getInCoordinatesValidators() -> [AsyncValidator] {
-        KeyedContentValidator<Double>.required("tepLeftLatitude", validateQuery: true)
-        KeyedContentValidator<Double>.required("tepLeftLongitude", validateQuery: true)
-        KeyedContentValidator<Double>.required("bottomRightLatitude", validateQuery: true)
-        KeyedContentValidator<Double>.required("bottomRightLongitude", validateQuery: true)
+        KeyedContentValidator<Double>.required("tepLeftLatitude")
+        KeyedContentValidator<Double>.required("tepLeftLongitude")
+        KeyedContentValidator<Double>.required("bottomRightLatitude")
+        KeyedContentValidator<Double>.required("bottomRightLongitude")
     }
     
     struct GetInRangeQuery: Codable {
@@ -124,7 +124,7 @@ extension WaypointApiController {
     }
     
     func getInCoordinatesApi(_ req: Request) async throws -> [Waypoint.Detail.List] {
-        try await RequestValidator(getInCoordinatesValidators()).validate(req)
+        try await RequestValidator(getInCoordinatesValidators()).validate(req, .query)
         let getInRangeQuery = try req.query.decode(GetInRangeQuery.self)
         
         // filters all locations - also those that are no longer the newest ones

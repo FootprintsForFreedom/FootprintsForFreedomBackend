@@ -13,7 +13,7 @@ protocol ApiRepositoryCreateController: RepositoryController, CreateController {
     
     func createValidators() -> [AsyncValidator]
     func createRepositoryInput(_ req: Request, _ repository: DatabaseModel, _ input: CreateObject) async throws
-    func getCreateInput(_ req: Request) throws -> CreateObject
+    func getCreateInput(_ req: Request) async throws -> CreateObject
     func createInput(_ req: Request, _ repository: DatabaseModel, _ detail: Detail, _ input: CreateObject) async throws
     func createApi(_ req: Request) async throws -> Response
     func createResponse(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> Response
@@ -26,15 +26,15 @@ extension ApiRepositoryCreateController {
         []
     }
     
-    func getCreateInput(_ req: Request) throws -> CreateObject {
-        try req.content.decode(CreateObject.self)
+    func getCreateInput(_ req: Request) async throws -> CreateObject {
+        try await RequestValidator(createValidators()).validate(req)
+        return try req.content.decode(CreateObject.self)
     }
     
     func createRepositoryInput(_ req: Request, _ repository: DatabaseModel, _ input: CreateObject) async throws { }
     
     func createApi(_ req: Request) async throws -> Response {
-        try await RequestValidator(createValidators()).validate(req)
-        let input = try getCreateInput(req)
+        let input = try await getCreateInput(req)
         let repository = DatabaseModel()
         try await createRepositoryInput(req, repository, input)
         try await create(req, repository)

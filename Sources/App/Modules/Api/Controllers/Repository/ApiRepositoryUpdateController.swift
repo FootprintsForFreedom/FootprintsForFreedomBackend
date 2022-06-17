@@ -12,8 +12,9 @@ protocol ApiRepositoryUpdateController: RepositoryController, UpdateController {
     associatedtype UpdateObject: Decodable
     
     func updateValidators() -> [AsyncValidator]
-    func getUpdateInput(_ req: Request) throws -> UpdateObject
+    func getUpdateInput(_ req: Request) async throws -> UpdateObject
     func updateInput(_ req: Request, _ repository: DatabaseModel, _ detail: Detail, _ input: UpdateObject) async throws
+    func updateApi(_ req: Request) async throws -> Response
     func updateResponse(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> Response
 }
 
@@ -23,14 +24,14 @@ extension ApiRepositoryUpdateController {
         []
     }
     
-    func getUpdateInput(_ req: Request) throws -> UpdateObject {
-        try req.content.decode(UpdateObject.self)
+    func getUpdateInput(_ req: Request) async throws -> UpdateObject {
+        try await RequestValidator(updateValidators()).validate(req)
+        return try req.content.decode(UpdateObject.self)
     }
     
     func updateApi(_ req: Request) async throws -> Response {
-        try await RequestValidator(updateValidators()).validate(req)
         let repository = try await findBy(identifier(req), on: req.db)
-        let input = try getUpdateInput(req)
+        let input = try await getUpdateInput(req)
         try await beforeUpdate(req, repository)
         let detail = Detail()
         try await updateInput(req, repository, detail, input)

@@ -12,29 +12,27 @@ public struct KeyedContentValidator<T: Codable>: AsyncValidator {
     public let key: String
     public let message: String
     public let optional: Bool
-    public let validateQuery: Bool
     public let validation: (T, Request) async throws -> Bool
     
     public init(_ key: String,
                 _ message: String,
                 optional: Bool = false,
-                validateQuery: Bool,
                 _ validation: @escaping (T, Request) async throws -> Bool) {
         self.key = key
         self.message = message
         self.optional = optional
-        self.validateQuery = validateQuery
         self.validation = validation
     }
 
-    public func validate(_ req: Request) async throws -> ValidationErrorDetail? {
-        if validateQuery {
-            let optionalValue = try? req.query.get(T.self, at: key)
+    public func validate(_ req: Request, _ validationObject: RequestValidationObject) async throws -> ValidationErrorDetail? {
+        switch validationObject {
+        case .content:
+            let optionalValue = try? req.content.get(T.self, at: key)
             if let value = optionalValue {
                 return try await validation(value, req) ? nil : error
             }
-        } else {
-            let optionalValue = try? req.content.get(T.self, at: key)
+        case .query:
+            let optionalValue = try? req.query.get(T.self, at: key)
             if let value = optionalValue {
                 return try await validation(value, req) ? nil : error
             }

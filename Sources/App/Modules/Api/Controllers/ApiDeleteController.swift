@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  ApiDeleteController.swift
 //  
 //
 //  Created by niklhut on 01.02.22.
@@ -8,7 +8,6 @@
 import Vapor
 
 protocol ApiDeleteController: DeleteController {
-    
     func deleteApi(_ req: Request) async throws -> HTTPStatus
     func setupDeleteRoutes(_ routes: RoutesBuilder)
 }

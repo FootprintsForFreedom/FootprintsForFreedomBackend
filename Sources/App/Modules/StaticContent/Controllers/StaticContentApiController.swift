@@ -149,7 +149,8 @@ struct StaticContentApiController: ApiRepositoryController {
         try await req.onlyFor(.admin)
     }
     
-    func getCreateInput(_ req: Request) throws -> CreateObject {
+    func getCreateInput(_ req: Request) async throws -> CreateObject {
+        try await RequestValidator(createValidators()).validate(req)
         do {
             return try req.content.decode(CreateObject.self)
         } catch {

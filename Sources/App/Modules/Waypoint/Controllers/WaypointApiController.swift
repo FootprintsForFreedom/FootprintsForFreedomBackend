@@ -136,8 +136,7 @@ struct WaypointApiController: ApiRepositoryController {
     // MARK: - Create
     
     func createApi(_ req: Request) async throws -> Response {
-        try await RequestValidator(createValidators()).validate(req)
-        let input = try getCreateInput(req)
+        let input = try await getCreateInput(req)
         let repository = DatabaseModel()
         try await createRepositoryInput(req, repository, input)
         try await create(req, repository)

@@ -19,27 +19,27 @@ struct MediaApiController: ApiRepositoryController {
     
     @AsyncValidatorBuilder
     func createValidators() -> [AsyncValidator] {
-        KeyedContentValidator<String>.required("title", validateQuery: true)
-        KeyedContentValidator<String>.required("detailText", validateQuery: true)
-        KeyedContentValidator<String>.required("source", validateQuery: true)
-        KeyedContentValidator<String>.required("languageCode", validateQuery: true)
-        KeyedContentValidator<UUID>.required("waypointId", validateQuery: true)
+        KeyedContentValidator<String>.required("title")
+        KeyedContentValidator<String>.required("detailText")
+        KeyedContentValidator<String>.required("source")
+        KeyedContentValidator<String>.required("languageCode")
+        KeyedContentValidator<UUID>.required("waypointId")
     }
     
     @AsyncValidatorBuilder
     func updateValidators() -> [AsyncValidator] {
-        KeyedContentValidator<String>.required("title", validateQuery: true)
-        KeyedContentValidator<String>.required("detailText", validateQuery: true)
-        KeyedContentValidator<String>.required("source", validateQuery: true)
-        KeyedContentValidator<String>.required("languageCode", validateQuery: true)
+        KeyedContentValidator<String>.required("title")
+        KeyedContentValidator<String>.required("detailText")
+        KeyedContentValidator<String>.required("source")
+        KeyedContentValidator<String>.required("languageCode")
     }
     
     @AsyncValidatorBuilder
     func patchValidators() -> [AsyncValidator] {
-        KeyedContentValidator<String>.required("title", optional: true, validateQuery: true)
-        KeyedContentValidator<String>.required("detailText", optional: true, validateQuery: true)
-        KeyedContentValidator<String>.required("source", optional: true, validateQuery: true)
-        KeyedContentValidator<UUID>.required("idForMediaToPatch", validateQuery: true)
+        KeyedContentValidator<String>.required("title", optional: true)
+        KeyedContentValidator<String>.required("detailText", optional: true)
+        KeyedContentValidator<String>.required("source", optional: true)
+        KeyedContentValidator<UUID>.required("idForMediaToPatch")
     }
     
     // MARK: - Routes
@@ -119,8 +119,9 @@ struct MediaApiController: ApiRepositoryController {
         try await req.onlyForVerifiedUser()
     }
     
-    func getCreateInput(_ req: Request) throws -> Media.Detail.Create {
-        try req.query.decode(CreateObject.self)
+    func getCreateInput(_ req: Request) async throws -> Media.Detail.Create {
+        try await RequestValidator(createValidators()).validate(req, .query)
+        return try req.query.decode(CreateObject.self)
     }
     
     func createRepositoryInput(_ req: Request, _ repository: MediaRepositoryModel, _ input: Media.Detail.Create) async throws {
@@ -189,8 +190,9 @@ struct MediaApiController: ApiRepositoryController {
         try await req.onlyForVerifiedUser()
     }
     
-    func getUpdateInput(_ req: Request) throws -> Media.Detail.Update {
-        try req.query.decode(UpdateObject.self)
+    func getUpdateInput(_ req: Request) async throws -> Media.Detail.Update {
+        try await RequestValidator(updateValidators()).validate(req, .query)
+        return try req.query.decode(UpdateObject.self)
     }
     
     func updateInput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: MediaDetailModel, _ input: Media.Detail.Update) async throws {
@@ -254,8 +256,9 @@ struct MediaApiController: ApiRepositoryController {
         try await req.onlyForVerifiedUser()
     }
     
-    func getPatchInput(_ req: Request) throws -> Media.Detail.Patch {
-        try req.query.decode(PatchObject.self)
+    func getPatchInput(_ req: Request) async throws -> Media.Detail.Patch {
+        try await RequestValidator(patchValidators()).validate(req, .query)
+        return try req.query.decode(PatchObject.self)
     }
     
     func patchInput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: MediaDetailModel, _ input: Media.Detail.Patch) async throws {

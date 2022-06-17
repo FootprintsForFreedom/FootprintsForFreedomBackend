@@ -8,20 +8,20 @@
 import Vapor
 
 public struct RequestValidator {
-
+    
     public var validators: [AsyncValidator]
     
     public init(_ validators: [AsyncValidator]) {
         self.validators = validators
     }
-
-    public func validate(_ req: Request, message: String? = nil) async throws {
+    
+    public func validate(_ req: Request, _ validationObject: RequestValidationObject = .content, message: String? = nil) async throws {
         var result: [ValidationErrorDetail] = []
         for validator in validators {
             if result.contains(where: { $0.key == validator.key }) {
                 continue
             }
-            if let res = try await validator.validate(req) {
+            if let res = try await validator.validate(req, validationObject) {
                 result.append(res)
             }
         }
@@ -29,14 +29,14 @@ public struct RequestValidator {
             throw ValidationAbort(abort: Abort(.badRequest, reason: message), details: result)
         }
     }
-
-    public func isValid(_ req: Request) async -> Bool {
-        do {
-            try await validate(req, message: nil)
-            return true
-        }
-        catch {
-            return false
-        }
-    }
+    
+//    public func isValid(_ req: Request) async -> Bool {
+//        do {
+//            try await validate(req, message: nil)
+//            return true
+//        }
+//        catch {
+//            return false
+//        }
+//    }
 }

@@ -11,9 +11,9 @@ import Fluent
 extension TagApiController {
     
     @AsyncValidatorBuilder
-    func searchValidatores() -> [AsyncValidator] {
-        KeyedContentValidator<String>.required("text", validateQuery: true)
-        KeyedContentValidator<String>.required("languageCode", validateQuery: true)
+    func searchValidators() -> [AsyncValidator] {
+        KeyedContentValidator<String>.required("text")
+        KeyedContentValidator<String>.required("languageCode")
     }
     
     struct SearchQuery: Codable {
@@ -23,7 +23,7 @@ extension TagApiController {
     
     // GET: api/tags/search?text=searchText
     func searchApi(_ req: Request) async throws -> Page<Tag.Detail.List> {
-        try await RequestValidator(searchValidatores()).validate(req)
+        try await RequestValidator(searchValidators()).validate(req, .query)
         let searchQuery = try req.query.decode(SearchQuery.self)
         
         guard searchQuery.text.trimmingCharacters(in: .whitespacesAndNewlines) != "" else {
@@ -45,7 +45,7 @@ extension TagApiController {
             .grouped(by: \.$repository.id)
         // get the newest detail for each repository
             .map { $1.sorted { $0.updatedAt! > $1.updatedAt! }.first! }
-        // filter the details according to the sarch text
+        // filter the details according to the search text
             .filter {
                 $0.title.lowercased().contains(searchText) ||
                 $0.keywords.contains { $0.lowercased().contains(searchText) }

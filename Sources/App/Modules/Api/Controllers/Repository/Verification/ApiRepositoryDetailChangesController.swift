@@ -22,8 +22,8 @@ protocol ApiRepositoryDetailChangesController: RepositoryController {
 extension ApiRepositoryDetailChangesController {
     @AsyncValidatorBuilder
     func detailChangesValidators() -> [AsyncValidator] {
-        KeyedContentValidator<UUID>.required("from", validateQuery: true)
-        KeyedContentValidator<UUID>.required("to", validateQuery: true)
+        KeyedContentValidator<UUID>.required("from")
+        KeyedContentValidator<UUID>.required("to")
     }
     
     func beforeDetailChanges(_ req: Request) async throws { }
@@ -35,7 +35,7 @@ extension ApiRepositoryDetailChangesController {
     func detailChangesApi(_ req: Request) async throws -> DetailChangesResponseObject {
         try await beforeDetailChanges(req)
         
-        try await RequestValidator(detailChangesValidators()).validate(req)
+        try await RequestValidator(detailChangesValidators()).validate(req, .query)
         let input = try req.query.decode(DetailChangesObject.self)
         let repository = try await repository(req)
         
