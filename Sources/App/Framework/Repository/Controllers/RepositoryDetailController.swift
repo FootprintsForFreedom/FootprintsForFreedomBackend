@@ -43,10 +43,6 @@ extension RepositoryDetailController {
         (repository, detail)
     }
     
-    func afterDetail(_ req: Request, _ repository: DatabaseModel) async throws -> DatabaseModel {
-        repository
-    }
-    
     func detail(_ req: Request) async throws -> (DatabaseModel, Detail) {
         let queryBuilder = DatabaseModel.query(on: req.db)
         let repository = try await beforeDetail(req, queryBuilder).filter(\._$id == identifier(req)).first()
