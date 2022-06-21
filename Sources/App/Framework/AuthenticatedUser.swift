@@ -7,7 +7,7 @@
 
 import Vapor
 
-public struct AuthenticatedUser {
+public struct AuthenticatedUser: Authenticatable {
     public let id: UUID
     public let email: String
     
@@ -16,8 +16,3 @@ public struct AuthenticatedUser {
         self.email = email
     }
 }
-
-extension AuthenticatedUser: SessionAuthenticatable {
-    public var sessionID: UUID { id }
-}
-
