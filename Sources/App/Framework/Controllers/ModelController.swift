@@ -16,8 +16,6 @@ public protocol ModelController {
     
     /// The module name.
     static var moduleName: String { get }
-    /// The model name.
-    static var modelName: Name { get }
     
     /// Gets the model identifier from a request.
     /// - Parameter req: The request containing the model identifier.
@@ -39,7 +37,6 @@ public protocol ModelController {
 
 extension ModelController {
     static var moduleName: String { DatabaseModel.Module.identifier.capitalized }
-    static var modelName: Name { .init(singular: String(DatabaseModel.identifier.dropLast(1))) }
     
     func identifier(_ req: Request) throws -> UUID {
         guard
