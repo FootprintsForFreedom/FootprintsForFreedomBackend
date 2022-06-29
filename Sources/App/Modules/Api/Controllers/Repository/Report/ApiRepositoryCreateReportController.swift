@@ -8,16 +8,46 @@
 import Vapor
 import Fluent
 
+///Streamlines creating repository reports.
 protocol ApiRepositoryCreateReportController: RepositoryController where DatabaseModel: Reportable {
+    /// The codable report create object.
     associatedtype ReportCreateObject: Codable
+    /// The report detail object content.
     associatedtype ReportDetailObject: Content
+    /// The database detail object for the repository.
     associatedtype DetailObject: InitializableById
     
+    /// Action performed prior to reporting the repository.
+    /// - Parameter req: The request on which the repository will be reported.
     func beforeReport(_ req: Request) async throws
+    
+    /// The ``AsyncValidator``s which need to be fulfilled to report the repository.
+    /// - Returns: The ``AsyncValidator``s which need to be fulfilled to report the repository.
     func reportValidators() -> [AsyncValidator]
+    
+    /// Processes the report input to create a report for the repository.
+    /// - Parameters:
+    ///   - req: The request on which the repository is reported.
+    ///   - repository: The repository being reported.
+    ///   - report: The new report.
+    ///   - input: The input to be processed.
     func reportInput(_ req: Request, _ repository: DatabaseModel, _ report: Report, _ input: ReportCreateObject) async throws
+    
+    /// The report api action.
+    /// - Parameter req: The request on which the repository is reported.
+    /// - Returns: A response with the created report.
     func reportApi(_ req: Request) async throws -> Response
+    
+    /// The report detail response which will be returned.
+    /// - Parameters:
+    ///   - req: The request on which the repository is reported.
+    ///   - repository: The repository being reported.
+    ///   - report: The created report.
+    /// - Returns: The report detail object to return as a response.
     func reportResponse(_ req: Request, _ repository: DatabaseModel, _ report: Report) async throws -> ReportDetailObject
+    
+    /// Sets up the create report routes.
+    /// - Parameter routes: The routes on which to setup the create report routes.
     func setupCreateReportRoutes(_ routes: RoutesBuilder)
 }
 

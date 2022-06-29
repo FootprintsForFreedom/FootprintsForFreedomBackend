@@ -8,13 +8,38 @@
 import Vapor
 import Fluent
 
+/// Streamlines listing unverified repository reports.
 protocol ApiRepositoryListUnverifiedReportsController: RepositoryController where DatabaseModel: Reportable {
+    /// The codable report list object.
     associatedtype ReportListObject: Codable
     
+    /// Action performed prior to listing the unverified reports.
+    /// - Parameter req: The request on which to get the unverified repository reports.
     func beforeListUnverifiedReports(_ req: Request) async throws
+    
+    /// The list unverified repository reports action.
+    /// - Parameter req: The request on which to find the unverified repository reports.
+    /// - Returns: A paged list of the unverified repository reports.
     func listUnverifiedReportsApi(_ req: Request) async throws -> Page<ReportListObject>
+    
+    /// The output for the unverified reports list.
+    /// - Parameters:
+    ///   - req: The request on which the reports list was requested.
+    ///   - repository: The reported repository.
+    ///   - reports: The unverified reports to be returned.
+    /// - Returns: A paged list of the unverified repository reports.
     func listUnverifiedReportsOutput(_ req: Request, _ repository: DatabaseModel, _ reports: Page<Report>) async throws -> Page<ReportListObject>
+    
+    /// The output for one unverified report.
+    /// - Parameters:
+    ///   - req: The request on which the report was loaded.
+    ///   - repository: The reported repository.
+    ///   - report: The report to be returned
+    /// - Returns: A list object of the report.
     func listUnverifiedReportsOutput(_ req: Request,  _ repository: DatabaseModel, _ report: Report) async throws -> ReportListObject
+    
+    /// Sets up the list unverified reports route.
+    /// - Parameter routes: The routes on which to setup the unverified reports routes.
     func setupListUnverifiedReportsRoutes(_ routes: RoutesBuilder)
 }
 

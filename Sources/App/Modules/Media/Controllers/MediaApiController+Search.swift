@@ -11,7 +11,7 @@ import Fluent
 extension MediaApiController {
     
     @AsyncValidatorBuilder
-    func searchValidatores() -> [AsyncValidator] {
+    func searchValidators() -> [AsyncValidator] {
         KeyedContentValidator<String>.required("text")
         KeyedContentValidator<String>.required("languageCode")
     }
@@ -22,7 +22,7 @@ extension MediaApiController {
     }
     
     func searchApi(_ req: Request) async throws -> Page<Media.Detail.List> {
-        try await RequestValidator(searchValidatores()).validate(req, .query)
+        try await RequestValidator(searchValidators()).validate(req, .query)
         let searchQuery = try req.query.decode(SearchQuery.self)
         
         guard searchQuery.text.trimmingCharacters(in: .whitespacesAndNewlines) != "" else {

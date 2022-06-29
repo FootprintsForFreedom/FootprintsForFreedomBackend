@@ -7,6 +7,8 @@
 
 import Fluent
 
+/// Represents a model with a title
 protocol Titled: Fluent.Model {
+    /// The model's title.
     var title: String { get set }
 }

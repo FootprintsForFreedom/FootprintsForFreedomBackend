@@ -8,11 +8,14 @@
 import Vapor
 import Fluent
 
+/// Streamlines reporting repositories.
 protocol ApiRepositoryReportController:
     ApiRepositoryCreateReportController,
     ApiRepositoryListUnverifiedReportsController,
     ApiRepositoryVerifyReportController
 {
+    /// Sets up the report routes.
+    /// - Parameter routes: The routes on which to setup the report routes.
     func setupReportRoutes(_ routes: RoutesBuilder)
 }
 

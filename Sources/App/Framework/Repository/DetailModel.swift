@@ -10,8 +10,9 @@ import Fluent
 
 /// A repository detail model.
 ///
-/// The detail model also contains a title, timestamp and slug.
+/// The detail model also contains a title, timestamps and slug.
 protocol DetailModel: DatabaseModelInterface, Timestamped, Titled, Slugable {
+    /// The type of the repository model to which the detail belongs.
     associatedtype Repository: RepositoryModel
     
     /// The detail's status.

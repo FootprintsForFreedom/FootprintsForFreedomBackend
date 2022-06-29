@@ -8,17 +8,45 @@
 import Vapor
 import Fluent
 
+/// Streamlines verifying repository reports.
 protocol ApiRepositoryVerifyReportController: RepositoryController where DatabaseModel: Reportable {
+    /// The report detail object content
     associatedtype ReportDetailObject: Content
+    /// The database detail object for the repository.
     associatedtype DetailObject: InitializableById
     
+    /// The path id key for the report id.
     var reportPathIdKey: String { get }
+    /// The path id component for the report id.
     var reportPathIdComponent: PathComponent { get }
     
+    
+    /// Action performed prior to verifying the report.
+    /// - Parameter req: The request on which the report will be verified.
     func beforeVerifyReport(_ req: Request) async throws
+    
+    /// Verifies the report on the database.
+    /// - Parameters:
+    ///   - req: The request on which to verify the report.
+    ///   - repository: The repository to which the report belongs.
+    ///   - report: The report to be verified.
     func verifyReport(_ req: Request, _ repository: DatabaseModel, _ report: Report) async throws
+    
+    /// The verify report api action.
+    /// - Parameter req: The request on which to verify the report.
+    /// - Returns: A report detail object for the verified report.
     func verifyReportApi(_ req: Request) async throws -> ReportDetailObject
+    
+    /// The report detail response which will be returned
+    /// - Parameters:
+    ///   - req: The request on which the report was verified.
+    ///   - repository: The repository to which the report belongs.
+    ///   - report: The report which was verified.
+    /// - Returns: A report detail object for the verified report.
     func verifyReportOutput(_ req: Request, _ repository: DatabaseModel, _ report: Report) async throws -> ReportDetailObject
+    
+    /// Sets up the verify report routes.
+    /// - Parameter routes: The routes on which to setup the verify report routes.
     func setupVerifyReportRoutes(_ routes: RoutesBuilder)
 }
 
