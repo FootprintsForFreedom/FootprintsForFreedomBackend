@@ -16,7 +16,7 @@ protocol ApiListRepositoriesWithUnverifiedDetailsController: RepositoryControlle
     func listRepositoriesWithUnverifiedDetailsApi(_ req: Request) async throws -> Page<RepositoriesWithUnverifiedDetailsResponseObject>
     func listRepositoriesWithUnverifiedDetailsOutput(_ req: Request, _ repositories: Page<DatabaseModel>) async throws -> Page<RepositoriesWithUnverifiedDetailsResponseObject>
     func listRepositoriesWithUnverifiedDetailsOutput(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> RepositoriesWithUnverifiedDetailsResponseObject
-    func setuplistRepositoriesWithUnverifiedDetailsRoutes(_ routes: RoutesBuilder)
+    func setupListRepositoriesWithUnverifiedDetailsRoutes(_ routes: RoutesBuilder)
 }
 
 extension ApiListRepositoriesWithUnverifiedDetailsController {
@@ -56,7 +56,7 @@ extension ApiListRepositoriesWithUnverifiedDetailsController {
             }
     }
     
-    func setuplistRepositoriesWithUnverifiedDetailsRoutes(_ routes: RoutesBuilder) {
+    func setupListRepositoriesWithUnverifiedDetailsRoutes(_ routes: RoutesBuilder) {
         let baseRoutes = getBaseRoutes(routes)
         baseRoutes.get("unverified", use: listRepositoriesWithUnverifiedDetailsApi)
     }

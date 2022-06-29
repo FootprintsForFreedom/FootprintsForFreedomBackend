@@ -19,7 +19,7 @@ protocol ApiRepositoryVerificationController:
 extension ApiRepositoryVerificationController {
     func setupVerificationRoutes(_ routes: RoutesBuilder) {
         setupDetailChangesRoutes(routes)
-        setuplistRepositoriesWithUnverifiedDetailsRoutes(routes)
+        setupListRepositoriesWithUnverifiedDetailsRoutes(routes)
         setupListUnverifiedDetailsRoutes(routes)
         setupVerifyDetailRoutes(routes)
     }
