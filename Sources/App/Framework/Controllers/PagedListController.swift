@@ -13,7 +13,7 @@ protocol PagedListController: ModelController {
     
     /// Action performed prior to getting models from the database.
     /// - Parameters:
-    ///   - req: The `Request` on which the ``ModelController/DatabaseModel``s will be laoded.
+    ///   - req: The `Request` on which the ``ModelController/DatabaseModel``s will be loaded.
     ///   - queryBuilder: The `QueryBuilder` which will be loading the ``ModelController/DatabaseModel``s.
     /// - Returns: The potentially modified `QueryBuilder` which will be loading the ``ModelController/DatabaseModel``s.
     func beforeList(_ req: Request, _ queryBuilder: QueryBuilder<DatabaseModel>) async throws -> QueryBuilder<DatabaseModel>

@@ -42,7 +42,7 @@ protocol ApiRepositoryCreateController: RepositoryController, CreateController {
     
     /// The create repository api action.
     /// - Parameter req: The request on which the repository is created.
-    /// - Returns: A response with the created repository and detail.
+    /// - Returns: A response containing the created repository and detail.
     func createApi(_ req: Request) async throws -> Response
     
     /// The repository detail response which will be returned.
@@ -50,7 +50,7 @@ protocol ApiRepositoryCreateController: RepositoryController, CreateController {
     ///   - req: The request on which the repository was created.
     ///   - repository: The created repository.
     ///   - detail: The created detail.
-    /// - Returns: The repository detail object to return as a response.
+    /// - Returns: A response containing the created repository and detail.
     func createResponse(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> Response
     
     /// Sets up the create repository routes.
@@ -59,7 +59,6 @@ protocol ApiRepositoryCreateController: RepositoryController, CreateController {
 }
 
 extension ApiRepositoryCreateController {
-    
     func createValidators() -> [AsyncValidator] {
         []
     }

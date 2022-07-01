@@ -7,6 +7,9 @@
 
 import Vapor
 
+/// Streamlines controlling models.
+///
+/// This protocol does not include a list functionality.
 protocol ApiControllerWithoutList:
     ApiDetailController,
     ApiCreateController,
@@ -14,8 +17,13 @@ protocol ApiControllerWithoutList:
     ApiPatchController,
     ApiDeleteController
 {
+    /// The ``AsyncValidator``s which need to be fulfilled before creating, updating or patching a model.
+    /// - Parameter optional: Wether or not the validator is required.
+    /// - Returns: The ``AsyncValidator``s which need to be fulfilled to create update or patch the model.
     func validators(optional: Bool) -> [AsyncValidator]
     
+    /// Sets up the model routes.
+    /// - Parameter routes: The routes on which to setup the model routes.
     func setupRoutes(_ routes: RoutesBuilder)
 }
 
@@ -57,6 +65,9 @@ extension ApiControllerWithoutList {
     }
 }
 
+/// Streamlines controlling models.
+///
+/// This protocol includes a paged list functionality.
 protocol ApiController: ApiPagedListController, ApiControllerWithoutList { }
 
 extension ApiController {
@@ -70,6 +81,9 @@ extension ApiController {
     }
 }
 
+/// Streamlines controlling models.
+///
+/// This protocol includes an unpaged list functionality.
 protocol UnpagedApiController: ApiListController, ApiControllerWithoutList { }
 
 extension UnpagedApiController {

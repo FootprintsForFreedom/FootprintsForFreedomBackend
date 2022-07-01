@@ -34,7 +34,7 @@ protocol ApiRepositoryUpdateController: RepositoryController, UpdateController {
     func updateInput(_ req: Request, _ repository: DatabaseModel, _ detail: Detail, _ input: UpdateObject) async throws
     
     /// The update repository api action.
-    /// - Parameter req: The request on which to repository is updated.
+    /// - Parameter req: The request on which the repository is updated.
     /// - Returns: A response with the updated repository and detail.
     func updateApi(_ req: Request) async throws -> Response
     
