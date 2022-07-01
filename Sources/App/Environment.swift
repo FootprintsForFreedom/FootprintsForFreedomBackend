@@ -8,15 +8,25 @@
 import Vapor
 
 extension Environment {
+    /// The database host.
     static let dbHost = Self.get("DATABASE_HOST")!
+    /// The database port.
     static let dbPort = Self.get("DATABASE_PORT")
+    /// The postgres username.
     static let pgUser = Self.get("POSTGRES_USER")!
+    /// The postgres password.
+    ///
+    /// If no postgres password is set in the environment no password is returned.
     static let pgPassword = Self.get("POSTGRES_PASSWORD") ?? ""
+    /// The postgres database name.
     static let pgDbName = Self.get("POSTGRES_DB")!
     
+    /// The app url.
     static let appUrl = Self.get("APP_URL")!
+    /// The app name.
     static let appName = Self.get("APP_NAME")!
     
+    /// The email address used for sending mails.
     static let emailAddress = Self.get("SMTP_USERNAME")!
     
     /// The lifetime of soft deleted models.
