@@ -7,7 +7,7 @@
 
 import Vapor
 
-protocol ApiControllerWihtoutList:
+protocol ApiControllerWithoutList:
     ApiDetailController,
     ApiCreateController,
     ApiUpdateController,
@@ -19,7 +19,7 @@ protocol ApiControllerWihtoutList:
     func setupRoutes(_ routes: RoutesBuilder)
 }
 
-extension ApiControllerWihtoutList {
+extension ApiControllerWithoutList {
     func validators(optional: Bool) -> [AsyncValidator] {
         []
     }
@@ -57,7 +57,7 @@ extension ApiControllerWihtoutList {
     }
 }
 
-protocol ApiController: ApiPagedListController, ApiControllerWihtoutList { }
+protocol ApiController: ApiPagedListController, ApiControllerWithoutList { }
 
 extension ApiController {
     func setupRoutes(_ routes: RoutesBuilder) {
@@ -70,7 +70,7 @@ extension ApiController {
     }
 }
 
-protocol UnpagedApiController: ApiListController, ApiControllerWihtoutList { }
+protocol UnpagedApiController: ApiListController, ApiControllerWithoutList { }
 
 extension UnpagedApiController {
     func setupRoutes(_ routes: RoutesBuilder) {
