@@ -12,7 +12,7 @@ import Fluent
 protocol LanguageTest: AppTestCase { }
 
 extension LanguageTest {
-    var languagesPath: String { "api/languages/" }
+    var languagesPath: String { "api/v1/languages/" }
     
     func createLanguage(
         languageCode: String = UUID().uuidString,

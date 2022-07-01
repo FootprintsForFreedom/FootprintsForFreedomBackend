@@ -12,7 +12,7 @@ import Fluent
 protocol MediaTest: WaypointTest { }
 
 extension MediaTest {
-    var mediaPath: String { "api/media/" }
+    var mediaPath: String { "api/v1/media/" }
     
     func createNewMedia(
         title: String = "New Media Title \(UUID())",

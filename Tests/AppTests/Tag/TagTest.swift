@@ -12,7 +12,7 @@ import Fluent
 protocol TagTest: LanguageTest { }
 
 extension TagTest {
-    var tagPath: String { "api/tags/" }
+    var tagPath: String { "api/v1/tags/" }
     
     func createNewTag(
         title: String = "New Tag title \(UUID())",

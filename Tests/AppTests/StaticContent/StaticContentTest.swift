@@ -12,7 +12,7 @@ import Fluent
 protocol StaticContentTest: LanguageTest { }
 
 extension StaticContentTest {
-    var staticContentPath: String { "api/staticContent/" }
+    var staticContentPath: String { "api/v1/staticContent/" }
     
     func createNewStaticContent(
         repositoryTitle: String = "New title \(UUID())",

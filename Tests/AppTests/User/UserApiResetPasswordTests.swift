@@ -147,7 +147,7 @@ final class UserApiResetPasswordTests: AppTestCase, UserTest {
             .test()
         
         // test user can sign in with new password
-        let signInPath = "/api/sign-in/"
+        let signInPath = "/api/v1/sign-in/"
         let credentials = User.Account.Login(email: user.email, password: newPassword)
         
         try app

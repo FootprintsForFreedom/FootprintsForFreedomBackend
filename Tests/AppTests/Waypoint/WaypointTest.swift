@@ -12,7 +12,7 @@ import Fluent
 protocol WaypointTest: LanguageTest { }
 
 extension WaypointTest {
-    var waypointsPath: String { "api/waypoints/" }
+    var waypointsPath: String { "api/v1/waypoints/" }
     
     func createNewWaypoint(
         title: String = "New Waypoint Title \(UUID())",

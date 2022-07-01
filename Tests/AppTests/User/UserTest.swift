@@ -12,7 +12,7 @@ import Fluent
 protocol UserTest: AppTestCase { }
 
 extension UserTest {
-    var usersPath: String { "api/\(User.pathKey)/\(User.Account.pathKey)/" }
+    var usersPath: String { "api/v1/\(User.pathKey)/\(User.Account.pathKey)/" }
     
     func createNewUser(
         name: String = "New Test User \(UUID())",

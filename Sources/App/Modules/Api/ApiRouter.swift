@@ -14,7 +14,8 @@ struct ApiRouter: RouteCollection {
     func setUpRoutesHooks(app: Application) throws {
         let apiRoutes = app.routes
             .grouped("api")
+            .grouped("v1")
         
-        let _: [Void] = app.invokeAll("api-routes", args: ["routes": apiRoutes])
+        let _: [Void] = app.invokeAll("api-routes-v1", args: ["routes": apiRoutes])
     }
 }

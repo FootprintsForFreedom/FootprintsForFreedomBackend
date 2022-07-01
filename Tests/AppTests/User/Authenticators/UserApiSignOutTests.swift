@@ -11,7 +11,7 @@ import Fluent
 import Spec
 
 final class UserApiSignOutTests: AppTestCase {
-    let signOutPath = "/api/sign-out/"
+    let signOutPath = "/api/v1/sign-out/"
     
     private func createNewUser(
         name: String = "New Test User",

@@ -13,7 +13,7 @@ import Spec
 extension User.Account.Login: Content { }
 
 final class UserApiSignInTests: AppTestCase {
-    let signInPath = "/api/sign-in/"
+    let signInPath = "/api/v1/sign-in/"
     
     private func createNewUser(
         name: String = "New Test User",
