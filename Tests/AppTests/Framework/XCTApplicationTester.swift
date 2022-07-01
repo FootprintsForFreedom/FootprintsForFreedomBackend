@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  XCTApplicationTester.swift
 //  
 //
 //  Created by niklhut on 01.02.22.
@@ -8,7 +8,6 @@
 import XCTVapor
 
 extension XCTApplicationTester {
-
     @discardableResult public func test<T>(
         _ method: HTTPMethod,
         _ path: String,

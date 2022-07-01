@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  UserApiGetOwnUserTests.swift
 //  
 //
 //  Created by niklhut on 04.02.22.

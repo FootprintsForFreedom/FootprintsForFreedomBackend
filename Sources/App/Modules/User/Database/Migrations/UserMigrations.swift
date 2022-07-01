@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  UserMigrations.swift
 //  
 //
 //  Created by niklhut on 01.02.22.
@@ -9,7 +9,6 @@ import Vapor
 import Fluent
 
 enum UserMigrations {
-    
     struct v1: AsyncMigration {
         func prepare(on db: Database) async throws {
             let userRole = try await db.enum(User.Role.pathKey)

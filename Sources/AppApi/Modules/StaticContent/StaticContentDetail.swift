@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  StaticContentDetail.swift
 //  
 //
 //  Created by niklhut on 09.06.22.

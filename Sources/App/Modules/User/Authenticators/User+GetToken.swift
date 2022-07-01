@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  User+GetToken.swift
 //  
 //
 //  Created by niklhut on 04.02.22.
