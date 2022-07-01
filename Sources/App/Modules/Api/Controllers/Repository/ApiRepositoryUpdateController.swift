@@ -8,14 +8,47 @@
 import Vapor
 import Fluent
 
+/// Streamlines updating repositories.
 protocol ApiRepositoryUpdateController: RepositoryController, UpdateController {
+    /// The decodable update object.
     associatedtype UpdateObject: Decodable
     
+    /// The ``AsyncValidator``s which need to be fulfilled before updating a repository.
+    /// - Returns: The ``AsyncValidator``s which need to be fulfilled before updating a repository.
     func updateValidators() -> [AsyncValidator]
+    
+    /// Validates the request and decodes the input.
+    ///
+    /// By default the request content is validated and the input decoded from there.
+    ///
+    /// - Parameter req: The request containing the input.
+    /// - Returns: The decoded update object.
     func getUpdateInput(_ req: Request) async throws -> UpdateObject
+    
+    /// Processes the update input to create a new repository detail.
+    /// - Parameters:
+    ///   - req: The request on which to update the repository.
+    ///   - repository: The already created repository to update.
+    ///   - detail: The new detail to create.
+    ///   - input: The update input.
     func updateInput(_ req: Request, _ repository: DatabaseModel, _ detail: Detail, _ input: UpdateObject) async throws
+    
+    /// The update repository api action.
+    /// - Parameter req: The request on which to repository is updated.
+    /// - Returns: A response with the updated repository and detail.
     func updateApi(_ req: Request) async throws -> Response
+    
+    /// The repository detail response which will be returned.
+    /// - Parameters:
+    ///   - req: The request on which the repository was updated.
+    ///   - repository: The updated repository.
+    ///   - detail: The updated detail.
+    /// - Returns: The repository detail object to return as a response.
     func updateResponse(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> Response
+    
+    /// Sets up the update repository routes.
+    /// - Parameter routes: The routes on which to setup the update repository routes.
+    func setupUpdateRoutes(_ routes: RoutesBuilder)
 }
 
 extension ApiRepositoryUpdateController {

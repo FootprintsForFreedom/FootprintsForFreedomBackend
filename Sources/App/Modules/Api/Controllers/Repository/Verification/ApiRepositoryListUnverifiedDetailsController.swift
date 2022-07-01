@@ -8,14 +8,45 @@
 import Vapor
 import Fluent
 
+/// Streamlines listing unverified details for a repository.
 protocol ApiRepositoryListUnverifiedDetailsController: RepositoryController {
+    /// The codable list unverified detail object.
     associatedtype ListUnverifiedDetailObject: Codable
     
+    /// Action performed prior to listing unverified details for a repository.
+    /// - Parameter req: The request on which to find and return the unverified details.
     func beforeListUnverifiedDetails(_ req: Request) async throws
+    
+    /// Action performed prior to getting the unverified details.
+    /// - Parameters:
+    ///   - req: The request on which to load the details.
+    ///   - queryBuilder: The `QueryBuilder` loading the details.
+    /// - Returns: The potentially modified `QueryBuilder` loading the details.
     func beforeGetUnverifiedDetail(_ req: Request, _ queryBuilder: QueryBuilder<Detail>) async throws -> QueryBuilder<Detail>
+    
+    /// The list unverified details api action.
+    /// - Parameter req: The request on which to list the details.
+    /// - Returns: A paged list of the unverified details for the repository.
     func listUnverifiedDetailsApi(_ req: Request) async throws -> Page<ListUnverifiedDetailObject>
+    
+    /// The list unverified details output.
+    /// - Parameters:
+    ///   - req: The request on which the details were loaded.
+    ///   - repository: The repository for which the unverified details were requested.
+    ///   - details: The unverified details to be returned.
+    /// - Returns: A paged list of the unverified details for the repository.
     func listUnverifiedDetailsOutput(_ req: Request, _ repository: DatabaseModel, _ details: Page<Detail>) async throws -> Page<ListUnverifiedDetailObject>
+    
+    /// The list unverified detail output for one detail.
+    /// - Parameters:
+    ///   - req: The request on which the details were loaded.
+    ///   - repository: The repository for which the unverified details were requested.
+    ///   - detail: The unverified detail to be returned.
+    /// - Returns: A detail object for the unverified detail.
     func listUnverifiedDetailsOutput(_ req: Request,  _ repository: DatabaseModel, _ detail: Detail) async throws -> ListUnverifiedDetailObject
+    
+    /// Sets up the list unverified details routes.
+    /// - Parameter routes: The routes on which to setup the list unverified detail routes.
     func setupListUnverifiedDetailsRoutes(_ routes: RoutesBuilder)
 }
 

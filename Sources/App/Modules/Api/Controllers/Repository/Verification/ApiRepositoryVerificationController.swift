@@ -7,12 +7,15 @@
 
 import Vapor
 
+/// Streamlines verifying repositories.
 protocol ApiRepositoryVerificationController:
     ApiRepositoryDetailChangesController,
     ApiListRepositoriesWithUnverifiedDetailsController,
     ApiRepositoryListUnverifiedDetailsController,
     ApiRepositoryVerifyDetailController
 {
+    /// Sets up the verification routes.
+    /// - Parameter routes: The routes on which to setup the verification routes.
     func setupVerificationRoutes(_ routes: RoutesBuilder)
 }
 

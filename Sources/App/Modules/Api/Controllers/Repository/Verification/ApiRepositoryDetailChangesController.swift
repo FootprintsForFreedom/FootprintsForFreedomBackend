@@ -8,14 +8,41 @@
 import Vapor
 import Fluent
 
+/// Streamlines detailing changes for repository detail models.
 protocol ApiRepositoryDetailChangesController: RepositoryController {
+    /// The detail changes object content.
     associatedtype DetailChangesResponseObject: Content
     
+    /// The ``AsyncValidator``s which need to be fulfilled to detail the changes.
+    /// - Returns: The ``AsyncValidator``s which need to be fulfilled to detail the changes.
     func detailChangesValidators() -> [AsyncValidator]
+    
+    /// Action performed prior to detailing the changes.
+    /// - Parameter req: The request on which to detail the changes.
     func beforeDetailChanges(_ req: Request) async throws
+    
+    /// Action performed prior to loading a detail model.
+    /// - Parameters:
+    ///   - req: The request on which the detail model is loaded.
+    ///   - queryBuilder: The `QueryBuilder` loading the detail.
+    /// - Returns: The potentially modified `QueryBuilder` loading the detail.
     func beforeGetDetailModel(_ req: Request, _ queryBuilder: QueryBuilder<Detail>) async throws -> QueryBuilder<Detail>
+    
+    /// The detail changes api action.
+    /// - Parameter req: The request on which to detail the changes.
+    /// - Returns: The detail changes object.
     func detailChangesApi(_ req: Request) async throws -> DetailChangesResponseObject
+    
+    /// Creates the output detailing the changes.
+    /// - Parameters:
+    ///   - req: The request on which the details were loaded.
+    ///   - model1: The first model.
+    ///   - model2: The second model.
+    /// - Returns: The detail changes object.
     func detailChangesOutput(_ req: Request, _ model1: Detail, _ model2: Detail) async throws -> DetailChangesResponseObject
+    
+    /// Sets up the detail changes routes.
+    /// - Parameter routes: The routes on which to setup the detail changes routes.
     func setupDetailChangesRoutes(_ routes: RoutesBuilder)
 }
 

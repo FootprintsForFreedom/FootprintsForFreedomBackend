@@ -20,7 +20,6 @@ protocol ApiRepositoryVerifyReportController: RepositoryController where Databas
     /// The path id component for the report id.
     var reportPathIdComponent: PathComponent { get }
     
-    
     /// Action performed prior to verifying the report.
     /// - Parameter req: The request on which the report will be verified.
     func beforeVerifyReport(_ req: Request) async throws

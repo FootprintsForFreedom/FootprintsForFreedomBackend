@@ -8,6 +8,7 @@
 import Vapor
 import Fluent
 
+/// Streamlines controlling repositories.
 protocol ApiRepositoryController:
     ApiRepositoryDetailController,
     ApiRepositoryPagedListController,
@@ -16,8 +17,13 @@ protocol ApiRepositoryController:
     ApiRepositoryPatchController,
     ApiDeleteController
 {
+    /// The ``AsyncValidator``s which need to be fulfilled before creating, updating or patching a repository.
+    /// - Parameter optional: Wether or not the validator is required.
+    /// - Returns: The ``AsyncValidator``s which need to be fulfilled to create update or patch the repository.
     func validators(optional: Bool) -> [AsyncValidator]
     
+    /// Sets up the repository routes.
+    /// - Parameter routes: The routes on which so setup the repository routes.
     func setupRoutes(_ routes: RoutesBuilder)
 }
 

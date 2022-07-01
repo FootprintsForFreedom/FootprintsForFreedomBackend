@@ -8,15 +8,53 @@
 import Vapor
 import Fluent
 
+/// Streamlines creating repositories-
 protocol ApiRepositoryCreateController: RepositoryController, CreateController {
+    /// The decodable create object.
     associatedtype CreateObject: Decodable
     
+    /// The ``AsyncValidator``s which need to be fulfilled before creating a repository.
+    /// - Returns: The ``AsyncValidator``s which need to be fulfilled before creating a repository.
     func createValidators() -> [AsyncValidator]
-    func createRepositoryInput(_ req: Request, _ repository: DatabaseModel, _ input: CreateObject) async throws
+    
+    /// Validates the request and decodes the input.
+    ///
+    /// By default the request content is validated and the input decoded from there.
+    ///
+    /// - Parameter req: The request containing the input.
+    /// - Returns: The decoded create object.
     func getCreateInput(_ req: Request) async throws -> CreateObject
+    
+    /// Processes the create input to create a repository.
+    /// - Parameters:
+    ///   - req: The request on which to create the repository.
+    ///   - repository: The new repository.
+    ///   - input: The create input.
+    func createRepositoryInput(_ req: Request, _ repository: DatabaseModel, _ input: CreateObject) async throws
+    
+    /// Processes the create input to create a repository detail.
+    /// - Parameters:
+    ///   - req: The request on which to create the detail.
+    ///   - repository: The already created repository.
+    ///   - detail: The new detail.
+    ///   - input: The create input.
     func createInput(_ req: Request, _ repository: DatabaseModel, _ detail: Detail, _ input: CreateObject) async throws
+    
+    /// The create repository api action.
+    /// - Parameter req: The request on which the repository is created.
+    /// - Returns: A response with the created repository and detail.
     func createApi(_ req: Request) async throws -> Response
+    
+    /// The repository detail response which will be returned.
+    /// - Parameters:
+    ///   - req: The request on which the repository was created.
+    ///   - repository: The created repository.
+    ///   - detail: The created detail.
+    /// - Returns: The repository detail object to return as a response.
     func createResponse(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> Response
+    
+    /// Sets up the create repository routes.
+    /// - Parameter routes: The routes on which to setup the create repository routes.
     func setupCreateRoutes(_ routes: RoutesBuilder)
 }
 
