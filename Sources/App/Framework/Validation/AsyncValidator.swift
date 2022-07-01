@@ -7,7 +7,7 @@
 
 import Vapor
 
-/// Asynchronously validate a request
+/// Asynchronously validates a request
 public protocol AsyncValidator {
     /// The key at which to find the value to validate.
     var key: String { get }
