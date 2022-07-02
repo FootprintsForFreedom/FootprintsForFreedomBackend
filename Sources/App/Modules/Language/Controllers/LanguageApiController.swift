@@ -21,7 +21,7 @@ struct LanguageApiController: UnpagedApiController {
                 .filter(\.$languageCode == model.languageCode)
                 .count() == 0
         else {
-            throw Abort(.badRequest)
+            throw Abort(.badRequest, reason: "Unique language code is required. The language code \"\(model.languageCode)\" already exists.")
         }
     }
     
@@ -31,7 +31,7 @@ struct LanguageApiController: UnpagedApiController {
                 .filter(\.$name == model.name)
                 .count() == 0
         else {
-            throw Abort(.badRequest)
+            throw Abort(.badRequest, reason: "Unique language name is required. The language name \"\(model.name)\" already exists.")
         }
     }
     
