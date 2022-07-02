@@ -13,7 +13,7 @@ import Spec
 final class LanguageApiActivateTests: AppTestCase, LanguageTest {
     func testSuccessfulActivateLanguage() async throws {
         let token = try await getToken(for: .admin)
-        let language = try await createLanguage()
+        let language = try await createLanguage(activated: false)
         
         try app
             .describe("Activate language as admin should return ok")
@@ -31,7 +31,7 @@ final class LanguageApiActivateTests: AppTestCase, LanguageTest {
     
     func testActivateActivatedLanguageFails() async throws {
         let token = try await getToken(for: .admin)
-        let language = try await createLanguage(activated: false)
+        let language = try await createLanguage(activated: true)
         
         try app
             .describe("Activate already activated language as admin should fail")
@@ -43,7 +43,7 @@ final class LanguageApiActivateTests: AppTestCase, LanguageTest {
     
     func testActivateLanguageAsModeratorFails() async throws {
         let token = try await getToken(for: .moderator)
-        let language = try await createLanguage()
+        let language = try await createLanguage(activated: false)
         
         try app
             .describe("Activate language as moderator should fail")
@@ -55,7 +55,7 @@ final class LanguageApiActivateTests: AppTestCase, LanguageTest {
     
     func testActivateLanguageAsUserFails() async throws {
         let token = try await getToken(for: .user)
-        let language = try await createLanguage()
+        let language = try await createLanguage(activated: false)
         
         try app
             .describe("Activate language as user should fail")

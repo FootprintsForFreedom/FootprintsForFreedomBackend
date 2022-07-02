@@ -36,6 +36,10 @@ extension LanguageApiController {
         
         let language = try await findBy(identifier(req), on: req.db)
         
+        guard language.priority == nil else {
+            throw Abort(.badRequest)
+        }
+        
         let currentHighestPriority = try await LanguageModel
             .query(on: req.db)
             .filter(\.$priority != nil)
@@ -124,7 +128,6 @@ extension LanguageApiController {
         
         let existingModelRoutes = baseRoutes.grouped(ApiModel.pathIdComponent)
         existingModelRoutes.put("deactivate", use: deactivateLanguage)
-        existingModelRoutes.put("activate", use: deactivateLanguage)
-        
+        existingModelRoutes.put("activate", use: activateLanguage)
     }
 }
