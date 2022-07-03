@@ -39,7 +39,7 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
         try await secondMediaDetail.$user.load(on: app.db)
         
         try app
-            .describe("Detail changes as moderator should be succesful and return ok and the changes")
+            .describe("Detail changes as moderator should be successful and return ok and the changes")
             .get(mediaPath.appending("\(mediaRepository.requireID())/changes/?from=\(mediaDetail.requireID())&to=\(secondMediaDetail.requireID())"))
             .bearerToken(moderatorToken)
             .expect(.ok)

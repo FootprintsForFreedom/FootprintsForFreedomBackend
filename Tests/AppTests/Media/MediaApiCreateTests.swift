@@ -15,7 +15,7 @@ extension Data: Content { }
 
 final class MediaApiCreateTests: AppTestCase, MediaTest {
     private func getMediaCreateContent(
-        title: String = "New Meidia Title \(UUID())",
+        title: String = "New Media Title \(UUID())",
         detailText: String = "New Media Description",
         source: String = "New Media Source",
         languageCode: String? = nil,

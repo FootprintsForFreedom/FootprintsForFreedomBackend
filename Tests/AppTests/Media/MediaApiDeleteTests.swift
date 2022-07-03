@@ -30,7 +30,7 @@ final class MediaApiDeleteTests: AppTestCase, MediaTest {
         XCTAssertEqual(newMediaCount, mediaCount)
     }
     
-    func testSuccessfulDelteVerifiedMediaAsModerator() async throws {
+    func testSuccessfulDeleteVerifiedMediaAsModerator() async throws {
         // Get original media count
         let mediaCount = try await MediaRepositoryModel.query(on: app.db).count()
         

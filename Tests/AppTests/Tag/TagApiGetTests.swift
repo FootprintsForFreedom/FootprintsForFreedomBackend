@@ -94,7 +94,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
             .test()
     }
     
-    func testSuccessfullListVerifiedTagsWithoutPreferredLanguageReturnsVerifiedModlesForAllLanguagesAccordingToTheirPriority() async throws {
+    func testSuccessfulListVerifiedTagsWithoutPreferredLanguageReturnsVerifiedModlesForAllLanguagesAccordingToTheirPriority() async throws {
         let language = try await createLanguage()
         let language2 = try await createLanguage()
         XCTAssertLessThan(language.priority!, language2.priority!)
@@ -115,10 +115,10 @@ final class TagApiGetTests: AppTestCase, TagTest {
             userId: userId,
             on: app.db
         )
-        // Create a reposiotry that is only available in the other language
+        // Create a repository that is only available in the other language
         let (verifiedTagRepositoryInDifferentLanguage, createdVerifiedTagInDifferentLanguage) = try await createNewTag(status: .verified, languageId: language2.requireID(), userId: userId)
         try await createdVerifiedTagInDifferentLanguage.$language.load(on: app.db)
-        // Create a reposiotry that is available in both languages
+        // Create a repository that is available in both languages
         let (verifiedTagRepositoryWithMultipleLanguages, _) = try await createNewTag(status: .verified, languageId: language2.requireID(), userId: userId)
         // Create a second model in the other language
         let createdVerifiedTagInLanguage1 = try await TagDetailModel.createWith(
@@ -170,7 +170,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
             .test()
     }
     
-    func testSuccessfullListVerifiedTagsDoesNotReturnModelsForDeactivatedLanguages() async throws {
+    func testSuccessfulListVerifiedTagsDoesNotReturnModelsForDeactivatedLanguages() async throws {
         let language = try await createLanguage()
         let deactivatedLanguage = try await createLanguage()
         deactivatedLanguage.priority = nil

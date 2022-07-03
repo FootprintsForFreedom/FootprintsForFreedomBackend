@@ -98,7 +98,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
             .test()
     }
     
-    func testSuccessfullListVerifiedMediasWithoutPreferredLanguageReturnsVerifiedModlesForAllLanguagesAccordingToTheirPriority() async throws {
+    func testSuccessfulListVerifiedMediasWithoutPreferredLanguageReturnsVerifiedModlesForAllLanguagesAccordingToTheirPriority() async throws {
         let language = try await createLanguage()
         let language2 = try await createLanguage()
         XCTAssertLessThan(language.priority!, language2.priority!)
@@ -179,7 +179,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
             .test()
     }
     
-    func testSuccessfullListVerifiedMediasDoesNotReturnModelsForDeactivatedLanguages() async throws {
+    func testSuccessfulListVerifiedMediasDoesNotReturnModelsForDeactivatedLanguages() async throws {
         let language = try await createLanguage()
         let deactivatedLanguage = try await createLanguage()
         deactivatedLanguage.priority = nil
@@ -215,7 +215,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
     
     // TODO: if unverified, require user to be creator or moderator
     // but there is no crator?!
-    func testSuccessfullGetVerifiedMedia() async throws {
+    func testSuccessfulGetVerifiedMedia() async throws {
         let language = try await createLanguage()
         let (mediaRepository, media, file) = try await createNewMedia(status: .verified, languageId: language.requireID())
         try await media.$language.load(on: app.db)
@@ -239,7 +239,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
             .test()
     }
     
-    func testSuccessfullGetVerifiedMediaAsModerator() async throws {
+    func testSuccessfulGetVerifiedMediaAsModerator() async throws {
         let language = try await createLanguage()
         let (mediaRepository, media, file) = try await createNewMedia(status: .verified, languageId: language.requireID())
         try await media.$language.load(on: app.db)
