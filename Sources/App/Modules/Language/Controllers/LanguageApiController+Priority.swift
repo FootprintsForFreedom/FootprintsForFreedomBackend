@@ -103,7 +103,7 @@ extension LanguageApiController {
             .count()
         
         guard newLanguagesOrder.count == activeLanguageCount else {
-            throw Abort(.badRequest)
+            throw Abort(.badRequest, reason: "The newLanguagesOrder must contain all active languages.")
         }
         
         try await req.db.transaction { transaction in
