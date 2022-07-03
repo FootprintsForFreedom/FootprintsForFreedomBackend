@@ -98,7 +98,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
             .test()
     }
     
-    func testSuccessfullListVerifiedWaypointsWithoutPreferredLanguageReturnsVerifiedModlesForAllLanguagesAccordingToTheirPriority() async throws {
+    func testSuccessfulListVerifiedWaypointsWithoutPreferredLanguageReturnsVerifiedModlesForAllLanguagesAccordingToTheirPriority() async throws {
         let language = try await createLanguage()
         let language2 = try await createLanguage()
         XCTAssertLessThan(language.priority!, language2.priority!)
@@ -178,7 +178,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
             .test()
     }
     
-    func testSuccessfullListVerifiedWaypointsDoesNotReturnModelsForDeactivatedLanguages() async throws {
+    func testSuccessfulListVerifiedWaypointsDoesNotReturnModelsForDeactivatedLanguages() async throws {
         let language = try await createLanguage()
         let deactivatedLanguage = try await createLanguage()
         deactivatedLanguage.priority = nil
@@ -214,7 +214,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
     
     // TODO: if unverified, require user to be creator or moderator
     // but there is no crator?!
-    func testSuccessfullGetVerifiedWaypoint() async throws {
+    func testSuccessfulGetVerifiedWaypoint() async throws {
         let language = try await createLanguage()
         let (waypointRepository, waypoint, location) = try await createNewWaypoint(status: .verified, languageId: language.requireID())
         try await waypoint.$language.load(on: app.db)
@@ -238,7 +238,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
             .test()
     }
     
-    func testSuccessfullGetVerifiedWaypointAsModerator() async throws {
+    func testSuccessfulGetVerifiedWaypointAsModerator() async throws {
         let language = try await createLanguage()
         let (waypointRepository, waypoint, location) = try await createNewWaypoint(status: .verified, languageId: language.requireID())
         try await waypoint.$language.load(on: app.db)

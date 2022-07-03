@@ -14,7 +14,7 @@ final class TagApiListUnverifiedReportsTests: AppTestCase, TagTest {
     func testSuccessfulListUnverifiedReportsListsUnverifiedReports() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let tag = try await createNewTag()
-        let _ = try await createNewTagReport(tag: tag)
+        let report = try await createNewTagReport(tag: tag)
         let reportsCount = try await TagReportModel.query(on: app.db).count()
         
         try app
@@ -24,7 +24,7 @@ final class TagApiListUnverifiedReportsTests: AppTestCase, TagTest {
             .expect(.ok)
             .expect(.json)
             .expect(Page<Report.List>.self) { content in
-                XCTAssert(content.items.contains { $0.id == tag.repository.id })
+                XCTAssert(content.items.contains { $0.id == report.id })
             }
             .test()
     }
@@ -32,7 +32,7 @@ final class TagApiListUnverifiedReportsTests: AppTestCase, TagTest {
     func testSuccessfulListUnverifiedReportsDoesNotListVerifiedReports() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let tag = try await createNewTag()
-        let _ = try await createNewTagReport(tag: tag, status: .verified)
+        let report = try await createNewTagReport(tag: tag, status: .verified)
         let reportsCount = try await TagReportModel.query(on: app.db).count()
         
         try app
@@ -42,7 +42,7 @@ final class TagApiListUnverifiedReportsTests: AppTestCase, TagTest {
             .expect(.ok)
             .expect(.json)
             .expect(Page<Report.List>.self) { content in
-                XCTAssert(!content.items.contains { $0.id == tag.repository.id })
+                XCTAssert(!content.items.contains { $0.id == report.id })
             }
             .test()
     }

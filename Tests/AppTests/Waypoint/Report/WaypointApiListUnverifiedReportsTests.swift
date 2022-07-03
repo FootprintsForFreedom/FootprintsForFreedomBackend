@@ -14,7 +14,7 @@ final class WaypointApiListUnverifiedReportsTests: AppTestCase, WaypointTest {
     func testSuccessfulListUnverifiedReportsListsUnverifiedReports() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let waypoint = try await createNewWaypoint()
-        let _ = try await createNewWaypointReport(waypoint: waypoint)
+        let report = try await createNewWaypointReport(waypoint: waypoint)
         let reportsCount = try await WaypointReportModel.query(on: app.db).count()
         
         try app
@@ -24,7 +24,7 @@ final class WaypointApiListUnverifiedReportsTests: AppTestCase, WaypointTest {
             .expect(.ok)
             .expect(.json)
             .expect(Page<Report.List>.self) { content in
-                XCTAssert(content.items.contains { $0.id == waypoint.repository.id })
+                XCTAssert(content.items.contains { $0.id == report.id })
             }
             .test()
     }
@@ -32,7 +32,7 @@ final class WaypointApiListUnverifiedReportsTests: AppTestCase, WaypointTest {
     func testSuccessfulListUnverifiedReportsDoesNotListVerifiedReports() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let waypoint = try await createNewWaypoint()
-        let _ = try await createNewWaypointReport(waypoint: waypoint, status: .verified)
+        let report = try await createNewWaypointReport(waypoint: waypoint, status: .verified)
         let reportsCount = try await WaypointReportModel.query(on: app.db).count()
         
         try app
@@ -42,7 +42,7 @@ final class WaypointApiListUnverifiedReportsTests: AppTestCase, WaypointTest {
             .expect(.ok)
             .expect(.json)
             .expect(Page<Report.List>.self) { content in
-                XCTAssert(!content.items.contains { $0.id == waypoint.repository.id })
+                XCTAssert(!content.items.contains { $0.id == report.id })
             }
             .test()
     }

@@ -14,7 +14,7 @@ final class MediaApiListUnverifiedReportsTests: AppTestCase, MediaTest {
     func testSuccessfulListUnverifiedReportsListsUnverifiedReports() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let media = try await createNewMedia()
-        let _ = try await createNewMediaReport(media: media)
+        let report = try await createNewMediaReport(media: media)
         let reportsCount = try await MediaReportModel.query(on: app.db).count()
         
         try app
@@ -24,7 +24,7 @@ final class MediaApiListUnverifiedReportsTests: AppTestCase, MediaTest {
             .expect(.ok)
             .expect(.json)
             .expect(Page<Report.List>.self) { content in
-                XCTAssert(content.items.contains { $0.id == media.repository.id })
+                XCTAssert(content.items.contains { $0.id == report.id })
             }
             .test()
     }
@@ -32,7 +32,7 @@ final class MediaApiListUnverifiedReportsTests: AppTestCase, MediaTest {
     func testSuccessfulListUnverifiedReportsDoesNotListVerifiedReports() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let media = try await createNewMedia()
-        let _ = try await createNewMediaReport(media: media, status: .verified)
+        let report = try await createNewMediaReport(media: media, status: .verified)
         let reportsCount = try await MediaReportModel.query(on: app.db).count()
         
         try app
@@ -42,7 +42,7 @@ final class MediaApiListUnverifiedReportsTests: AppTestCase, MediaTest {
             .expect(.ok)
             .expect(.json)
             .expect(Page<Report.List>.self) { content in
-                XCTAssert(!content.items.contains { $0.id == media.repository.id })
+                XCTAssert(!content.items.contains { $0.id == report.id })
             }
             .test()
     }

@@ -83,7 +83,7 @@ extension ApiRepositoryListUnverifiedReportsController where ReportListObject ==
     
     func listUnverifiedReportsOutput(_ req: Request,  _ repository: DatabaseModel, _ report: Report) async throws -> ReportListObject {
         return try .init(
-            id: repository.requireID(),
+            id: report.requireID(),
             title: report.title,
             slug: report.slug
         )
