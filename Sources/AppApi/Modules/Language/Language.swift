@@ -27,7 +27,7 @@ public extension Language.Language {
         /// A boolean value indicating wether or not the language is right-to-left or not.
         public let isRTL: Bool
         
-        /// Create a language list object.
+        /// Creates a language list object.
         /// - Parameters:
         ///   - id: Id uniquely identifying the language.
         ///   - languageCode: A unique language code identifying the language. Ideally in the [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format.
@@ -52,7 +52,7 @@ public extension Language.Language {
         /// A boolean value indicating wether or not the language is right-to-left or not.
         public let isRTL: Bool
         
-        /// Create a language detail object.
+        /// Creates a language detail object.
         /// - Parameters:
         ///   - id: Id uniquely identifying the language.
         ///   - languageCode: A unique language code identifying the language. Ideally in the [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format.
@@ -75,7 +75,7 @@ public extension Language.Language {
         /// A boolean value indicating wether or not the language is right-to-left or not.
         public let isRTL: Bool
         
-        /// Create a language create object.
+        /// Creates a language create object.
         /// - Parameters:
         ///   - languageCode: A unique language code identifying the language. Ideally in the [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format.
         ///   - name: The language's unique name.
@@ -96,7 +96,7 @@ public extension Language.Language {
         /// A boolean value indicating wether or not the language is right-to-left or not.
         public let isRTL: Bool
         
-        /// Create a language update object.
+        /// Creates a language update object.
         /// - Parameters:
         ///   - languageCode: A unique language code identifying the language. Ideally in the [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format
         ///   - name: The language's unique name.
@@ -117,7 +117,7 @@ public extension Language.Language {
         /// A boolean value indicating wether or not the language is right-to-left or not.
         public let isRTL: Bool?
         
-        /// Create a language patch object.
+        /// Creates a language patch object.
         /// - Parameters:
         ///   - languageCode: A unique language code identifying the language. Ideally in the [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format
         ///   - name: The language's unique name.

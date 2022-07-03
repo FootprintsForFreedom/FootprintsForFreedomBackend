@@ -119,10 +119,10 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
             status: .pending,
             on: app.db
         )
-        // Create a reposiotry that is only available in the other language
+        // Create a repository that is only available in the other language
         let (verifiedWaypointRepositoryInDifferentLanguage, createdVerifiedWaypointInDifferentLanguage, _) = try await createNewWaypoint(status: .verified, languageId: language2.requireID(), userId: userId)
         try await createdVerifiedWaypointInDifferentLanguage.$language.load(on: app.db)
-        // Create a reposiotry that is available in both languages
+        // Create a repository that is available in both languages
         let (verifiedWaypointRepositoryWithMultipleLanguages, _, _) = try await createNewWaypoint(status: .verified, languageId: language2.requireID(), userId: userId)
         // Create a second model in the other language
         let createdVerifiedWaypointInLanguage1 = try await WaypointDetailModel.createWith(
