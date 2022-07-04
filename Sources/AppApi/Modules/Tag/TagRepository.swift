@@ -16,13 +16,13 @@ public extension Tag {
 
 public extension Tag.Repository {
     struct ListUnverified: Codable {
-        public let modelId: UUID
+        public let detailId: UUID
         public let title: String
         public let keywords: [String]
         public let languageCode: String
         
-        public init(modelId: UUID, title: String, keywords: [String], languageCode: String) {
-            self.modelId = modelId
+        public init(detailId: UUID, title: String, keywords: [String], languageCode: String) {
+            self.detailId = detailId
             self.title = title
             self.keywords = keywords
             self.languageCode = languageCode

@@ -64,7 +64,7 @@ extension TagApiController: ApiRepositoryVerificationController {
     
     func listUnverifiedDetailsOutput(_ req: Request, _ repository: TagRepositoryModel, _ detail: Detail) async throws -> Tag.Repository.ListUnverified {
         return try .init(
-            modelId: detail.requireID(),
+            detailId: detail.requireID(),
             title: detail.title,
             keywords: detail.keywords,
             languageCode: detail.language.languageCode
