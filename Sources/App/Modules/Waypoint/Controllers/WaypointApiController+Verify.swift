@@ -103,6 +103,7 @@ extension WaypointApiController: ApiRepositoryVerificationController {
         return try .init(
             detailId: detail.requireID(),
             title: detail.title,
+            slug: detail.slug,
             detailText: detail.detailText,
             languageCode: detail.language.languageCode
         )

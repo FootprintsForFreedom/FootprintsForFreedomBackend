@@ -21,6 +21,8 @@ public extension Waypoint.Repository {
         public let detailId: UUID
         /// The waypoint title.
         public let title: String
+        /// The slug uniquely identifying the waypoint.
+        public let slug: String
         /// The detail text describing the waypoint.
         public let detailText: String
         /// The language code for the waypoint title and description.
@@ -30,11 +32,13 @@ public extension Waypoint.Repository {
         /// - Parameters:
         ///   - detailId: Id uniquely identifying the waypoint detail object.
         ///   - title: The waypoint title.
+        ///   - slug: The slug uniquely identifying the waypoint.
         ///   - detailText: The detail text describing the waypoint.
         ///   - languageCode: The language code for the waypoint title and description.
-        public init(detailId: UUID, title: String, detailText: String, languageCode: String) {
+        public init(detailId: UUID, title: String, slug: String, detailText: String, languageCode: String) {
             self.detailId = detailId
             self.title = title
+            self.slug = slug
             self.detailText = detailText
             self.languageCode = languageCode
         }
