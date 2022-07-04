@@ -8,18 +8,18 @@ Documentation off all available api-endpoints which can be used by a fronted app
 
 ## Topics
 
-### Languages
+### Language api endpoints
 
-- <doc:Languages>
+- <doc:LanguageApi>
 
-### Media
+### Media api endpoints
 
-- <doc:Media>
+- <doc:MediaApi>
 
-### Waypoints 
+### Waypoint api endpoints 
 
-- <doc:Waypoints>
+- <doc:WaypointApi>
 
-### Static Content
+### Static Content api endpoints
 
-- <doc:StaticContent>
+- <doc:StaticContentApi>
