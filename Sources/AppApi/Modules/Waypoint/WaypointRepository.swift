@@ -16,13 +16,13 @@ public extension Waypoint {
 
 public extension Waypoint.Repository {
     struct ListUnverifiedWaypoints: Codable {
-        public let modelId: UUID
+        public let detailId: UUID
         public let title: String
         public let detailText: String
         public let languageCode: String
         
-        public init(modelId: UUID, title: String, detailText: String, languageCode: String) {
-            self.modelId = modelId
+        public init(detailId: UUID, title: String, detailText: String, languageCode: String) {
+            self.detailId = detailId
             self.title = title
             self.detailText = detailText
             self.languageCode = languageCode

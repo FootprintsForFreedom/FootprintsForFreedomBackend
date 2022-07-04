@@ -84,7 +84,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
             .test()
     }
     
-    func testListRepositoriesWithUnverifedModelsAsUserFails() async throws {
+    func testListRepositoriesWithUnverifiedModelsAsUserFails() async throws {
         let userToken = try await getToken(for: .user)
         
         try app
@@ -95,7 +95,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
             .test()
     }
     
-    func testListRepositoriesWithUnverifedModelsWithoutTokenFails() async throws {
+    func testListRepositoriesWithUnverifiedModelsWithoutTokenFails() async throws {
         try app
             .describe("List repositories with unverified models without token should fail")
             .get(waypointsPath.appending("unverified"))
@@ -169,37 +169,37 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
             .expect(Page<Waypoint.Repository.ListUnverifiedWaypoints>.self) { content in
                 XCTAssertEqual(content.metadata.total, content.items.count)
                 XCTAssertEqual(content.items.count, unverifiedWaypointForRepositoryCount)
-                XCTAssertEqual(content.items.map { $0.modelId }.uniqued().count, unverifiedWaypointForRepositoryCount)
-                XCTAssertEqual(content.items.map { $0.modelId }.uniqued().count, content.items.count)
+                XCTAssertEqual(content.items.map { $0.detailId }.uniqued().count, unverifiedWaypointForRepositoryCount)
+                XCTAssertEqual(content.items.map { $0.detailId }.uniqued().count, content.items.count)
                 XCTAssertEqual(content.metadata.total, unverifiedWaypointForRepositoryCount)
                 
-                XCTAssert(content.items.contains { $0.modelId == createdUnverifiedWaypoint.id })
-                if let unverifiedWaypoint = content.items.first(where: { $0.modelId == createdUnverifiedWaypoint.id }) {
-                    XCTAssertEqual(unverifiedWaypoint.modelId, createdUnverifiedWaypoint.id)
+                XCTAssert(content.items.contains { $0.detailId == createdUnverifiedWaypoint.id })
+                if let unverifiedWaypoint = content.items.first(where: { $0.detailId == createdUnverifiedWaypoint.id }) {
+                    XCTAssertEqual(unverifiedWaypoint.detailId, createdUnverifiedWaypoint.id)
                     XCTAssertEqual(unverifiedWaypoint.title, createdUnverifiedWaypoint.title)
                     XCTAssertEqual(unverifiedWaypoint.detailText, createdUnverifiedWaypoint.detailText)
                     XCTAssertEqual(unverifiedWaypoint.languageCode, createdUnverifiedWaypoint.language.languageCode)
                 }
                 
-                XCTAssertFalse(content.items.contains { $0.modelId == verifiedWaypoint.id })
+                XCTAssertFalse(content.items.contains { $0.detailId == verifiedWaypoint.id })
                 
-                XCTAssert(content.items.contains { $0.modelId == secondCreatedUnverifiedWaypoint.id })
-                if let secondUnverifiedWaypoint = content.items.first(where: { $0.modelId == secondCreatedUnverifiedWaypoint.id }) {
-                    XCTAssertEqual(secondUnverifiedWaypoint.modelId, secondCreatedUnverifiedWaypoint.id)
+                XCTAssert(content.items.contains { $0.detailId == secondCreatedUnverifiedWaypoint.id })
+                if let secondUnverifiedWaypoint = content.items.first(where: { $0.detailId == secondCreatedUnverifiedWaypoint.id }) {
+                    XCTAssertEqual(secondUnverifiedWaypoint.detailId, secondCreatedUnverifiedWaypoint.id)
                     XCTAssertEqual(secondUnverifiedWaypoint.title, secondCreatedUnverifiedWaypoint.title)
                     XCTAssertEqual(secondUnverifiedWaypoint.detailText, secondCreatedUnverifiedWaypoint.detailText)
                     XCTAssertEqual(secondUnverifiedWaypoint.languageCode, secondCreatedUnverifiedWaypoint.language.languageCode)
                 }
                 
-                XCTAssert(content.items.contains { $0.modelId == createdUnverifiedWaypointInDifferentLanguage.id })
-                if let unverifiedWaypointInDifferentLanguage = content.items.first(where: { $0.modelId == createdUnverifiedWaypointInDifferentLanguage.id }) {
-                    XCTAssertEqual(unverifiedWaypointInDifferentLanguage.modelId, createdUnverifiedWaypointInDifferentLanguage.id)
+                XCTAssert(content.items.contains { $0.detailId == createdUnverifiedWaypointInDifferentLanguage.id })
+                if let unverifiedWaypointInDifferentLanguage = content.items.first(where: { $0.detailId == createdUnverifiedWaypointInDifferentLanguage.id }) {
+                    XCTAssertEqual(unverifiedWaypointInDifferentLanguage.detailId, createdUnverifiedWaypointInDifferentLanguage.id)
                     XCTAssertEqual(unverifiedWaypointInDifferentLanguage.title, createdUnverifiedWaypointInDifferentLanguage.title)
                     XCTAssertEqual(unverifiedWaypointInDifferentLanguage.detailText, createdUnverifiedWaypointInDifferentLanguage.detailText)
                     XCTAssertEqual(unverifiedWaypointInDifferentLanguage.languageCode, createdUnverifiedWaypointInDifferentLanguage.language.languageCode)
                 }
                 
-                XCTAssertFalse(content.items.contains { $0.modelId == unverifiedWaypointForDifferentRepository.id })
+                XCTAssertFalse(content.items.contains { $0.detailId == unverifiedWaypointForDifferentRepository.id })
             }
             .test()
     }

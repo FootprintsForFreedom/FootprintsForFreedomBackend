@@ -101,7 +101,7 @@ extension WaypointApiController: ApiRepositoryVerificationController {
     // GET: api/waypoints/:repositoryId/waypoints/unverified
     func listUnverifiedDetailsOutput(_ req: Request, _ repository: WaypointRepositoryModel, _ detail: Detail) async throws -> Waypoint.Repository.ListUnverifiedWaypoints {
         return try .init(
-            modelId: detail.requireID(),
+            detailId: detail.requireID(),
             title: detail.title,
             detailText: detail.detailText,
             languageCode: detail.language.languageCode
