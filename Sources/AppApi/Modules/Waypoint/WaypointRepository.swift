@@ -67,6 +67,8 @@ public extension Waypoint.Repository {
         public let tagId: UUID
         /// The tag title.
         public let title: String
+        /// The slug uniquely identifying the tag.
+        public let slug: String
         /// The status of the tag to waypoint connection.
         public let status: Status
         
@@ -74,10 +76,12 @@ public extension Waypoint.Repository {
         /// - Parameters:
         ///   - tagId: Id uniquely identifying the tag.
         ///   - title: The tag title.
+        ///   - slug:The slug uniquely identifying the tag.
         ///   - status: The status of the tag to waypoint connection.
-        public init(tagId: UUID, title: String, status: Status) {
+        public init(tagId: UUID, title: String, slug: String, status: Status) {
             self.tagId = tagId
             self.title = title
+            self.slug = slug
             self.status = status
         }
     }

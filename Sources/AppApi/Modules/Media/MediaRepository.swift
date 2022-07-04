@@ -50,6 +50,8 @@ public extension Media.Repository {
         public let tagId: UUID
         /// The tag title.
         public let title: String
+        /// The slug uniquely identifying the tag.
+        public let slug: String
         /// The status of the tag to media connection.
         public let status: Status
         
@@ -57,10 +59,12 @@ public extension Media.Repository {
         /// - Parameters:
         ///   - tagId: Id uniquely identifying the tag.
         ///   - title: The tag title.
+        ///   - slug:The slug uniquely identifying the tag.
         ///   - status: The status of the tag to media connection.
-        public init(tagId: UUID, title: String, status: Status) {
+        public init(tagId: UUID, title: String, slug: String, status: Status) {
             self.tagId = tagId
             self.title = title
+            self.slug = slug
             self.status = status
         }
     }

@@ -154,6 +154,7 @@ extension WaypointApiController {
             return try .init(
                 tagId: tag.tag.requireID(),
                 title: detail.title,
+                slug: detail.slug,
                 status: tag.status
             )
         }
