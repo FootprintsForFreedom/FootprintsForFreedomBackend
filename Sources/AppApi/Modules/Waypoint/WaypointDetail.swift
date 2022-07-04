@@ -25,6 +25,12 @@ public extension Waypoint.Detail {
         /// The location of the waypoint.
         public let location: Waypoint.Location
         
+        /// Creates a waypoint list object.
+        /// - Parameters:
+        ///   - id: Id uniquely identifying the waypoint repository.
+        ///   - title: The waypoint title.
+        ///   - slug: The slug uniquely identifying the waypoint.
+        ///   - location: The location of the waypoint.
         public init(id: UUID, title: String, slug: String, location: Waypoint.Location) {
             self.id = id
             self.title = title
@@ -60,7 +66,7 @@ public extension Waypoint.Detail {
         /// Id uniquely identifying the location object.
         public let locationId: UUID?
         
-        /// Creates a waypoint detail object for moderators.
+        /// Creates a waypoint detail object for everyone.
         /// - Parameters:
         ///   - id: Id uniquely identifying the waypoint repository.
         ///   - title: The waypoint title.
@@ -116,7 +122,7 @@ public extension Waypoint.Detail {
             )
         }
         
-        /// Creates a waypoint detail object for moderators.
+        /// Creates a waypoint detail object for everyone.
         /// - Parameters:
         ///   - id: Id uniquely identifying the waypoint repository.
         ///   - title: The waypoint title.
