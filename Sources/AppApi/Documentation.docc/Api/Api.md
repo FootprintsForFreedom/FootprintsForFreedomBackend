@@ -20,6 +20,10 @@ Documentation off all available api-endpoints which can be used by a fronted app
 
 - <doc:WaypointApi>
 
+### Tag api endpoints
+
+- <doc:TagApi>
+
 ### Static Content api endpoints
 
 - <doc:StaticContentApi>

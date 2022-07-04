@@ -14,11 +14,20 @@ public extension Tag {
 }
 
 public extension Tag.Detail {
+    /// Used to list tag objects.
     struct List: Codable {
+        /// Id uniquely identifying the tag repository.
         public let id: UUID
+        /// The tag title.
         public let title: String
+        /// The slug uniquely identifying the waypoint.
         public let slug: String
         
+        /// Creates a tag list object.
+        /// - Parameters:
+        ///   - id: Id uniquely identifying the tag repository.
+        ///   - title: The tag title.
+        ///   - slug: The slug uniquely identifying the waypoint.
         public init(id: UUID, title: String, slug: String) {
             self.id = id
             self.title = title
@@ -26,33 +35,62 @@ public extension Tag.Detail {
         }
     }
     
+    /// Used to detail tag objects.
     struct Detail: Codable {
+        /// Id uniquely identifying the tag repository.
         public let id: UUID
+        /// The tag title.
         public let title: String
-        public let keywords: [String]
+        /// The slug uniquely identifying the waypoint.
         public let slug: String
+        /// The keywords connected to this tag.
+        public let keywords: [String]
+        /// The language code for the tag title and keywords.
         public let languageCode: String
+        /// All language codes available for this tag repository.
         public let availableLanguageCodes: [String]
+        /// The status of the tag detail.
         public let status: Status?
+        /// Id uniquely identifying the tag detail object.
         public let detailId: UUID?
         
-        public static func publicDetail(id: UUID, title: String, keywords: [String], slug: String, languageCode: String, availableLanguageCodes: [String]) -> Self {
+        /// Creates a tag detail object for everyone.
+        /// - Parameters:
+        ///   - id: Id uniquely identifying the tag repository.
+        ///   - title: The tag title.
+        ///   - slug: The slug uniquely identifying the waypoint.
+        ///   - keywords: The keywords connected to this tag.
+        ///   - languageCode: The language code for the tag title and keywords.
+        ///   - availableLanguageCodes: All language codes available for this tag repository.
+        /// - Returns: A tag detail object
+        public static func publicDetail(id: UUID, title: String, slug: String, keywords: [String], languageCode: String, availableLanguageCodes: [String]) -> Self {
             return .init(
                 id: id,
                 title: title,
-                keywords: keywords,
                 slug: slug,
+                keywords: keywords,
                 languageCode: languageCode,
                 availableLanguageCodes: availableLanguageCodes
             )
         }
         
-        public static func moderatorDetail(id: UUID, title: String, keywords: [String], slug: String, languageCode: String, availableLanguageCodes: [String], status: Status, detailId: UUID) -> Self {
+        /// Creates a tag detail object for moderators.
+        /// - Parameters:
+        ///   - id: Id uniquely identifying the tag repository.
+        ///   - title: The tag title.
+        ///   - slug: The slug uniquely identifying the waypoint.
+        ///   - keywords: The keywords connected to this tag.
+        ///   - languageCode: The language code for the tag title and keywords.
+        ///   - availableLanguageCodes: All language codes available for this tag repository.
+        ///   - status: The status of the tag detail.
+        ///   - detailId: Id uniquely identifying the tag detail object.
+        /// - Returns: A tag detail object
+        public static func moderatorDetail(id: UUID, title: String, slug: String, keywords: [String], languageCode: String, availableLanguageCodes: [String], status: Status, detailId: UUID) -> Self {
             return .init(
                 id: id,
                 title: title,
-                keywords: keywords,
                 slug: slug,
+                keywords: keywords,
                 languageCode: languageCode,
                 availableLanguageCodes: availableLanguageCodes,
                 status: status,
@@ -60,22 +98,40 @@ public extension Tag.Detail {
             )
         }
         
-        private init(id: UUID, title: String, keywords: [String], slug: String, languageCode: String, availableLanguageCodes: [String]) {
+        /// Creates a tag detail object for everyone.
+        /// - Parameters:
+        ///   - id: Id uniquely identifying the tag repository.
+        ///   - title: The tag title.
+        ///   - slug: The slug uniquely identifying the waypoint.
+        ///   - keywords: The keywords connected to this tag.
+        ///   - languageCode: The language code for the tag title and keywords.
+        ///   - availableLanguageCodes: All language codes available for this tag repository.
+        private init(id: UUID, title: String, slug: String, keywords: [String], languageCode: String, availableLanguageCodes: [String]) {
             self.id = id
             self.title = title
-            self.keywords = keywords
             self.slug = slug
+            self.keywords = keywords
             self.languageCode = languageCode
             self.availableLanguageCodes = availableLanguageCodes
             self.status = nil
             self.detailId = nil
         }
         
-        private init(id: UUID, title: String, keywords: [String], slug: String, languageCode: String, availableLanguageCodes: [String], status: Status, detailId: UUID) {
+        /// Creates a tag detail object for moderators.
+        /// - Parameters:
+        ///   - id: Id uniquely identifying the tag repository.
+        ///   - title: The tag title.
+        ///   - slug: The slug uniquely identifying the waypoint.
+        ///   - keywords: The keywords connected to this tag.
+        ///   - languageCode: The language code for the tag title and keywords.
+        ///   - availableLanguageCodes: All language codes available for this tag repository.
+        ///   - status: The status of the tag detail.
+        ///   - detailId: Id uniquely identifying the tag detail object.
+        private init(id: UUID, title: String, slug: String, keywords: [String], languageCode: String, availableLanguageCodes: [String], status: Status, detailId: UUID) {
             self.id = id
             self.title = title
-            self.keywords = keywords
             self.slug = slug
+            self.keywords = keywords
             self.languageCode = languageCode
             self.availableLanguageCodes = availableLanguageCodes
             self.status = status
@@ -83,11 +139,20 @@ public extension Tag.Detail {
         }
     }
     
+    /// Used to create tag objects.
     struct Create: Codable {
+        /// The tag title.
         public let title: String
+        /// The keywords connected to this tag.
         public let keywords: [String]
+        /// The language code for the tag title and keywords.
         public let languageCode: String
         
+        /// Creates a tag create object.
+        /// - Parameters:
+        ///   - title: The tag title.
+        ///   - keywords: The keywords connected to this tag.
+        ///   - languageCode: The language code for the tag title and keywords.
         public init(title: String, keywords: [String], languageCode: String) {
             self.title = title
             self.keywords = keywords
@@ -95,11 +160,20 @@ public extension Tag.Detail {
         }
     }
     
+    /// Used to update tag objects.
     struct Update: Codable {
+        /// The tag title.
         public let title: String
+        /// The keywords connected to this tag.
         public let keywords: [String]
+        /// The language code for the tag title and keywords.
         public let languageCode: String
         
+        /// Creates a tag update object.
+        /// - Parameters:
+        ///   - title: The tag title.
+        ///   - keywords: The keywords connected to this tag.
+        ///   - languageCode: The language code for the tag title and keywords.
         public init(title: String, keywords: [String], languageCode: String) {
             self.title = title
             self.keywords = keywords
@@ -107,11 +181,20 @@ public extension Tag.Detail {
         }
     }
     
+    /// Used to patch tag objects.
     struct Patch: Codable {
+        /// The tag title.
         public let title: String?
+        /// The keywords connected to this tag.
         public let keywords: [String]?
+        /// The language code for the tag title and keywords.
         public let idForTagDetailToPatch: UUID
         
+        /// Creates a tag patch object.
+        /// - Parameters:
+        ///   - title: The tag title.
+        ///   - keywords: The keywords connected to this tag.
+        ///   - languageCode: The language code for the tag title and keywords.
         public init(title: String?, keywords: [String]?, idForTagDetailToPatch: UUID) {
             self.title = title
             self.keywords = keywords
