@@ -1,6 +1,6 @@
 # Detail a media
 
-Gets a media detail object for the media id.
+Gets a media detail object for the media id or slug.
 
 ## Request
 
