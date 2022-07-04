@@ -4,7 +4,7 @@ Updates an existing waypoint object from the given input.
 
 ## Request
 
-PUT /api/v1/waypoint/<waypoint-repository-id>
+PUT /api/v1/waypoints/<waypoint-repository-id>
 
 This endpoint is only available to verified users.
 

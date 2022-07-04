@@ -4,7 +4,7 @@ Lists all unverified detail models for the specified waypoint repository.
 
 ## Request
 
-    GET /api/v1/waypoint/<waypoint-repository-id>/waypoints/unverified
+    GET /api/v1/waypoints/<waypoint-repository-id>/waypoints/unverified
 
 This endpoint is only available to moderators.
 
