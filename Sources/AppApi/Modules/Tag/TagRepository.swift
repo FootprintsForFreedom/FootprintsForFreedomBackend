@@ -18,12 +18,14 @@ public extension Tag.Repository {
     struct ListUnverified: Codable {
         public let detailId: UUID
         public let title: String
+        public let slug: String
         public let keywords: [String]
         public let languageCode: String
         
-        public init(detailId: UUID, title: String, keywords: [String], languageCode: String) {
+        public init(detailId: UUID, title: String, slug: String, keywords: [String], languageCode: String) {
             self.detailId = detailId
             self.title = title
+            self.slug = slug
             self.keywords = keywords
             self.languageCode = languageCode
         }

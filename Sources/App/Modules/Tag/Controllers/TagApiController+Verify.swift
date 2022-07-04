@@ -66,6 +66,7 @@ extension TagApiController: ApiRepositoryVerificationController {
         return try .init(
             detailId: detail.requireID(),
             title: detail.title,
+            slug: detail.slug,
             keywords: detail.keywords,
             languageCode: detail.language.languageCode
         )
