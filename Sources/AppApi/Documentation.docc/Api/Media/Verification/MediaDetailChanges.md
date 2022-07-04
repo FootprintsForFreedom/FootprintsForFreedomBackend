@@ -4,7 +4,7 @@ Details the changes between two media objects.
 
 ## Request
 
-    GET /api/v1/<media-repository-id>/changes
+    GET /api/v1/media/<media-repository-id>/changes
 
 This endpoint is only available to moderators.
 

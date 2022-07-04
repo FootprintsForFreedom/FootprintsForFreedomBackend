@@ -4,7 +4,7 @@ Verifies a media report.
 
 ## Request
 
-    POST /api/v1/<media-repository-id>/reports/verify/<media-report-id>
+    POST /api/v1/media/<media-repository-id>/reports/verify/<media-report-id>
 
 This endpoint is only available to moderators.
 

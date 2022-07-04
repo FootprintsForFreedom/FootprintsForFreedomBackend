@@ -4,7 +4,7 @@ Verifies a specified media detail object so it is visible to everyone.
 
 ## Request
 
-    POST /api/v1/<media-repository-id>/verify/<media-detail-id>
+    POST /api/v1/media/<media-repository-id>/verify/<media-detail-id>
 
 This endpoint is only available to moderators.
 
