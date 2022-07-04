@@ -175,37 +175,37 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
             .expect(Page<Media.Repository.ListUnverified>.self) { content in
                 XCTAssertEqual(content.metadata.total, content.items.count)
                 XCTAssertEqual(content.items.count, unverifiedMediaForRepositoryCount)
-                XCTAssertEqual(content.items.map { $0.modelId }.uniqued().count, unverifiedMediaForRepositoryCount)
-                XCTAssertEqual(content.items.map { $0.modelId }.uniqued().count, content.items.count)
+                XCTAssertEqual(content.items.map { $0.detailId }.uniqued().count, unverifiedMediaForRepositoryCount)
+                XCTAssertEqual(content.items.map { $0.detailId }.uniqued().count, content.items.count)
                 XCTAssertEqual(content.metadata.total, unverifiedMediaForRepositoryCount)
 
-                XCTAssert(content.items.contains { $0.modelId == createdUnverifiedDetail.id })
-                if let unverifiedDetail = content.items.first(where: { $0.modelId == createdUnverifiedDetail.id }) {
-                    XCTAssertEqual(unverifiedDetail.modelId, createdUnverifiedDetail.id)
+                XCTAssert(content.items.contains { $0.detailId == createdUnverifiedDetail.id })
+                if let unverifiedDetail = content.items.first(where: { $0.detailId == createdUnverifiedDetail.id }) {
+                    XCTAssertEqual(unverifiedDetail.detailId, createdUnverifiedDetail.id)
                     XCTAssertEqual(unverifiedDetail.title, createdUnverifiedDetail.title)
                     XCTAssertEqual(unverifiedDetail.detailText, createdUnverifiedDetail.detailText)
                     XCTAssertEqual(unverifiedDetail.languageCode, createdUnverifiedDetail.language.languageCode)
                 }
 
-                XCTAssertFalse(content.items.contains { $0.modelId == verifiedDetail.id })
+                XCTAssertFalse(content.items.contains { $0.detailId == verifiedDetail.id })
 
-                XCTAssert(content.items.contains { $0.modelId == secondCreatedUnverifiedDetail.id })
-                if let secondUnverifiedDetail = content.items.first(where: { $0.modelId == secondCreatedUnverifiedDetail.id }) {
-                    XCTAssertEqual(secondUnverifiedDetail.modelId, secondCreatedUnverifiedDetail.id)
+                XCTAssert(content.items.contains { $0.detailId == secondCreatedUnverifiedDetail.id })
+                if let secondUnverifiedDetail = content.items.first(where: { $0.detailId == secondCreatedUnverifiedDetail.id }) {
+                    XCTAssertEqual(secondUnverifiedDetail.detailId, secondCreatedUnverifiedDetail.id)
                     XCTAssertEqual(secondUnverifiedDetail.title, secondCreatedUnverifiedDetail.title)
                     XCTAssertEqual(secondUnverifiedDetail.detailText, secondCreatedUnverifiedDetail.detailText)
                     XCTAssertEqual(secondUnverifiedDetail.languageCode, secondCreatedUnverifiedDetail.language.languageCode)
                 }
 
-                XCTAssert(content.items.contains { $0.modelId == createdUnverifiedDetailInDifferentLanguage.id })
-                if let unverifiedDetailInDifferentLanguage = content.items.first(where: { $0.modelId == createdUnverifiedDetailInDifferentLanguage.id }) {
-                    XCTAssertEqual(unverifiedDetailInDifferentLanguage.modelId, createdUnverifiedDetailInDifferentLanguage.id)
+                XCTAssert(content.items.contains { $0.detailId == createdUnverifiedDetailInDifferentLanguage.id })
+                if let unverifiedDetailInDifferentLanguage = content.items.first(where: { $0.detailId == createdUnverifiedDetailInDifferentLanguage.id }) {
+                    XCTAssertEqual(unverifiedDetailInDifferentLanguage.detailId, createdUnverifiedDetailInDifferentLanguage.id)
                     XCTAssertEqual(unverifiedDetailInDifferentLanguage.title, createdUnverifiedDetailInDifferentLanguage.title)
                     XCTAssertEqual(unverifiedDetailInDifferentLanguage.detailText, createdUnverifiedDetailInDifferentLanguage.detailText)
                     XCTAssertEqual(unverifiedDetailInDifferentLanguage.languageCode, createdUnverifiedDetailInDifferentLanguage.language.languageCode)
                 }
 
-                XCTAssertFalse(content.items.contains { $0.modelId == unverifiedDetailForDifferentRepository.id })
+                XCTAssertFalse(content.items.contains { $0.detailId == unverifiedDetailForDifferentRepository.id })
             }
             .test()
     }

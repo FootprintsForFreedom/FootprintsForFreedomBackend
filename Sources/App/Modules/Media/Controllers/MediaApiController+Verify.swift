@@ -93,8 +93,9 @@ extension MediaApiController: ApiRepositoryVerificationController {
     
     func listUnverifiedDetailsOutput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: Detail) async throws -> Media.Repository.ListUnverified {
         return try .init(
-            modelId: detail.requireID(),
+            detailId: detail.requireID(),
             title: detail.title,
+            slug: detail.slug,
             detailText: detail.detailText,
             languageCode: detail.language.languageCode
         )
