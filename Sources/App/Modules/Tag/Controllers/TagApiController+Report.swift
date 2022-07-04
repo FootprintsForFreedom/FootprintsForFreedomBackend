@@ -18,8 +18,8 @@ extension Tag.Detail.Detail: InitializableById {
         self = try await Self.publicDetail(
             id: repository.requireID(),
             title: detail.title,
-            keywords: detail.keywords,
             slug: detail.slug,
+            keywords: detail.keywords,
             languageCode: detail.language.languageCode,
             availableLanguageCodes: repository.availableLanguageCodes(db)
         )

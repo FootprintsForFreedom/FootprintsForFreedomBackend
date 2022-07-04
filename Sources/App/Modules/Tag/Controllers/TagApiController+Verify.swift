@@ -82,8 +82,8 @@ extension TagApiController: ApiRepositoryVerificationController {
         return try await .moderatorDetail(
             id: repository.requireID(),
             title: detail.title,
-            keywords: detail.keywords,
             slug: detail.slug,
+            keywords: detail.keywords,
             languageCode: detail.language.languageCode,
             availableLanguageCodes: repository.availableLanguageCodes(req.db),
             status: detail.status,
