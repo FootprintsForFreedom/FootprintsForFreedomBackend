@@ -1,4 +1,4 @@
-# List unverified details for media repository
+# List unverified details for a media repository
 
 Lists all unverified detail models for the specified media repository.
 
