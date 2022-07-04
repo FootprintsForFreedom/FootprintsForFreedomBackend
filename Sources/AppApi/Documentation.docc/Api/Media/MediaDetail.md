@@ -40,7 +40,7 @@ or
 }
 ```
 
-The tag objects are the same as those returned when listing tags: <doc:TagList>.
+> Note: The tag objects are the same as those returned when listing tags: <doc:TagList>.
 
 If the request is sent with an moderator token, the following additional attribute will be sent in the response: 
 

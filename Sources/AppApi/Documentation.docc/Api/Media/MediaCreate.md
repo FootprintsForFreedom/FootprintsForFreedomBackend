@@ -65,7 +65,7 @@ Currently the following media types are supported:
 }
 ```
 
-The tag objects are the same as those returned when listing tags: <doc:TagList>.
+> Note: The tag objects are the same as those returned when listing tags: <doc:TagList>.
 
 The created and returned media will not be visible until it has been verified by a moderator.
 

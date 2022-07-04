@@ -48,7 +48,7 @@ All parameters need to be sent as url parameters.
 }
 ```
 
-The tag objects are the same as those returned when listing tags: <doc:TagList>.
+> Note: The tag objects are the same as those returned when listing tags: <doc:TagList>.
 
 The updated and returned media will not be visible until it has been verified by a moderator.
 
