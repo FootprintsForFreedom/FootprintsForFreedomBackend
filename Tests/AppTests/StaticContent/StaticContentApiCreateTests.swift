@@ -28,7 +28,7 @@ final class StaticContentApiCreateTests: AppTestCase, StaticContentTest {
         return .init(repositoryTitle: repositoryTitle, moderationTitle: moderationTitle, title: title, text: text, requiredSnippets: requiredSnippets, languageCode: languageCode)
     }
     
-    func testSuccessfulCretateStaticContentAsAdmin() async throws {
+    func testSuccessfulCreateStaticContentAsAdmin() async throws {
         let token = try await getToken(for: .admin, verified: true)
         let newStaticContent = try await getStaticContentCreateContent()
         
