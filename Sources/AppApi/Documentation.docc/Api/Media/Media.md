@@ -14,7 +14,7 @@ The media api endpoints.
 - <doc:MediaPatch>
 - <doc:MediaDelete>
 
-### Verification
+### Verifying
 
 - <doc:MediaDetailChanges>
 - <doc:MediaListRepositoriesWithUnverifiedModels>
