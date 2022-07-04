@@ -14,10 +14,15 @@ public extension Waypoint {
 }
 
 public extension Waypoint.Detail {
+    /// Used to list waypoint objects.
     struct List: Codable {
+        /// Id uniquely identifying the waypoint repository.
         public let id: UUID
+        /// The waypoint title.
         public let title: String
+        /// The slug uniquely identifying the waypoint.
         public let slug: String
+        /// The location of the waypoint.
         public let location: Waypoint.Location
         
         public init(id: UUID, title: String, slug: String, location: Waypoint.Location) {
@@ -28,20 +33,44 @@ public extension Waypoint.Detail {
         }
     }
     
+    /// Used to detail waypoint objects.
     struct Detail: Codable {
+        /// Id uniquely identifying the waypoint repository.
         public let id: UUID
+        /// The waypoint title.
         public let title: String
+        /// The slug uniquely identifying the waypoint.
         public let slug: String
+        /// The detail text describing the waypoint.
         public let detailText: String
+        /// The location of the waypoint.
         public let location: Waypoint.Location
+        /// The tags connected with this waypoint.
         public let tags: [Tag.Detail.List]
+        /// The language code for the waypoint title and description.
         public let languageCode: String
+        /// All language codes available for this waypoint repository.
         public let availableLanguageCodes: [String]
+        /// The status of the waypoint detail.
         public let detailStatus: Status?
+        /// The status of the location detail.
         public let locationStatus: Status?
+        /// Id uniquely identifying the waypoint detail object.
         public let detailId: UUID?
+        /// Id uniquely identifying the location object.
         public let locationId: UUID?
         
+        /// Creates a waypoint detail object for moderators.
+        /// - Parameters:
+        ///   - id: Id uniquely identifying the waypoint repository.
+        ///   - title: The waypoint title.
+        ///   - slug: The slug uniquely identifying the waypoint.
+        ///   - detailText: The detail text describing the waypoint.
+        ///   - location: The location of the waypoint.
+        ///   - tags: The tags connected with this waypoint.
+        ///   - languageCode: The language code for the waypoint title and description.
+        ///   - availableLanguageCodes: All language codes available for this waypoint repository.
+        /// - Returns: A waypoint detail object.
         public static func publicDetail(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, availableLanguageCodes: [String]) -> Self {
             return .init(
                 id: id,
@@ -55,6 +84,21 @@ public extension Waypoint.Detail {
             )
         }
         
+        /// Creates a waypoint detail object for moderators.
+        /// - Parameters:
+        ///   - id: Id uniquely identifying the waypoint repository.
+        ///   - title: The waypoint title.
+        ///   - slug: The slug uniquely identifying the waypoint.
+        ///   - detailText: The detail text describing the waypoint.
+        ///   - location: The location of the waypoint.
+        ///   - tags: The tags connected with this waypoint.
+        ///   - languageCode: The language code for the waypoint title and description.
+        ///   - availableLanguageCodes: All language codes available for this waypoint repository.
+        ///   - detailStatus: The status of the waypoint detail.
+        ///   - locationStatus: The status of the location detail.
+        ///   - detailId: Id uniquely identifying the waypoint detail object.
+        ///   - locationId: Id uniquely identifying the location object.
+        /// - Returns: A waypoint detail object.
         public static func moderatorDetail(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, availableLanguageCodes: [String], detailStatus: Status, locationStatus: Status, detailId: UUID, locationId: UUID) -> Self {
             return .init(
                 id: id,
@@ -72,6 +116,16 @@ public extension Waypoint.Detail {
             )
         }
         
+        /// Creates a waypoint detail object for moderators.
+        /// - Parameters:
+        ///   - id: Id uniquely identifying the waypoint repository.
+        ///   - title: The waypoint title.
+        ///   - slug: The slug uniquely identifying the waypoint.
+        ///   - detailText: The detail text describing the waypoint.
+        ///   - location: The location of the waypoint.
+        ///   - tags: The tags connected with this waypoint.
+        ///   - languageCode: The language code for the waypoint title and description.
+        ///   - availableLanguageCodes: All language codes available for this waypoint repository.
         private init(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, availableLanguageCodes: [String]) {
             self.id = id
             self.title = title
@@ -87,6 +141,20 @@ public extension Waypoint.Detail {
             self.locationId = nil
         }
         
+        /// Creates a waypoint detail object for moderators.
+        /// - Parameters:
+        ///   - id: Id uniquely identifying the waypoint repository.
+        ///   - title: The waypoint title.
+        ///   - slug: The slug uniquely identifying the waypoint.
+        ///   - detailText: The detail text describing the waypoint.
+        ///   - location: The location of the waypoint.
+        ///   - tags: The tags connected with this waypoint.
+        ///   - languageCode: The language code for the waypoint title and description.
+        ///   - availableLanguageCodes: All language codes available for this waypoint repository.
+        ///   - detailStatus: The status of the waypoint detail.
+        ///   - locationStatus: The status of the location detail.
+        ///   - detailId: Id uniquely identifying the waypoint detail object.
+        ///   - locationId: Id uniquely identifying the location object.
         private init(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, availableLanguageCodes: [String], detailStatus: Status, locationStatus: Status, detailId: UUID, locationId: UUID) {
             self.id = id
             self.title = title
@@ -103,12 +171,23 @@ public extension Waypoint.Detail {
         }
     }
     
+    /// Used to create waypoint objects.
     struct Create: Codable {
+        /// The waypoint title.
         public let title: String
+        /// The detail text describing the waypoint.
         public let detailText: String
+        /// The location of the waypoint.
         public let location: Waypoint.Location
+        /// The language code for the waypoint title and description.
         public let languageCode: String
         
+        /// Creates a waypoint create object.
+        /// - Parameters:
+        ///   - title: The waypoint title.
+        ///   - detailText: The detail text describing the waypoint.
+        ///   - location: The location of the waypoint.
+        ///   - languageCode: The language code for the waypoint title and description.
         public init(title: String, detailText: String, location: Waypoint.Location, languageCode: String) {
             self.title = title
             self.detailText = detailText
@@ -117,11 +196,20 @@ public extension Waypoint.Detail {
         }
     }
     
+    /// Used to update waypoint objects.
     struct Update: Codable {
+        /// The waypoint title.
         public let title: String
+        /// The detail text describing the waypoint.
         public let detailText: String
+        /// The language code for the waypoint title and description.
         public let languageCode: String
         
+        /// Creates a waypoint update object.
+        /// - Parameters:
+        ///   - title: The waypoint title.
+        ///   - detailText: The detail text describing the waypoint.
+        ///   - languageCode: The language code for the waypoint title and description.
         public init(title: String, detailText: String, languageCode: String) {
             self.title = title
             self.detailText = detailText
@@ -129,12 +217,23 @@ public extension Waypoint.Detail {
         }
     }
     
+    /// Used to patch waypoint objects.
     struct Patch: Codable {
+        /// The waypoint title.
         public let title: String?
+        /// The detail text describing the waypoint.
         public let detailText: String?
+        /// The location of the waypoint.
         public let location: Waypoint.Location?
+        /// The id of an existing waypoint. All parameters not set in this request will be taken from this waypoint.
         public let idForWaypointToPatch: UUID
         
+        /// Creates a waypoint patch object
+        /// - Parameters:
+        ///   - title: The waypoint title.
+        ///   - detailText: The detail text describing the waypoint.
+        ///   - location: The location of the waypoint.
+        ///   - idForWaypointToPatch: The id of an existing waypoint. All parameters not set in this request will be taken from this waypoint.
         public init(title: String?, detailText: String?, location: Waypoint.Location?, idForWaypointToPatch: UUID) {
             self.title = title
             self.detailText = detailText
