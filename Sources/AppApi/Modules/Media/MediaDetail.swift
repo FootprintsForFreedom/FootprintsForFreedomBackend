@@ -45,7 +45,7 @@ public extension Media.Detail {
         public let id: UUID
         /// The language code for the media title, description and source.
         public let languageCode: String
-        /// All language codes available for this media object.
+        /// All language codes available for this media repository.
         public let availableLanguageCodes: [String]
         /// The media title.
         public let title: String
@@ -61,7 +61,7 @@ public extension Media.Detail {
         public let filePath: String
         /// The tags connected with this media.
         public let tags: [Tag.Detail.List]
-        /// The status of the media
+        /// The status of the media.
         public let status: Status?
         /// Id uniquely identifying the media detail object.
         public let detailId: UUID?
@@ -70,7 +70,7 @@ public extension Media.Detail {
         /// - Parameters:
         ///   - id: Id uniquely identifying the media repository.
         ///   - languageCode: The language code for the media title, description and source.
-        ///   - availableLanguageCodes: All language codes available for this media object.
+        ///   - availableLanguageCodes: All language codes available for this media repository.
         ///   - title: The media title.
         ///   - slug: The slug uniquely identifying the media.
         ///   - detailText: The detail text describing the media.
@@ -98,7 +98,7 @@ public extension Media.Detail {
         /// - Parameters:
         ///   - id: Id uniquely identifying the media repository.
         ///   - languageCode: The language code for the media title, description and source.
-        ///   - availableLanguageCodes: All language codes available for this media object.
+        ///   - availableLanguageCodes: All language codes available for this media repository.
         ///   - title: The media title.
         ///   - slug: The slug uniquely identifying the media.
         ///   - detailText: The detail text describing the media.
@@ -130,7 +130,7 @@ public extension Media.Detail {
         /// - Parameters:
         ///   - id: Id uniquely identifying the media repository.
         ///   - languageCode: The language code for the media title, description and source.
-        ///   - availableLanguageCodes: All language codes available for this media object.
+        ///   - availableLanguageCodes: All language codes available for this media repository.
         ///   - title: The media title.
         ///   - slug: The slug uniquely identifying the media.
         ///   - detailText: The detail text describing the media.
@@ -157,7 +157,7 @@ public extension Media.Detail {
         /// - Parameters:
         ///   - id: Id uniquely identifying the media repository.
         ///   - languageCode: The language code for the media title, description and source.
-        ///   - availableLanguageCodes: All language codes available for this media object.
+        ///   - availableLanguageCodes: All language codes available for this media repository.
         ///   - title: The media title.
         ///   - slug: The slug uniquely identifying the media.
         ///   - detailText: The detail text describing the media.
