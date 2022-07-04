@@ -8,6 +8,7 @@
 import Foundation
 
 public extension Media.Detail {
+    /// Used to categorize media file groups
     enum Group: String, Codable, CaseIterable, ApiModelInterface {
         public typealias Module = Waypoint
         
@@ -26,6 +27,9 @@ public extension Media.Detail {
             }
         }
         
+        /// Gets the media group for a mime type
+        /// - Parameter fileType: The mime type of the file.
+        /// - Returns: A media group or nil if the mime type is not supported.
         public static func `for`(_ fileType: String) -> Self? {
             for group in Self.allCases {
                 if group.allowedMimeTypes.contains(fileType) {
