@@ -38,7 +38,7 @@ The parameters can be either sent as `application/json` or `multipart/form-data`
 }
 ```
 
-The `<media-detail-object` is the same as the detail object returned when detailing media: <doc:MediaDetail>
+The `<media-detail-object>` is the same as the detail object returned when detailing media: <doc:MediaDetail>
 
 ## See Also
 
