@@ -40,8 +40,8 @@ final class WaypointApiDeleteUserTests: AppTestCase, WaypointTest, UserTest {
                 XCTAssertNotNil(content.locationStatus)
                 XCTAssertEqual(content.detailStatus, waypoint.status)
                 XCTAssertEqual(content.locationStatus, location.status)
-                XCTAssertNotNil(content.modelId)
-                XCTAssertEqual(content.modelId, waypoint.id!)
+                XCTAssertNotNil(content.detailId)
+                XCTAssertEqual(content.detailId, waypoint.id!)
             }
             .test()
         

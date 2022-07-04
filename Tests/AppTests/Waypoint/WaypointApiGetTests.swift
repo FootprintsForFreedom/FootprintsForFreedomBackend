@@ -233,7 +233,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.languageCode, waypoint.language.languageCode)
                 XCTAssertNil(content.detailStatus)
                 XCTAssertNil(content.locationStatus)
-                XCTAssertNil(content.modelId)
+                XCTAssertNil(content.detailId)
             }
             .test()
     }
@@ -261,8 +261,8 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
                 XCTAssertNotNil(content.locationStatus)
                 XCTAssertEqual(content.detailStatus, waypoint.status)
                 XCTAssertEqual(content.locationStatus, location.status)
-                XCTAssertNotNil(content.modelId)
-                XCTAssertEqual(content.modelId, waypoint.id!)
+                XCTAssertNotNil(content.detailId)
+                XCTAssertEqual(content.detailId, waypoint.id!)
             }
             .test()
     }
@@ -286,7 +286,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.languageCode, waypoint.language.languageCode)
                 XCTAssertNil(content.detailStatus)
                 XCTAssertNil(content.locationStatus)
-                XCTAssertNil(content.modelId)
+                XCTAssertNil(content.detailId)
             }
             .test()
     }

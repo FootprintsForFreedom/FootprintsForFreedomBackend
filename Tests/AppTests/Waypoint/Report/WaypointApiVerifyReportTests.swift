@@ -37,7 +37,7 @@ final class WaypointApiVerifyReportTests: AppTestCase, WaypointTest {
                     XCTAssertEqual(visibleDetail.languageCode, waypoint.detail.language.languageCode)
                     XCTAssertNil(visibleDetail.detailStatus)
                     XCTAssertNil(visibleDetail.locationStatus)
-                    XCTAssertNil(visibleDetail.modelId)
+                    XCTAssertNil(visibleDetail.detailId)
                 }
             }
             .test()

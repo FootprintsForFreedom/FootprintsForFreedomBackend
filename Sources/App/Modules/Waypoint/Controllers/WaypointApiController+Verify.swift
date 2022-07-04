@@ -161,7 +161,7 @@ extension WaypointApiController: ApiRepositoryVerificationController {
             availableLanguageCodes: repository.availableLanguageCodes(req.db),
             detailStatus: detail.status,
             locationStatus: location.status,
-            modelId: detail.requireID(),
+            detailId: detail.requireID(),
             locationId: location.requireID()
         )
     }
@@ -220,7 +220,7 @@ extension WaypointApiController: ApiRepositoryVerificationController {
             availableLanguageCodes: repository.availableLanguageCodes(req.db),
             detailStatus: detail.status,
             locationStatus: location.status,
-            modelId: detail.requireID(),
+            detailId: detail.requireID(),
             locationId: location.requireID()
         )
     }

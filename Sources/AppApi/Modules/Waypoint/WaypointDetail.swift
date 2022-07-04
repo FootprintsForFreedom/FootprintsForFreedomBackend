@@ -39,7 +39,7 @@ public extension Waypoint.Detail {
         public let availableLanguageCodes: [String]
         public let detailStatus: Status?
         public let locationStatus: Status?
-        public let modelId: UUID?
+        public let detailId: UUID?
         public let locationId: UUID?
         
         public static func publicDetail(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, availableLanguageCodes: [String]) -> Self {
@@ -55,7 +55,7 @@ public extension Waypoint.Detail {
             )
         }
         
-        public static func moderatorDetail(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, availableLanguageCodes: [String], detailStatus: Status, locationStatus: Status, modelId: UUID, locationId: UUID) -> Self {
+        public static func moderatorDetail(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, availableLanguageCodes: [String], detailStatus: Status, locationStatus: Status, detailId: UUID, locationId: UUID) -> Self {
             return .init(
                 id: id,
                 title: title,
@@ -67,7 +67,7 @@ public extension Waypoint.Detail {
                 availableLanguageCodes: availableLanguageCodes,
                 detailStatus: detailStatus,
                 locationStatus: locationStatus,
-                modelId: modelId,
+                detailId: detailId,
                 locationId: locationId
             )
         }
@@ -83,11 +83,11 @@ public extension Waypoint.Detail {
             self.availableLanguageCodes = availableLanguageCodes
             self.detailStatus = nil
             self.locationStatus = nil
-            self.modelId = nil
+            self.detailId = nil
             self.locationId = nil
         }
         
-        private init(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, availableLanguageCodes: [String], detailStatus: Status, locationStatus: Status, modelId: UUID, locationId: UUID) {
+        private init(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, availableLanguageCodes: [String], detailStatus: Status, locationStatus: Status, detailId: UUID, locationId: UUID) {
             self.id = id
             self.title = title
             self.slug = slug
@@ -98,7 +98,7 @@ public extension Waypoint.Detail {
             self.availableLanguageCodes = availableLanguageCodes
             self.detailStatus = detailStatus
             self.locationStatus = locationStatus
-            self.modelId = modelId
+            self.detailId = detailId
             self.locationId = locationId
         }
     }
