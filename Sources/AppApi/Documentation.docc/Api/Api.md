@@ -19,3 +19,7 @@ Documentation off all available api-endpoints which can be used by a fronted app
 ### Waypoints 
 
 - <doc:Waypoints>
+
+### Static Content
+
+- <doc:StaticContent>
