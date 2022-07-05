@@ -250,19 +250,19 @@ public extension Media.Detail {
         /// The source of the media and/or copyright information.
         public let source: String?
         /// The id of an existing media. All parameters not set in this request will be taken from this media.
-        public let idForMediaToPatch: UUID
+        public let idForMediaDetailToPatch: UUID
         
         /// Creates a media patch object.
         /// - Parameters:
         ///   - title: The media title.
         ///   - detailText: The detail text describing the media.
         ///   - source: The source of the media and/or copyright information.
-        ///   - idForMediaToPatch: The id of an existing media. All parameters not set in this request will be taken from this media.
-        public init(title: String?, detailText: String?, source: String?, idForMediaToPatch: UUID) {
+        ///   - idForMediaDetailToPatch: The id of an existing media. All parameters not set in this request will be taken from this media.
+        public init(title: String?, detailText: String?, source: String?, idForMediaDetailToPatch: UUID) {
             self.title = title
             self.detailText = detailText
             self.source = source
-            self.idForMediaToPatch = idForMediaToPatch
+            self.idForMediaDetailToPatch = idForMediaDetailToPatch
         }
     }
 }

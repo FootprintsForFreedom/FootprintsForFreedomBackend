@@ -37,7 +37,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
             title: patchedTitle,
             detailText: patchedDetailText,
             source: patchedSource,
-            idForMediaToPatch: detail.requireID()
+            idForMediaDetailToPatch: detail.requireID()
         )
         return (repository, detail, file, patchContent)
     }
@@ -285,10 +285,10 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
             .test()
     }
     
-    func testPatchMediaNeedsValidIdForMediaToPatch() async throws {
+    func testPatchMediaNeedsValididForMediaDetailToPatch() async throws {
         let token = try await getToken(for: .user, verified: true)
         let (repository, _, _, _) = try await getMediaPatchContent(status: .verified)
-        let patchContent = Media.Detail.Patch(title: nil, detailText: nil, source: nil, idForMediaToPatch: UUID())
+        let patchContent = Media.Detail.Patch(title: nil, detailText: nil, source: nil, idForMediaDetailToPatch: UUID())
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
         

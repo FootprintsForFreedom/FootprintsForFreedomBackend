@@ -39,7 +39,7 @@ struct MediaApiController: ApiRepositoryController {
         KeyedContentValidator<String>.required("title", optional: true)
         KeyedContentValidator<String>.required("detailText", optional: true)
         KeyedContentValidator<String>.required("source", optional: true)
-        KeyedContentValidator<UUID>.required("idForMediaToPatch")
+        KeyedContentValidator<UUID>.required("idForMediaDetailToPatch")
     }
     
     // MARK: - Routes
@@ -265,7 +265,7 @@ struct MediaApiController: ApiRepositoryController {
         /// Require user to be signed in
         let user = try req.auth.require(AuthenticatedUser.self)
         
-        guard let mediaToPatch = try await MediaDetailModel.find(input.idForMediaToPatch, on: req.db) else {
+        guard let mediaToPatch = try await MediaDetailModel.find(input.idForMediaDetailToPatch, on: req.db) else {
             throw Abort(.badRequest, reason: "No media with the given id could be found")
         }
         

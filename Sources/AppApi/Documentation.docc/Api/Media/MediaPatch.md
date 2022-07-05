@@ -12,13 +12,13 @@ The user token has to be sent as a `BearerToken` with the request.
 
 ### Input parameters
 
-The parameter `idForMediaToPatch` and at least one of the other following parameters has to be sent with the request for it to be successful:  
+The parameter `idForMediaDetailToPatch` and at least one of the other following parameters has to be sent with the request for it to be successful:  
 
 - term **file**: The media file to be uploaded.
 - term **title**: The media title.
 - term **detailText**: The detail text describing the media.
 - term **source**: The source of the media and/or copyright information.
-- term **idForMediaToPatch**: The id of an existing media. All parameters not set in this request will be taken from this media.
+- term **idForMediaDetailToPatch**: The id of an existing media. All parameters not set in this request will be taken from this media.
 
 The file has to be sent as the request body and the request content type has to be the content type of the file.
 
