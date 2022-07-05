@@ -31,8 +31,8 @@ final class MediaApiVerificationTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)
                 XCTAssertEqual(content.group, file.group)
                 XCTAssertEqual(content.filePath, file.mediaDirectory)
-                XCTAssertEqual(content.status, .verified)
-                XCTAssertEqual(content.detailId, detail.id!)
+                XCTAssertNil(content.status)
+                XCTAssertNil(content.detailId)
             }
             .test()
     }

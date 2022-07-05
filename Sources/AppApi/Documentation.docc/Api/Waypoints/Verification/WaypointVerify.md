@@ -22,11 +22,10 @@ The moderator token has to be sent as a `BearerToken` with the request.
     "title": "<title>",
     "slug": "<slug>",
     "detailText": "<detail-text>",
-    "source": "<source>",
-    "group": "<file-group>",
-    "filePath": "<file-path>",
-    "status": "<detail-status>"
-    "detailId": "<detail-id>",
+    "location": {
+        "longitude": <longitude>,
+        "latitude": <latitude>
+    },
     "tags": [
         {
             "id": "<tag-id>",

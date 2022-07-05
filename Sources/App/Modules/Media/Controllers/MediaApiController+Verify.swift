@@ -113,19 +113,6 @@ extension MediaApiController: ApiRepositoryVerificationController {
     
     // POST: api/media/:repositoryId/verify/:waypointModelId
     func verifyDetailOutput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: Detail) async throws -> Media.Detail.Detail {
-        return try await .moderatorDetail(
-            id: repository.requireID(),
-            languageCode: detail.language.languageCode,
-            availableLanguageCodes: repository.availableLanguageCodes(req.db),
-            title: detail.title,
-            slug: detail.slug,
-            detailText: detail.detailText,
-            source: detail.source,
-            group: detail.media.group,
-            filePath: detail.media.mediaDirectory,
-            tags: repository.tagList(req),
-            status: detail.status,
-            detailId: detail.requireID()
-        )
+        return try await detailOutput(req, repository, detail)
     }
 }

@@ -79,15 +79,6 @@ extension TagApiController: ApiRepositoryVerificationController {
     }
     
     func verifyDetailOutput(_ req: Request, _ repository: TagRepositoryModel, _ detail: Detail) async throws -> Tag.Detail.Detail {
-        return try await .moderatorDetail(
-            id: repository.requireID(),
-            title: detail.title,
-            slug: detail.slug,
-            keywords: detail.keywords,
-            languageCode: detail.language.languageCode,
-            availableLanguageCodes: repository.availableLanguageCodes(req.db),
-            status: detail.status,
-            detailId: detail.requireID()
-        )
+        return try await detailOutput(req, repository, detail)
     }
 }

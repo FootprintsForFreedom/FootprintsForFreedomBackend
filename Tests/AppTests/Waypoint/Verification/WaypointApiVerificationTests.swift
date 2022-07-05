@@ -31,8 +31,8 @@ final class WaypointApiVerificationTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.detailText, waypointModel.detailText)
                 XCTAssertEqual(content.location, location.location)
                 XCTAssertEqual(content.languageCode, waypointModel.language.languageCode)
-                XCTAssertEqual(content.detailStatus, .verified)
-                XCTAssertEqual(content.locationStatus, .verified)
+                XCTAssertNil(content.detailStatus)
+                XCTAssertNil(content.locationStatus)
             }
             .test()
     }
@@ -90,8 +90,8 @@ final class WaypointApiVerificationTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.detailText, waypointModel.detailText)
                 XCTAssertEqual(content.location, locationModel.location)
                 XCTAssertEqual(content.languageCode, waypointModel.language.languageCode)
-                XCTAssertEqual(content.detailStatus, .verified)
-                XCTAssertEqual(content.locationStatus, .verified)
+                XCTAssertNil(content.detailStatus)
+                XCTAssertNil(content.locationStatus)
             }
             .test()
     }

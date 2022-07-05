@@ -55,3 +55,4 @@ The moderator token has to be sent as a `BearerToken` with the request.
 ## See Also
 
 * ``Waypoint/Detail/List``
+* ``Waypoint/Location``

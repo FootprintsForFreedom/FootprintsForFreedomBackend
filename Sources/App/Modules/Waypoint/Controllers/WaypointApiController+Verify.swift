@@ -151,20 +151,7 @@ extension WaypointApiController: ApiRepositoryVerificationController {
             throw Abort(.internalServerError)
         }
         
-        return try await .moderatorDetail(
-            id: repository.requireID(),
-            title: detail.title,
-            slug: detail.slug,
-            detailText: detail.detailText,
-            location: location.location,
-            tags: repository.tagList(req),
-            languageCode: detail.language.languageCode,
-            availableLanguageCodes: repository.availableLanguageCodes(req.db),
-            detailStatus: detail.status,
-            locationStatus: location.status,
-            detailId: detail.requireID(),
-            locationId: location.requireID()
-        )
+        return try await detailOutput(req, repository, detail, location)
     }
     
     func setupVerifyDetailRoutes(_ routes: RoutesBuilder) {
@@ -210,20 +197,7 @@ extension WaypointApiController: ApiRepositoryVerificationController {
         }
         try await detail.$language.load(on: req.db)
         
-        return try await .moderatorDetail(
-            id: repository.requireID(),
-            title: detail.title,
-            slug: detail.slug,
-            detailText: detail.detailText,
-            location: location.location,
-            tags: repository.tagList(req),
-            languageCode: detail.language.languageCode,
-            availableLanguageCodes: repository.availableLanguageCodes(req.db),
-            detailStatus: detail.status,
-            locationStatus: location.status,
-            detailId: detail.requireID(),
-            locationId: location.requireID()
-        )
+        return try await detailOutput(req, repository, detail, location)
     }
     
     // MARK: - routes

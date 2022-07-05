@@ -25,8 +25,6 @@ The moderator token has to be sent as a `BearerToken` with the request.
     "source": "<source>",
     "group": "<file-group>",
     "filePath": "<file-path>",
-    "status": "<detail-status>"
-    "detailId": "<detail-id>",
     "tags": [
         {
             "id": "<tag-id>",
