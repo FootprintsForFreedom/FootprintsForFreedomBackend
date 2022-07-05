@@ -34,7 +34,7 @@ final class WaypointApiGetInCoordinatesTests: AppTestCase, WaypointTest {
             .test()
     }
     
-    func testSuccessfulGetWaypointsInCoodinatesDoesNotReturnUnverifiedLocation() async throws {
+    func testSuccessfulGetWaypointsInCoordinatesDoesNotReturnUnverifiedLocation() async throws {
         let waypoint = try await createNewWaypoint()
         waypoint.detail.status = .verified
         try await waypoint.detail.update(on: app.db)
@@ -59,7 +59,7 @@ final class WaypointApiGetInCoordinatesTests: AppTestCase, WaypointTest {
             .test()
     }
     
-    func testSuccessfulGetWaypointsInCoodinatesDoesNotReturnUnverifiedDetail() async throws {
+    func testSuccessfulGetWaypointsInCoordinatesDoesNotReturnUnverifiedDetail() async throws {
         let waypoint = try await createNewWaypoint()
         waypoint.location.status = .verified
         try await waypoint.detail.update(on: app.db)
