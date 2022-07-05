@@ -48,8 +48,15 @@ final class UserApiChangeRoleTests: AppTestCase, UserTest {
                             } else {
                                 XCTAssertNil(content.email)
                             }
-                            XCTAssertEqual(content.verified, user.verified)
-                            XCTAssertEqual(content.role, changeRoleContent.newRole)
+                            if userRole >= .admin {
+                                XCTAssertEqual(content.verified, user.verified)
+                                XCTAssertEqual(content.role, changeRoleContent.newRole)
+                            } else {
+                                Task {
+                                    let user = try await UserAccountModel.find(user.id!, on: self.app.db)!
+                                    XCTAssertEqual(user.role, changeRoleContent.newRole)
+                                }
+                            }
                         }
                         .test()
                 }
