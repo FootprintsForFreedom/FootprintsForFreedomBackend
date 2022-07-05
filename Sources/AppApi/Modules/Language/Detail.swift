@@ -7,9 +7,11 @@
 
 import Foundation
 
+/// The module containing language data transfer objects.
 public enum Language: ApiModuleInterface { }
 
 public extension Language {
+    /// Contains the language detail data transfer objects.
     enum Detail: ApiModelInterface {
         public typealias Module = AppApi.Language
     }

@@ -8,6 +8,7 @@
 import Foundation
 
 public extension Waypoint {
+    /// Contains the waypoint detail data transfer objects.
     enum Detail: ApiModelInterface {
         public typealias Module = AppApi.Waypoint
     }

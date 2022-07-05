@@ -8,6 +8,7 @@
 import Foundation
 
 public extension Tag {
+    /// Contains the tag detail data transfer objects.
     enum Detail: ApiModelInterface {
         public typealias Module = AppApi.Tag
     }

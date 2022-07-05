@@ -9,6 +9,7 @@ import Foundation
 import SwiftDiff
 
 public extension Media {
+    /// Contains the media repository data transfer objects.
     enum Repository: ApiModelInterface {
         public typealias Module = AppApi.Media
     }

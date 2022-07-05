@@ -8,6 +8,7 @@
 import Foundation
 
 public extension Media {
+    /// Contains the media detail data transfer objects.
     enum Detail: ApiModelInterface {
         public typealias Module = AppApi.Media
     }

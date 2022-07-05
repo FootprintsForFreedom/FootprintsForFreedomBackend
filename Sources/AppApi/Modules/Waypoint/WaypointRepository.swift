@@ -9,6 +9,7 @@ import Foundation
 import SwiftDiff
 
 public extension Waypoint {
+    /// Contains the waypoint repository data transfer objects.
     enum Repository: ApiModelInterface {
         public typealias Module = AppApi.Waypoint
     }

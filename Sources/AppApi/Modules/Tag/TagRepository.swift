@@ -9,6 +9,7 @@ import Foundation
 import SwiftDiff
 
 public extension Tag {
+    /// Contains the tag repository data transfer objects.
     enum Repository: ApiModelInterface {
         public typealias Module = AppApi.Tag
     }

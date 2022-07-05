@@ -8,6 +8,7 @@
 import Foundation
 
 public extension StaticContent {
+    /// Contains the static content detail data transfer objects.
     enum Detail: ApiModelInterface {
         public typealias Module = AppApi.StaticContent
     }
