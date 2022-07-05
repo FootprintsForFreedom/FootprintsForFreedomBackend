@@ -35,7 +35,7 @@ extension MediaApiListUnverifiedTests: TagTest {
             .test()
     }
     
-    func testSuccessfulListRepositoriesWithUnverifiedModelsReturnsModelsWithRequestDeltedTags() async throws {
+    func testSuccessfulListRepositoriesWithUnverifiedModelsReturnsModelsWithRequestDeletedTags() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let tag = try await createNewTag(status: .verified)
         let media = try await createNewMedia(status: .verified)
