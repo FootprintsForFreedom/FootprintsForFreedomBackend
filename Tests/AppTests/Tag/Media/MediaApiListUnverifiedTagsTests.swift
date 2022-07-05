@@ -23,7 +23,7 @@ final class MediaApiListUnverifiedTagsTests: AppTestCase, MediaTest, TagTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect([Media.Repository.ListUnverifiedTags].self) { content in
+            .expect([Tag.Repository.ListUnverifiedRelation].self) { content in
                 XCTAssert(content.contains { $0.tagId == tag.repository.id!})
                 if let responseTag = content.first(where: { $0.tagId == tag.repository.id! }) {
                     XCTAssertEqual(responseTag.title, tag.detail.title)
@@ -52,7 +52,7 @@ final class MediaApiListUnverifiedTagsTests: AppTestCase, MediaTest, TagTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect([Media.Repository.ListUnverifiedTags].self) { content in
+            .expect([Tag.Repository.ListUnverifiedRelation].self) { content in
                 XCTAssert(content.contains { $0.tagId == tag.repository.id!})
                 if let responseTag = content.first(where: { $0.tagId == tag.repository.id! }) {
                     XCTAssertEqual(responseTag.title, tag.detail.title)
@@ -81,7 +81,7 @@ final class MediaApiListUnverifiedTagsTests: AppTestCase, MediaTest, TagTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect([Media.Repository.ListUnverifiedTags].self) { content in
+            .expect([Tag.Repository.ListUnverifiedRelation].self) { content in
                 XCTAssert(!content.contains { $0.tagId == tag.repository.id!})
             }
             .test()

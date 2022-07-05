@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-extension Waypoint.Repository.ListUnverifiedTags: Content { }
+extension Tag.Repository.ListUnverifiedRelation: Content { }
 
 extension WaypointApiController {
     var tagPathIdKey: String { "tag" }
@@ -137,7 +137,7 @@ extension WaypointApiController {
     
     // MARK: list unverified tags
     
-    func listUnverifiedTags(_ req: Request) async throws -> [Waypoint.Repository.ListUnverifiedTags] {
+    func listUnverifiedTags(_ req: Request) async throws -> [Tag.Repository.ListUnverifiedRelation] {
         try await req.onlyFor(.moderator)
         let repository = try await repository(req)
         
@@ -147,13 +147,13 @@ extension WaypointApiController {
             .all()
         
         return try await unverifiedTags.concurrentMap { tag in
-            try await tag.$tag.load(on: req.db)
-            guard let detail = try await tag.tag.detail(for: req.allLanguageCodesByPriority(), needsToBeVerified: false, on: req.db) else {
+            let repository = try await tag.$tag.get(on: req.db)
+            guard let detail = try await repository.detail(for: req.allLanguageCodesByPriority(), needsToBeVerified: false, on: req.db) else {
                 throw Abort(.internalServerError)
             }
             try await detail.$language.load(on: req.db)
             return try .init(
-                tagId: tag.tag.requireID(),
+                tagId: repository.requireID(),
                 title: detail.title,
                 slug: detail.slug,
                 status: tag.status,

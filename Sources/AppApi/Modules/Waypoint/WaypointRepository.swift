@@ -61,35 +61,6 @@ public extension Waypoint.Repository {
         }
     }
     
-    /// Used to list unverified tags for a waypoint.
-    struct ListUnverifiedTags: Codable {
-        /// Id uniquely identifying the tag.
-        public let tagId: UUID
-        /// The tag title.
-        public let title: String
-        /// The slug uniquely identifying the tag.
-        public let slug: String
-        /// The status of the tag to waypoint connection.
-        public let status: Status
-        /// The language code for the tag.
-        public let languageCode: String
-        
-        /// Creates a list unverified tags waypoint object.
-        /// - Parameters:
-        ///   - tagId: Id uniquely identifying the tag.
-        ///   - title: The tag title.
-        ///   - slug:The slug uniquely identifying the tag.
-        ///   - status: The status of the tag to waypoint connection.
-        ///   - languageCode: The language code for the tag.
-        public init(tagId: UUID, title: String, slug: String, status: Status, languageCode: String) {
-            self.tagId = tagId
-            self.title = title
-            self.slug = slug
-            self.status = status
-            self.languageCode = languageCode
-        }
-    }
-    
     /// Used to detail changes between two waypoint objects.
     struct Changes: Codable {
         /// The differences between the titles of the detail objects.
