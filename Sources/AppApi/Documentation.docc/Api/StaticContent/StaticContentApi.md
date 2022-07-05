@@ -6,6 +6,8 @@ The static content api endpoints.
 
 The static content is used for more static content deliveries such as the contents of the emails sent.
 
+See how to create, read, update, delete, verify and report static content.
+
 ## Topics
 
 ### Create, read, update and delete

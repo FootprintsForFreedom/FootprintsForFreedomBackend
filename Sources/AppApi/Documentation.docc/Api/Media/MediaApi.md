@@ -2,6 +2,10 @@
 
 The media api endpoints.
 
+## Overview
+
+See how to create, read, update, delete, verify and report media objects.
+
 ## Topics
 
 ### Create, read, update and delete

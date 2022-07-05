@@ -2,6 +2,10 @@
 
 The language api endpoints.
 
+## Overview
+
+See how to create, read, update, activate, deactivate and prioritise languages.
+
 ## Topics
 
 ### Create, read and update

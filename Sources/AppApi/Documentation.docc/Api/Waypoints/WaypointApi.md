@@ -2,6 +2,10 @@
 
 The waypoint api endpoints.
 
+## Overview
+
+See how to create, read, update, delete, verify and report waypoints.
+
 ## Topics
 
 ### Create, read, update and delete
