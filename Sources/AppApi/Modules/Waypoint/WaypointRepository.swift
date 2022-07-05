@@ -71,6 +71,8 @@ public extension Waypoint.Repository {
         public let slug: String
         /// The status of the tag to waypoint connection.
         public let status: Status
+        /// The language code for the tag.
+        public let languageCode: String
         
         /// Creates a list unverified tags waypoint object.
         /// - Parameters:
@@ -78,11 +80,13 @@ public extension Waypoint.Repository {
         ///   - title: The tag title.
         ///   - slug:The slug uniquely identifying the tag.
         ///   - status: The status of the tag to waypoint connection.
-        public init(tagId: UUID, title: String, slug: String, status: Status) {
+        ///   - languageCode: The language code for the tag.
+        public init(tagId: UUID, title: String, slug: String, status: Status, languageCode: String) {
             self.tagId = tagId
             self.title = title
             self.slug = slug
             self.status = status
+            self.languageCode = languageCode
         }
     }
     

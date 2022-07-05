@@ -148,11 +148,13 @@ extension MediaApiController {
             guard let detail = try await tag.tag.detail(for: req.allLanguageCodesByPriority(), needsToBeVerified: false, on: req.db) else {
                 throw Abort(.internalServerError)
             }
+            try await detail.$language.load(on: req.db)
             return try .init(
                 tagId: tag.tag.requireID(),
                 title: detail.title,
                 slug: detail.slug,
-                status: tag.status
+                status: tag.status,
+                languageCode: detail.language.languageCode
             )
         }
     }
