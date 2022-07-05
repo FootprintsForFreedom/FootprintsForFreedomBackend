@@ -8,6 +8,8 @@ See how to create, read, update, delete, verify and report tags.
 
 To see how to add tags to media look at: <doc:MediaApi>. 
 
+To see how to add tags to waypoints look at: <doc:WaypointApi>. 
+
 ## Topics
 
 ### Create, read, update and delete

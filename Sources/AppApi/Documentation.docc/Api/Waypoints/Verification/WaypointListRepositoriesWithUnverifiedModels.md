@@ -1,10 +1,12 @@
-# List repositories with unverified waypoints
+# List repositories with unverified models
 
 Lists all repositories having at least one unverified waypoint.
 
 ## Request
 
     GET /api/v1/waypoints/unverified
+
+> Note: This api endpoint also lists all waypoint repositories with unverified tags.
 
 This endpoint is only available to moderators.
 

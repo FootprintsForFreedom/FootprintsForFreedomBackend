@@ -28,3 +28,11 @@ The waypoint api endpoints.
 - <doc:WaypointCreateReport>
 - <doc:WaypointListUnverifiedReports>
 - <doc:WaypointVerifyReport>
+
+### Adding, deleting and verifying tags
+
+- <doc:WaypointAddTag>
+- <doc:WaypointVerifyTag>
+- <doc:WaypointListUnverifiedTags>
+- <doc:WaypointRequestDeleteTag>
+- <doc:WaypointDeleteTag>
