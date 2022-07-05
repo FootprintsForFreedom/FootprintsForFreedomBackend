@@ -232,19 +232,19 @@ public extension Waypoint.Detail {
         /// The location of the waypoint.
         public let location: Waypoint.Location?
         /// The id of an existing waypoint. All parameters not set in this request will be taken from this waypoint.
-        public let idForWaypointToPatch: UUID
+        public let idForWaypointDetailToPatch: UUID
         
         /// Creates a waypoint patch object
         /// - Parameters:
         ///   - title: The waypoint title.
         ///   - detailText: The detail text describing the waypoint.
         ///   - location: The location of the waypoint.
-        ///   - idForWaypointToPatch: The id of an existing waypoint. All parameters not set in this request will be taken from this waypoint.
-        public init(title: String?, detailText: String?, location: Waypoint.Location?, idForWaypointToPatch: UUID) {
+        ///   - idForWaypointDetailToPatch: The id of an existing waypoint. All parameters not set in this request will be taken from this waypoint.
+        public init(title: String?, detailText: String?, location: Waypoint.Location?, idForWaypointDetailToPatch: UUID) {
             self.title = title
             self.detailText = detailText
             self.location = location
-            self.idForWaypointToPatch = idForWaypointToPatch
+            self.idForWaypointDetailToPatch = idForWaypointDetailToPatch
         }
     }
 }

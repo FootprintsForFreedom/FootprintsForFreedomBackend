@@ -37,7 +37,7 @@ struct WaypointApiController: ApiRepositoryController {
         KeyedContentValidator<String>.required("title", optional: true)
         KeyedContentValidator<String>.required("detailText", optional: true)
         KeyedContentValidator<Waypoint.Location>.location("location", optional: true)
-        KeyedContentValidator<String>.required("idForWaypointToPatch")
+        KeyedContentValidator<String>.required("idForWaypointDetailToPatch")
 
     }
     
@@ -241,7 +241,7 @@ struct WaypointApiController: ApiRepositoryController {
         /// Require user to be signed in
         let user = try req.auth.require(AuthenticatedUser.self)
         
-        guard let waypointToPatch = try await WaypointDetailModel.find(input.idForWaypointToPatch, on: req.db) else {
+        guard let waypointToPatch = try await WaypointDetailModel.find(input.idForWaypointDetailToPatch, on: req.db) else {
             throw Abort(.badRequest, reason: "No waypoint with the given id could be found")
         }
         

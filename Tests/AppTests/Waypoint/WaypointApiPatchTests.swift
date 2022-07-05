@@ -36,7 +36,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
             title: patchedTitle,
             detailText: patchedDetailText,
             location: patchedLocation,
-            idForWaypointToPatch: createdModel.requireID()
+            idForWaypointDetailToPatch: createdModel.requireID()
         )
         return (waypointRepository, createdModel, createdLocation, patchContent)
     }
@@ -238,7 +238,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
             .test()
     }
     
-    func testPatchWaypointNeedsValidIdForWaypointToPatch() async throws {
+    func testPatchWaypointNeedsValididForWaypointDetailToPatch() async throws {
         let token = try await getToken(for: .user, verified: true)
         let (waypointRepository, _, _, _) = try await getWaypointPatchContent(status: .verified)
         let patchContent = Media.Detail.Patch(title: nil, detailText: nil, source: nil, idForMediaToPatch: UUID())

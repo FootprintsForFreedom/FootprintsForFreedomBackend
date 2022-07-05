@@ -12,12 +12,12 @@ The user token has to be sent as a `BearerToken` with the request.
 
 ### Input parameters
 
-The parameter `idForWaypointToPatch` and at least one of the other following parameters has to be sent with the request for it to be successful:  
+The parameter `idForWaypointDetailToPatch` and at least one of the other following parameters has to be sent with the request for it to be successful:  
 
 - term **title**: The waypoint title.
 - term **detailText**: The detail text describing the waypoint.
 - term **location**: The location of the waypoint.
-- term **idForWaypointToPatch**: The id of an existing waypoint. All parameters not set in this request will be taken from this waypoint.
+- term **idForWaypointDetailToPatch**: The id of an existing waypoint. All parameters not set in this request will be taken from this waypoint.
 
 The parameters can be either sent as `application/json` or `multipart/form-data`.
 
