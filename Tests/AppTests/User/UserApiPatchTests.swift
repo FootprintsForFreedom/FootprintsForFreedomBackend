@@ -172,9 +172,9 @@ final class UserApiPatchTests: AppTestCase, UserTest {
             .test()
     }
     
-    func testSuccessfulPatchUserFromDifferentModeratorUser() async throws {
+    func testSuccessfulPatchUserFromDifferentAdminUser() async throws {
         let (user, _, patchContent) = try await getUserPatchContent(patchedName: "Patched Test User")
-        let moderatorToken = try await getToken(for: .moderator)
+        let moderatorToken = try await getToken(for: .admin)
         
         try app
             .describe("Patch username from other admin user should return ok")
@@ -193,6 +193,19 @@ final class UserApiPatchTests: AppTestCase, UserTest {
             }
             .test()
         
+    }
+    
+    func testPatchUserFromDifferentModeratorUserFails() async throws {
+        let (user, _, patchContent) = try await getUserPatchContent()
+        let token = try await getToken(for: .moderator)
+        
+        try app
+            .describe("Patch user from other non admin user should fail")
+            .patch(usersPath.appending(user.requireID().uuidString))
+            .body(patchContent)
+            .bearerToken(token)
+            .expect(.forbidden)
+            .test()
     }
     
     func testPatchUserFromDifferentNormalUserFails() async throws {

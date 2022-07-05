@@ -51,6 +51,17 @@ final class UserApiCreateTests: AppTestCase, UserTest {
         XCTAssertEqual(newUserCount, userCount + 1)
     }
     
+    func testNewPasswordNeedsAtLeastSixCharacters() async throws {
+        let newUser = try getUserCreateContent(password: "1aB")
+        
+        try app
+            .describe("New user password needs at least six characters; Update password fails")
+            .post(usersPath)
+            .body(newUser)
+            .expect(.badRequest)
+            .test()
+    }
+    
     func testNewPasswordNeedsUppercasedLetter() async throws {
         let password = "1newpassword"
         let newUser = try getUserCreateContent(password: password)

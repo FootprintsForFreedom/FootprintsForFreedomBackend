@@ -30,7 +30,7 @@ final class UserApiDeleteTests: AppTestCase, UserTest {
     }
     
     func testSuccessfulDeleteUserFromAdmin() async throws {
-        let moderatorToken = try await getToken(for: .moderator)
+        let moderatorToken = try await getToken(for: .admin)
         let user = try await createNewUser()
         
         // Get original user count
@@ -48,7 +48,19 @@ final class UserApiDeleteTests: AppTestCase, UserTest {
         XCTAssertEqual(newUserCount, userCount - 1)
     }
     
-    func testsDeleteUserFromNonAdminFails() async throws {
+    func testsDeleteUserFromModeratorFails() async throws {
+        let token = try await getToken(for: .moderator)
+        let user = try await createNewUser()
+        
+        try app
+            .describe("Non admin user should not be able to delete other user; Delete user should fail")
+            .delete(usersPath.appending(user.requireID().uuidString))
+            .bearerToken(token)
+            .expect(.forbidden)
+            .test()
+    }
+    
+    func testsDeleteUserFromNormalUserFails() async throws {
         let token = try await getToken(for: .user)
         let user = try await createNewUser()
         
@@ -61,7 +73,7 @@ final class UserApiDeleteTests: AppTestCase, UserTest {
     }
     
     func testDeleteUserDeletesTokens() async throws {
-        let moderatorToken = try await getToken(for: .moderator)
+        let moderatorToken = try await getToken(for: .admin)
         let user = try await createNewUser()
         
         try app

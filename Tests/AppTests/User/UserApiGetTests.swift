@@ -24,8 +24,8 @@ final class UserApiGetTests: AppTestCase, UserTest {
         return user
     }
     
-    func testSuccesfullListUsers() async throws {
-        let moderatorToken = try await getToken(for: .moderator)
+    func testSuccessfulListUsers() async throws {
+        let moderatorToken = try await getToken(for: .admin)
         let user = try await createNewUser()
         
         // Get user count
@@ -46,6 +46,18 @@ final class UserApiGetTests: AppTestCase, UserTest {
         .test()
     }
     
+    func testListUsersAsModeratorFails() async throws {
+        let token = try await getToken(for: .moderator)
+        
+        try app
+            .describe("List users should fail with normal token")
+            .get(usersPath)
+            .bearerToken(token)
+            .expect(.forbidden)
+            .expect(.json)
+            .test()
+    }
+    
     func testListUsersWithNormalTokenFails() async throws {
         let token = try await getToken(for: .user)
         
@@ -60,7 +72,7 @@ final class UserApiGetTests: AppTestCase, UserTest {
     
     func testListUsersWithoutTokenFails() throws {
         try app
-            .describe("List users wihtout token should fail")
+            .describe("List users without token should fail")
             .get(usersPath)
             .expect(.unauthorized)
             .test()
@@ -72,7 +84,7 @@ final class UserApiGetTests: AppTestCase, UserTest {
         try await ownToken.create(on: app.db)
         
         try app
-            .describe("Get user should reutrn ok")
+            .describe("Get user should return ok")
             .get(usersPath.appending(user.requireID().uuidString))
             .bearerToken(ownToken.value)
             .expect(.ok)
@@ -88,8 +100,8 @@ final class UserApiGetTests: AppTestCase, UserTest {
         .test()
     }
     
-    func testGetUserAsModerator() async throws {
-        let moderatorToken = try await getToken(for: .moderator)
+    func testGetUserAsAdmin() async throws {
+        let moderatorToken = try await getToken(for: .admin)
         let user = try await createNewUser()
         
         try app

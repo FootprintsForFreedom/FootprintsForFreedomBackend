@@ -96,9 +96,9 @@ final class UserApiUpdateTests: AppTestCase, UserTest {
         .test()
     }
     
-    func testSuccessfulUpdateUserFromDifferentModeratorUser() async throws {
+    func testSuccessfulUpdateUserFromDifferentAdminUser() async throws {
         let (user, _, updateContent) = try await getUserUpdateContent()
-        let moderatorToken = try await getToken(for: .moderator)
+        let moderatorToken = try await getToken(for: .admin)
         
         try app
             .describe("Update user from other admin user should return ok")
@@ -115,6 +115,19 @@ final class UserApiUpdateTests: AppTestCase, UserTest {
                 XCTAssertEqual(content.verified, user.verified)
                 XCTAssertEqual(content.role, user.role)
             }
+            .test()
+    }
+    
+    func testUpdateUserFromDifferentModeratorFails() async throws {
+        let (user, _, updateContent) = try await getUserUpdateContent()
+        let token = try await getToken(for: .moderator)
+        
+        try app
+            .describe("Update user from other non admin user should fail")
+            .put(usersPath.appending(user.requireID().uuidString))
+            .body(updateContent)
+            .bearerToken(token)
+            .expect(.forbidden)
             .test()
     }
     

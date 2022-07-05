@@ -23,17 +23,7 @@ struct UserApiController: ApiController {
     }
     
     func beforeList(_ req: Request, _ queryBuilder: QueryBuilder<UserAccountModel>) async throws -> QueryBuilder<UserAccountModel> {
-        /// Require user to be signed in
-        let authenticatedUser = try req.auth.require(AuthenticatedUser.self)
-        /// find the user model belonging to the authenticated user
-        guard let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db) else {
-            throw Abort(.unauthorized)
-        }
-        /// require  the user to be a moderator
-        guard user.role >= .moderator else {
-            throw Abort(.forbidden)
-        }
-        
+        try await req.onlyFor(.admin)
         return queryBuilder
     }
     
@@ -54,7 +44,7 @@ struct UserApiController: ApiController {
                     verified: model.verified,
                     role: model.role
                 )
-            } else if user.role >= .moderator {
+            } else if user.role >= .admin {
                 return User.Account.Detail.adminDetail(
                     id: model.id!,
                     name: model.name,
@@ -93,7 +83,7 @@ struct UserApiController: ApiController {
     }
     
     func beforeUpdate(_ req: Request, _ model: UserAccountModel) async throws {
-        try await req.onlyFor(model, or: .moderator)
+        try await req.onlyFor(model, or: .admin)
     }
     
     /// Only use this when all fields are updated
@@ -111,7 +101,7 @@ struct UserApiController: ApiController {
     }
     
     func beforePatch(_ req: Request, _ model: UserAccountModel) async throws {
-        try await req.onlyFor(model, or: .moderator)
+        try await req.onlyFor(model, or: .admin)
     }
     
     func patchInput(_ req: Request, _ model: UserAccountModel, _ input: User.Account.Patch) async throws {
@@ -130,7 +120,7 @@ struct UserApiController: ApiController {
     }
     
     func beforeDelete(_ req: Request, _ model: UserAccountModel) async throws {
-        try await req.onlyFor(model, or: .moderator)
+        try await req.onlyFor(model, or: .admin)
     }
     
     func setupRoutes(_ routes: RoutesBuilder) {

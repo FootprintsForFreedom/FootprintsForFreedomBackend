@@ -45,6 +45,18 @@ final class UserApiUpdatePasswordTests: AppTestCase, UserTest {
         .test()
     }
     
+    func testNewPasswordNeedsAtLeastSixCharacters() async throws {
+        let (user, token, updatePasswordContent) = try await getUserUpdatePasswordContent(newPassword: "1aB")
+        
+        try app
+            .describe("New user password needs at least six characters; Update password fails")
+            .put(usersPath.appending(user.requireID().uuidString.appending("/updatePassword")))
+            .body(updatePasswordContent)
+            .bearerToken(token)
+            .expect(.badRequest)
+            .test()
+    }
+    
     func testNewPasswordNeedsUppercasedLetter() async throws {
         let (user, token, updatePasswordContent) = try await getUserUpdatePasswordContent(newPassword: "1newpassword")
         
@@ -81,7 +93,7 @@ final class UserApiUpdatePasswordTests: AppTestCase, UserTest {
             .test()
     }
     
-    func testNewPasswordWihtNewLineFails() async throws {
+    func testNewPasswordWithNewLineFails() async throws {
         let (user, token, updatePasswordContent) = try await getUserUpdatePasswordContent(newPassword: "1new\nPassword")
         
         try app

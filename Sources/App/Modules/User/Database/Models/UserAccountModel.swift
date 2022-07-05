@@ -21,7 +21,7 @@ final class UserAccountModel: DatabaseModelInterface {
             static var role: FieldKey { "role" }
         }
     }
-
+    
     @ID() var id: UUID?
     @Field(key: FieldKeys.v1.name) var name: String
     @Field(key: FieldKeys.v1.email) var email: String
@@ -55,7 +55,8 @@ final class UserAccountModel: DatabaseModelInterface {
 extension UserAccountModel {
     func setPassword(to newPassword: String, on req: Request) throws {
         /// Confirm new password meets conditions
-        guard newPassword.rangeOfCharacter(from: .uppercaseLetters) != nil &&
+        guard newPassword.count >= 6 &&
+                newPassword.rangeOfCharacter(from: .uppercaseLetters) != nil &&
                 newPassword.rangeOfCharacter(from: .lowercaseLetters) != nil &&
                 newPassword.rangeOfCharacter(from: .decimalDigits) != nil &&
                 newPassword.rangeOfCharacter(from: .newlines) == nil

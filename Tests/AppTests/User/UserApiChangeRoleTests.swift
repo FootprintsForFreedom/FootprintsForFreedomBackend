@@ -13,19 +13,6 @@ import Spec
 extension User.Account.ChangeRole: Content {}
 
 final class UserApiChangeRoleTests: AppTestCase, UserTest {
-    private func createNewUser(
-        name: String = "New Test User",
-        email: String = "test-user\(UUID())@example.com",
-        school: String? = nil,
-        password: String = "password",
-        verified: Bool = false,
-        role: User.Role = .user
-    ) async throws -> UserAccountModel {
-        let user = UserAccountModel(name: name, email: email, school: school, password: try app.password.hash(password), verified: verified, role: role)
-        try await user.create(on: app.db)
-        return user
-    }
-    
     func testSuccessfulChangeUserRole() async throws {
         let allRoles = User.Role.allCases
         

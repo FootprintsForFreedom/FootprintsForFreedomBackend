@@ -42,7 +42,7 @@ extension Request {
             throw Abort(.unauthorized)
         }
         /// require the model id to be the user id or the user to be an moderator
-        guard user.id == requestedUser.id || requestedUser.role >= .moderator else {
+        guard user.id == requestedUser.id || requestedUser.role >= role else {
             throw Abort(.forbidden)
         }
     }

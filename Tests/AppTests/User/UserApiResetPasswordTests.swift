@@ -173,6 +173,20 @@ final class UserApiResetPasswordTests: AppTestCase, UserTest {
             .test()
     }
     
+    func testNewPasswordNeedsAtLeastSixCharacters() async throws {
+        let user = try await createNewUser()
+        let newPassword = "1aB"
+        let resetPasswordContent = try await resetPasswordContent(for: user, with: newPassword)
+        
+        try app
+            .describe("New user password needs at least six characters; Update password fails")
+            .post(usersPath.appending(user.requireID().uuidString).appending("/resetPassword"))
+            .body(resetPasswordContent)
+            .expect(.badRequest)
+            .test()
+    }
+
+    
     func testNewPasswordNeedsUppercasedLetter() async throws {
         let user = try await createNewUser()
         let newPassword = "alllowwercase34"
