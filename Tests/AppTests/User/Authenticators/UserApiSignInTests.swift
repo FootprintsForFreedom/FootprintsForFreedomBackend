@@ -41,7 +41,7 @@ final class UserApiSignInTests: AppTestCase {
             .expect(.ok)
             .expect(.json)
             .expect(User.Token.Detail.self) { content in
-                XCTAssertEqual(content.value.count, 64)
+                XCTAssertEqual(content.access_token.count, 64)
                 XCTAssertEqual(content.user.email, user.email)
             }
             .test()
@@ -87,8 +87,8 @@ final class UserApiSignInTests: AppTestCase {
             .expect(.ok)
             .expect(.json)
             .expect(User.Token.Detail.self) { content in
-                XCTAssertEqual(content.value.count, 64)
-                token1 = content.value
+                XCTAssertEqual(content.access_token.count, 64)
+                token1 = content.access_token
                 XCTAssertEqual(content.user.email, user1.email)
             }
             .test()
@@ -100,8 +100,8 @@ final class UserApiSignInTests: AppTestCase {
             .expect(.ok)
             .expect(.json)
             .expect(User.Token.Detail.self) { content in
-                XCTAssertEqual(content.value.count, 64)
-                XCTAssertNotEqual(content.value, token1)
+                XCTAssertEqual(content.access_token.count, 64)
+                XCTAssertNotEqual(content.access_token, token1)
                 XCTAssertEqual(content.user.email, user2.email)
             }
             .test()

@@ -157,7 +157,7 @@ final class UserApiResetPasswordTests: AppTestCase, UserTest {
             .expect(.ok)
             .expect(.json)
             .expect(User.Token.Detail.self) { content in
-                XCTAssertEqual(content.value.count, 64)
+                XCTAssertEqual(content.access_token.count, 64)
                 XCTAssertEqual(content.user.email, user.email)
             }
             .test()

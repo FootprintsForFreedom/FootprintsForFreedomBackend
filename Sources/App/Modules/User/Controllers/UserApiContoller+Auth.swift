@@ -22,7 +22,7 @@ extension UserApiController {
         try await token.create(on: req.db)
         /// return the own detail representation of the user
         let userDetail = User.Account.Detail.ownDetail(id: user.id!, name: user.name, email: user.email, school: user.school, verified: user.verified, role: user.role)
-        return User.Token.Detail(id: token.id!, value: token.value, user: userDetail)
+        return User.Token.Detail(id: token.id!, access_token: token.value, user: userDetail)
     }
     
     // TODO: problem when singing out in web app would be logged out as well
@@ -38,7 +38,7 @@ extension UserApiController {
         try await tokens.delete(on: req.db)
         /// log the user out
         req.auth.logout(AuthenticatedUser.self)
-        /// return ok if user was signed out succesfully
+        /// return ok if user was signed out successfully
         return .ok
     }
 }
