@@ -23,14 +23,10 @@ struct UserCredentialsAuthenticator: AsyncCredentialsAuthenticator {
         else {
             return
         }
-        do {
-            guard try req.application.password.verify(credentials.password, created: user.password) else {
-               return
-            }
-            req.auth.login(AuthenticatedUser(id: user.id!, email: user.email))
+        
+        guard try req.application.password.verify(credentials.password, created: user.password) else {
+            return
         }
-        catch {
-            // do nothing...
-        }
+        req.auth.login(AuthenticatedUser(id: user.id!, email: user.email))
     }
 }
