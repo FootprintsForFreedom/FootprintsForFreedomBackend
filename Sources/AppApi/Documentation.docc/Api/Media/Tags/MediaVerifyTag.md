@@ -36,7 +36,7 @@ The moderator token has to be sent as a `BearerToken` with the request.
 }
 ```
 
-The tag objects are the same as those returned when listing tags: <doc:TagList>.
+> Note: The tag objects are the same as those returned when listing tags: <doc:TagList>.
 
 ## See Also
 

@@ -43,3 +43,4 @@ The tag objects are the same as those returned when listing tags: <doc:TagList>.
 ## See Also
 
 * ``Media/Detail/Detail``
+* ``Tag/Detail/List``

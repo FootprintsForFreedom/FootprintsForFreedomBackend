@@ -4,7 +4,7 @@ Lists all tags that were added or requested to be deleted but are not yet verifi
 
 ## Request 
 
-    GET /api/v1/<media-repository-id>/tags/unverified
+    GET /api/v1/media/<media-repository-id>/tags/unverified
 
 > Note: To get repositories with unverified tags see: <doc:MediaListRepositoriesWithUnverifiedModels>.
 
