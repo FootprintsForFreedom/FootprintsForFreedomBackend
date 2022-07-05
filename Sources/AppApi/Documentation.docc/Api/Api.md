@@ -27,3 +27,7 @@ Documentation off all available api-endpoints which can be used by a fronted app
 ### Static Content api endpoints
 
 - <doc:StaticContentApi>
+
+### User api endpoints
+
+- <doc:UserApi>
