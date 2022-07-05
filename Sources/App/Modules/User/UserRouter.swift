@@ -17,6 +17,7 @@ struct UserRouter: RouteCollection {
         
         routes
             .grouped(UserCredentialsAuthenticator())
+            .grouped(UserBasicAuthenticator())
             .post("sign-in", use: apiController.signInApi)
         
         routes
