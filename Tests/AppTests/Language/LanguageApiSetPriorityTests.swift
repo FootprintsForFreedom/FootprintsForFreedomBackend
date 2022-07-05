@@ -10,7 +10,7 @@ import XCTVapor
 import Fluent
 import Spec
 
-extension Language.Language.UpdatePriorities: Content { }
+extension Language.Detail.UpdatePriorities: Content { }
 
 final class LanguageApiSetPriorityTests: AppTestCase, LanguageTest {    
     func testSuccessfulSetLanguagePriorities() async throws {
@@ -22,7 +22,7 @@ final class LanguageApiSetPriorityTests: AppTestCase, LanguageTest {
             .all()
             .map { try $0.requireID() }
         
-        let setLanguagesPriorityContent = Language.Language.UpdatePriorities(newLanguagesOrder: activeLanguageIds.shuffled())
+        let setLanguagesPriorityContent = Language.Detail.UpdatePriorities(newLanguagesOrder: activeLanguageIds.shuffled())
         
         try app
             .describe("Update language priorities as admin should return ok and the new order")
@@ -31,7 +31,7 @@ final class LanguageApiSetPriorityTests: AppTestCase, LanguageTest {
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
-            .expect([Language.Language.List].self) { content in
+            .expect([Language.Detail.List].self) { content in
                 for languageId in activeLanguageIds {
                     XCTAssert(content.contains { $0.id == languageId })
                 }
@@ -47,7 +47,7 @@ final class LanguageApiSetPriorityTests: AppTestCase, LanguageTest {
         let activeLanguageIds = try await (1...4).asyncMap { _ in try await self.createLanguage().requireID() }
         let _ = try await createLanguage()
         
-        let setLanguagesPriorityContent = Language.Language.UpdatePriorities(newLanguagesOrder: activeLanguageIds.shuffled())
+        let setLanguagesPriorityContent = Language.Detail.UpdatePriorities(newLanguagesOrder: activeLanguageIds.shuffled())
         
         try app
             .describe("Update language priorities without all languages in the new order should fail")
@@ -67,7 +67,7 @@ final class LanguageApiSetPriorityTests: AppTestCase, LanguageTest {
         var newLanguagesOrder = activeLanguageIds.shuffled()
         newLanguagesOrder.append(deactivatedLanguageId)
         
-        let setLanguagesPriorityContent = Language.Language.UpdatePriorities(newLanguagesOrder: newLanguagesOrder)
+        let setLanguagesPriorityContent = Language.Detail.UpdatePriorities(newLanguagesOrder: newLanguagesOrder)
         
         try app
             .describe("Update language priorities with deactivated language in new order should fail")

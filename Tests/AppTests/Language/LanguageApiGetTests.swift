@@ -23,7 +23,7 @@ final class LanguageApiGetTests: AppTestCase, LanguageTest {
                 .get(languagesPath)
                 .expect(.ok)
                 .expect(.json)
-                .expect([Language.Language.List].self) { content in
+                .expect([Language.Detail.List].self) { content in
                     XCTAssertEqual(languagesCount, content.count)
                     
                     XCTAssert(content.contains { $0.languageCode == language.languageCode })
@@ -41,7 +41,7 @@ final class LanguageApiGetTests: AppTestCase, LanguageTest {
             .get(languagesPath.appending(language.languageCode))
             .expect(.ok)
             .expect(.json)
-            .expect(Language.Language.Detail.self) { content in
+            .expect(Language.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, language.id)
                 XCTAssertEqual(content.languageCode, language.languageCode)
                 XCTAssertEqual(content.name, language.name)
@@ -70,7 +70,7 @@ final class LanguageApiGetTests: AppTestCase, LanguageTest {
             .get(languagesPath)
             .expect(.ok)
             .expect(.json)
-            .expect([Language.Language.List].self) { content in
+            .expect([Language.Detail.List].self) { content in
                 XCTAssertEqual(languagesCount, content.count)
                 XCTAssert(!content.contains { $0.id == languages.last!.id })
             }
@@ -89,7 +89,7 @@ final class LanguageApiGetTests: AppTestCase, LanguageTest {
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
-            .expect(Language.Language.Detail.self) { content in
+            .expect(Language.Detail.Detail.self) { content in
                 XCTAssertEqual(content.id, language.id)
                 XCTAssertEqual(content.languageCode, language.languageCode)
                 XCTAssertEqual(content.name, language.name)

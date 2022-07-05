@@ -23,7 +23,7 @@ final class LanguageApiListDeactivatedTests: AppTestCase, LanguageTest {
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
-            .expect([Language.Language.List].self) { content in
+            .expect([Language.Detail.List].self) { content in
                 XCTAssert(content.contains { $0.id == language1.id } )
                 XCTAssert(content.contains { $0.id == language2.id } )
             }
@@ -42,7 +42,7 @@ final class LanguageApiListDeactivatedTests: AppTestCase, LanguageTest {
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
-            .expect([Language.Language.List].self) { content in
+            .expect([Language.Detail.List].self) { content in
                 XCTAssert(content.contains { $0.id == deactivatedLanguage.id } )
                 XCTAssertFalse(content.contains { $0.id == activeLanguage.id } )
             }

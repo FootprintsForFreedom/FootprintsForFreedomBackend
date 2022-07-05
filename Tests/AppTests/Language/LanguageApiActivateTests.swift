@@ -21,7 +21,7 @@ final class LanguageApiActivateTests: AppTestCase, LanguageTest {
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
-            .expect(Language.Language.Detail.self) { content in
+            .expect(Language.Detail.Detail.self) { content in
                 XCTAssertEqual(content.languageCode, language.languageCode)
                 XCTAssertEqual(content.name, language.name)
                 XCTAssertEqual(content.isRTL, language.isRTL)

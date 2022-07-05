@@ -42,5 +42,5 @@ The response contains all active languages in their new order.
 
 ## See Also
 
-* ``Language/Language/UpdatePriorities``
-* ``Language/Language/List``
+* ``Language/Detail/UpdatePriorities``
+* ``Language/Detail/List``

@@ -35,5 +35,5 @@ The parameters can be either sent as `application/json` or `multipart/form-data`
 
 ## See Also
 
-* ``Language/Language/Update``
-* ``Language/Language/Detail``
+* ``Language/Detail/Update``
+* ``Language/Detail/Detail``

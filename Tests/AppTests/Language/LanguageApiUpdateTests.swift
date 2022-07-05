@@ -10,14 +10,14 @@ import XCTVapor
 import Fluent
 import Spec
 
-extension Language.Language.Update: Content { }
+extension Language.Detail.Update: Content { }
 
 final class LanguageApiUpdateTests: AppTestCase, LanguageTest {
     private func getLanguageUpdateContent(
         languageCode: String = UUID().uuidString,
         name: String = UUID().uuidString,
         isRTL: Bool = false
-    ) -> Language.Language.Update {
+    ) -> Language.Detail.Update {
         return .init(languageCode: languageCode, name: name, isRTL: isRTL)
     }
     
@@ -33,7 +33,7 @@ final class LanguageApiUpdateTests: AppTestCase, LanguageTest {
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
-            .expect(Language.Language.Detail.self) { content in
+            .expect(Language.Detail.Detail.self) { content in
                 XCTAssertEqual(content.languageCode, updatedLanguage.languageCode)
                 XCTAssertEqual(content.name, updatedLanguage.name)
                 XCTAssertEqual(content.isRTL, updatedLanguage.isRTL)

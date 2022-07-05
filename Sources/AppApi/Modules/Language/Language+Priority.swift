@@ -7,7 +7,7 @@
 
 import Foundation
 
-public extension Language.Language {
+public extension Language.Detail {
     /// Used to detail language objects.
     struct UpdatePriorities: Codable {
         /// An array containing all active language ids in the new order they should be arranged. The first item will have the highest priority.

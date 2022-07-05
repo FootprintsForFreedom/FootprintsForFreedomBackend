@@ -11,7 +11,7 @@ import Fluent
 extension LanguageApiController {
     
     // PUT: api/languages/:languageId/deactivate
-    func deactivateLanguage(_ req: Request) async throws -> Language.Language.Detail {
+    func deactivateLanguage(_ req: Request) async throws -> Language.Detail.Detail {
         try await req.onlyFor(.admin)
         
         let language = try await findBy(identifier(req), on: req.db)
@@ -31,7 +31,7 @@ extension LanguageApiController {
     }
     
     // PUT: api/languages/:languageId/activate
-    func activateLanguage(_ req: Request) async throws -> Language.Language.Detail {
+    func activateLanguage(_ req: Request) async throws -> Language.Detail.Detail {
         try await req.onlyFor(.admin)
         
         let language = try await findBy(identifier(req), on: req.db)
@@ -57,7 +57,7 @@ extension LanguageApiController {
     }
     
     // GET: api/languages/deactivated
-    func listDeactivatedLanguages(_ req: Request) async throws -> [Language.Language.Detail] {
+    func listDeactivatedLanguages(_ req: Request) async throws -> [Language.Detail.Detail] {
         try await req.onlyFor(.admin)
         
         let deactivatedLanguages = try await LanguageModel.query(on: req.db)
@@ -80,11 +80,11 @@ extension LanguageApiController {
         KeyedContentValidator<[UUID]>.required("newLanguagesOrder")
     }
     
-    func setLanguagePriorities(_ req: Request) async throws -> [Language.Language.List] {
+    func setLanguagePriorities(_ req: Request) async throws -> [Language.Detail.List] {
         try await req.onlyFor(.admin)
         
         try await RequestValidator(setLanguagePrioritiesValidators()).validate(req)
-        let input = try req.content.decode(Language.Language.UpdatePriorities.self)
+        let input = try req.content.decode(Language.Detail.UpdatePriorities.self)
         let newLanguagesOrder = try await input.newLanguagesOrder
             .concurrentMap { languageId -> LanguageModel in
                 guard let language = try await LanguageModel.query(on: req.db)

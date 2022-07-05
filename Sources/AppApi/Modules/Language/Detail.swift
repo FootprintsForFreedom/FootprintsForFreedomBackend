@@ -10,12 +10,12 @@ import Foundation
 public enum Language: ApiModuleInterface { }
 
 public extension Language {
-    enum Language: ApiModelInterface {
+    enum Detail: ApiModelInterface {
         public typealias Module = AppApi.Language
     }
 }
 
-public extension Language.Language {
+public extension Language.Detail {
     /// Used to list language objects.
     struct List: Codable {
         /// Id uniquely identifying the language.

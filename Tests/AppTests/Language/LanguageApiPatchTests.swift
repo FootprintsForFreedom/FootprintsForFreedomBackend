@@ -10,14 +10,14 @@ import XCTVapor
 import Fluent
 import Spec
 
-extension Language.Language.Patch: Content { }
+extension Language.Detail.Patch: Content { }
 
 final class LanguageApiPatchTests: AppTestCase, LanguageTest {
     private func getLanguagePatchContent(
         languageCode: String? = nil,
         name: String? = nil,
         isRTL: Bool? = nil
-    ) -> Language.Language.Patch {
+    ) -> Language.Detail.Patch {
         return .init(languageCode: languageCode, name: name, isRTL: isRTL)
     }
     
@@ -33,7 +33,7 @@ final class LanguageApiPatchTests: AppTestCase, LanguageTest {
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
-            .expect(Language.Language.Detail.self) { content in
+            .expect(Language.Detail.Detail.self) { content in
                 XCTAssertEqual(content.languageCode, patchedLanguage.languageCode)
                 XCTAssertEqual(content.name, language.name)
                 XCTAssertEqual(content.isRTL, language.isRTL)
@@ -53,7 +53,7 @@ final class LanguageApiPatchTests: AppTestCase, LanguageTest {
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
-            .expect(Language.Language.Detail.self) { content in
+            .expect(Language.Detail.Detail.self) { content in
                 XCTAssertEqual(content.languageCode, language.languageCode)
                 XCTAssertEqual(content.name, patchedLanguage.name)
                 XCTAssertEqual(content.isRTL, language.isRTL)
@@ -73,7 +73,7 @@ final class LanguageApiPatchTests: AppTestCase, LanguageTest {
             .bearerToken(token)
             .expect(.ok)
             .expect(.json)
-            .expect(Language.Language.Detail.self) { content in
+            .expect(Language.Detail.Detail.self) { content in
                 XCTAssertEqual(content.languageCode, language.languageCode)
                 XCTAssertEqual(content.name, language.name)
                 XCTAssertEqual(content.isRTL, patchedLanguage.isRTL)

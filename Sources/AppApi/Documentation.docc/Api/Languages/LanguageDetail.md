@@ -21,4 +21,4 @@ Gets a language detail object for the language code.
 
 ## See Also
 
-* ``Language/Language/Detail``
+* ``Language/Detail/Detail``

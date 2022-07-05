@@ -8,11 +8,11 @@
 import Vapor
 import Fluent
 
-extension Language.Language.List: Content { }
-extension Language.Language.Detail: Content { }
+extension Language.Detail.List: Content { }
+extension Language.Detail.Detail: Content { }
 
 struct LanguageApiController: UnpagedApiController {
-    typealias ApiModel = Language.Language
+    typealias ApiModel = Language.Detail
     typealias DatabaseModel = LanguageModel
     
     func requireUniqueLanguageCode(_ req: Request, _ model: LanguageModel) async throws {
@@ -52,7 +52,7 @@ struct LanguageApiController: UnpagedApiController {
             .sort(\.$priority, .ascending) // Lowest value first
     }
     
-    func listOutput(_ req: Request, _ models: [LanguageModel]) async throws -> [Language.Language.List] {
+    func listOutput(_ req: Request, _ models: [LanguageModel]) async throws -> [Language.Detail.List] {
         models.map { model in
             return .init(
                 id: model.id!,
@@ -95,7 +95,7 @@ struct LanguageApiController: UnpagedApiController {
         return model
     }
     
-    func detailOutput(_ req: Request, _ model: LanguageModel) async throws -> Language.Language.Detail {
+    func detailOutput(_ req: Request, _ model: LanguageModel) async throws -> Language.Detail.Detail {
         return .init(
             id: model.id!,
             languageCode: model.languageCode,
@@ -110,7 +110,7 @@ struct LanguageApiController: UnpagedApiController {
         try await requireUniqueName(req, model)
     }
     
-    func createInput(_ req: Request, _ model: LanguageModel, _ input: Language.Language.Create) async throws {
+    func createInput(_ req: Request, _ model: LanguageModel, _ input: Language.Detail.Create) async throws {
         let currentHighestPriority = try await LanguageModel
             .query(on: req.db)
             .filter(\.$priority != nil)
@@ -136,7 +136,7 @@ struct LanguageApiController: UnpagedApiController {
         }
     }
     
-    func updateInput(_ req: Request, _ model: LanguageModel, _ input: Language.Language.Update) async throws {
+    func updateInput(_ req: Request, _ model: LanguageModel, _ input: Language.Detail.Update) async throws {
         model.languageCode = input.languageCode
         model.name = input.name
         model.isRTL = input.isRTL
@@ -155,7 +155,7 @@ struct LanguageApiController: UnpagedApiController {
         }
     }
     
-    func patchInput(_ req: Request, _ model: LanguageModel, _ input: Language.Language.Patch) async throws {
+    func patchInput(_ req: Request, _ model: LanguageModel, _ input: Language.Detail.Patch) async throws {
         if input.languageCode == nil && input.name == nil && input.isRTL == nil {
             throw Abort(.badRequest)
         }

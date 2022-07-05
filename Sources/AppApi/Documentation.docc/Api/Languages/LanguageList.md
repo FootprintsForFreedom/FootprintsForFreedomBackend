@@ -30,4 +30,4 @@ Lists all language objects sorted by their priority.
 
 ## See Also
 
-* ``Language/Language/List``
+* ``Language/Detail/List``
