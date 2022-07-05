@@ -13,6 +13,7 @@ See how to create, read, update, delete, verify and report waypoints.
 - <doc:WaypointCreate>
 - <doc:WaypointDetail>
 - <doc:WaypointList>
+- <doc:WaypointListMedia>
 - <doc:WaypointSearch>
 - <doc:WaypointUpdate>
 - <doc:WaypointPatch>
