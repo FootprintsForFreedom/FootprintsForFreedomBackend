@@ -139,12 +139,13 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
         let waypoints = try await WaypointRepositoryModel
             .query(on: app.db)
             .with(\.$details) { $0.with(\.$language) }
+            .with(\.$locations)
             .all()
         
         let waypointCount = waypoints.count
         
         let verifiedWaypointCount = waypoints
-            .filter { $0.details.contains { [Status.verified, .deleteRequested].contains($0.status) && $0.language.priority != nil } }
+            .filter { $0.details.contains { [Status.verified, .deleteRequested].contains($0.status) && $0.language.priority != nil } && $0.locations.contains { [Status.verified, .deleteRequested].contains($0.status) } }
             .count
         
         try app
