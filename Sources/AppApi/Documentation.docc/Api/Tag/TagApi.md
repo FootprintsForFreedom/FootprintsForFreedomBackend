@@ -2,6 +2,12 @@
 
 The tag api endpoints.
 
+## Overview
+
+See how to create, read, update, delete, verify and report tags.
+
+To see how to add tags to media look at: <doc:MediaApi>. 
+
 ## Topics
 
 ### Create, read, update and delete

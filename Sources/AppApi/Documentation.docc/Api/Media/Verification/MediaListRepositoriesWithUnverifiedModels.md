@@ -1,10 +1,12 @@
-# List repositories with unverified media
+# List repositories with unverified models
 
-Lists all repositories having at least one unverified media.
+Lists all repositories having at least one unverified model.
 
 ## Request
 
     GET /api/v1/media/unverified
+
+> Note: This api endpoint also lists all media repositories with unverified tags.
 
 This endpoint is only available to moderators.
 

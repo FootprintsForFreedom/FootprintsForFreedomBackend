@@ -26,3 +26,11 @@ The media api endpoints.
 - <doc:MediaCreateReport>
 - <doc:MediaListUnverifiedReports>
 - <doc:MediaVerifyReport>
+
+### Adding, deleting and verifying tags
+
+- <doc:MediaAddTag>
+- <doc:MediaVerifyTag>
+- <doc:MediaListUnverifiedTags>
+- <doc:MediaRequestDeleteTag>
+- <doc:MediaDeleteTag>
