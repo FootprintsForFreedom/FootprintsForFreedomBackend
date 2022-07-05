@@ -14,20 +14,20 @@ The media api endpoints.
 - <doc:MediaPatch>
 - <doc:MediaDelete>
 
-### Verifying
+### Verify
 
 - <doc:MediaDetailChanges>
 - <doc:MediaListRepositoriesWithUnverifiedModels>
 - <doc:MediaListUnverifiedDetailsForRepository>
 - <doc:MediaVerify>
 
-### Reporting
+### Report
 
 - <doc:MediaCreateReport>
 - <doc:MediaListUnverifiedReports>
 - <doc:MediaVerifyReport>
 
-### Adding, deleting and verifying tags
+### Add, delete and verify tags
 
 - <doc:MediaAddTag>
 - <doc:MediaVerifyTag>

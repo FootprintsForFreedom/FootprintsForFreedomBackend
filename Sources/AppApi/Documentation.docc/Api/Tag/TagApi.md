@@ -22,14 +22,14 @@ To see how to add tags to waypoints look at: <doc:WaypointApi>.
 - <doc:TagPatch>
 - <doc:TagDelete>
 
-### Verifying
+### Verify
 
 - <doc:TagDetailChanges>
 - <doc:TagListRepositoriesWithUnverifiedModels>
 - <doc:TagListUnverifiedDetailsForRepository>
 - <doc:TagVerify>
 
-### Reporting
+### Report
 
 - <doc:TagCreateReport>
 - <doc:TagListUnverifiedReports>

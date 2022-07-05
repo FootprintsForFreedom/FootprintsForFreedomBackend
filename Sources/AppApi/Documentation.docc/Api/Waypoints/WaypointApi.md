@@ -14,7 +14,7 @@ The waypoint api endpoints.
 - <doc:WaypointPatch>
 - <doc:WaypointDelete>
 
-### Verifying
+### Verify
 
 - <doc:WaypointDetailChanges>
 - <doc:WaypointListRepositoriesWithUnverifiedModels>
@@ -23,13 +23,13 @@ The waypoint api endpoints.
 - <doc:WaypointVerify>
 - <doc:WaypointLocationVerify>
 
-### Reporting
+### Report
 
 - <doc:WaypointCreateReport>
 - <doc:WaypointListUnverifiedReports>
 - <doc:WaypointVerifyReport>
 
-### Adding, deleting and verifying tags
+### Add, delete and verify tags
 
 - <doc:WaypointAddTag>
 - <doc:WaypointVerifyTag>
