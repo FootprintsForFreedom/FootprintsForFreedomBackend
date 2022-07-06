@@ -7,20 +7,23 @@
 
 import Vapor
 
-extension UserApiController: ApiDetailOwnUserController {
-    typealias DetailObject = User.Account.Detail
-    
-    func detailOwnUserInput(_ req: Request) async throws -> UserAccountModel {
+extension UserApiController {
+    func detailOwnUserApi(_ req: Request) async throws -> User.Account.Detail {
         guard let authenticatedUser = req.auth.get(AuthenticatedUser.self) else {
             throw Abort(.unauthorized)
         }
         guard let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db) else {
             throw Abort(.notFound)
         }
-        return user
+        
+        return try await detailOutput(req, user)
     }
     
-    func detailOwnUserOutput(_ req: Request, _ model: UserAccountModel) async throws -> User.Account.Detail {
-        try await detailOutput(req, model)
+    func setupDetailOwnUserRoutes(_ routes: RoutesBuilder) {
+        let baseRoutes = getBaseRoutes(routes)
+        let existingModelRoutes = baseRoutes
+            .grouped(AuthenticatedUser.guardMiddleware())
+            .grouped("me")
+        existingModelRoutes.get(use: detailOwnUserApi)
     }
 }
