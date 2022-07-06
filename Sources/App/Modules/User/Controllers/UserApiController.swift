@@ -16,11 +16,27 @@ struct UserApiController: ApiController {
     typealias ApiModel = User.Account
     typealias DatabaseModel = UserAccountModel
     
+    // MARK: - Validators
+    
     @AsyncValidatorBuilder
     func validators(optional: Bool) -> [AsyncValidator] {
         KeyedContentValidator<String>.required("name", optional: optional)
         KeyedContentValidator<String>.email("email", nil, optional)
     }
+    
+    // MARK: - Routes
+    
+    func setupRoutes(_ routes: RoutesBuilder) {
+        let protectedRoutes = routes.grouped(AuthenticatedUser.guardMiddleware())
+        setupListRoutes(protectedRoutes)
+        setupDetailRoutes(routes)
+        setupCreateRoutes(routes)
+        setupUpdateRoutes(protectedRoutes)
+        setupPatchRoutes(protectedRoutes)
+        setupDeleteRoutes(protectedRoutes)
+    }
+    
+    // MARK: - List
     
     func beforeList(_ req: Request, _ queryBuilder: QueryBuilder<UserAccountModel>) async throws -> QueryBuilder<UserAccountModel> {
         try await req.onlyFor(.admin)
@@ -32,6 +48,8 @@ struct UserApiController: ApiController {
                 .init(id: model.id!, name: model.name, school: model.school, verified: model.verified, role: model.role)
         }
     }
+    
+    // MARK: - Detail
     
     func detailOutput(_ req: Request, _ model: UserAccountModel) async throws -> User.Account.Detail {
         if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await DatabaseModel.find(authenticatedUser.id, on: req.db) {
@@ -62,6 +80,8 @@ struct UserApiController: ApiController {
         )
     }
     
+    // MARK: - Create
+    
     func createInput(_ req: Request, _ model: UserAccountModel, _ input: User.Account.Create) async throws {
         model.name = input.name
         model.email = input.email
@@ -82,6 +102,8 @@ struct UserApiController: ApiController {
         ).encodeResponse(status: .created, for: req)
     }
     
+    // MARK: - Update
+    
     func beforeUpdate(_ req: Request, _ model: UserAccountModel) async throws {
         try await req.onlyFor(model, or: .admin)
     }
@@ -99,6 +121,8 @@ struct UserApiController: ApiController {
             try await UserUpdateEmailAccountTemplate.send(for: model, on: req)
         }
     }
+    
+    // MARK: - Patch
     
     func beforePatch(_ req: Request, _ model: UserAccountModel) async throws {
         try await req.onlyFor(model, or: .admin)
@@ -119,17 +143,9 @@ struct UserApiController: ApiController {
         }
     }
     
+    // MARK: - Delete
+    
     func beforeDelete(_ req: Request, _ model: UserAccountModel) async throws {
         try await req.onlyFor(model, or: .admin)
-    }
-    
-    func setupRoutes(_ routes: RoutesBuilder) {
-        let protectedRoutes = routes.grouped(AuthenticatedUser.guardMiddleware())
-        setupListRoutes(protectedRoutes)
-        setupDetailRoutes(routes)
-        setupCreateRoutes(routes)
-        setupUpdateRoutes(protectedRoutes)
-        setupPatchRoutes(protectedRoutes)
-        setupDeleteRoutes(protectedRoutes)
     }
 }
