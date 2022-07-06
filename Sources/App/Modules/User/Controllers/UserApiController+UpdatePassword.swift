@@ -7,8 +7,7 @@
 
 import Vapor
 
-extension UserApiController: ApiUpdatePasswordController {
-    typealias UpdatePasswordObject = User.Account.ChangePassword
+extension UserApiController {
     
     @AsyncValidatorBuilder
     func updatePasswordValidators() -> [AsyncValidator] {
@@ -16,16 +15,20 @@ extension UserApiController: ApiUpdatePasswordController {
         KeyedContentValidator<String>.required("newPassword")
     }
     
-    func beforeUpdatePassword(_ req: Request, _ model: UserAccountModel) async throws {
+    func updatePasswordApi(_ req: Request) async throws -> User.Account.Detail {
         /// Require user to be logged in
         let user = try req.auth.require(AuthenticatedUser.self)
+        
+        try await RequestValidator(updatePasswordValidators()).validate(req)
+        
+        let input = try req.content.decode(User.Account.ChangePassword.self)
+        let model = try await findBy(identifier(req), on: req.db)
+        
         /// Assure the user itself changes the password
         guard model.id == user.id else {
             throw Abort(.forbidden)
         }
-    }
-    
-    func updatePasswordInput(_ req: Request, _ model: UserAccountModel, _ input: User.Account.ChangePassword) async throws {
+        
         /// Verify current password
         guard try req.application.password.verify(input.currentPassword, created: model.password) else {
             throw Abort(.forbidden)
@@ -33,9 +36,17 @@ extension UserApiController: ApiUpdatePasswordController {
         
         /// Change the password
         try model.setPassword(to: input.newPassword, on: req)
+
+        try await model.update(on: req.db)
+        
+        return try await detailOutput(req, model)
     }
     
-    func updatePasswordResponse(_ req: Request, _ model: UserAccountModel) async throws -> Response {
-        try await detailOutput(req, model).encodeResponse(for: req)
+    func setupUpdatePasswordRoutes(_ routes: RoutesBuilder) {
+        let baseRoutes = getBaseRoutes(routes)
+        let existingModelRoutes = baseRoutes
+            .grouped(AuthenticatedUser.guardMiddleware())
+            .grouped(ApiModel.pathIdComponent).grouped("updatePassword")
+        existingModelRoutes.put(use: updatePasswordApi)
     }
 }

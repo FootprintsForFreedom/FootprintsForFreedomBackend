@@ -102,6 +102,12 @@ struct UserApiController: ApiController {
         ).encodeResponse(status: .created, for: req)
     }
     
+    func afterCreate(_ req: Request, _ model: UserAccountModel) async throws {
+        try await model.createNewVerificationToken(req)
+        try await model.$verificationToken.load(on: req.db)
+        try await UserCreateAccountTemplate.send(for: model, on: req)
+    }
+    
     // MARK: - Update
     
     func beforeUpdate(_ req: Request, _ model: UserAccountModel) async throws {
@@ -116,7 +122,7 @@ struct UserApiController: ApiController {
         model.school = input.school
         if previousEmail != model.email {
             model.verified = false
-            try await createVerification(req, model)
+            try await model.createNewVerificationToken(req)
             try await model.$verificationToken.load(on: req.db)
             try await UserUpdateEmailAccountTemplate.send(for: model, on: req)
         }
@@ -137,7 +143,7 @@ struct UserApiController: ApiController {
         }
         if previousEmail != model.email {
             model.verified = false
-            try await createVerification(req, model)
+            try await model.createNewVerificationToken(req)
             try await model.$verificationToken.load(on: req.db)
             try await UserUpdateEmailAccountTemplate.send(for: model, on: req)
         }

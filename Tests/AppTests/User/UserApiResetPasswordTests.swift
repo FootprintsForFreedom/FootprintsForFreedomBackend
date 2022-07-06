@@ -138,11 +138,18 @@ final class UserApiResetPasswordTests: AppTestCase, UserTest {
             .expect(User.Account.Detail.self) { content in
                 XCTAssertEqual(content.id, user.id)
                 XCTAssertEqual(content.name, user.name)
-                XCTAssertEqual(content.email, user.email)
+                XCTAssertNil(content.email)
                 XCTAssertEqual(content.school, user.school)
-                // User is verified after password reset since he has access to his email
-                XCTAssertEqual(content.verified, true)
-                XCTAssertEqual(content.role, user.role)
+                XCTAssertNil(content.verified)
+                XCTAssertNil(content.role)
+                Task {
+                    guard let user = try await UserAccountModel.find(user.id, on: self.app.db) else {
+                        XCTFail()
+                        return
+                    }
+                    // User is verified after password reset since he has access to his email
+                    XCTAssertEqual(user.verified, true)
+                }
             }
             .test()
         

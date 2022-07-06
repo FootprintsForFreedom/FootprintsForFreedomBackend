@@ -41,4 +41,16 @@ extension UserApiController {
         /// return ok if user was signed out successfully
         return .ok
     }
+    
+    func setupAuthRoutes(_ routes: RoutesBuilder) {
+        routes
+            .grouped(UserCredentialsAuthenticator())
+            .grouped(UserBasicAuthenticator())
+            .post("sign-in", use: signInApi)
+        
+        routes
+            .grouped(AuthenticatedUser.guardMiddleware())
+            .post("sign-out", use: signOutApi)
+
+    }
 }

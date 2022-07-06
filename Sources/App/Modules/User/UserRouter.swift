@@ -14,17 +14,9 @@ struct UserRouter: RouteCollection {
     
     func apiRoutesHook(_ args: HookArguments) -> Void {
         let routes = args["routes"] as! RoutesBuilder
-        
-        routes
-            .grouped(UserCredentialsAuthenticator())
-            .grouped(UserBasicAuthenticator())
-            .post("sign-in", use: apiController.signInApi)
-        
-        routes
-            .grouped(AuthenticatedUser.guardMiddleware())
-            .post("sign-out", use: apiController.signOutApi)
-        
+                
         apiController.setupRoutes(routes)
+        apiController.setupAuthRoutes(routes)
         apiController.setupDetailOwnUserRoutes(routes)
         apiController.setupUpdatePasswordRoutes(routes)
         apiController.setupVerificationRoutes(routes)

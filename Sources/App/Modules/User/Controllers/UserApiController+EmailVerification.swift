@@ -7,69 +7,61 @@
 
 import Vapor
 
-extension UserApiController: ApiEmailVerificationController {
-    typealias VerificationObject = User.Account.Verification
+extension UserApiController {
     
-    func beforeCreateVerification(_ req: Request, _ model: UserAccountModel) async throws {
-        /// load the verification token and delete it if present
-        try await model.$verificationToken.load(on: req.db)
-        if let oldVerificationToken = model.verificationToken {
-            try await oldVerificationToken.delete(on: req.db)
-        }
-        /// create new verification token
-        let verificationToken = try model.generateVerificationToken()
-        try await verificationToken.create(on: req.db)
-    }
+    // MARK: - request verification
     
-    func requestVerificationInput(_ req: Request, _ model: UserAccountModel) async throws {
-        /// do not allow a verified user to request a verification token
-        guard !model.verified else {
-            throw Abort(.forbidden)
-        }
+    func requestVerificationApi(_ req: Request) async throws -> HTTPStatus {
+        let user = try await findBy(identifier(req), on: req.db)
         /// Require user to be signed in
         let authenticatedUser = try req.auth.require(AuthenticatedUser.self)
-        /// require the model id to be the user id
-        guard model.id == authenticatedUser.id else {
+        
+        /// do not allow a verified user to request a verification token and require the model id to be the user id
+        guard !user.verified && user.id == authenticatedUser.id else {
             throw Abort(.forbidden)
         }
-    }
-    
-    func requestVerificationResponse(_ req: Request, _ model: UserAccountModel) async throws -> HTTPStatus {
-        try await model.$verificationToken.load(on: req.db)
-        try await UserVerifyAccountTemplate.send(for: model, on: req)
+        
+        try await user.createNewVerificationToken(req)
+        
+        try await user.$verificationToken.load(on: req.db)
+        try await UserVerifyAccountTemplate.send(for: user, on: req)
         return .ok
     }
-        
-    func verificationInput(_ req: Request, _ model: UserAccountModel, _ input: User.Account.Verification) async throws {
-        try await model.$verificationToken.load(on: req.db)
-        /// confirm a token is saved for the user
-        guard let verificationToken = model.verificationToken else {
-            throw Abort(.unauthorized)
-        }
-        /// confirm the token is not older than 24 hours
-        guard let createdAt = verificationToken.createdAt, abs(createdAt.timeIntervalSinceNow) < 60 * 60 * 60 * 24 else {
-            throw Abort(.unauthorized)
-        }
-        /// verify the token in the request equals the token saved for that user
-        guard input.token == verificationToken.value else {
-            throw Abort(.unauthorized)
-        }
-        
-        model.verified = true
-    }
+       
+    // MARK: - Verification
     
-    func afterVerification(_ req: Request, _ model: UserAccountModel) async throws {
+    @AsyncValidatorBuilder
+    func verificationValidators() -> [AsyncValidator] {
+        KeyedContentValidator<String>.required("token")
+    }
+
+    
+    func verificationApi(_ req: Request) async throws -> User.Account.Detail {
+        try await RequestValidator(verificationValidators()).validate(req, .query)
+        let input = try req.query.decode(User.Account.Verification.self)
+        
+        let user = try await findBy(identifier(req), on: req.db)
+        
+        try await user.verifyToken(req, input.token)
+        user.verified = true
+        try await user.update(on: req.db)
+        
         /// delete the verification token after it has been used
-        try await model.verificationToken?.delete(on: req.db)
+        try await user.verificationToken?.delete(on: req.db)
+        
+        return try await detailOutput(req, user)
     }
     
-    func afterCreate(_ req: Request, _ model: UserAccountModel) async throws {
-        try await createVerification(req, model)
-        try await model.$verificationToken.load(on: req.db)
-        return try await UserCreateAccountTemplate.send(for: model, on: req)
-    }
+    // MARK: - Routes
     
-    func verificationResponse(_ req: Request, _ model: UserAccountModel) async throws -> Response {
-        try await detailOutput(req, model).encodeResponse(for: req)
+    func setupVerificationRoutes(_ routes: RoutesBuilder) {
+        let baseRoutes = getBaseRoutes(routes)
+        let existingModelRoutes = baseRoutes.grouped(ApiModel.pathIdComponent)
+        let verificationRoutes = existingModelRoutes.grouped("verify")
+        let requestVerificationRoutes = existingModelRoutes
+            .grouped(AuthenticatedUser.guardMiddleware())
+            .grouped("requestVerification")
+        verificationRoutes.post(use: verificationApi)
+        requestVerificationRoutes.post(use: requestVerificationApi)
     }
 }

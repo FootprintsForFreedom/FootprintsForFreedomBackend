@@ -7,16 +7,19 @@
 
 import Vapor
 
-extension UserApiController: ApiResetPasswordController {
-    typealias ResetPasswordRequestObject = User.Account.ResetPasswordRequest
-    typealias ResetPasswordObject = User.Account.ResetPassword
+extension UserApiController {
+    
+    // MARK: - request reset password
     
     @AsyncValidatorBuilder
     func requestResetPasswordValidators() -> [AsyncValidator] {
         KeyedContentValidator<String>.email("email")
     }
     
-    func requestResetPasswordInput(_ req: Request, _ input: User.Account.ResetPasswordRequest) async throws -> UserAccountModel {
+    func requestResetPasswordApi(_ req: Request) async throws -> HTTPStatus {
+        try await RequestValidator(requestResetPasswordValidators()).validate(req)
+        let input = try req.content.decode(User.Account.ResetPasswordRequest.self)
+        
         let possibleUser = try await UserAccountModel.query(on: req.db)
             .filter(\.$email, .equal, input.email)
             .first()
@@ -24,15 +27,16 @@ extension UserApiController: ApiResetPasswordController {
         guard let user = possibleUser else {
             throw Abort(.notFound)
         }
-        return user
-    }
-    
-    func requestResetPasswordResponse(_ req: Request, _ model: UserAccountModel) async throws -> HTTPStatus {
-        try await model.$verificationToken.load(on: req.db)
-//        let userRequestPasswordResetMail = try UserRequestPasswordResetMail(user: model)
-//        try await userRequestPasswordResetMail.send(on: req)
+        
+        try await user.createNewVerificationToken(req)
+        
+        try await user.$verificationToken.load(on: req.db)
+        try await UserRequestPasswordResetMail.send(for: user, on: req)
+        
         return .ok
     }
+    
+    // MARK: - reset password
     
     @AsyncValidatorBuilder
     func resetPasswordValidators() -> [AsyncValidator] {
@@ -40,23 +44,32 @@ extension UserApiController: ApiResetPasswordController {
         KeyedContentValidator<String>.required("newPassword")
     }
     
-    func resetPasswordInput(_ req: Request, _ model: UserAccountModel, _ input: User.Account.ResetPassword) async throws {
-        /// verify the user
-        let userVerificationInput = User.Account.Verification(token: input.token)
-        try await verificationInput(req, model, userVerificationInput)
+    func resetPasswordApi(_ req: Request) async throws -> User.Account.Detail {
+        try await RequestValidator(resetPasswordValidators()).validate(req)
+        let input = try req.content.decode(User.Account.ResetPassword.self)
+        
+        let user = try await findBy(identifier(req), on: req.db)
+        
+        try await user.verifyToken(req, input.token)
         
         /// change the password if the user is verified and the token therefore correct
-        try model.setPassword(to: input.newPassword, on: req)
+        try user.setPassword(to: input.newPassword, on: req)
+        /// User is verified after password reset since he has access to his email
+        user.verified = true
+        try await user.update(on: req.db)
+        
+        return try await detailOutput(req, user)
     }
     
-    func resetPasswordResponse(_ req: Request, _ model: UserAccountModel) async throws -> Response {
-        return try await User.Account.Detail.ownDetail(
-            id: model.id!,
-            name: model.name,
-            email: model.email,
-            school: model.school,
-            verified: model.verified,
-            role: model.role
-        ).encodeResponse(for: req)
+    // MARK: - Routes
+    
+    func setupResetPasswordRoutes(_ routes: RoutesBuilder) {
+        let baseRoutes = getBaseRoutes(routes)
+        let resetPasswordRoutes = baseRoutes
+            .grouped(ApiModel.pathIdComponent)
+            .grouped("resetPassword")
+        let requestResetPasswordRoutes = baseRoutes.grouped("resetPassword")
+        resetPasswordRoutes.post(use: resetPasswordApi)
+        requestResetPasswordRoutes.post(use: requestResetPasswordApi)
     }
 }
