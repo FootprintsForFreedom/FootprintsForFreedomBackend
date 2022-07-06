@@ -6,6 +6,12 @@ Assigns a new role to a user.
 
     PUT /api/v1/users/accounts/<user-id>/changeRole
 
+This endpoint is only available to admins.
+
+The admin user token has to be sent as a `BearerToken` with the request.
+
+> Note: A user cannot change his own role.
+
 ### Input parameters
 
 The following parameter has to be sent with the request for it to be successful:
@@ -27,8 +33,6 @@ The parameter can be either sent as `application/json` or `multipart/form-data`.
     "role": "<user-role>"
 }
 ```
-
-> Note: The response might slightly vary in the parameters sent depending on the role of the user initiating the role change.
 
 ## See Also
 

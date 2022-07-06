@@ -18,10 +18,11 @@ final class UserApiChangeRoleTests: AppTestCase, UserTest {
         
         for userRole in allRoles {
             let user = try await createNewUser(role: userRole)
-            let possibleRolesToChangeUserRole = allRoles.filter { $0 >= userRole && $0 != .user }
+            let possibleRolesToChangeUserRole = allRoles.filter { $0 >= userRole && $0 >= .admin }
             
             for changingUserRole in possibleRolesToChangeUserRole {
                 XCTAssertNotEqual(changingUserRole, .user)
+                XCTAssertNotEqual(changingUserRole, .moderator)
                 XCTAssertGreaterThanOrEqual(changingUserRole, userRole)
                 
                 let changingUserToken = try await getToken(for: changingUserRole)
@@ -48,15 +49,8 @@ final class UserApiChangeRoleTests: AppTestCase, UserTest {
                             } else {
                                 XCTAssertNil(content.email)
                             }
-                            if userRole >= .admin {
-                                XCTAssertEqual(content.verified, user.verified)
-                                XCTAssertEqual(content.role, changeRoleContent.newRole)
-                            } else {
-                                Task {
-                                    let user = try await UserAccountModel.find(user.id!, on: self.app.db)!
-                                    XCTAssertEqual(user.role, changeRoleContent.newRole)
-                                }
-                            }
+                            XCTAssertEqual(content.verified, user.verified)
+                            XCTAssertEqual(content.role, changeRoleContent.newRole)
                         }
                         .test()
                 }
@@ -122,6 +116,51 @@ final class UserApiChangeRoleTests: AppTestCase, UserTest {
                         .expect(.forbidden)
                         .test()
                 }
+            }
+        }
+    }
+    
+    func testChangeUserRoleAsModeratorFails() async throws {
+        let allRoles = User.Role.allCases
+        
+        for userRole in allRoles {
+            let user = try await createNewUser(role: userRole)
+            
+            let changingUserToken = try await getToken(for: .moderator)
+            let possibleNewRoleForUser = allRoles
+            
+            for newRole in possibleNewRoleForUser {
+                let changeRoleContent = User.Account.ChangeRole(newRole: newRole)
+                
+                try app
+                    .describe("Moderator should not be able to update role of other user")
+                    .put(usersPath.appending(user.requireID().uuidString.appending("/changeRole")))
+                    .body(changeRoleContent)
+                    .bearerToken(changingUserToken)
+                    .expect(.forbidden)
+                    .test()
+            }
+        }
+    }
+    
+    func testChangeOwnUserRoleFails() async throws {
+        let allRoles = User.Role.allCases
+        
+        for userRole in allRoles {
+            let user = try await createNewUser(role: userRole)
+            let ownToken = try user.generateToken()
+            try await ownToken.create(on: app.db)
+            
+            for newRole in allRoles {
+                let changeRoleContent = User.Account.ChangeRole(newRole: newRole)
+                
+                try app
+                    .describe("User should not be able to update his own role")
+                    .put(usersPath.appending(user.requireID().uuidString.appending("/changeRole")))
+                    .body(changeRoleContent)
+                    .bearerToken(ownToken.value)
+                    .expect(.forbidden)
+                    .test()
             }
         }
     }
