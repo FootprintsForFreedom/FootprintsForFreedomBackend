@@ -7,11 +7,12 @@ import QueuesRedisDriver
 @_exported import AppApi
 @_exported import CollectionConcurrencyKit
 
-// configures your application
+/// Configures the application.
+/// - Parameter app: The application to configure.
 public func configure(_ app: Application) throws {
     // uncomment to serve files from /Public folder
     // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
-
+    
     app.databases.use(.postgres(
         hostname: Environment.dbHost,
         port: Environment.dbPort.flatMap(Int.init(_:)) ?? PostgresConfiguration.ianaPortNumber,
@@ -33,26 +34,14 @@ public func configure(_ app: Application) throws {
         .on(.wednesday)
         .at(2, 0)
     
-    /// set the max file upload limit
-//    app.routes.defaultMaxBodySize = "10mb"
-    
     /// use the Public directory to serve public files
     app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
-    
-    /// extend paths to always contain a trailing slash
-//    app.middleware.use(ExtendPathMiddleware())
-    
-    /// setup sessions
-//    app.sessions.use(.fluent)
-//    app.migrations.add(SessionRecord.migration)
-//    app.middleware.use(app.sessions.middleware)
     
     /// Initialize SwiftSMTP
     app.swiftSMTP.initialize(with: .fromEnvironment())
     
     /// setup modules
     let modules: [ModuleInterface] = [
-//        WebModule(),
         StatusModule(),
         UserModule(),
         LanguageModule(),
@@ -60,9 +49,7 @@ public func configure(_ app: Application) throws {
         WaypointModule(),
         MediaModule(),
         TagModule(),
-//        AdminModule(),
         ApiModule(),
-//        BlogModule(),
     ]
     for module in modules {
         try module.boot(app)
