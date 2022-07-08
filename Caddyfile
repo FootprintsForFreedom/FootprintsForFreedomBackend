@@ -1,0 +1,9 @@
+:80
+
+handle /assets/* {
+	root * /app/Public
+	file_server
+}
+handle {
+	reverse_proxy app:8080
+}
