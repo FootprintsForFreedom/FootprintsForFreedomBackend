@@ -34,9 +34,6 @@ public func configure(_ app: Application) throws {
         .on(.wednesday)
         .at(2, 0)
     
-    /// use the Public directory to serve public files
-    app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
-    
     /// Initialize SwiftSMTP
     app.swiftSMTP.initialize(with: .fromEnvironment())
     
