@@ -22,7 +22,7 @@ public func configure(_ app: Application) throws {
     ), as: .psql)
     
     // setup queues
-    try app.queues.use(.redis(url: "redis://127.0.0.1:6379"))
+    try app.queues.use(.redis(url: Environment.redisUrl))
     
     app.queues.schedule(CleanupEmptyRepositoriesJob())
         .weekly()

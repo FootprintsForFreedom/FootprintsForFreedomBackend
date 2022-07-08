@@ -21,6 +21,8 @@ extension Environment {
     /// The postgres database name.
     static let pgDbName = Self.get("POSTGRES_DB")!
     
+    static let redisUrl = Self.get("REDIS_HOST")!
+    
     /// The app url.
     static let appUrl = Self.get("APP_URL")!
     /// The app name.
