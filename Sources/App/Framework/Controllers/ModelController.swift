@@ -8,6 +8,7 @@
 import Vapor
 import Fluent
 
+/// Streamlines controlling models.
 public protocol ModelController {
     /// The api model.
     associatedtype ApiModel: ApiModelInterface
