@@ -33,6 +33,8 @@ extension Slugable {
             .count()
         if numberOfDetailsWithSlug == 0 {
             return slug
+        } else if accuracy == .exact {
+            return try await generateSlug(for: title, nil, with: accuracy, on: db)
         } else {
             let newAccuracy = accuracy.increased()
             return try await generateSlug(for: title, date, with: newAccuracy, on: db)
