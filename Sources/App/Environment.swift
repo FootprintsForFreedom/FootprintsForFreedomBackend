@@ -31,6 +31,14 @@ extension Environment {
     /// The email address used for sending mails.
     static let emailAddress = Self.get("SMTP_USERNAME")!
     
+    /// Wether or not the backend system should send emails.
+    static let sendMails: Bool = {
+        guard let sendMailsString = Self.get("SEND_MAILS") else {
+            return false
+        }
+        return sendMailsString == "true"
+    }()
+    
     /// The lifetime of soft deleted models.
     ///
     /// It is used to determine when to delete a soft deleted model in the cleanup job.

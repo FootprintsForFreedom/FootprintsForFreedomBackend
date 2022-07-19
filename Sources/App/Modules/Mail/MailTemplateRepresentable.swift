@@ -50,7 +50,7 @@ extension MailTemplateRepresentable {
             body: .plain(bodyText)
         )
         
-        if req.application.environment != .testing {
+        if req.application.environment != .testing && Environment.sendMails == true {
             try await req.swiftSMTP.mailer.send(email: mail)
         }
     }
