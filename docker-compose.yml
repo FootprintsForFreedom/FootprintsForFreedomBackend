@@ -51,6 +51,7 @@ services:
     env_file: .env.production
     depends_on:
       - db
+      - redis
     command: ["migrate", "--yes"]
     deploy:
       replicas: 0
@@ -61,6 +62,7 @@ services:
     env_file: .env.production
     depends_on:
       - db
+      - redis
     command: ["migrate", "--revert", "--yes"]
     deploy:
       replicas: 0
