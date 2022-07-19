@@ -56,5 +56,7 @@ public func configure(_ app: Application) throws {
     }
     
     /// use automatic database migration
-    try app.autoMigrate().wait()
+    if app.environment != .production {
+        try app.autoMigrate().wait()
+    }
 }
