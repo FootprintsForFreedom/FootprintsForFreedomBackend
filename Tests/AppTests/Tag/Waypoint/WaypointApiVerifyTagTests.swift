@@ -33,7 +33,8 @@ final class WaypointApiVerifyTagTests: AppTestCase, WaypointTest, TagTest {
                 XCTAssert(content.tags.contains { $0.id == tag.repository.id })
                 XCTAssertNil(content.detailStatus)
                 XCTAssertNil(content.locationStatus)
-                XCTAssertNil(content.detailId)
+                XCTAssertNotNil(content.detailId)
+                XCTAssertNotNil(content.locationId)
             }
             .test()
     }

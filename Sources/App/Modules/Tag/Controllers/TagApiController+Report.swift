@@ -21,7 +21,8 @@ extension Tag.Detail.Detail: InitializableById {
             slug: detail.slug,
             keywords: detail.keywords,
             languageCode: detail.language.languageCode,
-            availableLanguageCodes: repository.availableLanguageCodes(db)
+            availableLanguageCodes: repository.availableLanguageCodes(db),
+            detailId: detail.requireID()
         )
     }
 }

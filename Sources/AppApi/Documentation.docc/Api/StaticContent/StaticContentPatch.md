@@ -28,6 +28,7 @@ The parameters can be either sent as `application/json` or `multipart/form-data`
 ```json
 {
     "id": "<static-content-id>",
+    "detailId": "<static-content-detail-id>",
     "title": "<static-content-title>",
     "text": "<static-content-text>",
     "languageCode": "<language-code>",

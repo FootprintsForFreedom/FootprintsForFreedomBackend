@@ -21,6 +21,7 @@ or
 ```json
 {
     "id": "<static-content-id>",
+    "detailId": "<static-content-detail-id>",
     "title": "<static-content-title>",
     "text": "<static-content-text>",
     "languageCode": "<language-code>",
@@ -31,7 +32,6 @@ If the request is sent with an admin token, the following additional attribute w
 
 ```json
 "moderationTitle": "<static-content-moderation-title>",
-"detailId": "<static-content-detail-id>",
 "requiredSnippets": [
     "<snippet-name>",
     ...

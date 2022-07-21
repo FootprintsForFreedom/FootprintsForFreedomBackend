@@ -146,7 +146,7 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
                     XCTAssertEqual(content.detailText, newMedia.detailText)
                     XCTAssertEqual(content.source, newMedia.source)
                     XCTAssertEqual(content.languageCode, newMedia.languageCode)
-                    XCTAssertNil(content.status)
+                    XCTAssertNotNil(content.status)
                 }
                 .test()
         }

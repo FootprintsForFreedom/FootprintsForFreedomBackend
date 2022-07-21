@@ -40,7 +40,7 @@ final class MediaApiRequestDelteTagTests: AppTestCase, MediaTest, TagTest {
                 XCTAssertEqual(content.filePath, media.file.mediaDirectory)
                 XCTAssert(content.tags.contains { $0.id == tag.repository.id })
                 XCTAssertNil(content.status)
-                XCTAssertNil(content.detailId)
+                XCTAssertNotNil(content.detailId)
             }
             .test()
     }

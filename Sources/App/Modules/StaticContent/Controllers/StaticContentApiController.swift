@@ -121,16 +121,16 @@ struct StaticContentApiController: ApiRepositoryController {
     func detailOutput(_ req: Request, _ repository: StaticContentRepositoryModel, _ detail: Detail) async throws -> StaticContent.Detail.Detail {
         try await detail.$language.load(on: req.db)
         
-        if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db), user.role >= .admin && req.method == .GET {
+        if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db), user.role >= .admin {
             return try await .administratorDetail(
                 id: repository.requireID(),
                 title: detail.title,
                 text: detail.text,
                 languageCode: detail.language.languageCode,
                 availableLanguageCodes: repository.availableLanguageCodes(req.db),
+                detailId: detail.requireID(),
                 moderationTitle: detail.moderationTitle,
-                requiredSnippets: repository.requiredSnippets,
-                detailId: detail.requireID()
+                requiredSnippets: repository.requiredSnippets
             )
         } else {
             return try await .publicDetail(
@@ -138,7 +138,8 @@ struct StaticContentApiController: ApiRepositoryController {
                 title: detail.title,
                 text: detail.text,
                 languageCode: detail.language.languageCode,
-                availableLanguageCodes: repository.availableLanguageCodes(req.db)
+                availableLanguageCodes: repository.availableLanguageCodes(req.db),
+                detailId: detail.requireID()
             )
         }
     }

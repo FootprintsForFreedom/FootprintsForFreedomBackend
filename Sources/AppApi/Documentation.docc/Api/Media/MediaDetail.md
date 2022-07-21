@@ -29,6 +29,7 @@ or
     "source": "<source>",
     "group": "<file-group>",
     "filePath": "<file-path>",
+    "detailId": "<detail-id>",
     "tags": [
         {
             "id": "<tag-id>",
@@ -46,7 +47,6 @@ If the request is sent with an moderator token, the following additional attribu
 
 ```json
 "status": "<detail-status>"
-"detailId": "<detail-id>"
 ```
 
 ## See Also

@@ -17,6 +17,8 @@ The user token has to be sent as a `BearerToken` with the request.
 ```json
 {
     "id": "<id>",
+    "detailId": "<detail-id>",
+    "locationId": "<location-id>",
     "languageCode": "<language-code>",
     "availableLanguageCodes": ["<language-code>", ...],
     "title": "<title>",

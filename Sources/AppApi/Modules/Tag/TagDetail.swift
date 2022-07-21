@@ -50,10 +50,10 @@ public extension Tag.Detail {
         public let languageCode: String
         /// All language codes available for this tag repository.
         public let availableLanguageCodes: [String]
+        /// Id uniquely identifying the tag detail object.
+        public let detailId: UUID
         /// The status of the tag detail.
         public let status: Status?
-        /// Id uniquely identifying the tag detail object.
-        public let detailId: UUID?
         
         /// Creates a tag detail object for everyone.
         /// - Parameters:
@@ -63,30 +63,9 @@ public extension Tag.Detail {
         ///   - keywords: The keywords connected to this tag.
         ///   - languageCode: The language code for the tag title and keywords.
         ///   - availableLanguageCodes: All language codes available for this tag repository.
-        /// - Returns: A tag detail object
-        public static func publicDetail(id: UUID, title: String, slug: String, keywords: [String], languageCode: String, availableLanguageCodes: [String]) -> Self {
-            return .init(
-                id: id,
-                title: title,
-                slug: slug,
-                keywords: keywords,
-                languageCode: languageCode,
-                availableLanguageCodes: availableLanguageCodes
-            )
-        }
-        
-        /// Creates a tag detail object for moderators.
-        /// - Parameters:
-        ///   - id: Id uniquely identifying the tag repository.
-        ///   - title: The tag title.
-        ///   - slug: The slug uniquely identifying the waypoint.
-        ///   - keywords: The keywords connected to this tag.
-        ///   - languageCode: The language code for the tag title and keywords.
-        ///   - availableLanguageCodes: All language codes available for this tag repository.
-        ///   - status: The status of the tag detail.
         ///   - detailId: Id uniquely identifying the tag detail object.
         /// - Returns: A tag detail object
-        public static func moderatorDetail(id: UUID, title: String, slug: String, keywords: [String], languageCode: String, availableLanguageCodes: [String], status: Status, detailId: UUID) -> Self {
+        public static func publicDetail(id: UUID, title: String, slug: String, keywords: [String], languageCode: String, availableLanguageCodes: [String], detailId: UUID) -> Self {
             return .init(
                 id: id,
                 title: title,
@@ -94,8 +73,31 @@ public extension Tag.Detail {
                 keywords: keywords,
                 languageCode: languageCode,
                 availableLanguageCodes: availableLanguageCodes,
-                status: status,
                 detailId: detailId
+            )
+        }
+        
+        /// Creates a tag detail object for moderators.
+        /// - Parameters:
+        ///   - id: Id uniquely identifying the tag repository.
+        ///   - title: The tag title.
+        ///   - slug: The slug uniquely identifying the waypoint.
+        ///   - keywords: The keywords connected to this tag.
+        ///   - languageCode: The language code for the tag title and keywords.
+        ///   - availableLanguageCodes: All language codes available for this tag repository.
+        ///   - detailId: Id uniquely identifying the tag detail object.
+        ///   - status: The status of the tag detail.
+        /// - Returns: A tag detail object
+        public static func moderatorDetail(id: UUID, title: String, slug: String, keywords: [String], languageCode: String, availableLanguageCodes: [String], detailId: UUID, status: Status) -> Self {
+            return .init(
+                id: id,
+                title: title,
+                slug: slug,
+                keywords: keywords,
+                languageCode: languageCode,
+                availableLanguageCodes: availableLanguageCodes,
+                detailId: detailId,
+                status: status
             )
         }
         
@@ -107,15 +109,16 @@ public extension Tag.Detail {
         ///   - keywords: The keywords connected to this tag.
         ///   - languageCode: The language code for the tag title and keywords.
         ///   - availableLanguageCodes: All language codes available for this tag repository.
-        private init(id: UUID, title: String, slug: String, keywords: [String], languageCode: String, availableLanguageCodes: [String]) {
+        ///   - detailId: Id uniquely identifying the tag detail object.
+        private init(id: UUID, title: String, slug: String, keywords: [String], languageCode: String, availableLanguageCodes: [String], detailId: UUID) {
             self.id = id
             self.title = title
             self.slug = slug
             self.keywords = keywords
             self.languageCode = languageCode
             self.availableLanguageCodes = availableLanguageCodes
+            self.detailId = detailId
             self.status = nil
-            self.detailId = nil
         }
         
         /// Creates a tag detail object for moderators.
@@ -126,17 +129,17 @@ public extension Tag.Detail {
         ///   - keywords: The keywords connected to this tag.
         ///   - languageCode: The language code for the tag title and keywords.
         ///   - availableLanguageCodes: All language codes available for this tag repository.
-        ///   - status: The status of the tag detail.
         ///   - detailId: Id uniquely identifying the tag detail object.
-        private init(id: UUID, title: String, slug: String, keywords: [String], languageCode: String, availableLanguageCodes: [String], status: Status, detailId: UUID) {
+        ///   - status: The status of the tag detail.
+        private init(id: UUID, title: String, slug: String, keywords: [String], languageCode: String, availableLanguageCodes: [String], detailId: UUID, status: Status) {
             self.id = id
             self.title = title
             self.slug = slug
             self.keywords = keywords
             self.languageCode = languageCode
             self.availableLanguageCodes = availableLanguageCodes
-            self.status = status
             self.detailId = detailId
+            self.status = status
         }
     }
     

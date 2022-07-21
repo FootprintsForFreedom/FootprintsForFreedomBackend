@@ -21,6 +21,7 @@ or
 ```json
 {
     "id": "<id>",
+    "detailId": "<detail-id>",
     "languageCode": "<language-code>",
     "availableLanguageCodes": ["<language-code>", ...],
     "title": "<title>",
@@ -36,7 +37,6 @@ If the request is sent with an moderator token, the following additional attribu
 
 ```json
 "status": "<detail-status>"
-"detailId": "<detail-id>"
 ```
 
 ## See Also

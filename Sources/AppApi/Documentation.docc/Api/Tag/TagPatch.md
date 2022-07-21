@@ -28,6 +28,7 @@ The parameters can be either sent as `application/json` or `multipart/form-data`
 ```json
 {
     "id": "<id>",
+    "detailId": "<detail-id>",
     "languageCode": "<language-code>",
     "availableLanguageCodes": ["<language-code>", ...],
     "title": "<title>",

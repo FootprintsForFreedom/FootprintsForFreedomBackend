@@ -46,7 +46,7 @@ final class TagApiCreateReportTests: AppTestCase, TagTest {
                     XCTAssertEqual(visibleDetail.keywords, tag.detail.keywords)
                     XCTAssertEqual(visibleDetail.languageCode, tag.detail.language.languageCode)
                     XCTAssertNil(visibleDetail.status)
-                    XCTAssertNil(visibleDetail.detailId)
+                    XCTAssertNotNil(visibleDetail.detailId)
                 }
             }
             .test()

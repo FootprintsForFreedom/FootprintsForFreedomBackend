@@ -58,14 +58,14 @@ public extension Waypoint.Detail {
         public let languageCode: String
         /// All language codes available for this waypoint repository.
         public let availableLanguageCodes: [String]
+        /// Id uniquely identifying the waypoint detail object.
+        public let detailId: UUID
+        /// Id uniquely identifying the location object.
+        public let locationId: UUID
         /// The status of the waypoint detail.
         public let detailStatus: Status?
         /// The status of the location detail.
         public let locationStatus: Status?
-        /// Id uniquely identifying the waypoint detail object.
-        public let detailId: UUID?
-        /// Id uniquely identifying the location object.
-        public let locationId: UUID?
         
         /// Creates a waypoint detail object for everyone.
         /// - Parameters:
@@ -77,36 +77,10 @@ public extension Waypoint.Detail {
         ///   - tags: The tags connected with this waypoint.
         ///   - languageCode: The language code for the waypoint title and description.
         ///   - availableLanguageCodes: All language codes available for this waypoint repository.
-        /// - Returns: A waypoint detail object.
-        public static func publicDetail(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, availableLanguageCodes: [String]) -> Self {
-            return .init(
-                id: id,
-                title: title,
-                slug: slug,
-                detailText: detailText,
-                location: location,
-                tags: tags,
-                languageCode: languageCode,
-                availableLanguageCodes: availableLanguageCodes
-            )
-        }
-        
-        /// Creates a waypoint detail object for moderators.
-        /// - Parameters:
-        ///   - id: Id uniquely identifying the waypoint repository.
-        ///   - title: The waypoint title.
-        ///   - slug: The slug uniquely identifying the waypoint.
-        ///   - detailText: The detail text describing the waypoint.
-        ///   - location: The location of the waypoint.
-        ///   - tags: The tags connected with this waypoint.
-        ///   - languageCode: The language code for the waypoint title and description.
-        ///   - availableLanguageCodes: All language codes available for this waypoint repository.
-        ///   - detailStatus: The status of the waypoint detail.
-        ///   - locationStatus: The status of the location detail.
         ///   - detailId: Id uniquely identifying the waypoint detail object.
         ///   - locationId: Id uniquely identifying the location object.
         /// - Returns: A waypoint detail object.
-        public static func moderatorDetail(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, availableLanguageCodes: [String], detailStatus: Status, locationStatus: Status, detailId: UUID, locationId: UUID) -> Self {
+        public static func publicDetail(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, availableLanguageCodes: [String], detailId: UUID, locationId: UUID) -> Self {
             return .init(
                 id: id,
                 title: title,
@@ -116,10 +90,40 @@ public extension Waypoint.Detail {
                 tags: tags,
                 languageCode: languageCode,
                 availableLanguageCodes: availableLanguageCodes,
-                detailStatus: detailStatus,
-                locationStatus: locationStatus,
                 detailId: detailId,
                 locationId: locationId
+            )
+        }
+        
+        /// Creates a waypoint detail object for moderators.
+        /// - Parameters:
+        ///   - id: Id uniquely identifying the waypoint repository.
+        ///   - title: The waypoint title.
+        ///   - slug: The slug uniquely identifying the waypoint.
+        ///   - detailText: The detail text describing the waypoint.
+        ///   - location: The location of the waypoint.
+        ///   - tags: The tags connected with this waypoint.
+        ///   - languageCode: The language code for the waypoint title and description.
+        ///   - availableLanguageCodes: All language codes available for this waypoint repository.
+        ///   - detailId: Id uniquely identifying the waypoint detail object.
+        ///   - locationId: Id uniquely identifying the location object.
+        ///   - detailStatus: The status of the waypoint detail.
+        ///   - locationStatus: The status of the location detail.
+        /// - Returns: A waypoint detail object.
+        public static func moderatorDetail(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, availableLanguageCodes: [String], detailId: UUID, locationId: UUID, detailStatus: Status, locationStatus: Status) -> Self {
+            return .init(
+                id: id,
+                title: title,
+                slug: slug,
+                detailText: detailText,
+                location: location,
+                tags: tags,
+                languageCode: languageCode,
+                availableLanguageCodes: availableLanguageCodes,
+                detailId: detailId,
+                locationId: locationId,
+                detailStatus: detailStatus,
+                locationStatus: locationStatus
             )
         }
         
@@ -133,7 +137,9 @@ public extension Waypoint.Detail {
         ///   - tags: The tags connected with this waypoint.
         ///   - languageCode: The language code for the waypoint title and description.
         ///   - availableLanguageCodes: All language codes available for this waypoint repository.
-        private init(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, availableLanguageCodes: [String]) {
+        ///   - detailId: Id uniquely identifying the waypoint detail object.
+        ///   - locationId: Id uniquely identifying the location object.
+        private init(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, availableLanguageCodes: [String], detailId: UUID, locationId: UUID) {
             self.id = id
             self.title = title
             self.slug = slug
@@ -142,10 +148,10 @@ public extension Waypoint.Detail {
             self.tags = tags
             self.languageCode = languageCode
             self.availableLanguageCodes = availableLanguageCodes
+            self.detailId = detailId
+            self.locationId = locationId
             self.detailStatus = nil
             self.locationStatus = nil
-            self.detailId = nil
-            self.locationId = nil
         }
         
         /// Creates a waypoint detail object for moderators.
@@ -158,11 +164,11 @@ public extension Waypoint.Detail {
         ///   - tags: The tags connected with this waypoint.
         ///   - languageCode: The language code for the waypoint title and description.
         ///   - availableLanguageCodes: All language codes available for this waypoint repository.
-        ///   - detailStatus: The status of the waypoint detail.
-        ///   - locationStatus: The status of the location detail.
         ///   - detailId: Id uniquely identifying the waypoint detail object.
         ///   - locationId: Id uniquely identifying the location object.
-        private init(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, availableLanguageCodes: [String], detailStatus: Status, locationStatus: Status, detailId: UUID, locationId: UUID) {
+        ///   - detailStatus: The status of the waypoint detail.
+        ///   - locationStatus: The status of the location detail.
+        private init(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, tags: [Tag.Detail.List], languageCode: String, availableLanguageCodes: [String], detailId: UUID, locationId: UUID, detailStatus: Status, locationStatus: Status) {
             self.id = id
             self.title = title
             self.slug = slug
@@ -171,10 +177,10 @@ public extension Waypoint.Detail {
             self.tags = tags
             self.languageCode = languageCode
             self.availableLanguageCodes = availableLanguageCodes
-            self.detailStatus = detailStatus
-            self.locationStatus = locationStatus
             self.detailId = detailId
             self.locationId = locationId
+            self.detailStatus = detailStatus
+            self.locationStatus = locationStatus
         }
     }
     

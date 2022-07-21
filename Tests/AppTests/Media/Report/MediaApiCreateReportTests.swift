@@ -46,7 +46,7 @@ final class MediaApiCreateReportTests: AppTestCase, MediaTest {
                     XCTAssertEqual(visibleDetail.group, media.file.group)
                     XCTAssertEqual(visibleDetail.filePath, media.file.mediaDirectory)
                     XCTAssertNil(visibleDetail.status)
-                    XCTAssertNil(visibleDetail.detailId)
+                    XCTAssertNotNil(visibleDetail.detailId)
                 }
             }
             .test()

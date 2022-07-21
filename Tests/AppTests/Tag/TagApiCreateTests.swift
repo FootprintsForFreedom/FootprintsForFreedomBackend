@@ -64,7 +64,7 @@ final class TagApiCreateTests: AppTestCase, TagTest {
                 XCTAssertContains(content.slug, newTag.title.slugify())
                 XCTAssertEqual(content.keywords, newTag.keywords)
                 XCTAssertEqual(content.languageCode, newTag.languageCode)
-                XCTAssertNil(content.status)
+                XCTAssertNotNil(content.status)
             }
             .test()
     }

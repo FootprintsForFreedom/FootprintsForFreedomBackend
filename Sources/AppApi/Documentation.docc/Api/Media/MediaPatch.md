@@ -53,6 +53,7 @@ Currently the following media types are supported:
     "source": "<source>",
     "group": "<file-group>",
     "filePath": "<file-path>",
+    "detailId": "<detail-id>",
     "tags": [
         {
             "id": "<tag-id>",

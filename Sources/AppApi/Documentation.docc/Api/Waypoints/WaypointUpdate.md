@@ -27,6 +27,8 @@ The parameters can be either sent as `application/json` or `multipart/form-data`
 ```json
 {
     "id": "<waypoint-repository-id>",
+    "detailId": "<detail-id>",
+    "locationId": "<location-id>",
     "languageCode": "<language-code>",
     "availableLanguageCodes": ["<language-code>", ...],
     "title": "<title>",

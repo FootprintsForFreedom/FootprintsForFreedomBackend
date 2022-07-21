@@ -40,12 +40,12 @@ public extension StaticContent.Detail {
         public let languageCode: String
         /// All language codes available for this static content repository.
         public let availableLanguageCodes: [String]
+        /// Id uniquely identifying the static content detail object.
+        public let detailId: UUID
         /// The localized title describing the the static content to a moderator.
         public let moderationTitle: String?
         /// An array containing all snippets which are required for this static content.
         public let requiredSnippets: [StaticContent.Snippet]?
-        /// Id uniquely identifying the static content detail object.
-        public let detailId: UUID?
         
         /// Creates a static content detail object for admins.
         /// - Parameters:
@@ -54,37 +54,15 @@ public extension StaticContent.Detail {
         ///   - text: The localized text visible to users. If any snippets are required this text needs to contain those.
         ///   - languageCode: The language code for the static content.
         ///   - availableLanguageCodes: All language codes available for this static content repository.
-        /// - Returns: A static content detail object.
-        public static func publicDetail(id: UUID, title: String, text: String, languageCode: String, availableLanguageCodes: [String]) -> Self {
-            return .init(
-                id: id,
-                title: title,
-                text: text,
-                languageCode: languageCode,
-                availableLanguageCodes: availableLanguageCodes
-            )
-        }
-        
-        /// Creates a static content detail object for admins.
-        /// - Parameters:
-        ///   - id: Id uniquely identifying the static content repository.
-        ///   - title: The localized title visible to users. It can also contain snippets.
-        ///   - text: The localized text visible to users. If any snippets are required this text needs to contain those.
-        ///   - languageCode: The language code for the static content.
-        ///   - availableLanguageCodes: All language codes available for this static content repository.
-        ///   - moderationTitle: The localized title describing the the static content to a moderator.
-        ///   - requiredSnippets: An array containing all snippets which are required for this static content.
         ///   - detailId: Id uniquely identifying the static content detail object.
         /// - Returns: A static content detail object.
-        public static func administratorDetail(id: UUID, title: String, text: String, languageCode: String, availableLanguageCodes: [String], moderationTitle: String?, requiredSnippets: [StaticContent.Snippet]?, detailId: UUID) -> Self {
+        public static func publicDetail(id: UUID, title: String, text: String, languageCode: String, availableLanguageCodes: [String], detailId: UUID) -> Self {
             return .init(
                 id: id,
                 title: title,
                 text: text,
                 languageCode: languageCode,
                 availableLanguageCodes: availableLanguageCodes,
-                moderationTitle: moderationTitle,
-                requiredSnippets: requiredSnippets,
                 detailId: detailId
             )
         }
@@ -96,15 +74,40 @@ public extension StaticContent.Detail {
         ///   - text: The localized text visible to users. If any snippets are required this text needs to contain those.
         ///   - languageCode: The language code for the static content.
         ///   - availableLanguageCodes: All language codes available for this static content repository.
-        private init(id: UUID, title: String, text: String, languageCode: String, availableLanguageCodes: [String]) {
+        ///   - moderationTitle: The localized title describing the the static content to a moderator.
+        ///   - requiredSnippets: An array containing all snippets which are required for this static content.
+        ///   - detailId: Id uniquely identifying the static content detail object.
+        /// - Returns: A static content detail object.
+        public static func administratorDetail(id: UUID, title: String, text: String, languageCode: String, availableLanguageCodes: [String], detailId: UUID, moderationTitle: String?, requiredSnippets: [StaticContent.Snippet]?) -> Self {
+            return .init(
+                id: id,
+                title: title,
+                text: text,
+                languageCode: languageCode,
+                availableLanguageCodes: availableLanguageCodes,
+                detailId: detailId,
+                moderationTitle: moderationTitle,
+                requiredSnippets: requiredSnippets
+            )
+        }
+        
+        /// Creates a static content detail object for admins.
+        /// - Parameters:
+        ///   - id: Id uniquely identifying the static content repository.
+        ///   - title: The localized title visible to users. It can also contain snippets.
+        ///   - text: The localized text visible to users. If any snippets are required this text needs to contain those.
+        ///   - languageCode: The language code for the static content.
+        ///   - availableLanguageCodes: All language codes available for this static content repository.
+        ///   - detailId: Id uniquely identifying the static content detail object.
+        private init(id: UUID, title: String, text: String, languageCode: String, availableLanguageCodes: [String], detailId: UUID) {
             self.id = id
             self.title = title
             self.text = text
             self.languageCode = languageCode
             self.availableLanguageCodes = availableLanguageCodes
+            self.detailId = detailId
             self.moderationTitle = nil
             self.requiredSnippets = nil
-            self.detailId = nil
         }
         
         /// Creates a static content detail object for admins.
@@ -117,15 +120,15 @@ public extension StaticContent.Detail {
         ///   - moderationTitle: The localized title describing the the static content to a moderator.
         ///   - requiredSnippets: An array containing all snippets which are required for this static content.
         ///   - detailId: Id uniquely identifying the static content detail object.
-        private init(id: UUID, title: String, text: String, languageCode: String, availableLanguageCodes: [String], moderationTitle: String?, requiredSnippets: [StaticContent.Snippet]?, detailId: UUID) {
+        private init(id: UUID, title: String, text: String, languageCode: String, availableLanguageCodes: [String], detailId: UUID, moderationTitle: String?, requiredSnippets: [StaticContent.Snippet]?) {
             self.id = id
             self.title = title
             self.text = text
             self.languageCode = languageCode
             self.availableLanguageCodes = availableLanguageCodes
+            self.detailId = detailId
             self.moderationTitle = moderationTitle
             self.requiredSnippets = requiredSnippets
-            self.detailId = detailId
         }
     }
     

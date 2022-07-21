@@ -99,7 +99,7 @@ struct WaypointApiController: ApiRepositoryController {
             throw Abort(.notFound)
         }
         
-        if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db), user.role >= .moderator && req.method == .GET {
+        if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db), user.role >= .moderator {
             try await detail.$language.load(on: req.db)
             return try await .moderatorDetail(
                 id: repository.requireID(),
@@ -110,10 +110,10 @@ struct WaypointApiController: ApiRepositoryController {
                 tags: repository.tagList(req),
                 languageCode: detail.language.languageCode,
                 availableLanguageCodes: repository.availableLanguageCodes(req.db),
-                detailStatus: detail.status,
-                locationStatus: location.status,
                 detailId: detail.requireID(),
-                locationId: location.requireID()
+                locationId: location.requireID(),
+                detailStatus: detail.status,
+                locationStatus: location.status
             )
         }
         return try await detailOutput(req, repository, detail, location)
@@ -129,7 +129,9 @@ struct WaypointApiController: ApiRepositoryController {
             location: location.location,
             tags: repository.tagList(req),
             languageCode: detail.language.languageCode,
-            availableLanguageCodes: repository.availableLanguageCodes(req.db)
+            availableLanguageCodes: repository.availableLanguageCodes(req.db),
+            detailId: detail.requireID(),
+            locationId: location.requireID()
         )
     }
     

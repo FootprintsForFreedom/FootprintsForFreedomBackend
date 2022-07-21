@@ -28,7 +28,7 @@ final class TagApiVerificationTests: AppTestCase, TagTest {
                 XCTAssertEqual(content.slug, detail.title.slugify())
                 XCTAssertEqual(content.keywords, detail.keywords)
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)
-                XCTAssertNil(content.status)
+                XCTAssertNotNil(content.status)
             }
             .test()
     }

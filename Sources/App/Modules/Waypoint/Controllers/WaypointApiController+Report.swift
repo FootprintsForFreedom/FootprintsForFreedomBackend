@@ -29,7 +29,9 @@ extension Waypoint.Detail.Detail: InitializableById {
             location: location.location,
             tags: repository.tagList(for: allLanguageCodesByPriority, on: db),
             languageCode: detail.language.languageCode,
-            availableLanguageCodes: repository.availableLanguageCodes(db)
+            availableLanguageCodes: repository.availableLanguageCodes(db),
+            detailId: detail.requireID(),
+            locationId: location.requireID()
         )
     }
 }

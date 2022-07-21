@@ -220,7 +220,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
                 XCTAssertEqual(content.keywords, detail.keywords)
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)
                 XCTAssertNil(content.status)
-                XCTAssertNil(content.detailId)
+                XCTAssertNotNil(content.detailId)
             }
             .test()
     }
@@ -266,7 +266,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
                 XCTAssertEqual(content.keywords, detail.keywords)
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)
                 XCTAssertNil(content.status)
-                XCTAssertNil(content.detailId)
+                XCTAssertNotNil(content.detailId)
             }
             .test()
     }

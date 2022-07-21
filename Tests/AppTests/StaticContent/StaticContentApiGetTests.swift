@@ -127,7 +127,7 @@ final class StaticContentApiGetTests: AppTestCase, StaticContentTest {
                 XCTAssertEqual(content.text, staticContent.detail.text)
                 XCTAssertEqual(content.languageCode, staticContent.detail.language.languageCode)
                 XCTAssertNil(content.requiredSnippets)
-                XCTAssertNil(content.detailId)
+                XCTAssertNotNil(content.detailId)
             }
             .test()
     }
@@ -147,7 +147,7 @@ final class StaticContentApiGetTests: AppTestCase, StaticContentTest {
                 XCTAssertEqual(content.text, staticContent.detail.text)
                 XCTAssertEqual(content.languageCode, staticContent.detail.language.languageCode)
                 XCTAssertNil(content.requiredSnippets)
-                XCTAssertNil(content.detailId)
+                XCTAssertNotNil(content.detailId)
             }
             .test()
     }

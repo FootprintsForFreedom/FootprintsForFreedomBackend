@@ -17,13 +17,14 @@
 version: '3.7'
 
 volumes:
+  # public_data:
   db_data:
   caddy_data:
   caddy_config:
   
 services:
   app:
-    image: digital-traces-backend:1.0-test
+    image: digital-traces-backend:1.0
     build:
       context: .
     env_file: .env.production
@@ -31,12 +32,15 @@ services:
       - db
       - queues
       - redis
+    
     volumes:
+      # - "public_data:/app/Public"
+    # uncomment this to preserve the Public files over app restarts
       - "./Public:/app/Public"
     # user: '0' # uncomment to run as root for testing purposes even though Dockerfile defines 'vapor' user.
     command: ["serve", "--env", "production", "--hostname", "0.0.0.0", "--port", "8080"]
   queues: 
-    image: digital-traces-backend:1.0-test
+    image: digital-traces-backend:1.0
     build:
       context: .
     env_file: .env.production
@@ -45,7 +49,7 @@ services:
       - redis
     command: ["queues", "--scheduled"]
   migrate:
-    image: digital-traces-backend:1.0-test
+    image: digital-traces-backend:1.0
     build:
       context: .
     env_file: .env.production
@@ -56,7 +60,7 @@ services:
     deploy:
       replicas: 0
   revert:
-    image: digital-traces-backend:1.0-test
+    image: digital-traces-backend:1.0
     build:
       context: .
     env_file: .env.production

@@ -234,7 +234,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.group, file.group)
                 XCTAssertEqual(content.filePath, file.mediaDirectory)
                 XCTAssertNil(content.status)
-                XCTAssertNil(content.detailId)
+                XCTAssertNotNil(content.detailId)
             }
             .test()
     }
@@ -286,7 +286,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.group, file.group)
                 XCTAssertEqual(content.filePath, file.mediaDirectory)
                 XCTAssertNil(content.status)
-                XCTAssertNil(content.detailId)
+                XCTAssertNotNil(content.detailId)
             }
             .test()
     }

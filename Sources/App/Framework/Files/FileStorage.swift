@@ -8,7 +8,7 @@
 import Vapor
 
 struct FileStorage {
-    /// Saves the data encoded into the body of the request to the filesystem at the spcified path.
+    /// Saves the data encoded into the body of the request to the filesystem at the specified path.
     /// - Parameters:
     ///   - req: The `Request`of which the body stream should be saved to the file system.
     ///   - path: The absolute path on the file system were the bodyStream should be saved.
@@ -39,7 +39,7 @@ struct FileStorage {
                     
                     return promise.futureResult
                         .flatMap {
-                            // check there actually is a data in the file otherwise delte the file
+                            // check there actually is a data in the file otherwise delete the file
                             req.application.fileio.readFileSize(fileHandle: handle, eventLoop: req.eventLoop).flatMapThrowing { byteCount in
                                 if byteCount == 0 {
                                     throw Abort(.badRequest)
@@ -53,9 +53,9 @@ struct FileStorage {
                 }
                 .get()
         } catch {
-            // delte the file if an error occurs while uploading
+            // delete the file if an error occurs while uploading
             // namely the file stream ended unexpectedly which means the upload was cancelled
-            // avoid having corrupted files in the filesystem
+            // avoids having corrupted files in the filesystem
             try delete(at: path)
             throw error
         }

@@ -37,6 +37,7 @@ All parameters need to be sent as url parameters.
     "source": "<source>",
     "group": "<file-group>",
     "filePath": "<file-path>",
+    "detailId": "<detail-id>",
     "tags": [
         {
             "id": "<tag-id>",
