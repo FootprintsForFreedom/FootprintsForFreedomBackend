@@ -16,6 +16,11 @@ struct FileStorage {
         guard req.application.environment != .testing else { return }
         do {
             var sequential = req.eventLoop.makeSucceededFuture(())
+            let directoryPath = URL(fileURLWithPath: path).deletingLastPathComponent()
+            var isDirectory: ObjCBool = true
+            if !FileManager.default.fileExists(atPath: directoryPath.absoluteString, isDirectory: &isDirectory) {
+                try FileManager.default.createDirectory(at: directoryPath, withIntermediateDirectories: true)
+            }
             try await req.application.fileio
                 .openFile(path: path, mode: .write, flags: .allowFileCreation(), eventLoop: req.eventLoop)
                 .flatMap { handle -> EventLoopFuture<Void> in
