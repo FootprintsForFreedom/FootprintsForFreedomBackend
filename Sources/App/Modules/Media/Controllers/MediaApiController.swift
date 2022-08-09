@@ -127,8 +127,8 @@ struct MediaApiController: ApiRepositoryController {
     
     func createRepositoryInput(_ req: Request, _ repository: MediaRepositoryModel, _ input: Media.Detail.Create) async throws {
         guard let waypointId = try await WaypointRepositoryModel
-                .find(input.waypointId, on: req.db)?
-                .requireID()
+            .find(input.waypointId, on: req.db)?
+            .requireID()
         else {
             throw Abort(.badRequest, reason: "The waypoint id is invalid")
         }
@@ -140,10 +140,10 @@ struct MediaApiController: ApiRepositoryController {
         let user = try req.auth.require(AuthenticatedUser.self)
         
         guard let languageId = try await LanguageModel
-                .query(on: req.db)
-                .filter(\.$languageCode == input.languageCode)
-                .first()?
-                .requireID()
+            .query(on: req.db)
+            .filter(\.$languageCode == input.languageCode)
+            .first()?
+            .requireID()
         else {
             throw Abort(.badRequest, reason: "The language code is invalid")
         }
@@ -152,7 +152,7 @@ struct MediaApiController: ApiRepositoryController {
         guard let mediaFileGroup = req.headers.contentType?.mediaGroup(), let preferredFilenameExtension = req.headers.contentType?.preferredFilenameExtension() else {
             if let fileType = req.headers.contentType {
                 req.logger.log(level: .critical, "A file with the following media type could not be uploaded: \(fileType.serialize()))")
-                throw Abort(.unsupportedMediaType, reason: "This content type is not supportet.")
+                throw Abort(.unsupportedMediaType, reason: "This content type is not supported.")
             } else {
                 throw Abort(.badRequest, reason: "No media file in body")
             }
@@ -224,7 +224,7 @@ struct MediaApiController: ApiRepositoryController {
             guard let mediaFileGroup = req.headers.contentType?.mediaGroup(), let preferredFilenameExtension = req.headers.contentType?.preferredFilenameExtension() else {
                 if let fileType = req.headers.contentType {
                     req.logger.log(level: .critical, "A file with the following media type could not be uploaded: \(fileType.serialize()))")
-                    throw Abort(.unsupportedMediaType, reason: "This content type is not supportet.")
+                    throw Abort(.unsupportedMediaType, reason: "This content type is not supported.")
                 } else {
                     throw Abort(.badRequest, reason: "No media file in body")
                 }
