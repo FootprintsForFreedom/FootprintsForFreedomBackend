@@ -4,7 +4,7 @@ Adds a tag to a waypoint object.
 
 ## Request
 
-    POST /api/v1/waypoints/<media-repository-id>/tags/<tag-repository-id>
+    POST /api/v1/waypoints/<waypoint-repository-id>/tags/<tag-repository-id>
 
 This endpoint is only available to verified users.
 
