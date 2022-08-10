@@ -48,7 +48,14 @@ extension MediaFileModel {
     private func createImageThumbnail(_ req: Request) async throws {
         let task = Task(priority: .utility) {
             let fileUrl = URL(fileURLWithPath: mediaFilePath(req))
-            let thumbnailData = try scaleImage(keepingAspectRatio: true, maxSideLength: maxSideLength, data: Data(contentsOf: fileUrl))
+            let inputFormat: ImportableFormat = {
+                switch mediaDirectory.split(separator: ".").last {
+                case "png": return .png
+                case "jpg", "jpeg": return .jpg
+                default: return .any
+                }
+            }()
+            let thumbnailData = try scaleImage(keepingAspectRatio: true, maxSideLength: maxSideLength, data: Data(contentsOf: fileUrl), inputFormat: inputFormat)
             try thumbnailData.write(to: URL(fileURLWithPath: thumbnailFilePath(req)))
         }
         try await task.value
@@ -114,8 +121,8 @@ extension MediaFileModel {
         case couldNotResizeImageToSpecifiedSize
     }
     
-    private func scaleImage(keepingAspectRatio: Bool, maxSideLength: Int, data: Data, format: ExportableFormat = .jpg(quality: 50)) throws -> Data {
-        var image = try Image(data: data)
+    private func scaleImage(keepingAspectRatio: Bool, maxSideLength: Int, data: Data, inputFormat: ImportableFormat, outputFormat: ExportableFormat = .jpg(quality: 50)) throws -> Data {
+        var image = try Image(data: data, as: inputFormat)
         
         if image.size.width > maxSideLength || image.size.height > maxSideLength {
             let ratio = Double(image.size.width) / Double(image.size.height)
@@ -140,7 +147,7 @@ extension MediaFileModel {
             image = resizedImage
         }
         
-        let imageData = try image.export(as: format)
+        let imageData = try image.export(as: outputFormat)
         return imageData
     }
 }
