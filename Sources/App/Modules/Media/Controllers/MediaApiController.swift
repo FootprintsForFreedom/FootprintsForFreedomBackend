@@ -167,9 +167,9 @@ struct MediaApiController: ApiRepositoryController {
         mediaFile.$user.id = user.id
         
         // save the file
-        let filePath = req.application.directory.publicDirectory + mediaFile.mediaDirectory
-        try await FileStorage.saveBodyStream(of: req, to: filePath)
+        try await FileStorage.saveBodyStream(of: req, to: mediaFile.mediaFilePath(req))
         try await mediaFile.create(on: req.db)
+        try await mediaFile.createThumbnail(req: req)
         
         detail.$media.id = try mediaFile.requireID()
         detail.title = input.title
@@ -238,9 +238,9 @@ struct MediaApiController: ApiRepositoryController {
             mediaFile.$user.id = user.id
             
             // save the file
-            let filePath = req.application.directory.publicDirectory + mediaFile.mediaDirectory
-            try await FileStorage.saveBodyStream(of: req, to: filePath)
+            try await FileStorage.saveBodyStream(of: req, to: mediaFile.mediaFilePath(req))
             try await mediaFile.create(on: req.db)
+            try await mediaFile.createThumbnail(req: req)
             detail.$media.id = try mediaFile.requireID()
         }
     }
@@ -290,9 +290,9 @@ struct MediaApiController: ApiRepositoryController {
             mediaFile.$user.id = user.id
             
             // save the file
-            let filePath = req.application.directory.publicDirectory + mediaFile.mediaDirectory
-            try await FileStorage.saveBodyStream(of: req, to: filePath)
+            try await FileStorage.saveBodyStream(of: req, to: mediaFile.mediaFilePath(req))
             try await mediaFile.create(on: req.db)
+            try await mediaFile.createThumbnail(req: req)
             detail.$media.id = try mediaFile.requireID()
         } else {
             detail.$media.id = mediaToPatch.$media.id
