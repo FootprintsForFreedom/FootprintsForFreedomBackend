@@ -13,7 +13,16 @@ struct FileStorage {
     ///   - req: The `Request`of which the body stream should be saved to the file system.
     ///   - path: The absolute path on the file system were the bodyStream should be saved.
     static func saveBodyStream(of req: Request, to path: String) async throws {
-        guard req.application.environment != .testing else { return }
+        try await saveBodyStream(of: req, to: path).get()
+    }
+    
+    
+    /// Saves the data encoded into the body of the request to the filesystem at the specified path.
+    /// - Parameters:
+    ///   - req: The `Request`of which the body stream should be saved to the file system.
+    ///   - path: The absolute path on the file system were the bodyStream should be saved.
+    private static func saveBodyStream(of req: Request, to path: String) throws -> EventLoopFuture<Void> {
+        guard req.application.environment != .testing else { return req.eventLoop.future() }
         do {
             var sequential = req.eventLoop.makeSucceededFuture(())
             let directoryPath = URL(fileURLWithPath: path).deletingLastPathComponent()
@@ -21,7 +30,7 @@ struct FileStorage {
             if !FileManager.default.fileExists(atPath: directoryPath.absoluteString, isDirectory: &isDirectory) {
                 try FileManager.default.createDirectory(at: directoryPath, withIntermediateDirectories: true)
             }
-            try await req.application.fileio
+            return req.application.fileio
                 .openFile(path: path, mode: .write, flags: .allowFileCreation(), eventLoop: req.eventLoop)
                 .flatMap { handle -> EventLoopFuture<Void> in
                     let promise = req.eventLoop.makePromise(of: Void.self)
@@ -56,7 +65,6 @@ struct FileStorage {
                             _ = try? handle.close()
                         }
                 }
-                .get()
         } catch {
             // delete the file if an error occurs while uploading
             // namely the file stream ended unexpectedly which means the upload was cancelled
