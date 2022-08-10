@@ -10,9 +10,16 @@ import SwiftGD
 import ShellOut
 
 extension MediaFileModel {
-    private var maxSideLength: Int { 800 }
+    /// The maximum length of the longer side of the thumbnail
+    private var maxThumbnailSideLength: Int { 800 }
+    /// The appendix which should be added to the original filename to indicate it is a thumbnail
     private var thumbnailFilenameAppendix: String { "_thumbnail" }
     
+    /// Creates a thumbnail for this media file on the request.
+    ///
+    /// Thumbnails can only be created for images, videos and documents. Thumbnails for audio files are not supported.
+    ///
+    /// - Parameter req: The request on which to create the thumbnail.
     func createThumbnail(req: Request) async throws {
         guard req.application.environment != .testing else { return }
         switch self.group {
@@ -23,14 +30,23 @@ extension MediaFileModel {
         }
     }
     
+    /// The file path for this media file.
+    /// - Parameter publicDirectory: The public directory of the application
+    /// - Returns: The file path of this media file
     func mediaFilePath(_ publicDirectory: String) -> String {
         publicDirectory + mediaDirectory
     }
     
+    /// The file path for this media file.
+    /// - Parameter req: The request which can determine the public directory of the application
+    /// - Returns: The file path for this media.
     func mediaFilePath(_ req: Request) -> String {
         mediaFilePath(req.application.directory.publicDirectory)
     }
     
+    /// The file path for the thumbnail of this media.
+    /// - Parameter publicDirectory: The public directory of the application.
+    /// - Returns: The file path for the thumbnail of this media.
     func thumbnailFilePath(_ publicDirectory: String) -> String {
         var components = mediaDirectory.components(separatedBy: ".")
         guard components.count > 1 else {
@@ -41,11 +57,17 @@ extension MediaFileModel {
         return publicDirectory + components.joined(separator: ".")
     }
     
+    /// The file path for the thumbnail of this media.
+    /// - Parameter req: The request which can determine the public directory of the application
+    /// - Returns: The file path for the thumbnail of this media.
     private func thumbnailFilePath(_ req: Request) -> String {
         thumbnailFilePath(req.application.directory.publicDirectory)
     }
     
+    /// Creates a thumbnail for an image.
+    /// - Parameter req: The request on which to create the thumbnail.
     private func createImageThumbnail(_ req: Request) async throws {
+        /// Perform in a task to not block the main thread.
         let task = Task(priority: .utility) {
             let fileUrl = URL(fileURLWithPath: mediaFilePath(req))
             let inputFormat: ImportableFormat = {
@@ -55,26 +77,29 @@ extension MediaFileModel {
                 default: return .any
                 }
             }()
-            let thumbnailData = try scaleImage(keepingAspectRatio: true, maxSideLength: maxSideLength, data: Data(contentsOf: fileUrl), inputFormat: inputFormat)
+            let thumbnailData = try scaleImage(keepingAspectRatio: true, maxSideLength: maxThumbnailSideLength, data: Data(contentsOf: fileUrl), inputFormat: inputFormat)
             try thumbnailData.write(to: URL(fileURLWithPath: thumbnailFilePath(req)))
         }
         try await task.value
     }
     
+    /// Creates a thumbnail for a video.
+    /// - Parameter req: The request on which to create the thumbnail.
     private func createVideoThumbnail(_ req: Request) async throws {
-        let arguments = [
-            "-ss",
-            "00:00:01.00",
-            "-i",
-            mediaFilePath(req),
-            "-filter:v",
-            "'scale=800:800:force_original_aspect_ratio=decrease'",
-            "-frames:v",
-            "1",
-            thumbnailFilePath(req)
-        ]
-        
+        /// Perform in a task to not block the main thread.
         let task = Task(priority: .utility) {
+            let arguments = [
+                "-ss",
+                "00:00:01.00",
+                "-i",
+                mediaFilePath(req),
+                "-filter:v",
+                "'scale=800:800:force_original_aspect_ratio=decrease'",
+                "-frames:v",
+                "1",
+                thumbnailFilePath(req)
+            ]
+            
             #if os(macOS)
             try shellOut(to: "/usr/local/bin/ffmpeg", arguments: arguments)
             return
@@ -88,22 +113,25 @@ extension MediaFileModel {
         try await task.value
     }
     
+    /// Creates a thumbnail for a pdf document.
+    /// - Parameter req: The request on which to create the thumbnail.
     private func createDocumentThumbnail(_ req: Request) async throws {
-        let arguments = [
-            "-thumbnail",
-            "'800x800>'",
-            "-density 300",
-            "-quality",
-            "50",
-            "-background",
-            "white",
-            "-alpha",
-            "remove",
-            "'\(mediaFilePath(req))[0]'",
-            thumbnailFilePath(req)
-        ]
-        
+        /// Perform in a task to not block the main thread.
         let task = Task(priority: .utility) {
+            let arguments = [
+                "-thumbnail",
+                "'800x800>'",
+                "-density 300",
+                "-quality",
+                "50",
+                "-background",
+                "white",
+                "-alpha",
+                "remove",
+                "'\(mediaFilePath(req))[0]'",
+                thumbnailFilePath(req)
+            ]
+            
             #if os(macOS)
             try shellOut(to: "/usr/local/bin/convert", arguments: arguments)
             return
@@ -117,10 +145,20 @@ extension MediaFileModel {
         try await task.value
     }
     
+    /// Error thrown when image resizing fails.
     enum ImageResizingError: Swift.Error {
+        /// The image could not be resized to the specified size.
         case couldNotResizeImageToSpecifiedSize
     }
     
+    /// Scales and converts an image.
+    /// - Parameters:
+    ///   - keepingAspectRatio: Wether tho keep the original aspect ratio.
+    ///   - maxSideLength: The maximum side length of the image.
+    ///   - data: The image data.
+    ///   - inputFormat: The input format of the image.
+    ///   - outputFormat: The desired output format of the image.
+    /// - Returns: The data of the scaled and converted image.
     private func scaleImage(keepingAspectRatio: Bool, maxSideLength: Int, data: Data, inputFormat: ImportableFormat, outputFormat: ExportableFormat = .jpg(quality: 50)) throws -> Data {
         var image = try Image(data: data, as: inputFormat)
         

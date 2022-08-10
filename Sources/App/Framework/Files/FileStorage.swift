@@ -7,6 +7,7 @@
 
 import Vapor
 
+/// Handles the file storage.
 struct FileStorage {
     /// Saves the data encoded into the body of the request to the filesystem at the specified path.
     /// - Parameters:
