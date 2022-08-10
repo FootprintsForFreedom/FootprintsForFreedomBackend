@@ -18,19 +18,34 @@ struct CleanupSoftDeletedModelsJob: AsyncScheduledJob {
     /// - Parameters:
     ///   - modelType: The type of the model whose soft deleted models are to be deleted.
     ///   - db: The database on which to find and delete the soft deleted models.
-    func cleanupSoftDeleted<Model>(_ modelType: Model.Type, on db: Database) async throws where Model: Timestamped {
+    func cleanupSoftDeleted<Model>(_ modelType: Model.Type, on app: Application) async throws where Model: Timestamped {
         /// Get the soft deleted lifetime or return.
         guard let softDeletedLifetime = Environment.softDeletedLifetime else {
             return
         }
         let dayInSeconds = 60 * 60 * 24
         
-        /// Query the model type and delete all models which were soft deleted and whose lifetime expired.
-        try await modelType
-            .query(on: db)
-            .withDeleted() // also query soft deleted models
-            .filter(\._$deletedAt < Date().addingTimeInterval(TimeInterval(-1 * softDeletedLifetime * dayInSeconds))) // only select models that are older than the specified amount of days
-            .delete(force: true) // and delete them
+        
+        if modelType is MediaFileModel.Type {
+            try await modelType
+                .query(on: app.db)
+                .withDeleted()
+                .filter(\._$deletedAt < Date().addingTimeInterval(TimeInterval(-1 * softDeletedLifetime * dayInSeconds))) // only select models that are older than the specified amount of days
+                .all()
+                .concurrentForEach { mediaFile in
+                    guard let mediaFile = mediaFile as? MediaFileModel else { return }
+                    try FileStorage.delete(at: mediaFile.mediaFilePath(app.directory.publicDirectory))
+                    try FileStorage.delete(at: mediaFile.thumbnailFilePath(app.directory.publicDirectory))
+                    try await mediaFile.delete(force: true, on: app.db)
+                }
+        } else {
+            /// Query the model type and delete all models which were soft deleted and whose lifetime expired.
+            try await modelType
+                .query(on: app.db)
+                .withDeleted() // also query soft deleted models
+                .filter(\._$deletedAt < Date().addingTimeInterval(TimeInterval(-1 * softDeletedLifetime * dayInSeconds))) // only select models that are older than the specified amount of days
+                .delete(force: true) // and delete them
+        }
     }
     
     func run(context: QueueContext) async throws {
@@ -52,7 +67,7 @@ struct CleanupSoftDeletedModelsJob: AsyncScheduledJob {
         ]
         
         try await timestampedTypes.concurrentForEach(withPriority: .background) { timestampedType in
-            try await cleanupSoftDeleted(timestampedType, on: context.application.db)
+            try await cleanupSoftDeleted(timestampedType, on: context.application)
         }
     }
 }
