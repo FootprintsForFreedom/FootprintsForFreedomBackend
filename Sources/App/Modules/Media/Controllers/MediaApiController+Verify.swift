@@ -108,10 +108,6 @@ extension MediaApiController: ApiRepositoryVerificationController {
         try await req.onlyFor(.moderator)
     }
     
-    func beforeGetDetailToVerify(_ req: Request, _ queryBuilder: QueryBuilder<Detail>) async throws -> QueryBuilder<Detail> {
-        queryBuilder.with(\.$media)
-    }
-    
     // POST: api/media/:repositoryId/verify/:waypointModelId
     func verifyDetailOutput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: Detail) async throws -> Media.Detail.Detail {
         return try await detailOutput(req, repository, detail)

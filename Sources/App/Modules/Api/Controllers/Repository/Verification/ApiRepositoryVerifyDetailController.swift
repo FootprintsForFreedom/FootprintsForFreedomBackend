@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-/// Streamlines verifying a detail controller.
+/// Streamlines verifying a detail object.
 protocol ApiRepositoryVerifyDetailController: RepositoryController {
     /// The detail object content.
     associatedtype DetailObject: Content
@@ -21,13 +21,6 @@ protocol ApiRepositoryVerifyDetailController: RepositoryController {
     /// Action performed prior to verifying a detail.
     /// - Parameter req: The request on which to verify the detail.
     func beforeVerifyDetail(_ req: Request) async throws
-    
-    /// Action performed prior to getting the detail to verify.
-    /// - Parameters:
-    ///   - req: The request on which to load the detail to verify.
-    ///   - queryBuilder: The `QueryBuilder` loading the detail to verify.
-    /// - Returns: The potentially modified `QueryBuilder` loading the detail to verify.
-    func beforeGetDetailToVerify(_ req: Request, _ queryBuilder: QueryBuilder<Detail>) async throws -> QueryBuilder<Detail>
     
     /// Verifies the detail on the database.
     /// - Parameters:
@@ -60,10 +53,6 @@ extension ApiRepositoryVerifyDetailController {
     
     func beforeVerifyDetail(_ req: Request) async throws { }
     
-    func beforeGetDetailToVerify(_ req: Request, _ queryBuilder: QueryBuilder<Detail>) async throws -> QueryBuilder<Detail> {
-        queryBuilder
-    }
-    
     func verifyDetail(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws {
         if let previousDetail = try await repository.detail(for: detail.language.languageCode, needsToBeVerified: true, on: req.db) {
             previousDetail.slug = try await previousDetail.generateSlug(with: .day, on: req.db)
@@ -81,19 +70,15 @@ extension ApiRepositoryVerifyDetailController {
         
         guard
             let detailIdString = req.parameters.get(newModelPathIdKey),
-            let detailtId = UUID(uuidString: detailIdString)
+            let detailId = UUID(uuidString: detailIdString),
+            let detail = try await Detail
+                .query(on: req.db)
+                .filter(\._$id == detailId)
+                .filter(\._$repository.$id == repository.requireID())
+                .filter(\._$status ~~ [.pending, .deleteRequested])
+                .with(\._$language)
+                .first()
         else {
-            throw Abort(.badRequest)
-        }
-        
-        let detailQuery = try Detail
-            .query(on: req.db)
-            .filter(\._$id == detailtId)
-            .filter(\._$repository.$id == repository.requireID())
-            .filter(\._$status ~~ [.pending, .deleteRequested])
-            .with(\._$language)
-        
-        guard let detail = try await beforeGetDetailToVerify(req, detailQuery).first() else {
             throw Abort(.badRequest)
         }
         
