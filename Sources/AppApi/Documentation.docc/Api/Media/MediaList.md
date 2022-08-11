@@ -23,13 +23,15 @@ Lists all media objects in pages.
             "id": "<media-1-id>",
             "title": "<media-1-title>",
             "slug": "<media-1-slug>",
-            "group": "<media-file-1-group>"
+            "group": "<media-file-1-group>",
+            "thumbnailFilePath": "<media-file-1-thumbnail-path>"
         },
         {
             "id": "<media-2-id>",
             "title": "<media-2-title>",
             "slug": "<media-2-slug>",
-            "group": "<media-file-2-group>"
+            "group": "<media-file-2-group>",
+            "thumbnailFilePath": "<media-file-2-thumbnail-path>"
         }
     ],
     "metadata": {

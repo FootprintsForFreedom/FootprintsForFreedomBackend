@@ -98,7 +98,13 @@ extension MediaApiController {
         return try await Page(
             items: relevantDetails.concurrentMap { detail in
                 try await detail.$media.load(on: req.db)
-                return .init(id: detail.$repository.id, title: detail.title, slug: detail.slug, group: detail.media.group)
+                return .init(
+                    id: detail.$repository.id,
+                    title: detail.title,
+                    slug: detail.slug,
+                    group: detail.media.group,
+                    thumbnailFilePath: detail.media.thumbnailFilePath(req)
+                )
             },
             metadata: PageMetadata(page: page.page, per: page.per, total: count)
         )

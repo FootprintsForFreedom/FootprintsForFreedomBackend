@@ -25,6 +25,8 @@ public extension Media.Detail {
         public let slug: String
         /// The group of the media file.
         public let group: Group
+        /// The relative path at which to find the thumbnail file.
+        public let thumbnailFilePath: String?
         
         /// Creates a media list object.
         /// - Parameters:
@@ -32,11 +34,13 @@ public extension Media.Detail {
         ///   - title: The media title.
         ///   - slug: The slug uniquely identifying the media.
         ///   - group: The group of the media file.
-        public init(id: UUID, title: String, slug: String, group: Group) {
+        ///   - thumbnailFilePath: The relative path at which to find the thumbnail file.
+        public init(id: UUID, title: String, slug: String, group: Group, thumbnailFilePath: String?) {
             self.id = id
             self.title = title
             self.slug = slug
             self.group = group
+            self.thumbnailFilePath = thumbnailFilePath
         }
     }
     

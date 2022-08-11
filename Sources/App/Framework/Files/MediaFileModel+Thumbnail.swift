@@ -60,7 +60,7 @@ extension MediaFileModel {
     /// The file path for the thumbnail of this media.
     /// - Parameter req: The request which can determine the public directory of the application
     /// - Returns: The file path for the thumbnail of this media.
-    private func thumbnailFilePath(_ req: Request) -> String {
+    func thumbnailFilePath(_ req: Request) -> String {
         thumbnailFilePath(req.application.directory.publicDirectory)
     }
     

@@ -67,7 +67,8 @@ struct MediaApiController: ApiRepositoryController {
             id: try repository.requireID(),
             title: detail.title,
             slug: detail.slug,
-            group: detail.media.group
+            group: detail.media.group,
+            thumbnailFilePath: detail.media.thumbnailFilePath(req)
         )
     }
     
