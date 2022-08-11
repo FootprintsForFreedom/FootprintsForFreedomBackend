@@ -49,8 +49,8 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.toUser?.id, secondMediaDetail.user?.id)
                 XCTAssertEqual(content.fromGroup, mediaFile.group)
                 XCTAssertEqual(content.toGroup, secondMediaFile.group)
-                XCTAssertEqual(content.fromFilePath, mediaFile.mediaDirectory)
-                XCTAssertEqual(content.toFilePath, secondMediaFile.mediaDirectory)
+                XCTAssertEqual(content.fromFilePath, mediaFile.relativeMediaFilePath)
+                XCTAssertEqual(content.toFilePath, secondMediaFile.relativeMediaFilePath)
             }
             .test()
     }

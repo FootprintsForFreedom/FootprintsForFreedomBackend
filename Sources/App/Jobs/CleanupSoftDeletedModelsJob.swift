@@ -34,8 +34,8 @@ struct CleanupSoftDeletedModelsJob: AsyncScheduledJob {
                 .all()
                 .concurrentForEach { mediaFile in
                     guard let mediaFile = mediaFile as? MediaFileModel else { return }
-                    try FileStorage.delete(at: mediaFile.mediaFilePath(app.directory.publicDirectory))
-                    try FileStorage.delete(at: mediaFile.thumbnailFilePath(app.directory.publicDirectory))
+                    try FileStorage.delete(at: mediaFile.absoluteMediaFilePath(app.directory.publicDirectory))
+                    try FileStorage.delete(at: mediaFile.absoluteThumbnailFilePath(app.directory.publicDirectory))
                     try await mediaFile.delete(force: true, on: app.db)
                 }
         } else {

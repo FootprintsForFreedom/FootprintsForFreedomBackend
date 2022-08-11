@@ -44,7 +44,7 @@ final class MediaApiCreateReportTests: AppTestCase, MediaTest {
                     XCTAssertEqual(visibleDetail.detailText, media.detail.detailText)
                     XCTAssertEqual(visibleDetail.languageCode, media.detail.language.languageCode)
                     XCTAssertEqual(visibleDetail.group, media.file.group)
-                    XCTAssertEqual(visibleDetail.filePath, media.file.mediaDirectory)
+                    XCTAssertEqual(visibleDetail.filePath, media.file.relativeMediaFilePath)
                     XCTAssertNil(visibleDetail.status)
                     XCTAssertNotNil(visibleDetail.detailId)
                 }

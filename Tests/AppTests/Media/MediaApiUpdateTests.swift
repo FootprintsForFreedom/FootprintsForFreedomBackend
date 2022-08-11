@@ -75,7 +75,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.source, updateContent.source)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
                 XCTAssertEqual(content.group, file.group)
-                XCTAssertEqual(content.filePath, file.mediaDirectory)
+                XCTAssertEqual(content.filePath, file.relativeMediaFilePath)
                 XCTAssertNil(content.status)
             }
             .test()
@@ -112,7 +112,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.source, updateContent.source)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
                 XCTAssertEqual(content.group, file.group)
-                XCTAssertEqual(content.filePath, file.mediaDirectory)
+                XCTAssertEqual(content.filePath, file.relativeMediaFilePath)
                 XCTAssertNil(content.status)
             }
             .test()
@@ -150,7 +150,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.detailText, updateContent.detailText)
                 XCTAssertEqual(content.source, updateContent.source)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
-                XCTAssertNotEqual(content.filePath, file.mediaDirectory)
+                XCTAssertNotEqual(content.filePath, file.relativeMediaFilePath)
                 XCTAssertNil(content.status)
             }
             .test()
@@ -185,7 +185,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.source, updateContent.source)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
                 XCTAssertEqual(content.group, file.group)
-                XCTAssertEqual(content.filePath, file.mediaDirectory)
+                XCTAssertEqual(content.filePath, file.relativeMediaFilePath)
                 XCTAssertNil(content.status)
             }
             .test()

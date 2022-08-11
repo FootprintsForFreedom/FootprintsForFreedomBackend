@@ -36,7 +36,7 @@ final class MediaApiDeleteUserTests: AppTestCase, MediaTest, UserTest {
                 XCTAssertEqual(content.detailText, media.detailText)
                 XCTAssertEqual(content.languageCode, media.language.languageCode)
                 XCTAssertEqual(content.group, file.group)
-                XCTAssertEqual(content.filePath, file.mediaDirectory)
+                XCTAssertEqual(content.filePath, file.relativeMediaFilePath)
                 XCTAssertNotNil(content.status)
                 XCTAssertEqual(content.status, media.status)
                 XCTAssertNotNil(content.detailId)

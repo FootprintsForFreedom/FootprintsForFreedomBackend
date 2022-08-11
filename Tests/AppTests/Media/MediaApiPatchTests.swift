@@ -70,7 +70,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.source, detail.source)
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)
                 XCTAssertEqual(content.group, file.group)
-                XCTAssertEqual(content.filePath, file.mediaDirectory)
+                XCTAssertEqual(content.filePath, file.relativeMediaFilePath)
                 XCTAssertNil(content.status)
             }
             .test()
@@ -108,7 +108,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.source, detail.source)
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)
                 XCTAssertEqual(content.group, file.group)
-                XCTAssertEqual(content.filePath, file.mediaDirectory)
+                XCTAssertEqual(content.filePath, file.relativeMediaFilePath)
                 XCTAssertNil(content.status)
             }
             .test()
@@ -136,7 +136,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.source, detail.source)
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)
                 XCTAssertEqual(content.group, file.group)
-                XCTAssertEqual(content.filePath, file.mediaDirectory)
+                XCTAssertEqual(content.filePath, file.relativeMediaFilePath)
                 XCTAssertNil(content.status)
             }
             .test()
@@ -173,7 +173,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.source, patchContent.source)
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)
                 XCTAssertEqual(content.group, file.group)
-                XCTAssertEqual(content.filePath, file.mediaDirectory)
+                XCTAssertEqual(content.filePath, file.relativeMediaFilePath)
                 XCTAssertNil(content.status)
             }
             .test()
@@ -214,7 +214,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.source, detail.source)
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)
                 XCTAssertEqual(content.group, file.group)
-                XCTAssertNotEqual(content.filePath, file.mediaDirectory)
+                XCTAssertNotEqual(content.filePath, file.relativeMediaFilePath)
                 XCTAssertNil(content.status)
             }
             .test()

@@ -30,7 +30,7 @@ final class MediaApiVerifyTagTests: AppTestCase, MediaTest, TagTest {
                 XCTAssertEqual(content.detailText, media.detail.detailText)
                 XCTAssertEqual(content.languageCode, media.detail.language.languageCode)
                 XCTAssertEqual(content.group, media.file.group)
-                XCTAssertEqual(content.filePath, media.file.mediaDirectory)
+                XCTAssertEqual(content.filePath, media.file.relativeMediaFilePath)
                 XCTAssert(content.tags.contains { $0.id == tag.repository.id })
                 XCTAssertNotNil(content.status)
                 XCTAssertNotNil(content.detailId)

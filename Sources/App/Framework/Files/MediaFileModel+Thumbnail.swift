@@ -33,35 +33,40 @@ extension MediaFileModel {
     /// The file path for this media file.
     /// - Parameter publicDirectory: The public directory of the application
     /// - Returns: The file path of this media file
-    func mediaFilePath(_ publicDirectory: String) -> String {
-        publicDirectory + mediaDirectory
+    func absoluteMediaFilePath(_ publicDirectory: String) -> String {
+        publicDirectory + relativeMediaFilePath
     }
     
     /// The file path for this media file.
     /// - Parameter req: The request which can determine the public directory of the application
     /// - Returns: The file path for this media.
-    func mediaFilePath(_ req: Request) -> String {
-        mediaFilePath(req.application.directory.publicDirectory)
+    func absoluteMediaFilePath(_ req: Request) -> String {
+        absoluteMediaFilePath(req.application.directory.publicDirectory)
+    }
+    
+    /// The relative file path of the thumbnail.
+    var relativeThumbnailFilePath: String {
+        var components = relativeMediaFilePath.components(separatedBy: ".")
+        guard components.count > 1 else {
+            return relativeMediaFilePath
+        }
+        components[components.count - 2].append(thumbnailFilenameAppendix)
+        components[components.count - 1] = "jpg"
+        return components.joined(separator: ".")
     }
     
     /// The file path for the thumbnail of this media.
     /// - Parameter publicDirectory: The public directory of the application.
     /// - Returns: The file path for the thumbnail of this media.
-    func thumbnailFilePath(_ publicDirectory: String) -> String {
-        var components = mediaDirectory.components(separatedBy: ".")
-        guard components.count > 1 else {
-            return mediaDirectory
-        }
-        components[components.count - 2].append(thumbnailFilenameAppendix)
-        components[components.count - 1] = "jpg"
-        return publicDirectory + components.joined(separator: ".")
+    func absoluteThumbnailFilePath(_ publicDirectory: String) -> String {
+        publicDirectory + relativeThumbnailFilePath
     }
     
     /// The file path for the thumbnail of this media.
     /// - Parameter req: The request which can determine the public directory of the application
     /// - Returns: The file path for the thumbnail of this media.
-    func thumbnailFilePath(_ req: Request) -> String {
-        thumbnailFilePath(req.application.directory.publicDirectory)
+    private func absoluteThumbnailFilePath(_ req: Request) -> String {
+        absoluteThumbnailFilePath(req.application.directory.publicDirectory)
     }
     
     /// Creates a thumbnail for an image.
@@ -69,16 +74,16 @@ extension MediaFileModel {
     private func createImageThumbnail(_ req: Request) async throws {
         /// Perform in a task to not block the main thread.
         let task = Task(priority: .utility) {
-            let fileUrl = URL(fileURLWithPath: mediaFilePath(req))
+            let fileUrl = URL(fileURLWithPath: absoluteMediaFilePath(req))
             let inputFormat: ImportableFormat = {
-                switch mediaDirectory.split(separator: ".").last {
+                switch relativeMediaFilePath.split(separator: ".").last {
                 case "png": return .png
                 case "jpg", "jpeg": return .jpg
                 default: return .any
                 }
             }()
             let thumbnailData = try scaleImage(keepingAspectRatio: true, maxSideLength: maxThumbnailSideLength, data: Data(contentsOf: fileUrl), inputFormat: inputFormat)
-            try thumbnailData.write(to: URL(fileURLWithPath: thumbnailFilePath(req)))
+            try thumbnailData.write(to: URL(fileURLWithPath: absoluteThumbnailFilePath(req)))
         }
         try await task.value
     }
@@ -92,12 +97,12 @@ extension MediaFileModel {
                 "-ss",
                 "00:00:01.00",
                 "-i",
-                mediaFilePath(req),
+                absoluteMediaFilePath(req),
                 "-filter:v",
                 "'scale=800:800:force_original_aspect_ratio=decrease'",
                 "-frames:v",
                 "1",
-                thumbnailFilePath(req)
+                absoluteThumbnailFilePath(req)
             ]
             
             #if os(macOS)
@@ -128,8 +133,8 @@ extension MediaFileModel {
                 "white",
                 "-alpha",
                 "remove",
-                "'\(mediaFilePath(req))[0]'",
-                thumbnailFilePath(req)
+                "'\(absoluteMediaFilePath(req))[0]'",
+                absoluteThumbnailFilePath(req)
             ]
             
             #if os(macOS)

@@ -28,7 +28,7 @@ extension Media.Detail.Detail: InitializableById {
             detailText: detail.detailText,
             source: detail.source,
             group: detail.media.group,
-            filePath: detail.media.mediaDirectory,
+            filePath: detail.media.relativeMediaFilePath,
             tags: repository.tagList(for: allLanguageCodesByPriority, on: db),
             detailId: detail.requireID()
         )

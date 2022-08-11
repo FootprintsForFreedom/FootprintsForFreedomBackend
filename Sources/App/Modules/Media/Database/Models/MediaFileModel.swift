@@ -23,7 +23,7 @@ final class MediaFileModel: DatabaseModelInterface, Timestamped {
     }
     
     @ID() var id: UUID?
-    @Field(key: FieldKeys.v1.mediaDirectory) var mediaDirectory: String
+    @Field(key: FieldKeys.v1.mediaDirectory) var relativeMediaFilePath: String
     
     @Children(for: \.$media) var detailText: [MediaDetailModel]
     
@@ -44,7 +44,7 @@ final class MediaFileModel: DatabaseModelInterface, Timestamped {
         group: Media.Detail.Group,
         userId: UUID
     ) {
-        self.mediaDirectory = mediaDirectory
+        self.relativeMediaFilePath = mediaDirectory
         self.group = group
         self.$user.id = userId
     }

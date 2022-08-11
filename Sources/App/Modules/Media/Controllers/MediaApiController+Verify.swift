@@ -36,8 +36,8 @@ extension MediaApiController: ApiRepositoryVerificationController {
             sourceDiff: sourceDiff,
             fromGroup: model1.media.group,
             toGroup: model2.media.group,
-            fromFilePath: model1.media.mediaDirectory,
-            toFilePath: model2.media.mediaDirectory,
+            fromFilePath: model1.media.relativeMediaFilePath,
+            toFilePath: model2.media.relativeMediaFilePath,
             fromUser: model1.user?.publicDetail(),
             toUser: model2.user?.publicDetail()
         )
@@ -78,7 +78,7 @@ extension MediaApiController: ApiRepositoryVerificationController {
             title: detail.title,
             slug: detail.slug,
             group: detail.media.group,
-            thumbnailFilePath: detail.media.thumbnailFilePath(req)
+            thumbnailFilePath: detail.media.relativeThumbnailFilePath
         )
     }
     

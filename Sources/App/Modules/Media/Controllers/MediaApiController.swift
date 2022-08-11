@@ -68,7 +68,7 @@ struct MediaApiController: ApiRepositoryController {
             title: detail.title,
             slug: detail.slug,
             group: detail.media.group,
-            thumbnailFilePath: detail.media.thumbnailFilePath(req)
+            thumbnailFilePath: detail.media.relativeThumbnailFilePath
         )
     }
     
@@ -88,7 +88,7 @@ struct MediaApiController: ApiRepositoryController {
                 detailText: detail.detailText,
                 source: detail.source,
                 group: detail.media.group,
-                filePath: detail.media.mediaDirectory,
+                filePath: detail.media.relativeMediaFilePath,
                 tags: repository.tagList(req),
                 detailId: detail.requireID(),
                 status: detail.status
@@ -103,7 +103,7 @@ struct MediaApiController: ApiRepositoryController {
                 detailText: detail.detailText,
                 source: detail.source,
                 group: detail.media.group,
-                filePath: detail.media.mediaDirectory,
+                filePath: detail.media.relativeMediaFilePath,
                 tags: repository.tagList(req),
                 detailId: detail.requireID()
             )
@@ -163,12 +163,12 @@ struct MediaApiController: ApiRepositoryController {
         
         let mediaPath = "assets/media"
         let fileId = UUID()
-        mediaFile.mediaDirectory = "\(mediaPath)/\(fileId.uuidString).\(preferredFilenameExtension)"
+        mediaFile.relativeMediaFilePath = "\(mediaPath)/\(fileId.uuidString).\(preferredFilenameExtension)"
         mediaFile.group = mediaFileGroup
         mediaFile.$user.id = user.id
         
         // save the file
-        try await FileStorage.saveBodyStream(of: req, to: mediaFile.mediaFilePath(req))
+        try await FileStorage.saveBodyStream(of: req, to: mediaFile.absoluteMediaFilePath(req))
         try await mediaFile.create(on: req.db)
         try await mediaFile.createThumbnail(req: req)
         
@@ -234,12 +234,12 @@ struct MediaApiController: ApiRepositoryController {
             let mediaPath = "assets/media"
             let fileId = UUID()
             let mediaFile = MediaFileModel()
-            mediaFile.mediaDirectory = "\(mediaPath)/\(fileId.uuidString).\(preferredFilenameExtension)"
+            mediaFile.relativeMediaFilePath = "\(mediaPath)/\(fileId.uuidString).\(preferredFilenameExtension)"
             mediaFile.group = mediaFileGroup
             mediaFile.$user.id = user.id
             
             // save the file
-            try await FileStorage.saveBodyStream(of: req, to: mediaFile.mediaFilePath(req))
+            try await FileStorage.saveBodyStream(of: req, to: mediaFile.absoluteMediaFilePath(req))
             try await mediaFile.create(on: req.db)
             try await mediaFile.createThumbnail(req: req)
             detail.$media.id = try mediaFile.requireID()
@@ -286,12 +286,12 @@ struct MediaApiController: ApiRepositoryController {
             let mediaPath = "assets/media"
             let fileId = UUID()
             let mediaFile = MediaFileModel()
-            mediaFile.mediaDirectory = "\(mediaPath)/\(fileId.uuidString).\(preferredFilenameExtension)"
+            mediaFile.relativeMediaFilePath = "\(mediaPath)/\(fileId.uuidString).\(preferredFilenameExtension)"
             mediaFile.group = mediaFileGroup
             mediaFile.$user.id = user.id
             
             // save the file
-            try await FileStorage.saveBodyStream(of: req, to: mediaFile.mediaFilePath(req))
+            try await FileStorage.saveBodyStream(of: req, to: mediaFile.absoluteMediaFilePath(req))
             try await mediaFile.create(on: req.db)
             try await mediaFile.createThumbnail(req: req)
             detail.$media.id = try mediaFile.requireID()

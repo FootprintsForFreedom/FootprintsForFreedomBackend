@@ -103,7 +103,7 @@ extension MediaApiController {
                     title: detail.title,
                     slug: detail.slug,
                     group: detail.media.group,
-                    thumbnailFilePath: detail.media.thumbnailFilePath(req)
+                    thumbnailFilePath: detail.media.relativeThumbnailFilePath
                 )
             },
             metadata: PageMetadata(page: page.page, per: page.per, total: count)
