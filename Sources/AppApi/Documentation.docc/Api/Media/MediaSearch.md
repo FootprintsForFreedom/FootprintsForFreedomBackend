@@ -24,13 +24,15 @@ Searches all media objects and returns the result in pages.
             "id": "<media-1-id>",
             "title": "<media-1-title>",
             "slug": "<media-1-slug>",
-            "group": "<media-file-1-group>"
+            "group": "<media-file-1-group>",
+            "thumbnailFilePath": "<media-file-1-thumbnail-path>"
         },
         {
             "id": "<media-2-id>",
             "title": "<media-2-title>",
             "slug": "<media-2-slug>",
-            "group": "<media-file-2-group>"
+            "group": "<media-file-2-group>",
+            "thumbnailFilePath": "<media-file-2-thumbnail-path>"
         }
     ],
     "metadata": {
@@ -41,6 +43,9 @@ Searches all media objects and returns the result in pages.
 }
 ```
 
+> Note: All media objects with an image, video or document file also have a thumbnail. For more details see: <doc:MediaThumbnail>
+
 ## See Also
 
+* <doc:MediaThumbnail>
 * ``Media/Detail/List``

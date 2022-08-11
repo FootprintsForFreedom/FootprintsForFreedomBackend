@@ -42,6 +42,9 @@ Lists all media objects in pages.
 }
 ```
 
+> Note: All media objects with an image, video or document file also have a thumbnail. For more details see: <doc:MediaThumbnail>
+
 ## See Also
 
+* <doc:MediaThumbnail>
 * ``Media/Detail/List``

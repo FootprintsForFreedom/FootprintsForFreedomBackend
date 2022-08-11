@@ -8,6 +8,10 @@ See how to create, read, update, delete, verify and report media objects.
 
 ## Topics
 
+### General
+
+- <doc:MediaThumbnail>
+
 ### Create, read, update and delete
 
 - <doc:MediaCreate>
