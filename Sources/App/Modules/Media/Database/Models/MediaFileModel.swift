@@ -25,7 +25,7 @@ final class MediaFileModel: DatabaseModelInterface, Timestamped {
     @ID() var id: UUID?
     @Field(key: FieldKeys.v1.mediaDirectory) var relativeMediaFilePath: String
     
-    @Children(for: \.$media) var detailText: [MediaDetailModel]
+    @Children(for: \.$media) var details: [MediaDetailModel]
     
     @Enum(key: FieldKeys.v1.group) var group: Media.Detail.Group
     
