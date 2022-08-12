@@ -32,7 +32,7 @@ struct CleanupSoftDeletedModelsJob: AsyncScheduledJob {
                 .withDeleted()
                 .filter(\._$deletedAt < Date().addingTimeInterval(TimeInterval(-1 * softDeletedLifetime * dayInSeconds))) // only select models that are older than the specified amount of days
                 .all()
-                .concurrentForEach { mediaFile in
+                .asyncForEach { mediaFile in
                     guard let mediaFile = mediaFile as? MediaFileModel else { return }
                     try FileStorage.delete(at: mediaFile.absoluteMediaFilePath(app.directory.publicDirectory))
                     try FileStorage.delete(at: mediaFile.absoluteThumbnailFilePath(app.directory.publicDirectory))
@@ -66,7 +66,7 @@ struct CleanupSoftDeletedModelsJob: AsyncScheduledJob {
             StaticContentDetailModel.self
         ]
         
-        try await timestampedTypes.concurrentForEach(withPriority: .background) { timestampedType in
+        try await timestampedTypes.asyncForEach { timestampedType in
             try await cleanupSoftDeleted(timestampedType, on: context.application)
         }
     }

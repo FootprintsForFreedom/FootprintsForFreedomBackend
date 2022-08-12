@@ -39,7 +39,7 @@ struct CleanupEmptyRepositoriesJob: AsyncScheduledJob {
         /// All repository types to cleanup.
         let repositoryTypes: [any RepositoryModel.Type] = [WaypointRepositoryModel.self, MediaRepositoryModel.self, TagRepositoryModel.self]
         
-        try await repositoryTypes.concurrentForEach(withPriority: .background) { repositoryType in
+        try await repositoryTypes.asyncForEach { repositoryType in
             try await cleanupEmpty(repositoryType, on: context.application.db)
         }
     }
