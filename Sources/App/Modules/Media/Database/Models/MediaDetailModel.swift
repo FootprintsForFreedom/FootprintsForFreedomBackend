@@ -76,7 +76,7 @@ final class MediaDetailModel: TitledDetailModel {
 }
 
 extension MediaDetailModel {
-    var ownKeyPathForRepository: KeyPath<MediaRepositoryModel, ChildrenProperty<MediaRepositoryModel, MediaDetailModel>> { \._$details }
+    var ownKeyPathOnRepository: KeyPath<MediaRepositoryModel, ChildrenProperty<MediaRepositoryModel, MediaDetailModel>> { \._$details }
     var _$status: EnumProperty<MediaDetailModel, Status> { $status }
     var _$language: ParentProperty<MediaDetailModel, LanguageModel> { $language }
     var _$updatedAt: TimestampProperty<MediaDetailModel, DefaultTimestampFormat> { $updatedAt }

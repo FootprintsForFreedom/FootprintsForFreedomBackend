@@ -36,7 +36,7 @@ extension TitledDetailModel {
         on db: Database,
         sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
     ) async throws -> Self? {
-        try await repository[keyPath: ownKeyPathForRepository].firstFor(languageCode, needsToBeVerified: needsToBeVerified, on: db, sort: sortDirection)
+        try await repository[keyPath: ownKeyPathOnRepository].firstFor(languageCode, needsToBeVerified: needsToBeVerified, on: db, sort: sortDirection)
     }
 }
 

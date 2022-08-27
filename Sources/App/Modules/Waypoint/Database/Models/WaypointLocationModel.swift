@@ -62,7 +62,7 @@ final class WaypointLocationModel: DetailModel {
 }
 
 extension WaypointLocationModel {
-    var ownKeyPathForRepository: KeyPath<WaypointRepositoryModel, ChildrenProperty<WaypointRepositoryModel, WaypointLocationModel>> { \.$locations }
+    var ownKeyPathOnRepository: KeyPath<WaypointRepositoryModel, ChildrenProperty<WaypointRepositoryModel, WaypointLocationModel>> { \.$locations }
     var _$status: FluentKit.EnumProperty<WaypointLocationModel, AppApi.Status> { $status }
     var _$repository: FluentKit.ParentProperty<WaypointLocationModel, WaypointRepositoryModel> { $repository }
     var _$user: FluentKit.OptionalParentProperty<WaypointLocationModel, UserAccountModel> { $user }

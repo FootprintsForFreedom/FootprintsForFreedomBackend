@@ -26,7 +26,7 @@ protocol DetailModel: DatabaseModelInterface, Timestamped {
     var _$repository: ParentProperty<Self, Repository> { get }
     
     /// The key path for the detail model on the repository.
-    var ownKeyPathForRepository: KeyPath<Repository, ChildrenProperty<Repository, Self>> { get }
+    var ownKeyPathOnRepository: KeyPath<Repository, ChildrenProperty<Repository, Self>> { get }
     
     /// The user who created the detail model.
     ///
@@ -89,7 +89,7 @@ extension DetailModel {
         on db: Database,
         sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
     ) async throws -> Self? {
-        try await repository[keyPath: ownKeyPathForRepository].firstFor(needsToBeVerified: needsToBeVerified, on: db, sort: sortDirection)
+        try await repository[keyPath: ownKeyPathOnRepository].firstFor(needsToBeVerified: needsToBeVerified, on: db, sort: sortDirection)
     }
 }
 

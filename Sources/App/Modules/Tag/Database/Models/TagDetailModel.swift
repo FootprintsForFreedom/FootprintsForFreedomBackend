@@ -68,7 +68,7 @@ final class TagDetailModel: TitledDetailModel {
 }
 
 extension TagDetailModel {
-    var ownKeyPathForRepository: KeyPath<TagRepositoryModel, ChildrenProperty<TagRepositoryModel, TagDetailModel>> { \._$details }
+    var ownKeyPathOnRepository: KeyPath<TagRepositoryModel, ChildrenProperty<TagRepositoryModel, TagDetailModel>> { \._$details }
     var _$status: EnumProperty<TagDetailModel, Status> { $status }
     var _$language: ParentProperty<TagDetailModel, LanguageModel> { $language }
     var _$repository: ParentProperty<TagDetailModel, TagRepositoryModel> { $repository }
