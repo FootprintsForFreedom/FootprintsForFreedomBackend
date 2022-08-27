@@ -32,12 +32,21 @@ struct CleanupEmptyRepositoriesJob: AsyncScheduledJob {
             .query(on: db)
             .withDeleted()
             .filter(\._$id !~ parentIds) // select all repositories that are not in the parent ids array
-            .delete(force: true) // and delete them
+            .delete() // and delete them
+        
+        // Don't force delete the repositories since this function does not handle deleting media files.
+        // Instead only soft delete them, which also leaves the repositories recoverable.
+        // Then the cleanup soft deleted job will delete the repositories and handle deleting media files.
     }
     
     func run(context: QueueContext) async throws {
         /// All repository types to cleanup.
-        let repositoryTypes: [any RepositoryModel.Type] = [WaypointRepositoryModel.self, MediaRepositoryModel.self, TagRepositoryModel.self]
+        let repositoryTypes: [any RepositoryModel.Type] = [
+            WaypointRepositoryModel.self,
+            MediaRepositoryModel.self,
+            MediaFileModel.self,
+            TagRepositoryModel.self
+        ]
         
         try await repositoryTypes.asyncForEach { repositoryType in
             try await cleanupEmpty(repositoryType, on: context.application.db)
