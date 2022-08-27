@@ -41,6 +41,7 @@ final class MediaRepositoryModel: RepositoryModel, Tagable, Reportable {
 }
 
 extension MediaRepositoryModel {
+    static var ownKeyPathOnDetail: KeyPath<MediaDetailModel, ParentProperty<MediaDetailModel, MediaRepositoryModel>> { \.$repository }
     var _$details: ChildrenProperty<MediaRepositoryModel, MediaDetailModel> { $details }
     var _$reports: ChildrenProperty<MediaRepositoryModel, MediaReportModel> { $reports }
     var _$tags: SiblingsProperty<MediaRepositoryModel, TagRepositoryModel, MediaTagModel> { $tags }

@@ -33,9 +33,11 @@ final class CleanupEmptyRepositoriesJobTests: AppTestCase, TagTest, WaypointTest
         let tagRepository = try await TagRepositoryModel.find(tag.repository.requireID(), on: app.db)
         let mediaRepository = try await MediaRepositoryModel.find(media.repository.requireID(), on: app.db)
         let waypointRepository = try await WaypointRepositoryModel.find(waypoint.repository.requireID(), on: app.db)
+        let mediaFile = try await MediaFileModel.find(media.file.requireID(), on: app.db)
         XCTAssertNil(tagRepository)
         XCTAssertNil(mediaRepository)
         XCTAssertNil(waypointRepository)
+        XCTAssertNil(mediaFile)
     }
     
     func testSuccessfulCleanupEmptyRepositoriesJobDoesNotDeleteRepositoriesWithSoftDeletedChildren() async throws {
@@ -59,9 +61,11 @@ final class CleanupEmptyRepositoriesJobTests: AppTestCase, TagTest, WaypointTest
         let tagRepository = try await TagRepositoryModel.find(tag.repository.requireID(), on: app.db)
         let mediaRepository = try await MediaRepositoryModel.find(media.repository.requireID(), on: app.db)
         let waypointRepository = try await WaypointRepositoryModel.find(waypoint.repository.requireID(), on: app.db)
+        let mediaFile = try await MediaFileModel.find(media.file.requireID(), on: app.db)
         XCTAssertNotNil(tagRepository)
         XCTAssertNotNil(mediaRepository)
         XCTAssertNotNil(waypointRepository)
+        XCTAssertNotNil(mediaFile)
     }
     
     func testSuccessfulCleanupEmptyRepositoriesJobDoesNotDeleteRepositoriesWithChildren() async throws {
@@ -82,8 +86,10 @@ final class CleanupEmptyRepositoriesJobTests: AppTestCase, TagTest, WaypointTest
         let tagRepository = try await TagRepositoryModel.find(tag.repository.requireID(), on: app.db)
         let mediaRepository = try await MediaRepositoryModel.find(media.repository.requireID(), on: app.db)
         let waypointRepository = try await WaypointRepositoryModel.find(waypoint.repository.requireID(), on: app.db)
+        let mediaFile = try await MediaFileModel.find(media.file.requireID(), on: app.db)
         XCTAssertNotNil(tagRepository)
         XCTAssertNotNil(mediaRepository)
         XCTAssertNotNil(waypointRepository)
+        XCTAssertNotNil(mediaFile)
     }
 }

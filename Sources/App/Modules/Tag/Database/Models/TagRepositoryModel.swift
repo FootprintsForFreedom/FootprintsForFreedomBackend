@@ -38,6 +38,7 @@ final class TagRepositoryModel: RepositoryModel, Reportable {
 }
 
 extension TagRepositoryModel {
+    static var ownKeyPathOnDetail: KeyPath<TagDetailModel, ParentProperty<TagDetailModel, TagRepositoryModel>> { \.$repository }
     var _$details: ChildrenProperty<TagRepositoryModel, TagDetailModel> { $details }
     var _$reports: ChildrenProperty<TagRepositoryModel, TagReportModel> { $reports }
     var _$updatedAt: TimestampProperty<TagRepositoryModel, DefaultTimestampFormat> { $updatedAt }

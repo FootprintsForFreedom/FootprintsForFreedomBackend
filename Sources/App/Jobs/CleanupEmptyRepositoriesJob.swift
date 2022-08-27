@@ -18,14 +18,17 @@ struct CleanupEmptyRepositoriesJob: AsyncScheduledJob {
     private func cleanupEmpty<Repository>(_ repositoryType: Repository.Type, on db: Database) async throws where Repository: RepositoryModel {
         // SELECT * FROM ParentTable WHERE ParentID NOT IN (SELECT DISTINCT ParentID FROM ChildTable)
         
+//        let test = \Repository.details[keyPath: repositoryType.ownKeyPathOnDetail]
+        
         /// All ids of the repository models referenced in the detail models.
         let parentIds = try await repositoryType.Detail
             .query(on: db)
             .withDeleted()
-            .field(\._$repository.$id)
+            .field(repositoryType.ownKeyPathOnDetail.appending(path: \.$id))
             .unique()
             .all()
-            .map(\._$repository.id)
+            .map { $0[keyPath: repositoryType.ownKeyPathOnDetail].id }
+//            .map(repositoryType.ownKeyPathOnDetail.appending(path: \.id))
         
         /// Delete all repositories not in the ids referenced by the detail models.
         try await repositoryType

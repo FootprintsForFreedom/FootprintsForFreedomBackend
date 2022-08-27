@@ -39,6 +39,7 @@ final class WaypointRepositoryModel: RepositoryModel, Tagable, Reportable {
 }
 
 extension WaypointRepositoryModel {
+    static var ownKeyPathOnDetail: KeyPath<WaypointDetailModel, ParentProperty<WaypointDetailModel, WaypointRepositoryModel>> { \.$repository }
     var _$details: ChildrenProperty<WaypointRepositoryModel, WaypointDetailModel> { $details }
     var _$reports: ChildrenProperty<WaypointRepositoryModel, WaypointReportModel> { $reports }
     var _$tags: SiblingsProperty<WaypointRepositoryModel, TagRepositoryModel, WaypointTagModel> { $tags }

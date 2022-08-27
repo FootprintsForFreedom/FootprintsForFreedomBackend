@@ -20,6 +20,9 @@ protocol RepositoryModel: DatabaseModelInterface, Timestamped {
     /// The details belonging to the repository.
     var _$details: ChildrenProperty<Self, Detail> { get }
     
+    /// The key path for the repository model on the detail.
+    static var ownKeyPathOnDetail: KeyPath<Detail, ParentProperty<Detail, Self>> { get }
+    
     /// Deletes all dependencies of the repository model.
     /// - Parameter db: The database on which to delete the dependencies.
     func deleteDependencies(on db: Database) async throws
