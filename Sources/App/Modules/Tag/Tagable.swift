@@ -30,7 +30,7 @@ extension Tagable where Self: RepositoryModel {
             .all()
         
         return try await verifiedTags.concurrentCompactMap { tagRepository in
-            guard let detail = try await tagRepository.detail(for: languageCodesByPriority, needsToBeVerified: true, on: db) else {
+            guard let detail = try await tagRepository._$details.firstFor(languageCodesByPriority, needsToBeVerified: true, on: db) else {
                 return nil
             }
             return try .init(id: tagRepository.requireID(), title: detail.title, slug: detail.slug)

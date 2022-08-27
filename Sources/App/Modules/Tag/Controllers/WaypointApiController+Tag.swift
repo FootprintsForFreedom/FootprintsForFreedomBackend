@@ -27,8 +27,8 @@ extension WaypointApiController {
     private func getRepositoryWithDetails(_ req: Request) async throws -> (repository: WaypointRepositoryModel, detail: WaypointDetailModel, location: WaypointLocationModel) {
         let repository = try await repository(req)
         guard
-            let detail = try await repository.detail(for: req.allLanguageCodesByPriority(), needsToBeVerified: false, on: req.db),
-            let location = try await repository.location(needsToBeVerified: false, on: req.db)
+            let detail = try await repository._$details.firstFor(req.allLanguageCodesByPriority(), needsToBeVerified: false, on: req.db),
+            let location = try await repository.$locations.firstFor(needsToBeVerified: false, on: req.db)
         else {
             throw Abort(.badRequest)
         }
@@ -148,7 +148,7 @@ extension WaypointApiController {
         
         return try await unverifiedTags.concurrentMap { tag in
             let repository = try await tag.$tag.get(on: req.db)
-            guard let detail = try await repository.detail(for: req.allLanguageCodesByPriority(), needsToBeVerified: false, on: req.db) else {
+            guard let detail = try await repository._$details.firstFor(req.allLanguageCodesByPriority(), needsToBeVerified: false, on: req.db) else {
                 throw Abort(.internalServerError)
             }
             try await detail.$language.load(on: req.db)

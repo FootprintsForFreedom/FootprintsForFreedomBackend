@@ -23,7 +23,7 @@ extension MailTemplateRepresentable {
                 .query(on: req.db)
                 .filter(\.$slug, .equal, staticContentSlug)
                 .first(),
-            let detail = try await mailRepository.detail(for: req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db)
+            let detail = try await mailRepository._$details.firstFor(req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db)
         else {
             req.logger.log(level: .critical, "User verify account mail not found")
             throw Abort(.internalServerError)

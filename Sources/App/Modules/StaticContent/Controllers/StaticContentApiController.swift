@@ -111,7 +111,7 @@ struct StaticContentApiController: ApiRepositoryController {
             }
         }()
         
-        guard let repository, let detail = try await repository.detail(for: req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db) else {
+        guard let repository, let detail = try await repository._$details.firstFor(req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db) else {
             throw Abort(.notFound)
         }
         

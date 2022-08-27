@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class WaypointDetailModel: DetailModel {
+final class WaypointDetailModel: TitledDetailModel {
     typealias Module = WaypointModule
     
     struct FieldKeys {
@@ -72,6 +72,7 @@ final class WaypointDetailModel: DetailModel {
 }
 
 extension WaypointDetailModel {
+    var ownKeyPathForRepository: KeyPath<WaypointRepositoryModel, ChildrenProperty<WaypointRepositoryModel, WaypointDetailModel>> { \.$details }
     var _$status: EnumProperty<WaypointDetailModel, Status> { $status }
     var _$language: ParentProperty<WaypointDetailModel, LanguageModel> { $language }
     var _$updatedAt: TimestampProperty<WaypointDetailModel, DefaultTimestampFormat> { $updatedAt }

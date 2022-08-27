@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class TagDetailModel: DetailModel {
+final class TagDetailModel: TitledDetailModel {
     typealias Module = TagModule
     
     struct FieldKeys {
@@ -68,6 +68,7 @@ final class TagDetailModel: DetailModel {
 }
 
 extension TagDetailModel {
+    var ownKeyPathForRepository: KeyPath<TagRepositoryModel, ChildrenProperty<TagRepositoryModel, TagDetailModel>> { \._$details }
     var _$status: EnumProperty<TagDetailModel, Status> { $status }
     var _$language: ParentProperty<TagDetailModel, LanguageModel> { $language }
     var _$repository: ParentProperty<TagDetailModel, TagRepositoryModel> { $repository }

@@ -79,7 +79,7 @@ extension ApiListRepositoriesWithUnverifiedDetailsController {
         let allLanguageCodesByPriority = try await req.allLanguageCodesByPriority()
         return try await repositories
             .concurrentMap { repository in
-                guard let detail = try await repository.detail(for: allLanguageCodesByPriority, needsToBeVerified: false, on: req.db) else {
+                guard let detail = try await repository._$details.firstFor(allLanguageCodesByPriority, needsToBeVerified: false, on: req.db) else {
                     throw Abort(.internalServerError)
                 }
                 return try await listRepositoriesWithUnverifiedDetailsOutput(req, repository, detail)

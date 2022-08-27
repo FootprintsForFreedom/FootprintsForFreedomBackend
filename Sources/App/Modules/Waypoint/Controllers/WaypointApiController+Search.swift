@@ -89,7 +89,7 @@ extension WaypointApiController {
                 tagDetails.contains { $0.keywords.contains { $0.lowercased().contains(searchText) } }
             }
             .concurrentCompactMap { (detail, tagDetails) -> (waypoint: WaypointDetailModel, location: WaypointLocationModel)? in
-                guard let location = try await WaypointLocationModel.for(repositoryWithID: detail.$repository.id, needsToBeVerified: true, on: req.db) else {
+                guard let location = try await WaypointLocationModel.firstFor(repositoryWithID: detail.$repository.id, needsToBeVerified: true, on: req.db) else {
                     return nil
                 }
                 return (detail, location)
@@ -128,7 +128,7 @@ extension WaypointApiController {
         let getInRangeQuery = try req.query.decode(GetInRangeQuery.self)
         
         // filters all locations - also those that are no longer the newest ones
-        // this might lead to a few more wayponts in the results but should still be more performant than further in memory processing
+        // this might lead to a few more waypoints in the results but should still be more performant than further in memory processing
         let repositoryIds = try await WaypointLocationModel
             .query(on: req.db)
             .filter(\.$status ~~ [.verified, .deleteRequested])
@@ -145,8 +145,8 @@ extension WaypointApiController {
         return try await repositoryIds.concurrentCompactMap { repositoryId in
             guard
                 let repository = try await WaypointRepositoryModel.find(repositoryId, on: req.db),
-                let detail = try await repository.detail(for: req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db),
-                let location = try await repository.location(needsToBeVerified: true, on: req.db)
+                let detail = try await repository._$details.firstFor(req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db),
+                let location = try await repository.$locations.firstFor(needsToBeVerified: true, on: req.db)
             else {
                 return nil
             }

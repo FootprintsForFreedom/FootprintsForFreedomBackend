@@ -46,7 +46,7 @@ extension RepositoryDetailController {
     func detail(_ req: Request) async throws -> (DatabaseModel, Detail) {
         let queryBuilder = DatabaseModel.query(on: req.db)
         let repository = try await beforeDetail(req, queryBuilder).filter(\._$id == identifier(req)).first()
-        guard let repository = repository, let detail = try await repository.detail(for: req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db) else {
+        guard let repository = repository, let detail = try await repository._$details.firstFor(req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db) else {
             throw Abort(.notFound)
         }
         return try await afterDetail(req, repository, detail)

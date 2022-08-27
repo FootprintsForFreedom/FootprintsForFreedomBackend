@@ -47,29 +47,6 @@ extension WaypointRepositoryModel {
 }
 
 extension WaypointRepositoryModel {
-    func location(
-        needsToBeVerified: Bool,
-        on db: Database,
-        sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
-    ) async throws -> WaypointLocationModel? {
-        let verifiedLocation = try await $locations
-            .query(on: db)
-            .filter(\.$status ~~ [.verified, .deleteRequested])
-            .sort(\.$updatedAt, sortDirection)
-            .first()
-        
-        if let verifiedLocation = verifiedLocation {
-            return verifiedLocation
-        } else if needsToBeVerified == false {
-            return try await $locations
-                .query(on: db)
-                .sort(\.$updatedAt, sortDirection)
-                .first()
-        } else {
-            return nil
-        }
-    }
-    
     func deleteDependencies(on db: Database) async throws {
         try await $details.query(on: db).delete()
         try await $locations.query(on: db).delete()

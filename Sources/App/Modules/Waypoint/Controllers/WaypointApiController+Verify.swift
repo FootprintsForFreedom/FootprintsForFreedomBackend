@@ -76,7 +76,7 @@ extension WaypointApiController: ApiRepositoryVerificationController {
     }
     
     func listRepositoriesWithUnverifiedDetailsOutput(_ req: Request, _ repository: WaypointRepositoryModel, _ detail: Detail) async throws -> Waypoint.Detail.List {
-        guard let location = try await repository.location(needsToBeVerified: false, on: req.db) else {
+        guard let location = try await repository.$locations.firstFor(needsToBeVerified: false, on: req.db) else {
             throw Abort(.internalServerError)
         }
         
@@ -147,7 +147,7 @@ extension WaypointApiController: ApiRepositoryVerificationController {
     
     // POST: api/waypoints/:repositoryId/waypoints/verify/:waypointModelId
     func verifyDetailOutput(_ req: Request, _ repository: WaypointRepositoryModel, _ detail: Detail) async throws -> Waypoint.Detail.Detail {
-        guard let location = try await repository.location(needsToBeVerified: false, on: req.db) else {
+        guard let location = try await repository.$locations.firstFor(needsToBeVerified: false, on: req.db) else {
             throw Abort(.internalServerError)
         }
         
@@ -192,7 +192,7 @@ extension WaypointApiController: ApiRepositoryVerificationController {
         
         let allLanguageCodesByPriority = try await req.allLanguageCodesByPriority()
         
-        guard let detail = try await repository.detail(for: allLanguageCodesByPriority, needsToBeVerified: false, on: req.db) else {
+        guard let detail = try await repository._$details.firstFor(allLanguageCodesByPriority, needsToBeVerified: false, on: req.db) else {
             throw Abort(.internalServerError)
         }
         try await detail.$language.load(on: req.db)

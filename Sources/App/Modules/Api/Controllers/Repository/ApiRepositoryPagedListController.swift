@@ -48,7 +48,7 @@ extension ApiRepositoryPagedListController {
         return try await repositories
             .concurrentCompactMap { repository in
                 // get a detail model for the repository
-                guard let detail = try await repository.detail(for: req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db) else {
+                guard let detail = try await repository._$details.firstFor(req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db) else {
                     return nil
                 }
                 return try await listOutput(req, repository, detail)

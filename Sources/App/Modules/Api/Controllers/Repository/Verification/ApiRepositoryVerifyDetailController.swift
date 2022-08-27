@@ -54,7 +54,7 @@ extension ApiRepositoryVerifyDetailController {
     func beforeVerifyDetail(_ req: Request) async throws { }
     
     func verifyDetail(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws {
-        if let previousDetail = try await repository.detail(for: detail.language.languageCode, needsToBeVerified: true, on: req.db) {
+        if let previousDetail = try await repository._$details.firstFor(detail.language.languageCode, needsToBeVerified: true, on: req.db) {
             previousDetail.slug = try await previousDetail.generateSlug(with: .day, on: req.db)
             try await previousDetail.update(on: req.db)
         }

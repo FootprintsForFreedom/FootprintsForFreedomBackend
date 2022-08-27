@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class WaypointLocationModel: DatabaseModelInterface, Timestamped {
+final class WaypointLocationModel: DetailModel {
     typealias Module = WaypointModule
     
     struct FieldKeys {
@@ -62,6 +62,10 @@ final class WaypointLocationModel: DatabaseModelInterface, Timestamped {
 }
 
 extension WaypointLocationModel {
+    var ownKeyPathForRepository: KeyPath<WaypointRepositoryModel, ChildrenProperty<WaypointRepositoryModel, WaypointLocationModel>> { \.$locations }
+    var _$status: FluentKit.EnumProperty<WaypointLocationModel, AppApi.Status> { $status }
+    var _$repository: FluentKit.ParentProperty<WaypointLocationModel, WaypointRepositoryModel> { $repository }
+    var _$user: FluentKit.OptionalParentProperty<WaypointLocationModel, UserAccountModel> { $user }
     var _$updatedAt: TimestampProperty<WaypointLocationModel, DefaultTimestampFormat> { $updatedAt }
     var _$deletedAt: TimestampProperty<WaypointLocationModel, DefaultTimestampFormat> { $deletedAt }
 }
@@ -69,33 +73,5 @@ extension WaypointLocationModel {
 extension WaypointLocationModel {
     var location: Waypoint.Location {
         .init(latitude: self.latitude, longitude: self.longitude)
-    }
-}
-
-extension WaypointLocationModel {
-    static func `for`(
-        repositoryWithID repositoryId: UUID,
-        needsToBeVerified: Bool,
-        on db: Database,
-        sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
-    ) async throws -> WaypointLocationModel? {
-        let verifiedLocation = try await WaypointLocationModel
-            .query(on: db)
-            .filter(\.$repository.$id == repositoryId)
-            .filter(\.$status ~~ [.verified, .deleteRequested])
-            .sort(\.$updatedAt, sortDirection)
-            .first()
-        
-        if let verifiedLocation = verifiedLocation {
-            return verifiedLocation
-        } else if needsToBeVerified == false {
-            return try await WaypointLocationModel
-                .query(on: db)
-                .filter(\.$repository.$id == repositoryId)
-                .sort(\.$updatedAt, sortDirection)
-                .first()
-        } else {
-            return nil
-        }
     }
 }

@@ -77,8 +77,8 @@ struct WaypointApiController: ApiRepositoryController {
                 /// this should not fail since the beforeList only loads repositories which fullfill this criteria
                 /// however, to ensure the list works return nil otherwise and use compact map to ensure all other waypoints are returned
                 if
-                    let detail = try await repository.detail(for: req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db),
-                    let location = try await repository.location(needsToBeVerified: true, on: req.db)
+                    let detail = try await repository._$details.firstFor(req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db),
+                    let location = try await repository.$locations.firstFor(needsToBeVerified: true, on: req.db)
                 {
                     return try .init(
                         id: repository.requireID(),
@@ -95,7 +95,7 @@ struct WaypointApiController: ApiRepositoryController {
     // MARK: - Detail
     
     func detailOutput(_ req: Request, _ repository: WaypointRepositoryModel, _ detail: WaypointDetailModel) async throws -> Waypoint.Detail.Detail {
-        guard let location = try await repository.location(needsToBeVerified: true, on: req.db) else {
+        guard let location = try await repository.$locations.firstFor(needsToBeVerified: true, on: req.db) else {
             throw Abort(.notFound)
         }
         
@@ -212,7 +212,7 @@ struct WaypointApiController: ApiRepositoryController {
     }
     
     func updateResponse(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointDetailModel) async throws -> Response {
-        guard let location = try await repository.location(needsToBeVerified: false, on: req.db) else {
+        guard let location = try await repository.$locations.firstFor(needsToBeVerified: false, on: req.db) else {
             throw Abort(.internalServerError)
         }
         return try await detailOutput(req, repository, waypoint, location).encodeResponse(for: req)
@@ -276,7 +276,7 @@ struct WaypointApiController: ApiRepositoryController {
             try await newLocation.create(on: req.db)
             location = newLocation
         } else {
-            guard let storedLocation = try await repository.location(needsToBeVerified: false, on: req.db) else {
+            guard let storedLocation = try await repository.$locations.firstFor(needsToBeVerified: false, on: req.db) else {
                 throw Abort(.internalServerError)
             }
             location = storedLocation

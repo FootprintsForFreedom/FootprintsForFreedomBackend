@@ -14,7 +14,7 @@ extension Waypoint.Detail.Detail: InitializableById {
             return nil
         }
         let repository = try await detail.$repository.get(on: db)
-        guard let location = try await repository.location(needsToBeVerified: false, on: db) else {
+        guard let location = try await repository.$locations.firstFor(needsToBeVerified: false, on: db) else {
             throw Abort(.badRequest)
         }
         try await detail.$language.load(on: db)
