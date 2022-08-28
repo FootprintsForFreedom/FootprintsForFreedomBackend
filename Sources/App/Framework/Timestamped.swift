@@ -9,7 +9,7 @@ import Vapor
 import Fluent
 
 /// Represents a model with timestamps.
-protocol Timestamped: Fluent.Model {
+protocol Timestamped where Self: Fluent.Model {
     /// The date the model was created.
     var createdAt: Date? { get set }
     

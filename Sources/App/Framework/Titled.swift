@@ -8,7 +8,7 @@
 import Fluent
 
 /// Represents a model with a title
-protocol Titled: Fluent.Model {
+protocol Titled where Self: Fluent.Model {
     /// The model's title.
     var title: String { get set }
 }
