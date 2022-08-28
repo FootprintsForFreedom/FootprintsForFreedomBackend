@@ -73,7 +73,6 @@ final class StaticContentDetailModel: TitledDetailModel {
 }
 
 extension StaticContentDetailModel {
-    var ownKeyPathOnRepository: KeyPath<StaticContentRepositoryModel, ChildrenProperty<StaticContentRepositoryModel, StaticContentDetailModel>> { \._$details }
     var _$slug: FluentKit.FieldProperty<StaticContentDetailModel, String> { $slug }
     var _$status: FluentKit.EnumProperty<StaticContentDetailModel, AppApi.Status> { $status }
     var _$language: FluentKit.ParentProperty<StaticContentDetailModel, LanguageModel> { $language }

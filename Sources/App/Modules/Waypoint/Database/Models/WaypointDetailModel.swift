@@ -72,7 +72,6 @@ final class WaypointDetailModel: TitledDetailModel {
 }
 
 extension WaypointDetailModel {
-    var ownKeyPathOnRepository: KeyPath<WaypointRepositoryModel, ChildrenProperty<WaypointRepositoryModel, WaypointDetailModel>> { \.$details }
     var _$status: EnumProperty<WaypointDetailModel, Status> { $status }
     var _$language: ParentProperty<WaypointDetailModel, LanguageModel> { $language }
     var _$updatedAt: TimestampProperty<WaypointDetailModel, DefaultTimestampFormat> { $updatedAt }

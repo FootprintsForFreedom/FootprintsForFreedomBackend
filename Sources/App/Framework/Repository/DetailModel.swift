@@ -39,6 +39,8 @@ protocol DetailModel: DatabaseModelInterface, Timestamped {
 }
 
 extension DetailModel {
+    var ownKeyPathOnRepository: KeyPath<Repository, ChildrenProperty<Repository, Repository.Detail>> { \._$details }
+    
     /// Gets a detail model for a repository.
     ///
     /// This function always returns a verified detail when it exists, if `needsToBeVerified` is false it returns an unverified model when no verified detail exists, if false it returns nil.
