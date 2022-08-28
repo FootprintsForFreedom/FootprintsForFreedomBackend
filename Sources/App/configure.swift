@@ -28,9 +28,14 @@ public func configure(_ app: Application) throws {
         .on(.tuesday)
         .at(2, 0)
     
-    app.queues.schedule(CleanupSoftDeletedModelsJob())
+    app.queues.schedule(CleanupOldVerifiedModelsJob())
         .weekly()
         .on(.wednesday)
+        .at(2, 0)
+    
+    app.queues.schedule(CleanupSoftDeletedModelsJob())
+        .weekly()
+        .on(.thursday)
         .at(2, 0)
     
     /// Initialize SwiftSMTP
