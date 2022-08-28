@@ -27,7 +27,7 @@ struct CleanupOldVerifiedModelsJob: AsyncScheduledJob {
             .all()
         
         try await potentialOldVerifiedModels.asyncForEach { model in
-            if let currentVerifiedModel = try await model.firstFor(model.repository, model.language.languageCode, needsToBeVerified: true, on: app.db), currentVerifiedModel.id != model.id {
+            if let currentVerifiedModel = try await modelType.firstFor(model._$repository.id, model.language.languageCode, needsToBeVerified: true, on: app.db), currentVerifiedModel.id != model.id {
                 if let model = model as? MediaDetailModel {
                     try await model.$media.load(on: app.db)
                     let fileDetailsCount = try await model.media.$details.query(on: app.db).count()
@@ -57,7 +57,7 @@ struct CleanupOldVerifiedModelsJob: AsyncScheduledJob {
             .all()
         
         try await potentialOldVerifiedModels.asyncForEach { model in
-            if let currentVerifiedModel = try await model.firstFor(model.repository, needsToBeVerified: true, on: app.db), currentVerifiedModel.id != model.id {
+            if let currentVerifiedModel = try await modelType.firstFor(model._$repository.id, needsToBeVerified: true, on: app.db), currentVerifiedModel.id != model.id {
                 // delete the model but still leave it recoverable since it is not force deleted.
                 try await model.delete(on: app.db)
             }
