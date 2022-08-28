@@ -11,7 +11,14 @@ import Queues
 
 /// A job which clean up old verified models after a certain time.
 struct CleanupOldVerifiedModelsJob: AsyncScheduledJob {
-    
+    /// Cleanup old verified titled detail models older than specified in the environment.
+    ///
+    /// This function deletes a verified titled detail model if a newer one in the same language exists.
+    ///
+    /// If no lifetime for old verified models is set no models will be deleted.
+    /// - Parameters:
+    ///   - modelType: A titled detail model type.
+    ///   - app: The app on which to cleanup the old models.
     func cleanupOldVerified<Model>(_ modelType: Model.Type, on app: Application) async throws where Model: TitledDetailModel {
         /// Get the old verified lifetime or return.
         guard let oldVerifiedLifetime = Environment.oldVerifiedLifetime else {
@@ -43,6 +50,14 @@ struct CleanupOldVerifiedModelsJob: AsyncScheduledJob {
         }
     }
     
+    /// Cleanup old verified report models older than specified in the environment.
+    ///
+    /// This function deletes a verified report if it is older than specified in the environment.
+    ///
+    /// If no lifetime for old verified models is set no reports will be deleted.
+    /// - Parameters:
+    ///   - modelType: A report model type.
+    ///   - app: The app on which to cleanup the old models.
     func cleanupOldVerified<Model>(_ modelType: Model.Type, on app: Application) async throws where Model: ReportModel {
         /// Get the old verified lifetime or return.
         guard let oldVerifiedLifetime = Environment.oldVerifiedLifetime else {
@@ -57,6 +72,14 @@ struct CleanupOldVerifiedModelsJob: AsyncScheduledJob {
             .delete() // directly delete the reports since they don't need a replacement/successor
     }
     
+    /// Cleanup old verified detail models older than specified in the environment.
+    ///
+    /// This function deletes a verified detail model if a newer one exist.
+    ///
+    /// If no lifetime for old verified models is set no models will be deleted.
+    /// - Parameters:
+    ///   - modelType: A detail model type.
+    ///   - app: The app on which to cleanup the old models.
     func cleanupOldVerified<Model>(_ modelType: Model.Type, on app: Application) async throws where Model: DetailModel {
         /// Get the old verified lifetime or return.
         guard let oldVerifiedLifetime = Environment.oldVerifiedLifetime else {

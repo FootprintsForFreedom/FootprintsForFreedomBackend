@@ -9,6 +9,11 @@ import Vapor
 import Fluent
 
 extension Timestamped {
+    /// Sets a timestamp at the given path further back than the specified time in days.
+    /// - Parameters:
+    ///   - path: The path of the timestamp to edit.
+    ///   - timeInDays: The time in days to set the date back.
+    ///   - db: The database on which to change the timestamp.
     func `set`(_ path: ReferenceWritableKeyPath<any Timestamped, Date?>, furtherBackThan timeInDays: Int?, on db: Database) async throws {
         guard let timeInDays else {
             return
