@@ -77,7 +77,11 @@ struct CleanupOldVerifiedModelsJob: AsyncScheduledJob {
         ]
         
         try await detailObjectTypes.asyncForEach { detailObjectType in
-            try await cleanupOldVerified(detailObjectType, on: context.application)
+            if let detailObjectType = detailObjectType as? any TitledDetailModel.Type {
+                try await cleanupOldVerified(detailObjectType, on: context.application)
+            } else {
+                try await cleanupOldVerified(detailObjectType, on: context.application)
+            }
         }
     }
 }
