@@ -89,7 +89,7 @@ extension WaypointApiController {
                 tagDetails.contains { $0.keywords.contains { $0.lowercased().contains(searchText) } }
             }
             .concurrentCompactMap { (detail, tagDetails) -> (waypoint: WaypointDetailModel, location: WaypointLocationModel)? in
-                guard let location = try await WaypointLocationModel.firstFor(repositoryWithID: detail.$repository.id, needsToBeVerified: true, on: req.db) else {
+                guard let location = try await WaypointLocationModel.firstFor(detail.$repository.id, needsToBeVerified: true, on: req.db) else {
                     return nil
                 }
                 return (detail, location)

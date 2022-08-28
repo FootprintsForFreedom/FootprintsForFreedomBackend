@@ -49,7 +49,7 @@ extension DetailModel {
     ///   - sortDirection: The direction in which the detail's `updatedAt` timestamp should be sorted.
     /// - Returns: The first detail model matching the requirements or nil.
     static func firstFor(
-        repositoryWithID repositoryId: UUID,
+        _ repositoryId: UUID,
         needsToBeVerified: Bool,
         on db: Database,
         sort sortDirection: DatabaseQuery.Sort.Direction = .descending // newest first by default
