@@ -82,6 +82,30 @@ extension WaypointDetailModel {
         try await waypoint.create(on: db)
         return waypoint
     }
+    
+    @discardableResult
+     func updateWith(
+        title: String = "Updated Waypoint Title \(UUID())",
+        slug: String? = nil,
+        detailText: String = "Updated Waypoint detail text",
+        languageId: UUID? = nil,
+        userId: UUID? = nil,
+        status: Status = .pending,
+        on db: Database
+     ) async throws -> Self {
+         let slug = slug ?? title.appending(" ").appending(Date().toString(with: .day)).slugify()
+         let waypoint = Self.init(
+             status: status,
+             title: title,
+             slug: slug,
+             detailText: detailText,
+             languageId: languageId ?? self.$language.id,
+             repositoryId: self.$repository.id,
+             userId: userId ?? self.$user.id!
+         )
+         try await waypoint.create(on: db)
+         return waypoint
+     }
 }
 
 extension WaypointLocationModel {
@@ -98,6 +122,24 @@ extension WaypointLocationModel {
             longitude: location.longitude,
             repositoryId: repositoryId,
             userId: userId
+        )
+        try await location.create(on: db)
+        return location
+    }
+    
+   @discardableResult
+    func updateWith(
+        location: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
+        userId: UUID? = nil,
+        status: Status = .pending,
+        on db: Database
+    ) async throws -> Self {
+        let location = Self.init(
+            status: status,
+            latitude: location.latitude,
+            longitude: location.longitude,
+            repositoryId: self.$repository.id,
+            userId: userId ?? self.$user.id!
         )
         try await location.create(on: db)
         return location

@@ -77,4 +77,29 @@ extension StaticContentDetailModel {
         try await detail.create(on: db)
         return detail
     }
+    
+    @discardableResult
+    func updateWith(
+        moderationTitle: String = "Updated Moderation Title \(UUID())",
+        slug: String? = nil,
+        title: String = "Updated title \(UUID())",
+        text: String = "Some updated text",
+        languageId: UUID? = nil,
+        userId: UUID? = nil,
+        on db: Database
+    ) async throws -> Self {
+        let slug = slug ?? moderationTitle.appending(" ").appending(Date().toString(with: .day)).slugify()
+        let detail = Self.init(
+            moderationTitle: moderationTitle,
+            slug: slug,
+            title: title,
+            text: text,
+            languageId: languageId ?? self.$language.id,
+            repositoryId: self.$repository.id,
+            userId: userId ?? self.$user.id!
+        )
+        try await detail.create(on: db)
+        return detail
+    }
+
 }

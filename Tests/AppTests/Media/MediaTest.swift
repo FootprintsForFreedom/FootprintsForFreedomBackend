@@ -16,7 +16,7 @@ extension MediaTest {
     
     func createNewMedia(
         title: String = "New Media Title \(UUID())",
-        detailText: String = "New Media Desscription",
+        detailText: String = "New Media Description",
         source: String = "New Media Source",
         group: Media.Detail.Group = .image,
         status: Status = .pending,
@@ -113,6 +113,34 @@ extension MediaDetailModel {
             repositoryId: repositoryId,
             fileId: fileId,
             userId: userId
+        )
+        try await mediaDetail.create(on: db)
+        return mediaDetail
+    }
+    
+    @discardableResult
+    func updateWith(
+        status: Status = .pending,
+        title: String = "Updated Media Title \(UUID())",
+        slug: String? = nil,
+        detailText: String = "Updated Media Description",
+        source: String = "Updated Media Source",
+        languageId: UUID? = nil,
+        fileId: UUID? = nil,
+        userId: UUID? = nil,
+        on db: Database
+    ) async throws -> Self {
+        let slug = slug ?? title.appending(" ").appending(Date().toString(with: .day)).slugify()
+        let mediaDetail = Self.init(
+            status: status,
+            title: title,
+            slug: slug,
+            detailText: detailText,
+            source: source,
+            languageId: languageId ?? self.$language.id,
+            repositoryId: self.$repository.id,
+            fileId: fileId ?? self.$media.id,
+            userId: userId ?? self.$user.id!
         )
         try await mediaDetail.create(on: db)
         return mediaDetail

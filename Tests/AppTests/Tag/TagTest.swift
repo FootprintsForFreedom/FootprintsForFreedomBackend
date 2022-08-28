@@ -75,4 +75,28 @@ extension TagDetailModel {
         try await detail.create(on: db)
         return detail
     }
+    
+    @discardableResult
+    func updateWith(
+        status: Status = .pending,
+        title: String = "Updated Tag Title \(UUID())",
+        slug: String? = nil,
+        keywords: [String] = (1...5).map { _ in String(Int.random(in: 10...100)) }, // array with 5 random numbers between 10 and 100,
+        languageId: UUID? = nil,
+        userId: UUID? = nil,
+        on db: Database
+    ) async throws -> Self {
+        let slug = slug ?? title.appending(" ").appending(Date().toString(with: .day)).slugify()
+        let detail = Self.init(
+            status: status,
+            title: title,
+            slug: slug,
+            keywords: keywords,
+            languageId: languageId ?? self.$language.id,
+            repositoryId: self.$repository.id,
+            userId: userId ?? self.$user.id!
+        )
+        try await detail.create(on: db)
+        return detail
+    }
 }
