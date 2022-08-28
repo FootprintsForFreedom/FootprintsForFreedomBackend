@@ -43,6 +43,20 @@ struct CleanupOldVerifiedModelsJob: AsyncScheduledJob {
         }
     }
     
+    func cleanupOldVerified<Model>(_ modelType: Model.Type, on app: Application) async throws where Model: ReportModel {
+        /// Get the old verified lifetime or return.
+        guard let oldVerifiedLifetime = Environment.oldVerifiedLifetime else {
+            return
+        }
+        let dayInSeconds = 60 * 60 * 24
+        
+        try await modelType
+            .query(on: app.db)
+            .filter(\._$status == .verified)
+            .filter(\._$updatedAt < Date().addingTimeInterval(TimeInterval(-1 * oldVerifiedLifetime * dayInSeconds))) // only select models that were updated before the specified amount of days
+            .delete() // directly delete the reports since they don't need a replacement/successor
+    }
+    
     func cleanupOldVerified<Model>(_ modelType: Model.Type, on app: Application) async throws where Model: DetailModel {
         /// Get the old verified lifetime or return.
         guard let oldVerifiedLifetime = Environment.oldVerifiedLifetime else {
@@ -70,14 +84,19 @@ struct CleanupOldVerifiedModelsJob: AsyncScheduledJob {
         /// All detail model types to cleanup.
         let detailObjectTypes: [any DetailModel.Type] = [
             TagDetailModel.self,
+            TagReportModel.self,
             MediaDetailModel.self,
+            MediaReportModel.self,
             WaypointDetailModel.self,
             WaypointLocationModel.self,
+            WaypointReportModel.self,
             StaticContentDetailModel.self,
         ]
         
         try await detailObjectTypes.asyncForEach { detailObjectType in
             if let detailObjectType = detailObjectType as? any TitledDetailModel.Type {
+                try await cleanupOldVerified(detailObjectType, on: context.application)
+            } else if let detailObjectType = detailObjectType as? any ReportModel.Type {
                 try await cleanupOldVerified(detailObjectType, on: context.application)
             } else {
                 try await cleanupOldVerified(detailObjectType, on: context.application)
