@@ -9,12 +9,12 @@ import Vapor
 import Fluent
 
 extension Timestamped {
-    func setDeletedAtFurtherThan(_ timeInDays: Int?, on db: Database) async throws {
+    func `set`(_ path: ReferenceWritableKeyPath<any Timestamped, Date?>, furtherBackThan timeInDays: Int?, on db: Database) async throws {
         guard let timeInDays else {
             return
         }
         let dayInSeconds = 60 * 60 * 24
-        self.deletedAt = Date().addingTimeInterval(TimeInterval(-1 * dayInSeconds * timeInDays))
+        self[keyPath: path] = Date().addingTimeInterval(TimeInterval(-1 * dayInSeconds * timeInDays))
         try await self.update(on: db)
     }
 }

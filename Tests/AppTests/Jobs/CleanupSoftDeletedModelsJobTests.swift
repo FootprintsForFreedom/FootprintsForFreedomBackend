@@ -11,6 +11,16 @@ import Fluent
 import Queues
 import Spec
 
+extension Model {
+    static func findWithDeleted(
+        _ id: Self.IDValue?,
+        on database: Database
+    ) async throws -> Self? {
+        guard let id else { return nil }
+        return try await Self.query(on: database).withDeleted().filter(\._$id == id).first()
+    }
+}
+
 final class CleanupSoftDeletedModelsJobTests: AppTestCase, TagTest, WaypointTest, MediaTest, StaticContentTest {
     func testSuccessfulCleanupSoftDeletedModelsJobDeletesModelsOlderThanSpecifiedInEnvironment() async throws {
         let tag = try await createNewTag()
@@ -21,19 +31,19 @@ final class CleanupSoftDeletedModelsJobTests: AppTestCase, TagTest, WaypointTest
         let createdWaypointReport = try await createNewWaypointReport(waypoint: waypoint)
         let staticContent = try await createNewStaticContent()
         
-        try await tag.repository.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
-        try await tag.detail.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
-        try await createdTagReport.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
-        try await media.repository.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
-        try await media.detail.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
-        try await media.file.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
-        try await createdMediaReport.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
-        try await waypoint.repository.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
-        try await waypoint.detail.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
-        try await waypoint.location.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
-        try await createdWaypointReport.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
-        try await staticContent.repository.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
-        try await staticContent.detail.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
+        try await tag.repository.set(\.deletedAt, furtherBackThan: Environment.softDeletedLifetime, on: app.db)
+        try await tag.detail.set(\.deletedAt, furtherBackThan: Environment.softDeletedLifetime, on: app.db)
+        try await createdTagReport.set(\.deletedAt, furtherBackThan: Environment.softDeletedLifetime, on: app.db)
+        try await media.repository.set(\.deletedAt, furtherBackThan: Environment.softDeletedLifetime, on: app.db)
+        try await media.detail.set(\.deletedAt, furtherBackThan: Environment.softDeletedLifetime, on: app.db)
+        try await media.file.set(\.deletedAt, furtherBackThan: Environment.softDeletedLifetime, on: app.db)
+        try await createdMediaReport.set(\.deletedAt, furtherBackThan: Environment.softDeletedLifetime, on: app.db)
+        try await waypoint.repository.set(\.deletedAt, furtherBackThan: Environment.softDeletedLifetime, on: app.db)
+        try await waypoint.detail.set(\.deletedAt, furtherBackThan: Environment.softDeletedLifetime, on: app.db)
+        try await waypoint.location.set(\.deletedAt, furtherBackThan: Environment.softDeletedLifetime, on: app.db)
+        try await createdWaypointReport.set(\.deletedAt, furtherBackThan: Environment.softDeletedLifetime, on: app.db)
+        try await staticContent.repository.set(\.deletedAt, furtherBackThan: Environment.softDeletedLifetime, on: app.db)
+        try await staticContent.detail.set(\.deletedAt, furtherBackThan: Environment.softDeletedLifetime, on: app.db)
         
         let context = QueueContext(
                     queueName: .init(string: "test"),
@@ -42,34 +52,34 @@ final class CleanupSoftDeletedModelsJobTests: AppTestCase, TagTest, WaypointTest
                     logger: app.logger,
                     on: app.eventLoopGroup.next()
                 )
-        
+
         try await CleanupSoftDeletedModelsJob().run(context: context)
         
-        let tagRepository = try await TagRepositoryModel.find(tag.repository.requireID(), on: app.db)
+        let tagRepository = try await TagRepositoryModel.findWithDeleted(tag.repository.requireID(), on: app.db)
         XCTAssertNil(tagRepository)
-        let tagDetail = try await TagDetailModel.find(tag.detail.requireID(), on: app.db)
+        let tagDetail = try await TagDetailModel.findWithDeleted(tag.detail.requireID(), on: app.db)
         XCTAssertNil(tagDetail)
-        let tagReport = try await TagReportModel.find(createdTagReport.requireID(), on: app.db)
+        let tagReport = try await TagReportModel.findWithDeleted(createdTagReport.requireID(), on: app.db)
         XCTAssertNil(tagReport)
-        let mediaRepository = try await MediaRepositoryModel.find(media.repository.requireID(), on: app.db)
+        let mediaRepository = try await MediaRepositoryModel.findWithDeleted(media.repository.requireID(), on: app.db)
         XCTAssertNil(mediaRepository)
-        let mediaDetail = try await MediaDetailModel.find(media.detail.requireID(), on: app.db)
+        let mediaDetail = try await MediaDetailModel.findWithDeleted(media.detail.requireID(), on: app.db)
         XCTAssertNil(mediaDetail)
-        let mediaFile = try await MediaFileModel.find(media.file.requireID(), on: app.db)
+        let mediaFile = try await MediaFileModel.findWithDeleted(media.file.requireID(), on: app.db)
         XCTAssertNil(mediaFile)
-        let mediaReport = try await MediaReportModel.find(createdMediaReport.requireID(), on: app.db)
+        let mediaReport = try await MediaReportModel.findWithDeleted(createdMediaReport.requireID(), on: app.db)
         XCTAssertNil(mediaReport)
-        let waypointRepository = try await WaypointRepositoryModel.find(waypoint.repository.requireID(), on: app.db)
+        let waypointRepository = try await WaypointRepositoryModel.findWithDeleted(waypoint.repository.requireID(), on: app.db)
         XCTAssertNil(waypointRepository)
-        let waypointDetail = try await WaypointDetailModel.find(waypoint.detail.requireID(), on: app.db)
+        let waypointDetail = try await WaypointDetailModel.findWithDeleted(waypoint.detail.requireID(), on: app.db)
         XCTAssertNil(waypointDetail)
-        let waypointLocation = try await WaypointLocationModel.find(waypoint.location.requireID(), on: app.db)
+        let waypointLocation = try await WaypointLocationModel.findWithDeleted(waypoint.location.requireID(), on: app.db)
         XCTAssertNil(waypointLocation)
-        let waypointReport = try await WaypointReportModel.find(createdWaypointReport.requireID(), on: app.db)
+        let waypointReport = try await WaypointReportModel.findWithDeleted(createdWaypointReport.requireID(), on: app.db)
         XCTAssertNil(waypointReport)
-        let staticContentRepository = try await StaticContentRepositoryModel.find(staticContent.repository.requireID(), on: app.db)
+        let staticContentRepository = try await StaticContentRepositoryModel.findWithDeleted(staticContent.repository.requireID(), on: app.db)
         XCTAssertNil(staticContentRepository)
-        let staticContentDetail = try await StaticContentDetailModel.find(staticContent.detail.requireID(), on: app.db)
+        let staticContentDetail = try await StaticContentDetailModel.findWithDeleted(staticContent.detail.requireID(), on: app.db)
         XCTAssertNil(staticContentDetail)
     }
     
@@ -92,31 +102,31 @@ final class CleanupSoftDeletedModelsJobTests: AppTestCase, TagTest, WaypointTest
         
         try await CleanupSoftDeletedModelsJob().run(context: context)
         
-        let tagRepository = try await TagRepositoryModel.find(tag.repository.requireID(), on: app.db)
+        let tagRepository = try await TagRepositoryModel.findWithDeleted(tag.repository.requireID(), on: app.db)
         XCTAssertNotNil(tagRepository)
-        let tagDetail = try await TagDetailModel.find(tag.detail.requireID(), on: app.db)
+        let tagDetail = try await TagDetailModel.findWithDeleted(tag.detail.requireID(), on: app.db)
         XCTAssertNotNil(tagDetail)
-        let tagReport = try await TagReportModel.find(createdTagReport.requireID(), on: app.db)
+        let tagReport = try await TagReportModel.findWithDeleted(createdTagReport.requireID(), on: app.db)
         XCTAssertNotNil(tagReport)
-        let mediaRepository = try await MediaRepositoryModel.find(media.repository.requireID(), on: app.db)
+        let mediaRepository = try await MediaRepositoryModel.findWithDeleted(media.repository.requireID(), on: app.db)
         XCTAssertNotNil(mediaRepository)
-        let mediaDetail = try await MediaDetailModel.find(media.detail.requireID(), on: app.db)
+        let mediaDetail = try await MediaDetailModel.findWithDeleted(media.detail.requireID(), on: app.db)
         XCTAssertNotNil(mediaDetail)
-        let mediaFile = try await MediaFileModel.find(media.file.requireID(), on: app.db)
+        let mediaFile = try await MediaFileModel.findWithDeleted(media.file.requireID(), on: app.db)
         XCTAssertNotNil(mediaFile)
-        let mediaReport = try await MediaReportModel.find(createdMediaReport.requireID(), on: app.db)
+        let mediaReport = try await MediaReportModel.findWithDeleted(createdMediaReport.requireID(), on: app.db)
         XCTAssertNotNil(mediaReport)
-        let waypointRepository = try await WaypointRepositoryModel.find(waypoint.repository.requireID(), on: app.db)
+        let waypointRepository = try await WaypointRepositoryModel.findWithDeleted(waypoint.repository.requireID(), on: app.db)
         XCTAssertNotNil(waypointRepository)
-        let waypointDetail = try await WaypointDetailModel.find(waypoint.detail.requireID(), on: app.db)
+        let waypointDetail = try await WaypointDetailModel.findWithDeleted(waypoint.detail.requireID(), on: app.db)
         XCTAssertNotNil(waypointDetail)
-        let waypointLocation = try await WaypointLocationModel.find(waypoint.location.requireID(), on: app.db)
+        let waypointLocation = try await WaypointLocationModel.findWithDeleted(waypoint.location.requireID(), on: app.db)
         XCTAssertNotNil(waypointLocation)
-        let waypointReport = try await WaypointReportModel.find(createdWaypointReport.requireID(), on: app.db)
+        let waypointReport = try await WaypointReportModel.findWithDeleted(createdWaypointReport.requireID(), on: app.db)
         XCTAssertNotNil(waypointReport)
-        let staticContentRepository = try await StaticContentRepositoryModel.find(staticContent.repository.requireID(), on: app.db)
+        let staticContentRepository = try await StaticContentRepositoryModel.findWithDeleted(staticContent.repository.requireID(), on: app.db)
         XCTAssertNotNil(staticContentRepository)
-        let staticContentDetail = try await StaticContentDetailModel.find(staticContent.detail.requireID(), on: app.db)
+        let staticContentDetail = try await StaticContentDetailModel.findWithDeleted(staticContent.detail.requireID(), on: app.db)
         XCTAssertNotNil(staticContentDetail)
     }
 }

@@ -11,10 +11,10 @@ import Fluent
 /// Represents a model with timestamps.
 protocol Timestamped: Fluent.Model {
     /// The date the model was created.
-    var createdAt: Date? { get }
+    var createdAt: Date? { get set }
     
     /// The date the model was last updated.
-    var updatedAt: Date? { get }
+    var updatedAt: Date? { get set }
     /// The date the model was last updated.
     var _$updatedAt: TimestampProperty<Self, DefaultTimestampFormat> { get }
     
