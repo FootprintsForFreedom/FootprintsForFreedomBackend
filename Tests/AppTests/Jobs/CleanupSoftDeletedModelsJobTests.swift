@@ -11,17 +11,6 @@ import Fluent
 import Queues
 import Spec
 
-extension Timestamped {
-    func setDeletedAtFurtherThanSoftDeletedLifetime(_ db: Database) async throws {
-        guard let softDeletedLifetime = Environment.softDeletedLifetime else {
-            return
-        }
-        let dayInSeconds = 60 * 60 * 24
-        self.deletedAt = Date().addingTimeInterval(TimeInterval(-1 * dayInSeconds * (softDeletedLifetime + 1)))
-        try await self.update(on: db)
-    }
-}
-
 final class CleanupSoftDeletedModelsJobTests: AppTestCase, TagTest, WaypointTest, MediaTest, StaticContentTest {
     func testSuccessfulCleanupSoftDeletedModelsJobDeletesModelsOlderThanSpecifiedInEnvironment() async throws {
         let tag = try await createNewTag()
@@ -32,19 +21,19 @@ final class CleanupSoftDeletedModelsJobTests: AppTestCase, TagTest, WaypointTest
         let createdWaypointReport = try await createNewWaypointReport(waypoint: waypoint)
         let staticContent = try await createNewStaticContent()
         
-        try await tag.repository.setDeletedAtFurtherThanSoftDeletedLifetime(app.db)
-        try await tag.detail.setDeletedAtFurtherThanSoftDeletedLifetime(app.db)
-        try await createdTagReport.setDeletedAtFurtherThanSoftDeletedLifetime(app.db)
-        try await media.repository.setDeletedAtFurtherThanSoftDeletedLifetime(app.db)
-        try await media.detail.setDeletedAtFurtherThanSoftDeletedLifetime(app.db)
-        try await media.file.setDeletedAtFurtherThanSoftDeletedLifetime(app.db)
-        try await createdMediaReport.setDeletedAtFurtherThanSoftDeletedLifetime(app.db)
-        try await waypoint.repository.setDeletedAtFurtherThanSoftDeletedLifetime(app.db)
-        try await waypoint.detail.setDeletedAtFurtherThanSoftDeletedLifetime(app.db)
-        try await waypoint.location.setDeletedAtFurtherThanSoftDeletedLifetime(app.db)
-        try await createdWaypointReport.setDeletedAtFurtherThanSoftDeletedLifetime(app.db)
-        try await staticContent.repository.setDeletedAtFurtherThanSoftDeletedLifetime(app.db)
-        try await staticContent.detail.setDeletedAtFurtherThanSoftDeletedLifetime(app.db)
+        try await tag.repository.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
+        try await tag.detail.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
+        try await createdTagReport.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
+        try await media.repository.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
+        try await media.detail.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
+        try await media.file.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
+        try await createdMediaReport.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
+        try await waypoint.repository.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
+        try await waypoint.detail.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
+        try await waypoint.location.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
+        try await createdWaypointReport.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
+        try await staticContent.repository.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
+        try await staticContent.detail.setDeletedAtFurtherThan(Environment.softDeletedLifetime, on: app.db)
         
         let context = QueueContext(
                     queueName: .init(string: "test"),
