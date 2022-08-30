@@ -16,7 +16,7 @@ final class MediaDetailModel: TitledDetailModel {
             static var status: FieldKey { "status" }
             static var title: FieldKey { "title" }
             static var slug: FieldKey { "slug" }
-            static var detailText: FieldKey { "detailText" }
+            static var detailText: FieldKey { "detail_text" }
             static var source: FieldKey { "source" }
             static var repositoryId: FieldKey { "repository_id" }
             static var mediaId: FieldKey { "media_id" }

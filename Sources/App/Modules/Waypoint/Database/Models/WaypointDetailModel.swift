@@ -16,7 +16,7 @@ final class WaypointDetailModel: TitledDetailModel {
             static var status: FieldKey { "status" }
             static var title: FieldKey { "title" }
             static var slug: FieldKey { "slug" }
-            static var detailText: FieldKey { "detailText" }
+            static var detailText: FieldKey { "detail_text" }
             static var languageId: FieldKey { "language_id" }
             static var repositoryId: FieldKey { "repository_id" }
             static var userId: FieldKey { "user_id" }
