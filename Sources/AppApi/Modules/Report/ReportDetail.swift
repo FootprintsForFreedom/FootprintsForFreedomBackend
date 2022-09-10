@@ -41,8 +41,6 @@ public extension Report {
         public let reason: String
         /// The detail object which was visible while the report was created. This is so it is known to which language this report belongs and wether the detail object has since been updated.
         public let visibleDetail: DetailModel?
-        /// The status of the report.
-        public let status: Status
         /// Id uniquely identifying the report.
         public let reportId: UUID
         
@@ -53,15 +51,13 @@ public extension Report {
         ///   - slug: The slug uniquely identifying the report.
         ///   - reason: The reason to report the detail object.
         ///   - visibleDetail: The detail object which was visible while the report was created. This is so it is known to which language this report belongs and wether the detail object has since been updated.
-        ///   - status: The status of the report.
         ///   - reportId: Id uniquely identifying the report.
-        public init(id: UUID, title: String, slug: String, reason: String, visibleDetail: DetailModel?, status: Status, reportId: UUID) {
+        public init(id: UUID, title: String, slug: String, reason: String, visibleDetail: DetailModel?, reportId: UUID) {
             self.id = id
             self.title = title
             self.slug = slug
             self.reason = reason
             self.visibleDetail = visibleDetail
-            self.status = status
             self.reportId = reportId
         }
     }

@@ -13,7 +13,6 @@ final class StaticContentDetailModel: TitledDetailModel {
     
     struct FieldKeys {
         struct v1 {
-            static var status: FieldKey { "status" }
             static var moderationTitle: FieldKey { "moderation_title" }
             static var title: FieldKey { "title" }
             static var slug: FieldKey { "slug" }
@@ -21,6 +20,7 @@ final class StaticContentDetailModel: TitledDetailModel {
             static var languageId: FieldKey { "language_id" }
             static var repositoryId: FieldKey { "repository_id" }
             static var userId: FieldKey { "user_id" }
+            static var verifiedAt: FieldKey { "verified_at" }
             static var createdAt: FieldKey { "created_at" }
             static var updatedAt: FieldKey { "updated_at" }
             static var deletedAt: FieldKey { "deleted_at" }
@@ -28,7 +28,6 @@ final class StaticContentDetailModel: TitledDetailModel {
     }
     
     @ID() var id: UUID?
-    @Enum(key: FieldKeys.v1.status) var status: Status
     
     @Field(key: FieldKeys.v1.moderationTitle) var moderationTitle: String
     @Field(key: FieldKeys.v1.title) var title: String
@@ -40,6 +39,8 @@ final class StaticContentDetailModel: TitledDetailModel {
     @Parent(key: FieldKeys.v1.repositoryId) var repository: StaticContentRepositoryModel
     @OptionalParent(key: FieldKeys.v1.userId) var user: UserAccountModel?
     
+    @OptionalField(key: FieldKeys.v1.verifiedAt) var verifiedAt: Date?
+    
     @Timestamp(key: FieldKeys.v1.createdAt, on: .create) var createdAt: Date?
     @Timestamp(key: FieldKeys.v1.updatedAt, on: .update) var updatedAt: Date?
     
@@ -47,7 +48,7 @@ final class StaticContentDetailModel: TitledDetailModel {
     @Timestamp(key: FieldKeys.v1.deletedAt, on: .delete) var deletedAt: Date?
     
     init() {
-        self.status = .verified
+        self.verifiedAt = Date()
     }
     
     init(
@@ -60,7 +61,7 @@ final class StaticContentDetailModel: TitledDetailModel {
         repositoryId: UUID,
         userId: UUID
     ) {
-        self.status = .verified
+        self.verifiedAt = Date()
         self.id = id
         self.moderationTitle = moderationTitle
         self.slug = slug ?? moderationTitle.slugify()
@@ -74,10 +75,10 @@ final class StaticContentDetailModel: TitledDetailModel {
 
 extension StaticContentDetailModel {
     var _$slug: FluentKit.FieldProperty<StaticContentDetailModel, String> { $slug }
-    var _$status: FluentKit.EnumProperty<StaticContentDetailModel, AppApi.Status> { $status }
     var _$language: FluentKit.ParentProperty<StaticContentDetailModel, LanguageModel> { $language }
     var _$repository: FluentKit.ParentProperty<StaticContentDetailModel, StaticContentRepositoryModel> { $repository }
     var _$user: FluentKit.OptionalParentProperty<StaticContentDetailModel, UserAccountModel> { $user }
+    var _$verifiedAt: OptionalFieldProperty<StaticContentDetailModel, Date> { $verifiedAt }
     var _$updatedAt: FluentKit.TimestampProperty<StaticContentDetailModel, FluentKit.DefaultTimestampFormat> { $updatedAt }
     var _$deletedAt: TimestampProperty<StaticContentDetailModel, DefaultTimestampFormat> { $deletedAt }
 }

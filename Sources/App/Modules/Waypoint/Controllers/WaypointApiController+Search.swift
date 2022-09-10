@@ -33,7 +33,7 @@ extension WaypointApiController {
         let allDetails = try await WaypointDetailModel
             .query(on: req.db)
         // only search verified details
-            .filter(\.$status ~~ [.verified, .deleteRequested])
+            .filter(\.$verifiedAt != nil)
             .join(parent: \.$language)
         // only search details with given language
             .filter(LanguageModel.self, \.$languageCode == searchQuery.languageCode)
@@ -69,7 +69,7 @@ extension WaypointApiController {
                                 .join(parent: \.$language)
                                 .filter(LanguageModel.self, \.$languageCode == searchQuery.languageCode)
                                 .filter(\.$repository.$id == repositoryId)
-                                .filter(\.$status ~~ [.verified, .deleteRequested])
+                                .filter(\.$verifiedAt != nil)
                                 .sort(\.$updatedAt, .descending) // newest first
                                 .first()
                             else {
@@ -131,7 +131,7 @@ extension WaypointApiController {
         // this might lead to a few more waypoints in the results but should still be more performant than further in memory processing
         let repositoryIds = try await WaypointLocationModel
             .query(on: req.db)
-            .filter(\.$status ~~ [.verified, .deleteRequested])
+            .filter(\.$verifiedAt != nil)
             .filter(\.$latitude <= getInRangeQuery.tepLeftLatitude)
             .filter(\.$latitude >= getInRangeQuery.bottomRightLatitude)
             .filter(\.$longitude <= getInRangeQuery.tepLeftLongitude)

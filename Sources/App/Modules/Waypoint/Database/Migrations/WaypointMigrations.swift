@@ -18,12 +18,9 @@ enum WaypointMigrations {
                 .field(WaypointRepositoryModel.FieldKeys.v1.deletedAt, .datetime)
                 .create()
             
-            let statusType = try await db.enum(Status.pathKey).read()
-            
             try await db.schema(WaypointDetailModel.schema)
                 .id()
             
-                .field(WaypointDetailModel.FieldKeys.v1.status, statusType, .required)
                 .field(WaypointDetailModel.FieldKeys.v1.title, .string , .required)
                 .field(WaypointDetailModel.FieldKeys.v1.slug, .string, .required)
                 .unique(on: WaypointDetailModel.FieldKeys.v1.slug)
@@ -38,6 +35,7 @@ enum WaypointMigrations {
                 .field(WaypointDetailModel.FieldKeys.v1.userId, .uuid)
                 .foreignKey(WaypointDetailModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
             
+                .field(WaypointDetailModel.FieldKeys.v1.verifiedAt, .datetime)
                 .field(WaypointDetailModel.FieldKeys.v1.createdAt, .datetime, .required)
                 .field(WaypointDetailModel.FieldKeys.v1.updatedAt, .datetime, .required)
                 .field(WaypointDetailModel.FieldKeys.v1.deletedAt, .datetime)
@@ -46,7 +44,6 @@ enum WaypointMigrations {
             
             try await db.schema(WaypointLocationModel.schema)
                 .id()
-                .field(WaypointLocationModel.FieldKeys.v1.status, statusType, .required)
                 .field(WaypointLocationModel.FieldKeys.v1.latitude, .double, .required)
                 .field(WaypointLocationModel.FieldKeys.v1.longitude, .double, .required)
             
@@ -56,6 +53,7 @@ enum WaypointMigrations {
                 .field(WaypointLocationModel.FieldKeys.v1.userId, .uuid)
                 .foreignKey(WaypointLocationModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
             
+                .field(WaypointLocationModel.FieldKeys.v1.verifiedAt, .datetime)
                 .field(WaypointLocationModel.FieldKeys.v1.createdAt, .datetime, .required)
                 .field(WaypointLocationModel.FieldKeys.v1.updatedAt, .datetime, .required)
                 .field(WaypointLocationModel.FieldKeys.v1.deletedAt, .datetime)
@@ -65,7 +63,6 @@ enum WaypointMigrations {
             try await db.schema(WaypointReportModel.schema)
                 .id()
             
-                .field(WaypointReportModel.FieldKeys.v1.status, statusType, .required)
                 .field(WaypointReportModel.FieldKeys.v1.title, .string , .required)
                 .field(WaypointReportModel.FieldKeys.v1.slug, .string, .required)
                 .unique(on: WaypointReportModel.FieldKeys.v1.slug)
@@ -80,6 +77,7 @@ enum WaypointMigrations {
                 .field(WaypointReportModel.FieldKeys.v1.userId, .uuid)
                 .foreignKey(WaypointReportModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
             
+                .field(WaypointReportModel.FieldKeys.v1.verifiedAt, .datetime)
                 .field(WaypointReportModel.FieldKeys.v1.createdAt, .datetime, .required)
                 .field(WaypointReportModel.FieldKeys.v1.updatedAt, .datetime, .required)
                 .field(WaypointReportModel.FieldKeys.v1.deletedAt, .datetime)

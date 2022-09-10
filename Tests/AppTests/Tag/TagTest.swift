@@ -17,7 +17,7 @@ extension TagTest {
     func createNewTag(
         title: String = "New Tag title \(UUID())",
         keywords: [String] = (1...5).map { _ in String(Int.random(in: 10...100)) }, // array with 5 random numbers between 10 and 100
-        status: Status = .pending,
+        verifiedAt: Date? = nil,
         languageId: UUID? = nil,
         userId: UUID? = nil
     ) async throws -> (repository: TagRepositoryModel, detail: TagDetailModel) {
@@ -38,7 +38,7 @@ extension TagTest {
         try await repository.create(on: app.db)
         
         let detail = try await TagDetailModel.createWith(
-            status: status,
+            verifiedAt: verifiedAt,
             title: title,
             keywords: keywords,
             languageId: languageId,
@@ -53,7 +53,7 @@ extension TagTest {
 
 extension TagDetailModel {
     static func createWith(
-        status: Status,
+        verifiedAt: Date?,
         title: String,
         slug: String? = nil,
         keywords: [String],
@@ -64,7 +64,7 @@ extension TagDetailModel {
     ) async throws -> Self {
         let slug = slug ?? title.appending(" ").appending(Date().toString(with: .day)).slugify()
         let detail = self.init(
-            status: status,
+            verifiedAt: verifiedAt,
             title: title,
             slug: slug,
             keywords: keywords,
@@ -78,7 +78,7 @@ extension TagDetailModel {
     
     @discardableResult
     func updateWith(
-        status: Status = .pending,
+        verifiedAt: Date? = nil,
         title: String = "Updated Tag Title \(UUID())",
         slug: String? = nil,
         keywords: [String] = (1...5).map { _ in String(Int.random(in: 10...100)) }, // array with 5 random numbers between 10 and 100,
@@ -88,7 +88,7 @@ extension TagDetailModel {
     ) async throws -> Self {
         let slug = slug ?? title.appending(" ").appending(Date().toString(with: .day)).slugify()
         let detail = Self.init(
-            status: status,
+            verifiedAt: verifiedAt,
             title: title,
             slug: slug,
             keywords: keywords,

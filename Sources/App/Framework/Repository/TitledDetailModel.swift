@@ -41,7 +41,7 @@ extension TitledDetailModel {
             .join(parent: \._$language)
             .filter(LanguageModel.self, \.$languageCode == languageCode)
             .filter(LanguageModel.self, \.$priority != nil)
-            .filter(\._$status ~~ [.verified, .deleteRequested])
+            .filter(\._$verifiedAt != nil)
             .sort(\._$updatedAt, sortDirection)
             .first()
         
@@ -104,7 +104,7 @@ extension ChildrenProperty where From: RepositoryModel, To: TitledDetailModel {
             .filter(LanguageModel.self, \.$languageCode == languageCode)
             .filter(LanguageModel.self, \.$priority != nil)
             .sort(\._$updatedAt, sortDirection)
-            .filter(\._$status ~~ [.verified, .deleteRequested])
+            .filter(\._$verifiedAt != nil)
             .first()
         
         if let verifiedDetail = verifiedDetail {

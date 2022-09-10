@@ -18,7 +18,7 @@ extension WaypointTest {
         title: String = "New Waypoint Title \(UUID())",
         detailText: String = "New Waypoint detail text",
         location: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
-        status: Status = .pending,
+        verifiedAt: Date? = nil,
         languageId: UUID? = nil,
         userId: UUID? = nil
     ) async throws -> (repository: WaypointRepositoryModel, detail: WaypointDetailModel, location: WaypointLocationModel) {
@@ -43,14 +43,14 @@ extension WaypointTest {
             repositoryId: waypointRepository.requireID(),
             languageId: languageId,
             userId: userId,
-            status: status,
+            verifiedAt: verifiedAt,
             on: app.db
         )
         let location = try await WaypointLocationModel.createWith(
             location: location,
             repositoryId: waypointRepository.requireID(),
             userId: userId,
-            status: status,
+            verifiedAt: verifiedAt,
             on: app.db
         )
         
@@ -66,12 +66,12 @@ extension WaypointDetailModel {
         repositoryId: UUID,
         languageId: UUID,
         userId: UUID,
-        status: Status,
+        verifiedAt: Date?,
         on db: Database
     ) async throws -> Self {
         let slug = slug ?? title.appending(" ").appending(Date().toString(with: .day)).slugify()
         let waypoint = self.init(
-            status: status,
+            verifiedAt: verifiedAt,
             title: title,
             slug: slug,
             detailText: detailText,
@@ -84,28 +84,28 @@ extension WaypointDetailModel {
     }
     
     @discardableResult
-     func updateWith(
+    func updateWith(
         title: String = "Updated Waypoint Title \(UUID())",
         slug: String? = nil,
         detailText: String = "Updated Waypoint detail text",
         languageId: UUID? = nil,
         userId: UUID? = nil,
-        status: Status = .pending,
+        verifiedAt: Date? = nil,
         on db: Database
-     ) async throws -> Self {
-         let slug = slug ?? title.appending(" ").appending(Date().toString(with: .day)).slugify()
-         let waypoint = Self.init(
-             status: status,
-             title: title,
-             slug: slug,
-             detailText: detailText,
-             languageId: languageId ?? self.$language.id,
-             repositoryId: self.$repository.id,
-             userId: userId ?? self.$user.id!
-         )
-         try await waypoint.create(on: db)
-         return waypoint
-     }
+    ) async throws -> Self {
+        let slug = slug ?? title.appending(" ").appending(Date().toString(with: .day)).slugify()
+        let waypoint = Self.init(
+            verifiedAt: verifiedAt,
+            title: title,
+            slug: slug,
+            detailText: detailText,
+            languageId: languageId ?? self.$language.id,
+            repositoryId: self.$repository.id,
+            userId: userId ?? self.$user.id!
+        )
+        try await waypoint.create(on: db)
+        return waypoint
+    }
 }
 
 extension WaypointLocationModel {
@@ -113,11 +113,11 @@ extension WaypointLocationModel {
         location: Waypoint.Location,
         repositoryId: UUID,
         userId: UUID,
-        status: Status,
+        verifiedAt: Date?,
         on db: Database
     ) async throws -> Self {
         let location = self.init(
-            status: status,
+            verifiedAt: verifiedAt,
             latitude: location.latitude,
             longitude: location.longitude,
             repositoryId: repositoryId,
@@ -127,15 +127,15 @@ extension WaypointLocationModel {
         return location
     }
     
-   @discardableResult
+    @discardableResult
     func updateWith(
         location: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
         userId: UUID? = nil,
-        status: Status = .pending,
+        verifiedAt: Date? = nil,
         on db: Database
     ) async throws -> Self {
         let location = Self.init(
-            status: status,
+            verifiedAt: verifiedAt,
             latitude: location.latitude,
             longitude: location.longitude,
             repositoryId: self.$repository.id,

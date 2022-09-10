@@ -12,7 +12,7 @@ import Fluent
 extension WaypointTest {
     func createNewWaypointReport(
         waypoint: (repository: WaypointRepositoryModel, detail: WaypointDetailModel, location: WaypointLocationModel),
-        status: Status = .pending,
+        verifiedAt: Date? = nil,
         title: String = "New report title \(UUID())",
         reason: String = "Just because",
         userId: UUID? = nil
@@ -23,7 +23,7 @@ extension WaypointTest {
         }
         
         let report = try WaypointReportModel(
-            status: status,
+            verifiedAt: verifiedAt,
             title: title,
             slug: title.slugify(),
             reason: reason,

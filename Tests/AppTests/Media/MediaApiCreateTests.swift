@@ -80,7 +80,6 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
                     XCTAssertEqual(content.detailText, newMedia.detailText)
                     XCTAssertEqual(content.source, newMedia.source)
                     XCTAssertEqual(content.languageCode, newMedia.languageCode)
-                    XCTAssertNil(content.status)
                 }
                 .test()
         }
@@ -99,7 +98,7 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
                 .query(on: app.db)
                 .sort(\.$createdAt, .descending)
                 .first()!
-            XCTAssertEqual(media.status, .pending)
+            XCTAssertNil(media.verifiedAt)
         } else {
             XCTFail("Could not find repository on db")
         }
@@ -146,7 +145,6 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
                     XCTAssertEqual(content.detailText, newMedia.detailText)
                     XCTAssertEqual(content.source, newMedia.source)
                     XCTAssertEqual(content.languageCode, newMedia.languageCode)
-                    XCTAssertNotNil(content.status)
                 }
                 .test()
         }
@@ -165,7 +163,7 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
                 .query(on: app.db)
                 .sort(\.$createdAt, .descending)
                 .first()!
-            XCTAssertEqual(media.status, .pending)
+            XCTAssertNil(media.verifiedAt)
         } else {
             XCTFail("Could not find repository on db")
         }

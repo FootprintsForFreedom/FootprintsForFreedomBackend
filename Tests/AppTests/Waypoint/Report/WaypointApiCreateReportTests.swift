@@ -44,8 +44,6 @@ final class WaypointApiCreateReportTests: AppTestCase, WaypointTest {
                     XCTAssertEqual(visibleDetail.detailText, waypoint.detail.detailText)
                     XCTAssertEqual(visibleDetail.location, waypoint.location.location)
                     XCTAssertEqual(visibleDetail.languageCode, waypoint.detail.language.languageCode)
-                    XCTAssertNil(visibleDetail.detailStatus)
-                    XCTAssertNil(visibleDetail.locationStatus)
                     XCTAssertNotNil(visibleDetail.detailId)
                     XCTAssertNotNil(visibleDetail.locationId)
                 }

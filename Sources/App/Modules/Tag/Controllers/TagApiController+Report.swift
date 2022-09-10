@@ -15,7 +15,7 @@ extension Tag.Detail.Detail: InitializableById {
         }
         let repository = try await detail.$repository.get(on: db)
         try await detail.$language.load(on: db)
-        self = try await Self.publicDetail(
+        self = try await .init(
             id: repository.requireID(),
             title: detail.title,
             slug: detail.slug,

@@ -23,7 +23,7 @@ final class WaypointApiDetailWaypointChangesTests: AppTestCase, WaypointTest {
             repositoryId: waypointRepository.requireID(),
             languageId: language.requireID(),
             userId: user.requireID(),
-            status: .pending,
+            verifiedAt: nil,
             on: app.db
         )
         try await waypointModel.$user.load(on: app.db)
@@ -54,7 +54,7 @@ final class WaypointApiDetailWaypointChangesTests: AppTestCase, WaypointTest {
             repositoryId: waypointRepository.requireID(),
             languageId: language.requireID(),
             userId: user.requireID(),
-            status: .pending,
+            verifiedAt: nil,
             on: app.db
         )
         
@@ -76,7 +76,7 @@ final class WaypointApiDetailWaypointChangesTests: AppTestCase, WaypointTest {
             repositoryId: waypointRepository.requireID(),
             languageId: language.requireID(),
             userId: user.requireID(),
-            status: .pending,
+            verifiedAt: nil,
             on: app.db
         )
         
@@ -154,7 +154,7 @@ final class WaypointApiDetailWaypointChangesTests: AppTestCase, WaypointTest {
             repositoryId: waypointRepository.requireID(),
             languageId: secondLanguage.requireID(),
             userId: user.requireID(),
-            status: .pending,
+            verifiedAt: nil,
             on: app.db
         )
         

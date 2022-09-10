@@ -14,7 +14,7 @@ final class TagApiDeleteUserTests: AppTestCase, TagTest, UserTest {
     func testDeleteUserSetsUserIdToNil() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let (user, token) = try await createNewUserWithToken()
-        let (repository, detail) = try await createNewTag(status: .verified, userId: user.requireID())
+        let (repository, detail) = try await createNewTag(verifiedAt: Date(), userId: user.requireID())
         try await detail.$language.load(on: app.db)
         
         try app
@@ -35,8 +35,6 @@ final class TagApiDeleteUserTests: AppTestCase, TagTest, UserTest {
                 XCTAssertEqual(content.title, detail.title)
                 XCTAssertEqual(content.keywords, detail.keywords)
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)
-                XCTAssertNotNil(content.status)
-                XCTAssertEqual(content.status, detail.status)
                 XCTAssertNotNil(content.detailId)
                 XCTAssertEqual(content.detailId, detail.id!)
             }

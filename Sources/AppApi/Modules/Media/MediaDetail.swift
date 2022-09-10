@@ -68,9 +68,7 @@ public extension Media.Detail {
         public let tags: [Tag.Detail.List]
         /// Id uniquely identifying the media detail object.
         public let detailId: UUID
-        /// The status of the media.
-        public let status: Status?
-        
+
         /// Creates a media detail object for everyone.
         /// - Parameters:
         ///   - id: Id uniquely identifying the media repository.
@@ -84,69 +82,7 @@ public extension Media.Detail {
         ///   - filePath: The relative path at which to find the media file.
         ///   - tags: The tags connected with this media.
         ///   - detailId: Id uniquely identifying the media detail object.
-        /// - Returns: A media detail object.
-        public static func publicDetail(id: UUID, languageCode: String, availableLanguageCodes: [String], title: String, slug: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List], detailId: UUID) -> Self {
-            return .init(
-                id: id,
-                languageCode: languageCode,
-                availableLanguageCodes: availableLanguageCodes,
-                title: title,
-                slug: slug,
-                detailText: detailText,
-                source: source,
-                group: group,
-                filePath: filePath,
-                tags: tags,
-                detailId: detailId
-            )
-        }
-        
-        /// Creates a media detail object for moderators.
-        /// - Parameters:
-        ///   - id: Id uniquely identifying the media repository.
-        ///   - languageCode: The language code for the media title, description and source.
-        ///   - availableLanguageCodes: All language codes available for this media repository.
-        ///   - title: The media title.
-        ///   - slug: The slug uniquely identifying the media.
-        ///   - detailText: The detail text describing the media.
-        ///   - source: The source of the media and/or copyright information.
-        ///   - group: The group of the media file.
-        ///   - filePath: The relative path at which to find the media file.
-        ///   - tags: The tags connected with this media.
-        ///   - detailId: Id uniquely identifying the media detail object.
-        ///   - status: The status of the media
-        /// - Returns: A media detail object.
-        public static func moderatorDetail(id: UUID, languageCode: String, availableLanguageCodes: [String], title: String, slug: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List], detailId: UUID, status: Status) -> Self {
-            return .init(
-                id: id,
-                languageCode: languageCode,
-                availableLanguageCodes: availableLanguageCodes,
-                title: title,
-                slug: slug,
-                detailText: detailText,
-                source: source,
-                group: group,
-                filePath: filePath,
-                tags: tags,
-                detailId: detailId,
-                status: status
-            )
-        }
-        
-        /// Creates a media detail object for everyone.
-        /// - Parameters:
-        ///   - id: Id uniquely identifying the media repository.
-        ///   - languageCode: The language code for the media title, description and source.
-        ///   - availableLanguageCodes: All language codes available for this media repository.
-        ///   - title: The media title.
-        ///   - slug: The slug uniquely identifying the media.
-        ///   - detailText: The detail text describing the media.
-        ///   - source: The source of the media and/or copyright information.
-        ///   - group: The group of the media file.
-        ///   - filePath: The relative path at which to find the media file.
-        ///   - tags: The tags connected with this media.
-        ///   - detailId: Id uniquely identifying the media detail object.
-        private init(id: UUID, languageCode: String, availableLanguageCodes: [String], title: String, slug: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List], detailId: UUID) {
+        public init(id: UUID, languageCode: String, availableLanguageCodes: [String], title: String, slug: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List], detailId: UUID) {
             self.id = id
             self.languageCode = languageCode
             self.availableLanguageCodes = availableLanguageCodes
@@ -158,36 +94,6 @@ public extension Media.Detail {
             self.filePath = filePath
             self.tags = tags
             self.detailId = detailId
-            self.status = nil
-        }
-        
-        /// Creates a media detail object for moderators.
-        /// - Parameters:
-        ///   - id: Id uniquely identifying the media repository.
-        ///   - languageCode: The language code for the media title, description and source.
-        ///   - availableLanguageCodes: All language codes available for this media repository.
-        ///   - title: The media title.
-        ///   - slug: The slug uniquely identifying the media.
-        ///   - detailText: The detail text describing the media.
-        ///   - source: The source of the media and/or copyright information.
-        ///   - group: The group of the media file.
-        ///   - filePath: The relative path at which to find the media file.
-        ///   - tags: The tags connected with this media.
-        ///   - detailId: Id uniquely identifying the media detail object.
-        ///   - status: The status of the media
-        private init(id: UUID, languageCode: String, availableLanguageCodes: [String], title: String, slug: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List], detailId: UUID, status: Status) {
-            self.id = id
-            self.languageCode = languageCode
-            self.availableLanguageCodes = availableLanguageCodes
-            self.title = title
-            self.slug = slug
-            self.detailText = detailText
-            self.source = source
-            self.group = group
-            self.filePath = filePath
-            self.tags = tags
-            self.detailId = detailId
-            self.status = status
         }
     }
     

@@ -72,7 +72,7 @@ final class StaticContentApiUpdateTests: AppTestCase, StaticContentTest {
             .first()!
         
         XCTAssertNotNil(newStaticContentDetail.id)
-        XCTAssertEqual(newStaticContentDetail.status, .verified)
+        XCTAssertNotNil(newStaticContentDetail.verifiedAt)
     }
     
     func testSuccessfulUpdateStaticContentWithRequiredSnippets() async throws {
@@ -101,7 +101,7 @@ final class StaticContentApiUpdateTests: AppTestCase, StaticContentTest {
             .first()!
         
         XCTAssertNotNil(newStaticContentDetail.id)
-        XCTAssertEqual(newStaticContentDetail.status, .verified)
+        XCTAssertNotNil(newStaticContentDetail.verifiedAt)
     }
     
     func testSuccessfulUpdateStaticContentWithDuplicateTitle() async throws {
@@ -131,7 +131,7 @@ final class StaticContentApiUpdateTests: AppTestCase, StaticContentTest {
             .first()!
         
         XCTAssertNotNil(newStaticContentDetail.id)
-        XCTAssertEqual(newStaticContentDetail.status, .verified)
+        XCTAssertNotNil(newStaticContentDetail.verifiedAt)
     }
     
     func testSuccessfulUpdateWithNewLanguage() async throws {
@@ -161,7 +161,7 @@ final class StaticContentApiUpdateTests: AppTestCase, StaticContentTest {
             .first()!
         
         XCTAssertNotNil(newStaticContentDetail.id)
-        XCTAssertEqual(newStaticContentDetail.status, .verified)
+        XCTAssertNotNil(newStaticContentDetail.verifiedAt)
     }
     
     func testUpdateStaticContentWithoutRequiredSnippetsInTextFails() async throws {

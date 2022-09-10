@@ -59,7 +59,7 @@ extension MediaApiController: ApiRepositoryVerificationController {
                     .group(.and) { group in
                         group
                         // only get unverified details
-                            .filter(Detail.self, \.$status ~~ [.pending, .deleteRequested])
+                            .filter(Detail.self, \.$verifiedAt == nil)
                         // only select details which have an active language
                             .filter(LanguageModel.self, \.$priority != nil)
                     }

@@ -14,7 +14,7 @@ final class WaypointApiDeleteUserTests: AppTestCase, WaypointTest, UserTest {
     func testDeleteUserSetsUserIdToNil() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let (user, token) = try await createNewUserWithToken()
-        let (waypointRepository, waypoint, location) = try await createNewWaypoint(status: .verified, userId: user.requireID())
+        let (waypointRepository, waypoint, location) = try await createNewWaypoint(verifiedAt: Date(), userId: user.requireID())
         try await waypoint.$language.load(on: app.db)
         
         try app
@@ -36,10 +36,6 @@ final class WaypointApiDeleteUserTests: AppTestCase, WaypointTest, UserTest {
                 XCTAssertEqual(content.detailText, waypoint.detailText)
                 XCTAssertEqual(content.location, location.location)
                 XCTAssertEqual(content.languageCode, waypoint.language.languageCode)
-                XCTAssertNotNil(content.detailStatus)
-                XCTAssertNotNil(content.locationStatus)
-                XCTAssertEqual(content.detailStatus, waypoint.status)
-                XCTAssertEqual(content.locationStatus, location.status)
                 XCTAssertNotNil(content.detailId)
                 XCTAssertEqual(content.detailId, waypoint.id!)
             }

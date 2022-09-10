@@ -15,10 +15,10 @@ protocol DetailModel: DatabaseModelInterface, Timestamped {
     /// The type of the repository model to which the detail belongs.
     associatedtype Repository: RepositoryModel
     
-    /// The detail's status.
-    var status: Status { get set }
-    /// The detail's status.
-    var _$status: EnumProperty<Self, Status> { get }
+    /// The date when detail was verified..
+    var verifiedAt: Date? { get set }
+    /// The date when detail was verified.
+    var _$verifiedAt: OptionalFieldProperty<Self, Date> { get }
     
     /// The detail's repository.
     var repository: Repository { get }
@@ -59,7 +59,7 @@ extension DetailModel {
         let verifiedDetail = try await Self
             .query(on: db)
             .filter(\._$repository.$id == repositoryId)
-            .filter(\._$status ~~ [.verified, .deleteRequested])
+            .filter(\._$verifiedAt != nil)
             .sort(\._$updatedAt, sortDirection)
             .first()
         
@@ -112,7 +112,7 @@ extension ChildrenProperty where From: RepositoryModel, To: DetailModel {
         let verifiedDetail = try await projectedValue
             .query(on: db)
             .sort(\._$updatedAt, sortDirection)
-            .filter(\._$status ~~ [.verified, .deleteRequested])
+            .filter(\._$verifiedAt != nil)
             .first()
         
         if let verifiedDetail = verifiedDetail {

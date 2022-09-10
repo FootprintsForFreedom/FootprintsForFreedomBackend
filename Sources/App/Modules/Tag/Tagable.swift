@@ -9,9 +9,12 @@ import Vapor
 import Fluent
 
 protocol TagPivot: Fluent.Model {
+    /// The tag pivot's status.
     var status: Status { get set }
+    /// The tag pivot's status.
     var _$status: EnumProperty<Self, Status> { get }
     
+    /// The tag the pivot is connected to.
     var tag: TagRepositoryModel { get set }
 }
 

@@ -32,7 +32,7 @@ final class MediaTagModel: DatabaseModelInterface, TagPivot {
     init(
         media: MediaRepositoryModel,
         tag: TagRepositoryModel,
-        status: Status = .pending
+        verifiedAt: Date? = nil
     ) throws {
         self.$media.id = try media.requireID()
         self.$tag.id = try tag.requireID()

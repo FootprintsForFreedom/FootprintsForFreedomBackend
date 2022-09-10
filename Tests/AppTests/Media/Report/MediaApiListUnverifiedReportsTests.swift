@@ -32,7 +32,7 @@ final class MediaApiListUnverifiedReportsTests: AppTestCase, MediaTest {
     func testSuccessfulListUnverifiedReportsDoesNotListVerifiedReports() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let media = try await createNewMedia()
-        let report = try await createNewMediaReport(media: media, status: .verified)
+        let report = try await createNewMediaReport(media: media, verifiedAt: Date())
         let reportsCount = try await MediaReportModel.query(on: app.db).count()
         
         try app

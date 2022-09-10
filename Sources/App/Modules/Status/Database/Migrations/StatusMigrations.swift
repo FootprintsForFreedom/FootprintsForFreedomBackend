@@ -14,7 +14,6 @@ enum StatusMigrations {
             let _ = try await db.enum(Status.pathKey)
                 .case(Status.pending.rawValue)
                 .case(Status.verified.rawValue)
-                .case(Status.rejected.rawValue)
                 .case(Status.deleteRequested.rawValue)
                 .create()
         }

@@ -14,7 +14,7 @@ extension WaypointApiController {
         let mediaRepositories = try await waypointRepository.$media
             .query(on: req.db)
             .join(MediaDetailModel.self, on: \MediaDetailModel.$repository.$id == \MediaRepositoryModel.$id)
-            .filter(MediaDetailModel.self, \.$status ~~ [.verified, .deleteRequested])
+            .filter(MediaDetailModel.self, \.$verifiedAt != nil)
             .join(LanguageModel.self, on: \MediaDetailModel.$language.$id == \LanguageModel.$id)
             .filter(LanguageModel.self, \.$priority != nil)
             .field(\.$id)

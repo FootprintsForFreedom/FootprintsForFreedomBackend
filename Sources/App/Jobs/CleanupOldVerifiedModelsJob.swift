@@ -28,7 +28,7 @@ struct CleanupOldVerifiedModelsJob: AsyncScheduledJob {
         
         let potentialOldVerifiedModels = try await modelType
             .query(on: app.db)
-            .filter(\._$status == .verified)
+            .filter(\._$verifiedAt != nil)
             .filter(\._$updatedAt < Date().addingTimeInterval(TimeInterval(-1 * oldVerifiedLifetime * dayInSeconds))) // only select models that were updated before the specified amount of days
             .with(\._$language)
             .all()
@@ -67,7 +67,7 @@ struct CleanupOldVerifiedModelsJob: AsyncScheduledJob {
         
         try await modelType
             .query(on: app.db)
-            .filter(\._$status == .verified)
+            .filter(\._$verifiedAt != nil)
             .filter(\._$updatedAt < Date().addingTimeInterval(TimeInterval(-1 * oldVerifiedLifetime * dayInSeconds))) // only select models that were updated before the specified amount of days
             .delete() // directly delete the reports since they don't need a replacement/successor
     }
@@ -89,7 +89,7 @@ struct CleanupOldVerifiedModelsJob: AsyncScheduledJob {
         
         let potentialOldVerifiedModels = try await modelType
             .query(on: app.db)
-            .filter(\._$status == .verified)
+            .filter(\._$verifiedAt != nil)
             .filter(\._$updatedAt < Date().addingTimeInterval(TimeInterval(-1 * oldVerifiedLifetime * dayInSeconds))) // only select models that were updated before the specified amount of days
             .all()
         

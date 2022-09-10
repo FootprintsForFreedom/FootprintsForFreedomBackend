@@ -32,7 +32,7 @@ final class WaypointApiListUnverifiedReportsTests: AppTestCase, WaypointTest {
     func testSuccessfulListUnverifiedReportsDoesNotListVerifiedReports() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let waypoint = try await createNewWaypoint()
-        let report = try await createNewWaypointReport(waypoint: waypoint, status: .verified)
+        let report = try await createNewWaypointReport(waypoint: waypoint, verifiedAt: Date())
         let reportsCount = try await WaypointReportModel.query(on: app.db).count()
         
         try app

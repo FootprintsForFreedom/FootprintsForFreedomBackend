@@ -34,7 +34,7 @@ final class MediaApiDeleteTests: AppTestCase, MediaTest {
         // Get original media count
         let mediaCount = try await MediaRepositoryModel.query(on: app.db).count()
         
-        let (mediaRepository, _, _) = try await createNewMedia(status: .verified)
+        let (mediaRepository, _, _) = try await createNewMedia(verifiedAt: Date())
         let moderatorToken = try await getToken(for: .moderator)
         
         try app
@@ -55,7 +55,7 @@ final class MediaApiDeleteTests: AppTestCase, MediaTest {
         let mediaDetailCount = try await MediaDetailModel.query(on: app.db).count()
         let mediaFileCount = try await MediaFileModel.query(on: app.db).count()
         
-        let (mediaRepository, _, _) = try await createNewMedia(status: .verified)
+        let (mediaRepository, _, _) = try await createNewMedia(verifiedAt: Date())
         let moderatorToken = try await getToken(for: .moderator)
         
         try app
@@ -130,7 +130,7 @@ extension MediaApiDeleteTests {
         let media = try await createNewMedia()
         let title = "I don't like this \(UUID())"
         let report = try await MediaReportModel(
-            status: .pending,
+            verifiedAt: nil,
             title: title,
             slug: title.slugify(),
             reason: "Just because",

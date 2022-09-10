@@ -21,11 +21,11 @@ final class TagApiGetTests: AppTestCase, TagTest {
         // Create an unverified tag
         let (unverifiedTagRepository, _) = try await createNewTag(languageId: language.requireID(), userId: userId)
         // Create a verified tag
-        let (verifiedTagRepository, createdVerifiedTag) = try await createNewTag(status: .verified, languageId: language.requireID(), userId: userId)
+        let (verifiedTagRepository, createdVerifiedTag) = try await createNewTag(verifiedAt: Date(), languageId: language.requireID(), userId: userId)
         try await createdVerifiedTag.$language.load(on: app.db)
         // Create a second not verified model for the verified tag that should not be returned
         let _ = try await TagDetailModel.createWith(
-            status: .pending,
+            verifiedAt: nil,
             title: "Not visible \(UUID())",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
@@ -34,13 +34,13 @@ final class TagApiGetTests: AppTestCase, TagTest {
             on: app.db
         )
         // Create a reposiotry that is only available in the other language
-        let (verifiedTagRepositoryInDifferentLanguage, createdVerifiedTagInDifferentLanguage) = try await createNewTag(status: .verified, languageId: language2.requireID(), userId: userId)
+        let (verifiedTagRepositoryInDifferentLanguage, createdVerifiedTagInDifferentLanguage) = try await createNewTag(verifiedAt: Date(), languageId: language2.requireID(), userId: userId)
         try await createdVerifiedTagInDifferentLanguage.$language.load(on: app.db)
         // Create a reposiotry that is available in both languages
-        let (verifiedTagRepositoryWithMultipleLanguages, _) = try await createNewTag(status: .verified, languageId: language2.requireID(), userId: userId)
+        let (verifiedTagRepositoryWithMultipleLanguages, _) = try await createNewTag(verifiedAt: Date(), languageId: language2.requireID(), userId: userId)
         // Create a second model in the other language
         let createdVerifiedTagInLanguage1 = try await TagDetailModel.createWith(
-            status: .verified,
+            verifiedAt: Date(),
             title: "Language 2 \(UUID())",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
@@ -59,7 +59,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
         let tagCount = tag.count
         
         let verifiedTagCount = tag
-            .filter { $0.details.contains { [Status.verified, .deleteRequested].contains($0.status) && $0.language.priority != nil } }
+            .filter { $0.details.contains { $0.verifiedAt != nil && $0.language.priority != nil } }
             .count
         
         try app
@@ -104,10 +104,10 @@ final class TagApiGetTests: AppTestCase, TagTest {
         // Create an unverified tag
         let (unverifiedTagRepository, _) = try await createNewTag(languageId: language.requireID(), userId: userId)
         // Create a verified tag
-        let (verifiedTagRepository, createdVerifiedTag) = try await createNewTag(status: .verified, languageId: language.requireID(), userId: userId)
+        let (verifiedTagRepository, createdVerifiedTag) = try await createNewTag(verifiedAt: Date(), languageId: language.requireID(), userId: userId)
         // Create a second not verified model for the verified tag that should not be returned
         let _ = try await TagDetailModel.createWith(
-            status: .pending,
+            verifiedAt: nil,
             title: "Not visible \(UUID())",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
@@ -116,13 +116,13 @@ final class TagApiGetTests: AppTestCase, TagTest {
             on: app.db
         )
         // Create a repository that is only available in the other language
-        let (verifiedTagRepositoryInDifferentLanguage, createdVerifiedTagInDifferentLanguage) = try await createNewTag(status: .verified, languageId: language2.requireID(), userId: userId)
+        let (verifiedTagRepositoryInDifferentLanguage, createdVerifiedTagInDifferentLanguage) = try await createNewTag(verifiedAt: Date(), languageId: language2.requireID(), userId: userId)
         try await createdVerifiedTagInDifferentLanguage.$language.load(on: app.db)
         // Create a repository that is available in both languages
-        let (verifiedTagRepositoryWithMultipleLanguages, _) = try await createNewTag(status: .verified, languageId: language2.requireID(), userId: userId)
+        let (verifiedTagRepositoryWithMultipleLanguages, _) = try await createNewTag(verifiedAt: Date(), languageId: language2.requireID(), userId: userId)
         // Create a second model in the other language
         let createdVerifiedTagInLanguage1 = try await TagDetailModel.createWith(
-            status: .verified,
+            verifiedAt: Date(),
             title: "Language 2 \(UUID())",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
@@ -139,7 +139,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
         let tagCount = tag.count
         
         let verifiedTagCount = tag
-            .filter { $0.details.contains { [Status.verified, .deleteRequested].contains($0.status) && $0.language.priority != nil } }
+            .filter { $0.details.contains { $0.verifiedAt != nil && $0.language.priority != nil } }
             .count
         
         try app
@@ -179,10 +179,10 @@ final class TagApiGetTests: AppTestCase, TagTest {
         let userId = try await getUser(role: .user).requireID()
         
         // Create a verified tag
-        let (verifiedTagRepository, _) = try await createNewTag(status: .verified, languageId: language.requireID(), userId: userId)
+        let (verifiedTagRepository, _) = try await createNewTag(verifiedAt: Date(), languageId: language.requireID(), userId: userId)
         
         // Create a tag for a deactivated language
-        let (verifiedTagRepositoryForDeactivatedLanguage, _) = try await createNewTag(status: .verified, languageId: deactivatedLanguage.requireID(), userId: userId)
+        let (verifiedTagRepositoryForDeactivatedLanguage, _) = try await createNewTag(verifiedAt: Date(), languageId: deactivatedLanguage.requireID(), userId: userId)
         
         // Get tag count
         let tag = try await TagRepositoryModel
@@ -205,7 +205,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
     }
     
     func testSuccessfulGetVerifiedTag() async throws {
-        let (repository, detail) = try await createNewTag(status: .verified)
+        let (repository, detail) = try await createNewTag(verifiedAt: Date())
         try await detail.$language.load(on: app.db)
         
         try app
@@ -219,14 +219,13 @@ final class TagApiGetTests: AppTestCase, TagTest {
                 XCTAssertEqual(content.slug, detail.slug)
                 XCTAssertEqual(content.keywords, detail.keywords)
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)
-                XCTAssertNil(content.status)
                 XCTAssertNotNil(content.detailId)
             }
             .test()
     }
     
     func testSuccessfulGetVerifiedTagAsModerator() async throws {
-        let (repository, detail) = try await createNewTag(status: .verified)
+        let (repository, detail) = try await createNewTag(verifiedAt: Date())
         try await detail.$language.load(on: app.db)
         
         let moderatorToken = try await getToken(for: .moderator)
@@ -242,8 +241,6 @@ final class TagApiGetTests: AppTestCase, TagTest {
                 XCTAssertEqual(content.title, detail.title)
                 XCTAssertEqual(content.keywords, detail.keywords)
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)
-                XCTAssertNotNil(content.status)
-                XCTAssertEqual(content.status, detail.status)
                 XCTAssertNotNil(content.detailId)
                 XCTAssertEqual(content.detailId, detail.id!)
             }
@@ -251,7 +248,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
     }
     
     func testSuccessfulGetVerifiedTagBySlug() async throws {
-        let (repository, detail) = try await createNewTag(status: .verified)
+        let (repository, detail) = try await createNewTag(verifiedAt: Date())
         try await detail.$language.load(on: app.db)
         
         try app
@@ -265,7 +262,6 @@ final class TagApiGetTests: AppTestCase, TagTest {
                 XCTAssertEqual(content.slug, detail.slug)
                 XCTAssertEqual(content.keywords, detail.keywords)
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)
-                XCTAssertNil(content.status)
                 XCTAssertNotNil(content.detailId)
             }
             .test()
@@ -276,7 +272,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
         deactivatedLanguage.priority = nil
         try await deactivatedLanguage.update(on: app.db)
         
-        let (repositoryForDeactivatedLanguage, _) = try await createNewTag(status: .verified, languageId: deactivatedLanguage.requireID())
+        let (repositoryForDeactivatedLanguage, _) = try await createNewTag(verifiedAt: Date(), languageId: deactivatedLanguage.requireID())
         
         let adminToken = try await getToken(for: .admin)
         
@@ -289,7 +285,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
     }
     
     func testGetUnverifiedTagFails() async throws {
-        let (repository, _) = try await createNewTag(status: .pending)
+        let (repository, _) = try await createNewTag(verifiedAt: nil)
         
         try app
             .describe("Get unverified tag should fail")

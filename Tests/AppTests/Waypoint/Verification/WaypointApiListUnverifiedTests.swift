@@ -22,7 +22,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
         // Create an unverified waypoint
         let (unverifiedWaypointRepository, createdUnverifiedWaypoint, _) = try await createNewWaypoint(languageId: language.requireID(), userId: userId)
         // Create a verified waypoint
-        let (verifiedWaypointRepository, createdVerifiedWaypoint, _) = try await createNewWaypoint(status: .verified, languageId: language.requireID(), userId: userId)
+        let (verifiedWaypointRepository, createdVerifiedWaypoint, _) = try await createNewWaypoint(verifiedAt: Date(), languageId: language.requireID(), userId: userId)
         // Create a second not verified model for the verified waypoint
         let _ = try await WaypointDetailModel.createWith(
             title: "Not visible \(UUID())",
@@ -30,11 +30,11 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
             repositoryId: verifiedWaypointRepository.requireID(),
             languageId: language.requireID(),
             userId: userId,
-            status: .pending,
+            verifiedAt: nil,
             on: app.db
         )
         // Create a waypoint in the other language
-        let (verifiedWaypointRepositoryInDifferentLanguage, _, _) = try await createNewWaypoint(status: .verified, languageId: language2.requireID(), userId: userId)
+        let (verifiedWaypointRepositoryInDifferentLanguage, _, _) = try await createNewWaypoint(verifiedAt: Date(), languageId: language2.requireID(), userId: userId)
         
         // Get unverified waypoint count
         let waypoints = try await WaypointRepositoryModel
@@ -46,7 +46,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
         let waypointCount = waypoints.count
         
         let unverifiedWaypointCount = waypoints
-            .filter { $0.details.contains { [Status.pending, .deleteRequested].contains($0.status) && $0.language.priority != nil} || $0.$tags.pivots.contains { [Status.pending, .deleteRequested].contains($0.status) }}
+            .filter { $0.details.contains { $0.verifiedAt == nil && $0.language.priority != nil} || $0.$tags.pivots.contains { [Status.pending, .deleteRequested].contains($0.status) }}
             .count
         
         try app
@@ -121,7 +121,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
             repositoryId: waypointRepository.requireID(),
             languageId: language.requireID(),
             userId: userId,
-            status: .verified,
+            verifiedAt: Date(),
             on: app.db
         )
         // Create a second not verified waypoint for the same repository
@@ -131,7 +131,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
             repositoryId: waypointRepository.requireID(),
             languageId: language.requireID(),
             userId: userId,
-            status: .pending,
+            verifiedAt: nil,
             on: app.db
         )
         try await secondCreatedUnverifiedWaypoint.$language.load(on: app.db)
@@ -142,7 +142,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
             repositoryId: waypointRepository.requireID(),
             languageId: language2.requireID(),
             userId: userId,
-            status: .pending,
+            verifiedAt: nil,
             on: app.db
         )
         try await createdUnverifiedWaypointInDifferentLanguage.$language.load(on: app.db)
@@ -156,7 +156,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
         
         let unverifiedWaypointForRepositoryCount = try await WaypointDetailModel
             .query(on: app.db)
-            .filter(\.$status ~~ [.pending, .deleteRequested])
+            .filter(\.$verifiedAt == nil)
             .filter(\.$repository.$id == waypointRepository.requireID())
             .count()
         
@@ -241,7 +241,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
             location: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
             repositoryId: waypointRepository.requireID(),
             userId: userId,
-            status: .verified,
+            verifiedAt: Date(),
             on: app.db
         )
         // Create a second not verified location for the same repository
@@ -249,7 +249,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
             location: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
             repositoryId: waypointRepository.requireID(),
             userId: userId,
-            status: .pending,
+            verifiedAt: nil,
             on: app.db
         )
         // Create a not verified location for another repository
@@ -262,7 +262,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
         
         let unverifiedLocationForRepositoryCount = try await WaypointLocationModel
             .query(on: app.db)
-            .filter(\.$status ~~ [.pending, .deleteRequested])
+            .filter(\.$verifiedAt == nil)
             .filter(\.$repository.$id == waypointRepository.requireID())
             .count()
         

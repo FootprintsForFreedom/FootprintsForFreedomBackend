@@ -21,13 +21,13 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
         location: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
         patchedLocation: Waypoint.Location? = nil,
         languageId: UUID? = nil,
-        status: Status = .pending,
+        verifiedAt: Date? = nil,
         userId: UUID? = nil
     ) async throws -> (waypointRepository: WaypointRepositoryModel, createdModel: WaypointDetailModel, createdLocation: WaypointLocationModel, patchContent: Waypoint.Detail.Patch) {
         let (waypointRepository, createdModel, createdLocation) = try await createNewWaypoint(
             title: title,
             detailText: detailText,
-            status: status,
+            verifiedAt: verifiedAt,
             languageId: languageId,
             userId: userId
         )
@@ -43,7 +43,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
     
     func testSuccessfulPatchWaypointTitle() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(patchedTitle: "The patched title \(UUID())", status: .verified)
+        let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(patchedTitle: "The patched title \(UUID())", verifiedAt: Date())
         try await createdModel.$language.load(on: app.db)
         
         try app
@@ -61,8 +61,6 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.detailText, createdModel.detailText)
                 XCTAssertEqual(content.location, createdLocation.location)
                 XCTAssertEqual(content.languageCode, createdModel.language.languageCode)
-                XCTAssertNil(content.detailStatus)
-                XCTAssertNil(content.locationStatus)
             }
             .test()
         
@@ -73,13 +71,13 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
             .first()!
         
         XCTAssertNotNil(newWaypointModel.id)
-        XCTAssertEqual(newWaypointModel.status, .pending)
+        XCTAssertNil(newWaypointModel.verifiedAt)
     }
     
     func testSuccessfulPatchWaypointTitleWithDuplicateTitle() async throws {
         let token = try await getToken(for: .user, verified: true)
         let title = "My new title \(UUID())"
-        let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(title: title, patchedTitle: title, status: .verified)
+        let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(title: title, patchedTitle: title, verifiedAt: Date())
         try await createdModel.$language.load(on: app.db)
         
         try app
@@ -97,8 +95,6 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.detailText, createdModel.detailText)
                 XCTAssertEqual(content.location, createdLocation.location)
                 XCTAssertEqual(content.languageCode, createdModel.language.languageCode)
-                XCTAssertNil(content.detailStatus)
-                XCTAssertNil(content.locationStatus)
             }
             .test()
     }
@@ -106,7 +102,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
     
     func testSuccessfulPatchWaypointDetailText() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(patchedDetailText: "The patched detailText", status: .verified)
+        let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(patchedDetailText: "The patched detailText", verifiedAt: Date())
         try await createdModel.$language.load(on: app.db)
         
         try app
@@ -124,8 +120,6 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.detailText, patchContent.detailText)
                 XCTAssertEqual(content.location, createdLocation.location)
                 XCTAssertEqual(content.languageCode, createdModel.language.languageCode)
-                XCTAssertNil(content.detailStatus)
-                XCTAssertNil(content.locationStatus)
             }
             .test()
         
@@ -136,12 +130,12 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
             .first()!
         
         XCTAssertNotNil(newWaypointModel.id)
-        XCTAssertEqual(newWaypointModel.status, .pending)
+        XCTAssertNil(newWaypointModel.verifiedAt)
     }
     
     func testSuccessfulPatchWaypointLocation() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (waypointRepository, createdModel, _, patchContent) = try await getWaypointPatchContent(patchedLocation: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)), status: .verified)
+        let (waypointRepository, createdModel, _, patchContent) = try await getWaypointPatchContent(patchedLocation: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)), verifiedAt: Date())
         try await createdModel.$language.load(on: app.db)
         
         try app
@@ -158,8 +152,6 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.detailText, createdModel.detailText)
                 XCTAssertEqual(content.location, patchContent.location)
                 XCTAssertEqual(content.languageCode, createdModel.language.languageCode)
-                XCTAssertNil(content.detailStatus)
-                XCTAssertNil(content.locationStatus)
             }
             .test()
         
@@ -170,7 +162,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
             .first()!
         
         XCTAssertNotNil(newLocationModel.id)
-        XCTAssertEqual(newLocationModel.status, .pending)
+        XCTAssertNil(newLocationModel.verifiedAt)
     }
     
     func testSuccessfulPatchWithoutVerifiedModelInSpecifiedLanguageWhenAllParametersAreSet() async throws {
@@ -193,8 +185,6 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.detailText, patchContent.detailText)
                 XCTAssertEqual(content.location, patchContent.location)
                 XCTAssertEqual(content.languageCode, createdModel.language.languageCode)
-                XCTAssertNil(content.detailStatus)
-                XCTAssertNil(content.locationStatus)
             }
             .test()
     }
@@ -240,7 +230,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
     
     func testPatchWaypointNeedsValididForWaypointDetailToPatch() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (waypointRepository, _, _, _) = try await getWaypointPatchContent(status: .verified)
+        let (waypointRepository, _, _, _) = try await getWaypointPatchContent(verifiedAt: Date())
         let patchContent = Media.Detail.Patch(title: nil, detailText: nil, source: nil, idForMediaDetailToPatch: UUID())
         
         try app

@@ -13,8 +13,6 @@ public enum Status: String, Codable, CaseIterable, ApiModuleInterface {
     case pending
     /// The model was reviewed and verified. The model is visible to users.
     case verified
-    /// The model was reviewed and rejected. The model is not visible to users.
-    case rejected
     /// The model was visible and it was requested to delete it. The model is visible to users.
     case deleteRequested
 }

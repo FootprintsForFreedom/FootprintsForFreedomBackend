@@ -13,11 +13,11 @@ final class WaypointLocationModel: DetailModel {
     
     struct FieldKeys {
         struct v1 {
-            static var status: FieldKey { "status" }
             static var latitude: FieldKey { "latitude" }
             static var longitude: FieldKey { "longitude" }
             static var repositoryId: FieldKey { "repository_id" }
             static var userId: FieldKey { "user_id" }
+            static var verifiedAt: FieldKey { "verified_at" }
             static var createdAt: FieldKey { "created_at" }
             static var updatedAt: FieldKey { "updated_at" }
             static var deletedAt: FieldKey { "deleted_at" }
@@ -26,7 +26,6 @@ final class WaypointLocationModel: DetailModel {
     
     
     @ID() var id: UUID?
-    @Enum(key: FieldKeys.v1.status) var status: Status
     
     @Field(key: FieldKeys.v1.latitude) var latitude: Double
     @Field(key: FieldKeys.v1.longitude) var longitude: Double
@@ -34,26 +33,26 @@ final class WaypointLocationModel: DetailModel {
     @Parent(key: FieldKeys.v1.repositoryId) var repository: WaypointRepositoryModel
     @OptionalParent(key: FieldKeys.v1.userId) var user: UserAccountModel?
     
+    @OptionalField(key: FieldKeys.v1.verifiedAt) var verifiedAt: Date?
+    
     @Timestamp(key: FieldKeys.v1.createdAt, on: .create) var createdAt: Date?
     @Timestamp(key: FieldKeys.v1.updatedAt, on: .update) var updatedAt: Date?
     
     // MARK: soft delete
     @Timestamp(key: FieldKeys.v1.deletedAt, on: .delete) var deletedAt: Date?
     
-    init() {
-        self.status = .pending
-    }
+    init() { }
     
     init(
         id: UUID? = nil,
-        status: Status = .pending,
+        verifiedAt: Date? = nil,
         latitude: Double,
         longitude: Double,
         repositoryId: UUID,
         userId: UUID
     ) {
         self.id = id
-        self.status = status
+        self.verifiedAt = verifiedAt
         self.latitude = latitude
         self.longitude = longitude
         self.$repository.id = repositoryId
@@ -63,9 +62,9 @@ final class WaypointLocationModel: DetailModel {
 
 extension WaypointLocationModel {
     var ownKeyPathOnRepository: KeyPath<WaypointRepositoryModel, ChildrenProperty<WaypointRepositoryModel, WaypointLocationModel>> { \.$locations }
-    var _$status: FluentKit.EnumProperty<WaypointLocationModel, AppApi.Status> { $status }
     var _$repository: FluentKit.ParentProperty<WaypointLocationModel, WaypointRepositoryModel> { $repository }
     var _$user: FluentKit.OptionalParentProperty<WaypointLocationModel, UserAccountModel> { $user }
+    var _$verifiedAt: OptionalFieldProperty<WaypointLocationModel, Date> { $verifiedAt }
     var _$updatedAt: TimestampProperty<WaypointLocationModel, DefaultTimestampFormat> { $updatedAt }
     var _$deletedAt: TimestampProperty<WaypointLocationModel, DefaultTimestampFormat> { $deletedAt }
 }

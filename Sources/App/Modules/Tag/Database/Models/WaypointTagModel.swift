@@ -32,7 +32,7 @@ final class WaypointTagModel: DatabaseModelInterface, TagPivot {
     init(
         waypoint: WaypointRepositoryModel,
         tag: TagRepositoryModel,
-        status: Status = .pending
+        verifiedAt: Date? = nil
     ) throws {
         self.$waypoint.id = try waypoint.requireID()
         self.$tag.id = try tag.requireID()

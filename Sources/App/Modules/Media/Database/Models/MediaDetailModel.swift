@@ -13,7 +13,6 @@ final class MediaDetailModel: TitledDetailModel {
     
     struct FieldKeys {
         struct v1 {
-            static var status: FieldKey { "status" }
             static var title: FieldKey { "title" }
             static var slug: FieldKey { "slug" }
             static var detailText: FieldKey { "detail_text" }
@@ -22,6 +21,7 @@ final class MediaDetailModel: TitledDetailModel {
             static var mediaId: FieldKey { "media_id" }
             static var languageId: FieldKey { "language_id" }
             static var userId: FieldKey { "user_id" }
+            static var verifiedAt: FieldKey { "verified_at" }
             static var createdAt: FieldKey { "created_at" }
             static var updatedAt: FieldKey { "updated_at" }
             static var deletedAt: FieldKey { "deleted_at" }
@@ -29,7 +29,6 @@ final class MediaDetailModel: TitledDetailModel {
     }
     
     @ID() var id: UUID?
-    @Enum(key: FieldKeys.v1.status) var status: Status
 
     @Field(key: FieldKeys.v1.title) var title: String
     @Field(key: FieldKeys.v1.slug) var slug: String
@@ -42,18 +41,18 @@ final class MediaDetailModel: TitledDetailModel {
     @Parent(key: FieldKeys.v1.mediaId) var media: MediaFileModel
     @OptionalParent(key: FieldKeys.v1.userId) var user: UserAccountModel?
     
+    @OptionalField(key: FieldKeys.v1.verifiedAt) var verifiedAt: Date?
+    
     @Timestamp(key: FieldKeys.v1.createdAt, on: .create) var createdAt: Date?
     @Timestamp(key: FieldKeys.v1.updatedAt, on: .update) var updatedAt: Date?
     
     // MARK: soft delete
     @Timestamp(key: FieldKeys.v1.deletedAt, on: .delete) var deletedAt: Date?
     
-    init() {
-        self.status = .pending
-    }
+    init() { }
     
     init(
-        status: Status,
+        verifiedAt: Date?,
         title: String,
         slug: String,
         detailText: String,
@@ -63,7 +62,7 @@ final class MediaDetailModel: TitledDetailModel {
         fileId: UUID,
         userId: UUID
     ) {
-        self.status = status
+        self.verifiedAt = verifiedAt
         self.title = title
         self.slug = slug
         self.detailText = detailText
@@ -76,8 +75,8 @@ final class MediaDetailModel: TitledDetailModel {
 }
 
 extension MediaDetailModel {
-    var _$status: EnumProperty<MediaDetailModel, Status> { $status }
     var _$language: ParentProperty<MediaDetailModel, LanguageModel> { $language }
+    var _$verifiedAt: OptionalFieldProperty<MediaDetailModel, Date> { $verifiedAt }
     var _$updatedAt: TimestampProperty<MediaDetailModel, DefaultTimestampFormat> { $updatedAt }
     var _$deletedAt: TimestampProperty<MediaDetailModel, DefaultTimestampFormat> { $deletedAt }
     var _$repository: ParentProperty<MediaDetailModel, MediaRepositoryModel> { $repository }

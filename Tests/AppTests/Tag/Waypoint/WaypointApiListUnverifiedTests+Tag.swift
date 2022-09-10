@@ -13,8 +13,8 @@ import Spec
 extension WaypointApiListUnverifiedTests: TagTest {
     func testSuccessfulListRepositoriesWithUnverifiedModelsReturnsModelsWithUnverifiedTags() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(status: .verified)
-        let waypoint = try await createNewWaypoint(status: .verified)
+        let tag = try await createNewTag(verifiedAt: Date())
+        let waypoint = try await createNewWaypoint(verifiedAt: Date())
         
         try await waypoint.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -37,8 +37,8 @@ extension WaypointApiListUnverifiedTests: TagTest {
     
     func testSuccessfulListRepositoriesWithUnverifiedModelsReturnsModelsWithRequestDeltedTags() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(status: .verified)
-        let waypoint = try await createNewWaypoint(status: .verified)
+        let tag = try await createNewTag(verifiedAt: Date())
+        let waypoint = try await createNewWaypoint(verifiedAt: Date())
         
         try await waypoint.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         

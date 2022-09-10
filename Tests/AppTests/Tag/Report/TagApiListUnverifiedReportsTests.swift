@@ -32,7 +32,7 @@ final class TagApiListUnverifiedReportsTests: AppTestCase, TagTest {
     func testSuccessfulListUnverifiedReportsDoesNotListVerifiedReports() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let tag = try await createNewTag()
-        let report = try await createNewTagReport(tag: tag, status: .verified)
+        let report = try await createNewTagReport(tag: tag, verifiedAt: Date())
         let reportsCount = try await TagReportModel.query(on: app.db).count()
         
         try app

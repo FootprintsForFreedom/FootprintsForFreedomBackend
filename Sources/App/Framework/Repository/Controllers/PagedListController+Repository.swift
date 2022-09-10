@@ -14,7 +14,7 @@ extension PagedListController where Self: RepositoryController {
         let list = try await beforeList(req, queryBuilder)
         // only return repositories with verified media details inside
             .join(children: \._$details)
-            .filter(Detail.self, \._$status ~~ [.verified, .deleteRequested])
+            .filter(Detail.self, \._$verifiedAt != nil)
         // only return details which have an activated language
             .join(from: Detail.self, parent: \._$language)
             .filter(LanguageModel.self, \.$priority != nil)

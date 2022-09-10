@@ -116,7 +116,6 @@ extension ApiRepositoryCreateReportController where ReportCreateObject == AppApi
             slug: report.slug,
             reason: report.reason,
             visibleDetail: DetailObject(id: report._$visibleDetail.id, db: req.db),
-            status: report.status,
             reportId: report.requireID()
         )
     }

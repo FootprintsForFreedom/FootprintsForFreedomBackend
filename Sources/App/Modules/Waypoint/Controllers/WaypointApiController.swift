@@ -63,7 +63,7 @@ struct WaypointApiController: ApiRepositoryController {
         queryBuilder
         // also make sure the location is verified
             .join(WaypointLocationModel.self, on: \WaypointLocationModel.$repository.$id == \WaypointRepositoryModel.$id)
-            .filter(WaypointLocationModel.self, \.$status ~~ [.verified, .deleteRequested])
+            .filter(WaypointLocationModel.self, \.$verifiedAt != nil)
     }
     
     func listOutput(_ req: Request, _ repository: WaypointRepositoryModel, _ detail: Detail) async throws -> Waypoint.Detail.List {
@@ -99,29 +99,12 @@ struct WaypointApiController: ApiRepositoryController {
             throw Abort(.notFound)
         }
         
-        if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db), user.role >= .moderator {
-            try await detail.$language.load(on: req.db)
-            return try await .moderatorDetail(
-                id: repository.requireID(),
-                title: detail.title,
-                slug: detail.slug,
-                detailText: detail.detailText,
-                location: location.location,
-                tags: repository.tagList(req),
-                languageCode: detail.language.languageCode,
-                availableLanguageCodes: repository.availableLanguageCodes(req.db),
-                detailId: detail.requireID(),
-                locationId: location.requireID(),
-                detailStatus: detail.status,
-                locationStatus: location.status
-            )
-        }
         return try await detailOutput(req, repository, detail, location)
     }
     
     func detailOutput(_ req: Request, _ repository: WaypointRepositoryModel, _ detail: WaypointDetailModel, _ location: WaypointLocationModel) async throws -> Waypoint.Detail.Detail {
         try await detail.$language.load(on: req.db)
-        return try await .publicDetail(
+        return try await .init(
             id: repository.requireID(),
             title: detail.title,
             slug: detail.slug,

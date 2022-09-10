@@ -35,8 +35,6 @@ final class WaypointApiVerifyReportTests: AppTestCase, WaypointTest {
                     XCTAssertEqual(visibleDetail.detailText, waypoint.detail.detailText)
                     XCTAssertEqual(visibleDetail.location, waypoint.location.location)
                     XCTAssertEqual(visibleDetail.languageCode, waypoint.detail.language.languageCode)
-                    XCTAssertNil(visibleDetail.detailStatus)
-                    XCTAssertNil(visibleDetail.locationStatus)
                     XCTAssertNotNil(visibleDetail.detailId)
                     XCTAssertNotNil(visibleDetail.locationId)
                 }
@@ -94,7 +92,7 @@ final class WaypointApiVerifyReportTests: AppTestCase, WaypointTest {
     func testVerifyReportWithAlreadyVerifiedReportFails() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let waypoint = try await createNewWaypoint()
-        let report = try await createNewWaypointReport(waypoint: waypoint, status: .verified)
+        let report = try await createNewWaypointReport(waypoint: waypoint, verifiedAt: Date())
         try await waypoint.detail.$language.load(on: app.db)
         
         try app

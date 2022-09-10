@@ -36,7 +36,6 @@ final class MediaApiVerifyReportTests: AppTestCase, MediaTest {
                     XCTAssertEqual(visibleDetail.languageCode, media.detail.language.languageCode)
                     XCTAssertEqual(visibleDetail.group, media.file.group)
                     XCTAssertEqual(visibleDetail.filePath, media.file.relativeMediaFilePath)
-                    XCTAssertNil(visibleDetail.status)
                     XCTAssertNotNil(visibleDetail.detailId)
                 }
             }
@@ -93,7 +92,7 @@ final class MediaApiVerifyReportTests: AppTestCase, MediaTest {
     func testVerifyReportWithAlreadyVerifiedReportFails() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let media = try await createNewMedia()
-        let report = try await createNewMediaReport(media: media, status: .verified)
+        let report = try await createNewMediaReport(media: media, verifiedAt: Date())
         try await media.detail.$language.load(on: app.db)
         
         try app

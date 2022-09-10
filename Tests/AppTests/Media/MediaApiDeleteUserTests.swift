@@ -14,7 +14,7 @@ final class MediaApiDeleteUserTests: AppTestCase, MediaTest, UserTest {
     func testDeleteUserSetsUserIdToNil() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let (user, token) = try await createNewUserWithToken()
-        let (mediaRepository, media, file) = try await createNewMedia(status: .verified, userId: user.requireID())
+        let (mediaRepository, media, file) = try await createNewMedia(verifiedAt: Date(), userId: user.requireID())
         try await media.$language.load(on: app.db)
         
         try app
@@ -37,8 +37,6 @@ final class MediaApiDeleteUserTests: AppTestCase, MediaTest, UserTest {
                 XCTAssertEqual(content.languageCode, media.language.languageCode)
                 XCTAssertEqual(content.group, file.group)
                 XCTAssertEqual(content.filePath, file.relativeMediaFilePath)
-                XCTAssertNotNil(content.status)
-                XCTAssertEqual(content.status, media.status)
                 XCTAssertNotNil(content.detailId)
                 XCTAssertEqual(content.detailId, media.id!)
             }

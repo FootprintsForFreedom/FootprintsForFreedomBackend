@@ -42,7 +42,6 @@ final class TagApiCreateTests: AppTestCase, TagTest {
                 XCTAssertContains(content.slug, newTag.title.slugify())
                 XCTAssertEqual(content.keywords, newTag.keywords)
                 XCTAssertEqual(content.languageCode, newTag.languageCode)
-                XCTAssertNil(content.status)
             }
             .test()
     }
@@ -64,7 +63,6 @@ final class TagApiCreateTests: AppTestCase, TagTest {
                 XCTAssertContains(content.slug, newTag.title.slugify())
                 XCTAssertEqual(content.keywords, newTag.keywords)
                 XCTAssertEqual(content.languageCode, newTag.languageCode)
-                XCTAssertNotNil(content.status)
             }
             .test()
     }
@@ -87,7 +85,6 @@ final class TagApiCreateTests: AppTestCase, TagTest {
                 XCTAssertContains(content.slug, newTag.title.slugify())
                 XCTAssertEqual(content.keywords, newTag.keywords)
                 XCTAssertEqual(content.languageCode, newTag.languageCode)
-                XCTAssertNil(content.status)
             }
             .test()
     }
@@ -168,7 +165,6 @@ final class TagApiCreateTests: AppTestCase, TagTest {
                 XCTAssertNotEqual(content.keywords, newTag.keywords)
                 XCTAssertEqual(content.keywords, newTag.keywords.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty })
                 XCTAssertEqual(content.languageCode, newTag.languageCode)
-                XCTAssertNil(content.status)
             }
             .test()
     }

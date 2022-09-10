@@ -12,7 +12,7 @@ import Spec
 
 final class WaypointApiGetInCoordinatesTests: AppTestCase, WaypointTest {
     func testSuccessfulGetWaypointsInCoordinates() async throws {
-        let waypoint = try await createNewWaypoint(status: .verified)
+        let waypoint = try await createNewWaypoint(verifiedAt: Date())
         
         let getInRangeContent = WaypointApiController.GetInRangeQuery(
             tepLeftLatitude: waypoint.location.latitude + 1,
@@ -36,7 +36,7 @@ final class WaypointApiGetInCoordinatesTests: AppTestCase, WaypointTest {
     
     func testSuccessfulGetWaypointsInCoordinatesDoesNotReturnUnverifiedLocation() async throws {
         let waypoint = try await createNewWaypoint()
-        waypoint.detail.status = .verified
+        waypoint.detail.verifiedAt = Date()
         try await waypoint.detail.update(on: app.db)
         
         let getInRangeContent = WaypointApiController.GetInRangeQuery(
@@ -61,7 +61,7 @@ final class WaypointApiGetInCoordinatesTests: AppTestCase, WaypointTest {
     
     func testSuccessfulGetWaypointsInCoordinatesDoesNotReturnUnverifiedDetail() async throws {
         let waypoint = try await createNewWaypoint()
-        waypoint.location.status = .verified
+        waypoint.location.verifiedAt = Date()
         try await waypoint.detail.update(on: app.db)
         
         let getInRangeContent = WaypointApiController.GetInRangeQuery(

@@ -31,7 +31,6 @@ final class MediaApiVerificationTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.languageCode, detail.language.languageCode)
                 XCTAssertEqual(content.group, file.group)
                 XCTAssertEqual(content.filePath, file.relativeMediaFilePath)
-                XCTAssertNotNil(content.status)
                 XCTAssertNotNil(content.detailId)
             }
             .test()
@@ -61,7 +60,7 @@ final class MediaApiVerificationTests: AppTestCase, MediaTest {
     
     func testVerifyMediaWithAlreadyVerifiedMediaFails() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let (repository, detail, _) = try await createNewMedia(status: .verified)
+        let (repository, detail, _) = try await createNewMedia(verifiedAt: Date())
         
         try app
             .describe("Verify media for already verified media should fail")

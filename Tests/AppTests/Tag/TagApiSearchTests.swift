@@ -12,7 +12,7 @@ import Spec
 
 final class TagApiSearchTests: AppTestCase, TagTest {
     func testSuccessfulSearchTagReturnsWhenTextInTitle() async throws {
-        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], status: .verified)
+        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verifiedAt: Date())
         try await tag.detail.$language.load(on: app.db)
         
         let tagCount = try await TagRepositoryModel.query(on: app.db).count()
@@ -34,7 +34,7 @@ final class TagApiSearchTests: AppTestCase, TagTest {
     }
     
     func testSuccessfulSearchTagReturnsWhenTextInKeywords() async throws {
-        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], status: .verified)
+        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verifiedAt: Date())
         try await tag.detail.$language.load(on: app.db)
         
         let tagCount = try await TagRepositoryModel.query(on: app.db).count()
@@ -56,7 +56,7 @@ final class TagApiSearchTests: AppTestCase, TagTest {
     }
     
     func testSuccessfulSearchTagOnlyReturnsVerifiedTags() async throws {
-        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], status: .pending)
+        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verifiedAt: nil)
         try await tag.detail.$language.load(on: app.db)
         
         let tagCount = try await TagRepositoryModel.query(on: app.db).count()
@@ -73,7 +73,7 @@ final class TagApiSearchTests: AppTestCase, TagTest {
     }
     
     func testSuccessfulSearchTagDoesNotReturnWhenTextNotInTitleOrKeywords() async throws {
-        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], status: .verified)
+        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verifiedAt: Date())
         try await tag.detail.$language.load(on: app.db)
         
         let tagCount = try await TagRepositoryModel.query(on: app.db).count()
@@ -92,7 +92,7 @@ final class TagApiSearchTests: AppTestCase, TagTest {
     func testSuccessfulSearchTagOnlyReturnsDetailsForSpecifiedLanguage() async throws {
         let language = try await createLanguage()
         let language2 = try await createLanguage()
-        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], status: .verified, languageId: language.requireID())
+        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verifiedAt: Date(), languageId: language.requireID())
         try await tag.detail.$language.load(on: app.db)
         
         let tagCount = try await TagRepositoryModel.query(on: app.db).count()
@@ -110,7 +110,7 @@ final class TagApiSearchTests: AppTestCase, TagTest {
     
     func testSuccessfulSearchTagDoesNotReturnDetailsForDeactivatedLanguage() async throws {
         let language = try await createLanguage(activated: false)
-        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], status: .verified, languageId: language.requireID())
+        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verifiedAt: Date(), languageId: language.requireID())
         try await tag.detail.$language.load(on: app.db)
         
         let tagCount = try await TagRepositoryModel.query(on: app.db).count()
@@ -129,9 +129,9 @@ final class TagApiSearchTests: AppTestCase, TagTest {
     func testSuccessfulSearchTagOnlyReturnsNewestVerifiedDetailForRepository() async throws {
         let language = try await createLanguage()
         let userId = try await getUser(role: .user).requireID()
-        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], status: .verified, languageId: language.requireID())
+        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verifiedAt: Date(), languageId: language.requireID())
         let newerTag = try await TagDetailModel.createWith(
-            status: .verified,
+            verifiedAt: Date(),
             title: "Ein besonderer Titel neu",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
@@ -162,7 +162,7 @@ final class TagApiSearchTests: AppTestCase, TagTest {
     }
     
     func testSearchTagNeedsValidText() async throws {
-        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], status: .verified)
+        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verifiedAt: Date())
         try await tag.detail.$language.load(on: app.db)
         
         let tagCount = try await TagRepositoryModel.query(on: app.db).count()
@@ -181,7 +181,7 @@ final class TagApiSearchTests: AppTestCase, TagTest {
     }
     
     func testSearchTagNeedsValidLanguageCode() async throws {
-        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], status: .verified)
+        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verifiedAt: Date())
         try await tag.detail.$language.load(on: app.db)
         
         let tagCount = try await TagRepositoryModel.query(on: app.db).count()

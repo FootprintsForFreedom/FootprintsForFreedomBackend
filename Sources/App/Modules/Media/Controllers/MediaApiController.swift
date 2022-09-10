@@ -78,36 +78,19 @@ struct MediaApiController: ApiRepositoryController {
         try await detail.$media.load(on: req.db)
         try await detail.$language.load(on: req.db)
         
-        if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db), user.role >= .moderator {
-            return try await .moderatorDetail(
-                id: repository.requireID(),
-                languageCode: detail.language.languageCode,
-                availableLanguageCodes: repository.availableLanguageCodes(req.db),
-                title: detail.title,
-                slug: detail.slug,
-                detailText: detail.detailText,
-                source: detail.source,
-                group: detail.media.group,
-                filePath: detail.media.relativeMediaFilePath,
-                tags: repository.tagList(req),
-                detailId: detail.requireID(),
-                status: detail.status
-            )
-        } else {
-            return try await .publicDetail(
-                id: repository.requireID(),
-                languageCode: detail.language.languageCode,
-                availableLanguageCodes: repository.availableLanguageCodes(req.db),
-                title: detail.title,
-                slug: detail.slug,
-                detailText: detail.detailText,
-                source: detail.source,
-                group: detail.media.group,
-                filePath: detail.media.relativeMediaFilePath,
-                tags: repository.tagList(req),
-                detailId: detail.requireID()
-            )
-        }
+        return try await .init(
+            id: repository.requireID(),
+            languageCode: detail.language.languageCode,
+            availableLanguageCodes: repository.availableLanguageCodes(req.db),
+            title: detail.title,
+            slug: detail.slug,
+            detailText: detail.detailText,
+            source: detail.source,
+            group: detail.media.group,
+            filePath: detail.media.relativeMediaFilePath,
+            tags: repository.tagList(req),
+            detailId: detail.requireID()
+        )
     }
     
     // MARK: - Create

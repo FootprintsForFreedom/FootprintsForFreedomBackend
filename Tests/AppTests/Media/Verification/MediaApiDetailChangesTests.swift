@@ -25,7 +25,7 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
             on: app.db
         )
         let secondMediaDetail = try await MediaDetailModel.createWith(
-            status: .pending,
+            verifiedAt: nil,
             title: "Another different title \(UUID())",
             detailText: "This is a mew detailText",
             source: "Some other source",
@@ -63,7 +63,7 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
         let (waypointRepository, _, _) = try await createNewWaypoint(languageId: language.requireID())
         let (mediaRepository, mediaDetail, mediaFile) = try await createNewMedia(waypointId: waypointRepository.requireID(), languageId: language.requireID())
         let secondMediaDetail = try await MediaDetailModel.createWith(
-            status: .pending,
+            verifiedAt: nil,
             title: "Another different title \(UUID())",
             detailText: "This is a mew detailText",
             source: "Some other source",
@@ -88,7 +88,7 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
         let (waypointRepository, _, _) = try await createNewWaypoint(languageId: language.requireID())
         let (mediaRepository, mediaDetail, mediaFile) = try await createNewMedia(waypointId: waypointRepository.requireID(), languageId: language.requireID())
         let secondMediaDetail = try await MediaDetailModel.createWith(
-            status: .pending,
+            verifiedAt: nil,
             title: "Another different title \(UUID())",
             detailText: "This is a mew detailText",
             source: "Some other source",
@@ -171,7 +171,7 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
         let (waypointRepository, _, _) = try await createNewWaypoint(languageId: language.requireID())
         let (mediaRepository, mediaDetail, mediaFile) = try await createNewMedia(waypointId: waypointRepository.requireID(), languageId: language.requireID())
         let secondMediaDetail = try await MediaDetailModel.createWith(
-            status: .pending,
+            verifiedAt: nil,
             title: "Another different title",
             detailText: "This is a mew detailText",
             source: "Some other source",

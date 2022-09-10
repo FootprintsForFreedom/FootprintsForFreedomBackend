@@ -12,7 +12,7 @@ import Fluent
 extension TagTest {
     func createNewTagReport(
         tag: (repository: TagRepositoryModel, detail: TagDetailModel),
-        status: Status = .pending,
+        verifiedAt: Date? = nil,
         title: String = "New report title \(UUID())",
         reason: String = "Just because",
         userId: UUID? = nil
@@ -23,7 +23,7 @@ extension TagTest {
         }
         
         let report = try TagReportModel(
-            status: status,
+            verifiedAt: verifiedAt,
             title: title,
             slug: title.slugify(),
             reason: reason,

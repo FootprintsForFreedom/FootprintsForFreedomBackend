@@ -53,7 +53,7 @@ extension ApiRepositoryListUnverifiedReportsController {
         
         let unverifiedReports = try await repository._$reports
             .query(on: req.db)
-            .filter(\._$status == .pending)
+            .filter(\._$verifiedAt == nil)
             .sort(\._$updatedAt, .ascending) // oldest first
             .paginate(for: req)
         

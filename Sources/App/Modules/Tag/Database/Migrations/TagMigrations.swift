@@ -23,7 +23,6 @@ enum TagMigrations {
             try await db.schema(TagDetailModel.schema)
                 .id()
             
-                .field(TagDetailModel.FieldKeys.v1.status, statusType, .required)
                 .field(TagDetailModel.FieldKeys.v1.title, .string , .required)
                 .field(TagDetailModel.FieldKeys.v1.slug, .string, .required)
                 .unique(on: TagDetailModel.FieldKeys.v1.slug)
@@ -37,7 +36,8 @@ enum TagMigrations {
             
                 .field(TagDetailModel.FieldKeys.v1.userId, .uuid)
                 .foreignKey(TagDetailModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
-            
+
+                .field(TagDetailModel.FieldKeys.v1.verifiedAt, .datetime)
                 .field(TagDetailModel.FieldKeys.v1.createdAt, .datetime, .required)
                 .field(TagDetailModel.FieldKeys.v1.updatedAt, .datetime, .required)
                 .field(TagDetailModel.FieldKeys.v1.deletedAt, .datetime)
@@ -47,7 +47,6 @@ enum TagMigrations {
             try await db.schema(TagReportModel.schema)
                 .id()
             
-                .field(TagReportModel.FieldKeys.v1.status, statusType, .required)
                 .field(TagReportModel.FieldKeys.v1.title, .string , .required)
                 .field(TagReportModel.FieldKeys.v1.slug, .string, .required)
                 .unique(on: TagReportModel.FieldKeys.v1.slug)
@@ -62,6 +61,7 @@ enum TagMigrations {
                 .field(TagReportModel.FieldKeys.v1.userId, .uuid)
                 .foreignKey(TagReportModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
             
+                .field(TagReportModel.FieldKeys.v1.verifiedAt, .datetime)
                 .field(TagReportModel.FieldKeys.v1.createdAt, .datetime, .required)
                 .field(TagReportModel.FieldKeys.v1.updatedAt, .datetime, .required)
                 .field(TagReportModel.FieldKeys.v1.deletedAt, .datetime)

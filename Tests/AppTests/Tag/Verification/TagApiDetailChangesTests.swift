@@ -18,7 +18,7 @@ final class TagApiDetailChangesTests: AppTestCase, TagTest {
         let language = try await createLanguage()
         let (repository, detail) = try await createNewTag(languageId: language.requireID())
         let secondTagDetail = try await TagDetailModel.createWith(
-            status: .pending,
+            verifiedAt: nil,
             title: "A different title \(UUID())",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
@@ -49,7 +49,7 @@ final class TagApiDetailChangesTests: AppTestCase, TagTest {
         let language = try await createLanguage()
         let (repository, detail) = try await createNewTag(languageId: language.requireID())
         let secondTagDetail = try await TagDetailModel.createWith(
-            status: .pending,
+            verifiedAt: nil,
             title: "A different title \(UUID())",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
@@ -71,7 +71,7 @@ final class TagApiDetailChangesTests: AppTestCase, TagTest {
         let language = try await createLanguage()
         let (repository, detail) = try await createNewTag(languageId: language.requireID())
         let secondTagDetail = try await TagDetailModel.createWith(
-            status: .pending,
+            verifiedAt: nil,
             title: "A different title \(UUID())",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
@@ -153,7 +153,7 @@ final class TagApiDetailChangesTests: AppTestCase, TagTest {
         let secondLanguage = try await createLanguage()
         let (repository, detail) = try await createNewTag(languageId: language.requireID())
         let secondTagDetail = try await TagDetailModel.createWith(
-            status: .pending,
+            verifiedAt: nil,
             title: "A different title",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: secondLanguage.requireID(),

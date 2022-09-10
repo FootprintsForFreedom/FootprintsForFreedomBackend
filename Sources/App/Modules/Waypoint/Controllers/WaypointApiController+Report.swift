@@ -21,7 +21,7 @@ extension Waypoint.Detail.Detail: InitializableById {
         
         let allLanguageCodesByPriority = try await LanguageModel.languageCodesByPriority(preferredLanguageCode: detail.language.languageCode, on: db)
         
-        self = try await Self.publicDetail(
+        self = try await .init(
             id: repository.requireID(),
             title: detail.title,
             slug: detail.slug,

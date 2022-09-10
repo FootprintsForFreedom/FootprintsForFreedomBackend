@@ -13,7 +13,7 @@ import Spec
 final class WaypointApiRequestDelteTagTests: AppTestCase, WaypointTest, TagTest {
     func testSuccessfulRequestDeleteTag() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let tag = try await createNewTag(status: .verified)
+        let tag = try await createNewTag(verifiedAt: Date())
         let waypoint = try await createNewWaypoint()
         try await waypoint.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         try await waypoint.detail.$language.load(on: app.db)
@@ -38,8 +38,6 @@ final class WaypointApiRequestDelteTagTests: AppTestCase, WaypointTest, TagTest 
                 XCTAssertEqual(content.location, waypoint.location.location)
                 XCTAssertEqual(content.languageCode, waypoint.detail.language.languageCode)
                 XCTAssert(content.tags.contains { $0.id == tag.repository.id })
-                XCTAssertNil(content.detailStatus)
-                XCTAssertNil(content.locationStatus)
                 XCTAssertNotNil(content.detailId)
                 XCTAssertNotNil(content.locationId)
             }
@@ -48,7 +46,7 @@ final class WaypointApiRequestDelteTagTests: AppTestCase, WaypointTest, TagTest 
     
     func testRequestDeleteTagAsUnverifiedUserFails() async throws {
         let token = try await getToken(for: .user, verified: false)
-        let tag = try await createNewTag(status: .verified)
+        let tag = try await createNewTag(verifiedAt: Date())
         let waypoint = try await createNewWaypoint()
         try await waypoint.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -61,7 +59,7 @@ final class WaypointApiRequestDelteTagTests: AppTestCase, WaypointTest, TagTest 
     }
     
     func testRequestDeleteTagWithoutTokenFails() async throws {
-        let tag = try await createNewTag(status: .verified)
+        let tag = try await createNewTag(verifiedAt: Date())
         let waypoint = try await createNewWaypoint()
         try await waypoint.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -74,7 +72,7 @@ final class WaypointApiRequestDelteTagTests: AppTestCase, WaypointTest, TagTest 
     
     func testRequestDeleteTagOnlyWorksWithVerifiedTag() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let tag = try await createNewTag(status: .verified)
+        let tag = try await createNewTag(verifiedAt: Date())
         let waypoint = try await createNewWaypoint()
         try await waypoint.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         try await waypoint.detail.$language.load(on: app.db)
@@ -95,7 +93,7 @@ final class WaypointApiRequestDelteTagTests: AppTestCase, WaypointTest, TagTest 
     
     func testRequestDeleteTagNeedsValidWaypointId() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let tag = try await createNewTag(status: .verified)
+        let tag = try await createNewTag(verifiedAt: Date())
         
         try app
             .describe("Request delete tag on waypoint required valid waypoint id")
@@ -119,7 +117,7 @@ final class WaypointApiRequestDelteTagTests: AppTestCase, WaypointTest, TagTest 
     
     func testRequestDeleteTagNeedsConnectedTagAndWaypoint() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let tag = try await createNewTag(status: .verified)
+        let tag = try await createNewTag(verifiedAt: Date())
         let waypoint = try await createNewWaypoint()
         
         try app

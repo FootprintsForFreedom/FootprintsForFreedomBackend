@@ -60,11 +60,11 @@ extension WaypointApiController: ApiRepositoryVerificationController {
             .group(.or) {
                 $0
                 // only get unverified locations
-                    .filter(WaypointLocationModel.self, \.$status ~~ [.pending, .deleteRequested])
+                    .filter(WaypointLocationModel.self, \.$verifiedAt == nil)
                     .group(.and) {
                         $0
                         // only get unverified details
-                            .filter(WaypointDetailModel.self, \.$status ~~ [.pending, .deleteRequested])
+                            .filter(WaypointDetailModel.self, \.$verifiedAt == nil)
                         // only select details which hava an active language
                             .filter(LanguageModel.self, \.$priority != nil)
                     }
@@ -127,7 +127,7 @@ extension WaypointApiController: ApiRepositoryVerificationController {
         
         let unverifiedLocations = try await repository.$locations
             .query(on: req.db)
-            .filter(\.$status ~~ [.pending, .deleteRequested])
+            .filter(\.$verifiedAt == nil)
             .sort(\.$updatedAt, .ascending) // oldest first
             .paginate(for: req)
         
@@ -182,12 +182,12 @@ extension WaypointApiController: ApiRepositoryVerificationController {
             .query(on: req.db)
             .filter(\._$id == locationId)
             .filter(\.$repository.$id == repository.requireID())
-            .filter(\.$status ~~ [.pending, .deleteRequested])
+            .filter(\.$verifiedAt == nil)
             .first()
         else {
             throw Abort(.badRequest)
         }
-        location.status = .verified
+        location.verifiedAt = Date()
         try await location.update(on: req.db)
         
         let allLanguageCodesByPriority = try await req.allLanguageCodesByPriority()

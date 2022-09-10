@@ -24,9 +24,9 @@ enum MediaMigrations {
                 .field(MediaRepositoryModel.FieldKeys.v1.waypointId, .uuid, .required)
                 .foreignKey(MediaRepositoryModel.FieldKeys.v1.waypointId, references: WaypointRepositoryModel.schema, .id, onDelete: .cascade)
             
-                .field(MediaDetailModel.FieldKeys.v1.createdAt, .datetime, .required)
-                .field(WaypointLocationModel.FieldKeys.v1.updatedAt, .datetime, .required)
-                .field(WaypointLocationModel.FieldKeys.v1.deletedAt, .datetime)
+                .field(MediaRepositoryModel.FieldKeys.v1.createdAt, .datetime, .required)
+                .field(MediaRepositoryModel.FieldKeys.v1.updatedAt, .datetime, .required)
+                .field(MediaRepositoryModel.FieldKeys.v1.deletedAt, .datetime)
             
                 .create()
             
@@ -40,17 +40,14 @@ enum MediaMigrations {
                 .field(MediaFileModel.FieldKeys.v1.userId, .uuid)
                 .foreignKey(MediaFileModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
             
-                .field(MediaDetailModel.FieldKeys.v1.createdAt, .datetime, .required)
-                .field(WaypointLocationModel.FieldKeys.v1.updatedAt, .datetime, .required)
-                .field(WaypointLocationModel.FieldKeys.v1.deletedAt, .datetime)
+                .field(MediaFileModel.FieldKeys.v1.createdAt, .datetime, .required)
+                .field(MediaFileModel.FieldKeys.v1.updatedAt, .datetime, .required)
+                .field(MediaFileModel.FieldKeys.v1.deletedAt, .datetime)
             
                 .create()
             
-            let statusType = try await db.enum(Status.pathKey).read()
-            
             try await db.schema(MediaDetailModel.schema)
                 .id()
-                .field(MediaDetailModel.FieldKeys.v1.status, statusType, .required)
                 .field(MediaDetailModel.FieldKeys.v1.title, .string, .required)
                 .field(MediaDetailModel.FieldKeys.v1.slug, .string, .required)
                 .unique(on: MediaDetailModel.FieldKeys.v1.slug)
@@ -69,16 +66,16 @@ enum MediaMigrations {
                 .field(MediaDetailModel.FieldKeys.v1.userId, .uuid)
                 .foreignKey(MediaDetailModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
             
+                .field(MediaDetailModel.FieldKeys.v1.verifiedAt, .datetime)
                 .field(MediaDetailModel.FieldKeys.v1.createdAt, .datetime, .required)
-                .field(WaypointLocationModel.FieldKeys.v1.updatedAt, .datetime, .required)
-                .field(WaypointLocationModel.FieldKeys.v1.deletedAt, .datetime)
+                .field(MediaDetailModel.FieldKeys.v1.updatedAt, .datetime, .required)
+                .field(MediaDetailModel.FieldKeys.v1.deletedAt, .datetime)
             
                 .create()
             
             try await db.schema(MediaReportModel.schema)
                 .id()
             
-                .field(MediaReportModel.FieldKeys.v1.status, statusType, .required)
                 .field(MediaReportModel.FieldKeys.v1.title, .string , .required)
                 .field(MediaReportModel.FieldKeys.v1.slug, .string, .required)
                 .unique(on: MediaReportModel.FieldKeys.v1.slug)
@@ -93,6 +90,7 @@ enum MediaMigrations {
                 .field(MediaReportModel.FieldKeys.v1.userId, .uuid)
                 .foreignKey(MediaReportModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
             
+                .field(MediaReportModel.FieldKeys.v1.verifiedAt, .datetime)
                 .field(MediaReportModel.FieldKeys.v1.createdAt, .datetime, .required)
                 .field(MediaReportModel.FieldKeys.v1.updatedAt, .datetime, .required)
                 .field(MediaReportModel.FieldKeys.v1.deletedAt, .datetime)

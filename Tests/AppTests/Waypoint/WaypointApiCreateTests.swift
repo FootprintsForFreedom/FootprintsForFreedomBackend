@@ -50,8 +50,6 @@ final class WaypointApiCreateTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.detailText, newWaypoint.detailText)
                 XCTAssertEqual(content.location, newWaypoint.location)
                 XCTAssertEqual(content.languageCode, newWaypoint.languageCode)
-                XCTAssertNil(content.detailStatus)
-                XCTAssertNil(content.locationStatus)
             }
             .test()
         
@@ -67,7 +65,7 @@ final class WaypointApiCreateTests: AppTestCase, WaypointTest {
                 .query(on: app.db)
                 .sort(\.$createdAt, .descending)
                 .first()!
-            XCTAssertEqual(waypoint.status, .pending)
+            XCTAssertNil(waypoint.verifiedAt)
         } else {
             XCTFail("Could not find repository on db")
         }
@@ -97,8 +95,6 @@ final class WaypointApiCreateTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.detailText, newWaypoint.detailText)
                 XCTAssertEqual(content.location, newWaypoint.location)
                 XCTAssertEqual(content.languageCode, newWaypoint.languageCode)
-                XCTAssertNil(content.detailStatus)
-                XCTAssertNil(content.locationStatus)
             }
             .test()
         
@@ -114,7 +110,7 @@ final class WaypointApiCreateTests: AppTestCase, WaypointTest {
                 .query(on: app.db)
                 .sort(\.$createdAt, .descending)
                 .first()!
-            XCTAssertEqual(waypoint.status, .pending)
+            XCTAssertNil(waypoint.verifiedAt)
         } else {
             XCTFail("Could not find repository on db")
         }
@@ -140,8 +136,6 @@ final class WaypointApiCreateTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.detailText, newWaypoint.detailText)
                 XCTAssertEqual(content.location, newWaypoint.location)
                 XCTAssertEqual(content.languageCode, newWaypoint.languageCode)
-                XCTAssertNil(content.detailStatus)
-                XCTAssertNil(content.locationStatus)
             }
             .test()
     }

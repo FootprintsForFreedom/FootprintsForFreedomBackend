@@ -31,12 +31,9 @@ enum StaticContentMigrations {
             
                 .create()
             
-            let statusType = try await db.enum(Status.pathKey).read()
-            
             try await db.schema(StaticContentDetailModel.schema)
                 .id()
             
-                .field(StaticContentDetailModel.FieldKeys.v1.status, statusType, .required)
                 .field(StaticContentDetailModel.FieldKeys.v1.moderationTitle, .string , .required)
                 .field(StaticContentDetailModel.FieldKeys.v1.slug, .string, .required)
                 .unique(on: StaticContentDetailModel.FieldKeys.v1.slug)
@@ -52,6 +49,7 @@ enum StaticContentMigrations {
                 .field(StaticContentDetailModel.FieldKeys.v1.userId, .uuid)
                 .foreignKey(StaticContentDetailModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
             
+                .field(StaticContentDetailModel.FieldKeys.v1.verifiedAt, .datetime)
                 .field(StaticContentDetailModel.FieldKeys.v1.createdAt, .datetime, .required)
                 .field(StaticContentDetailModel.FieldKeys.v1.updatedAt, .datetime, .required)
                 .field(StaticContentDetailModel.FieldKeys.v1.deletedAt, .datetime)

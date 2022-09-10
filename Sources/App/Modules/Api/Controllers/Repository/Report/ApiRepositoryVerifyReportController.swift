@@ -56,7 +56,7 @@ extension ApiRepositoryVerifyReportController {
     func beforeVerifyReport(_ req: Request) async throws { }
     
     func verifyReport(_ req: Request, _ repository: DatabaseModel, _ report: Report) async throws {
-        report.status = .verified
+        report.verifiedAt = Date()
         try await report.update(on: req.db)
     }
     
@@ -76,7 +76,7 @@ extension ApiRepositoryVerifyReportController {
             .query(on: req.db)
             .filter(\._$id == reportId)
             .filter(\._$repository.$id == repository.requireID())
-            .filter(\._$status == .pending)
+            .filter(\._$verifiedAt == nil)
             .first()
         else {
             throw Abort(.badRequest)
@@ -111,7 +111,6 @@ extension ApiRepositoryVerifyReportController where ReportDetailObject == AppApi
             slug: report.slug,
             reason: report.reason,
             visibleDetail: DetailObject(id: report._$visibleDetail.id, db: req.db),
-            status: report.status,
             reportId: report.requireID()
         )
     }

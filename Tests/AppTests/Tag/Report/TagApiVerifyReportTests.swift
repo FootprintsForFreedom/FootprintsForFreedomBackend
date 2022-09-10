@@ -34,7 +34,6 @@ final class TagApiVerifyReportTests: AppTestCase, TagTest {
                     XCTAssertEqual(visibleDetail.slug, tag.detail.slug)
                     XCTAssertEqual(visibleDetail.keywords, tag.detail.keywords)
                     XCTAssertEqual(visibleDetail.languageCode, tag.detail.language.languageCode)
-                    XCTAssertNil(visibleDetail.status)
                     XCTAssertNotNil(visibleDetail.detailId)
                 }
             }
@@ -91,7 +90,7 @@ final class TagApiVerifyReportTests: AppTestCase, TagTest {
     func testVerifyReportWithAlreadyVerifiedReportFails() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let tag = try await createNewTag()
-        let report = try await createNewTagReport(tag: tag, status: .verified)
+        let report = try await createNewTagReport(tag: tag, verifiedAt: Date())
         try await tag.detail.$language.load(on: app.db)
         
         try app

@@ -69,28 +69,15 @@ struct TagApiController: ApiRepositoryController {
     func detailOutput(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> Tag.Detail.Detail {
         try await detail.$language.load(on: req.db)
         
-        if let authenticatedUser = req.auth.get(AuthenticatedUser.self), let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db), user.role >= .moderator {
-            return try await .moderatorDetail(
-                id: repository.requireID(),
-                title: detail.title,
-                slug: detail.slug,
-                keywords: detail.keywords,
-                languageCode: detail.language.languageCode,
-                availableLanguageCodes: repository.availableLanguageCodes(req.db),
-                detailId: detail.requireID(),
-                status: detail.status
-            )
-        } else {
-            return try await .publicDetail(
-                id: repository.requireID(),
-                title: detail.title,
-                slug: detail.slug,
-                keywords: detail.keywords,
-                languageCode: detail.language.languageCode,
-                availableLanguageCodes: repository.availableLanguageCodes(req.db),
-                detailId: detail.requireID()
-            )
-        }
+        return try await .init(
+            id: repository.requireID(),
+            title: detail.title,
+            slug: detail.slug,
+            keywords: detail.keywords,
+            languageCode: detail.language.languageCode,
+            availableLanguageCodes: repository.availableLanguageCodes(req.db),
+            detailId: detail.requireID()
+        )
     }
     
     // MARK: - Create

@@ -12,7 +12,7 @@ import Fluent
 extension MediaTest {
     func createNewMediaReport(
         media: (repository: MediaRepositoryModel, detail: MediaDetailModel, file: MediaFileModel),
-        status: Status = .pending,
+        verifiedAt: Date? = nil,
         title: String = "New report title \(UUID())",
         reason: String = "Just because",
         userId: UUID? = nil
@@ -23,7 +23,7 @@ extension MediaTest {
         }
         
         let report = try MediaReportModel(
-            status: status,
+            verifiedAt: verifiedAt,
             title: title,
             slug: title.slugify(),
             reason: reason,
