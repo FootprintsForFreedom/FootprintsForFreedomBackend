@@ -8,6 +8,9 @@
 import Vapor
 
 extension Environment {
+    
+     // MARK: - Database
+    
     /// The database host.
     static let dbHost = Self.get("DATABASE_HOST")!
     /// The database port.
@@ -21,12 +24,17 @@ extension Environment {
     /// The postgres database name.
     static let pgDbName = Self.get("POSTGRES_DB")!
     
+    // MARK: - Redis
+    
+    /// The redis url.
     static let redisUrl = Self.get("REDIS_HOST")!
     
-    /// The app url.
-    static let appUrl = Self.get("APP_URL")!
-    /// The app name.
-    static let appName = Self.get("APP_NAME")!
+    // MARK: - Elasticsearch
+    
+    /// The elasticsearch url.
+    static let elasticsearchUrl = Self.get("ELASTICSEARCH_URL")!
+    
+    // MARK: - Email
     
     /// The email address used for sending mails.
     static let emailAddress = Self.get("SMTP_USERNAME")!
@@ -38,6 +46,13 @@ extension Environment {
         }
         return sendMailsString == "true"
     }()
+    
+    // MARK: - App
+    
+    /// The app url.
+    static let appUrl = Self.get("APP_URL")!
+    /// The app name.
+    static let appName = Self.get("APP_NAME")!
     
     /// The lifetime of soft deleted models in days.
     ///
