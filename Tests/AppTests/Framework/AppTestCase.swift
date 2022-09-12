@@ -7,10 +7,10 @@
 
 @testable import App
 import XCTVapor
-import FluentSQLiteDriver
+import FluentPostgresDriver
 
 extension Environment {
-    static let pgTestDbName = Self.get("POSTGRES_TEST_DB")!
+    static let pgTestDbName = Self.get("POSTGRES_TEST_DB") ?? pgDbName
 }
 
 open class AppTestCase: XCTestCase {
@@ -21,10 +21,9 @@ open class AppTestCase: XCTestCase {
         
         try configure(app)
         app.databases.reinitialize()
-//        app.databases.use(.sqlite(.memory), as: .sqlite)
-//        app.databases.default(to: .sqlite)
         app.databases.use(.postgres(
             hostname: Environment.dbHost,
+            port: Environment.dbPort.flatMap(Int.init(_:)) ?? PostgresConfiguration.ianaPortNumber,
             username: Environment.pgUser,
             password: Environment.pgPassword,
             database: Environment.pgTestDbName

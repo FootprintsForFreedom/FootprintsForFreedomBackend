@@ -7,6 +7,7 @@
 
 @testable import App
 import XCTVapor
+import FluentPostgresDriver
 
 final class MigrationTests: XCTestCase {
     func testMigrateAndTearDown() async throws {
@@ -16,6 +17,7 @@ final class MigrationTests: XCTestCase {
         app.databases.reinitialize()
         app.databases.use(.postgres(
             hostname: Environment.dbHost,
+            port: Environment.dbPort.flatMap(Int.init(_:)) ?? PostgresConfiguration.ianaPortNumber,
             username: Environment.pgUser,
             password: Environment.pgPassword,
             database: Environment.pgTestDbName
