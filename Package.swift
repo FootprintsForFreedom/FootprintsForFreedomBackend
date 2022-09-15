@@ -23,7 +23,8 @@ let package = Package(
         .package(url: "https://github.com/JohnSundell/ShellOut.git", from: "2.0.0"),
         .package(url: "https://github.com/twostraws/SwiftGD.git", from: "2.0.0"),
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
-        .package(url: "https://github.com/brokenhandsio/VaporSecurityHeaders.git", from: "4.0.0")
+        .package(url: "https://github.com/brokenhandsio/VaporSecurityHeaders.git", from: "4.0.0"),
+        .package(url: "https://github.com/niklhut/elasticsearch-nio-client.git", branch: "with-id-improvements"),
     ],
     targets: [
         .target(name: "AppApi", dependencies: [
@@ -42,6 +43,7 @@ let package = Package(
                 .product(name: "SwiftGD", package: "SwiftGD"),
                 .product(name: "ShellOut", package: "ShellOut"),
                 .product(name: "VaporSecurityHeaders", package: "VaporSecurityHeaders"),
+                .product(name: "ElasticsearchNIOClient", package: "elasticsearch-nio-client"),
                 .target(name: "AppApi")
             ],
             swiftSettings: [

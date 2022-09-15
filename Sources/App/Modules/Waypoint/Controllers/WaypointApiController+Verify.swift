@@ -8,6 +8,7 @@
 import Vapor
 import Fluent
 import SwiftDiff
+import ElasticsearchNIOClient
 
 extension Waypoint.Repository.Changes: Content { }
 
@@ -145,6 +146,16 @@ extension WaypointApiController: ApiRepositoryVerificationController {
         try await req.onlyFor(.moderator)
     }
     
+    func afterVerifyDetail(_ req: Request, _ repository: WaypointRepositoryModel, _ detail: Detail) async throws {
+        if let waypointSummary = try await WaypointSummaryModel
+            .query(on: req.db)
+            .filter(\.$detailId == detail.requireID())
+            .first() {
+            let elasticResponse = try await req.elastic.updateDocument(waypointSummary, id: "\(waypointSummary.requireID())_\(waypointSummary.languageCode)", in: "waypoints").get()
+            print(elasticResponse)
+        }
+    }
+    
     // POST: api/waypoints/:repositoryId/waypoints/verify/:waypointModelId
     func verifyDetailOutput(_ req: Request, _ repository: WaypointRepositoryModel, _ detail: Detail) async throws -> Waypoint.Detail.Detail {
         guard let location = try await repository.$locations.firstFor(needsToBeVerified: false, on: req.db) else {
@@ -196,6 +207,16 @@ extension WaypointApiController: ApiRepositoryVerificationController {
             throw Abort(.internalServerError)
         }
         try await detail.$language.load(on: req.db)
+        
+        let newDocuments = try await WaypointSummaryModel
+            .query(on: req.db)
+            .filter(\.$locationId == location.requireID())
+            .all()
+            .map { try ESBulkOperation(operationType: .create, index: "waypoints", id:  "\($0.requireID())_\($0.languageCode)", document: $0) }
+        if !newDocuments.isEmpty {
+            let elasticResponse = try await req.elastic.bulk(newDocuments).get()
+            print(elasticResponse)
+        }
         
         return try await detailOutput(req, repository, detail, location)
     }

@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import ElasticsearchNIOClient
 
 extension Waypoint.Detail.List: Content { }
 extension Waypoint.Detail.Detail: Content { }
@@ -292,5 +293,12 @@ struct WaypointApiController: ApiRepositoryController {
         guard user.role >= .moderator else {
             throw Abort(.forbidden)
         }
+    }
+    
+    func afterDelete(_ req: Request, _ model: WaypointRepositoryModel) async throws {
+        let languageCodes = try await LanguageModel.query(on: req.db).all()
+        let elementsToDelete = try languageCodes.map { try ESBulkOperation(operationType: .delete, index: "waypoints", id: "\(model.requireID())_\($0.languageCode)", document: $0) }
+        let deleteResponse = try await  req.elastic.bulk(elementsToDelete).get()
+        print(deleteResponse)
     }
 }

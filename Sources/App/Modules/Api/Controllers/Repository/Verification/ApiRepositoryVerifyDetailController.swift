@@ -34,6 +34,9 @@ protocol ApiRepositoryVerifyDetailController: RepositoryController {
     /// - Returns: A detail object for the verified detail.
     func verifyDetailApi(_ req: Request) async throws -> DetailObject
     
+    // TODO: documenttaion
+    func afterVerifyDetail(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws
+    
     /// The output for the verified detail.
     /// - Parameters:
     ///   - req: The request on which the detail was verified.
@@ -52,6 +55,7 @@ extension ApiRepositoryVerifyDetailController {
     var newModelPathIdComponent: PathComponent { .init(stringLiteral: ":" + newModelPathIdKey) }
     
     func beforeVerifyDetail(_ req: Request) async throws { }
+    func afterVerifyDetail(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws { }
     
     func verifyDetail(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws {
         if let previousDetail = try await repository._$details.firstFor(detail.language.languageCode, needsToBeVerified: true, on: req.db) {
@@ -83,6 +87,7 @@ extension ApiRepositoryVerifyDetailController {
         }
         
         try await verifyDetail(req, repository, detail)
+        try await afterVerifyDetail(req, repository, detail)
         
         return try await verifyDetailOutput(req, repository, detail)
     }
