@@ -88,62 +88,67 @@ enum WaypointMigrations {
             let sqlDatabase = db as! SQLDatabase
             
             try await sqlDatabase.raw("""
-            CREATE VIEW waypoint_summaries AS
+            CREATE VIEW \(raw: WaypointSummaryModel.schema) AS
             WITH latest_verified_waypoint_details AS (
                 SELECT
-                    DISTINCT ON (repository_id, language_id) *
+                    DISTINCT ON (
+                        \(SQLColumn(WaypointDetailModel.FieldKeys.v1.repositoryId.description, table: WaypointDetailModel.schema)),
+                        \(SQLColumn(WaypointDetailModel.FieldKeys.v1.languageId.description, table: WaypointDetailModel.schema))
+                    ) *
                 FROM
-                    waypoint_details
+                    \(raw: WaypointDetailModel.schema)
                 WHERE
-                    verified_at IS NOT NULL
-                    AND deleted_at IS NULL
+                    \(SQLColumn(WaypointDetailModel.FieldKeys.v1.verifiedAt.description, table: WaypointDetailModel.schema)) IS NOT NULL
+                    AND \(SQLColumn(WaypointDetailModel.FieldKeys.v1.deletedAt.description, table: WaypointDetailModel.schema)) IS NULL
                 ORDER BY
-                    repository_id,
-                    language_id,
-                    verified_at DESC
+                    \(SQLColumn(WaypointDetailModel.FieldKeys.v1.repositoryId.description, table: WaypointDetailModel.schema)),
+                    \(SQLColumn(WaypointDetailModel.FieldKeys.v1.languageId.description, table: WaypointDetailModel.schema)),
+                    \(SQLColumn(WaypointDetailModel.FieldKeys.v1.verifiedAt.description, table: WaypointDetailModel.schema)) DESC
             ),
             latest_verified_waypoint_locations AS (
                 SELECT
-                    DISTINCT ON (repository_id) *
+                    DISTINCT ON (
+                        \(SQLColumn(WaypointLocationModel.FieldKeys.v1.repositoryId.description, table: WaypointLocationModel.schema))
+                    ) *
                 FROM
-                    waypoint_locations
+                    \(raw: WaypointLocationModel.schema)
                 WHERE
-                    verified_at IS NOT NULL
-                    AND deleted_at IS NULL
+                    \(SQLColumn(WaypointLocationModel.FieldKeys.v1.verifiedAt.description, table: WaypointLocationModel.schema)) IS NOT NULL
+                    AND \(SQLColumn(WaypointLocationModel.FieldKeys.v1.deletedAt.description, table: WaypointLocationModel.schema)) IS NULL
                 ORDER BY
-                    repository_id,
-                    verified_at DESC
+                    \(SQLColumn(WaypointLocationModel.FieldKeys.v1.repositoryId.description, table: WaypointLocationModel.schema)),
+                    \(SQLColumn(WaypointLocationModel.FieldKeys.v1.verifiedAt.description, table: WaypointLocationModel.schema)) DESC
             )
             SELECT
-                details.repository_id as id,
-                details.id as detail_id,
-                details.title,
-                details.slug,
-                details.detail_text,
-                details.user_id as detail_user_id,
-                details.verified_at as detail_verified_at,
-                details.created_at as detail_created_at,
-                details.updated_at as detail_updated_at,
-                details.deleted_at as detail_deleted_at,
-                locations.id as location_id,
-                locations.latitude,
-                locations.longitude,
-                locations.user_id as location_user_id,
-                locations.verified_at as location_verified_at,
-                locations.created_at as location_created_at,
-                locations.updated_at as location_updated_at,
-                locations.deleted_at as location_deleted_at,
-                languages.id as language_id,
-                languages.language_code,
-                languages.name as language_name,
-                languages.is_rtl as language_is_rtl,
-                languages.priority as language_priority
+                details.\(raw: WaypointDetailModel.FieldKeys.v1.repositoryId.description) as \(raw: FieldKey.id.description),
+                details.\(raw: FieldKey.id.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.detailId.description),
+                details.\(raw: WaypointDetailModel.FieldKeys.v1.title.description),
+                details.\(raw: WaypointDetailModel.FieldKeys.v1.slug.description),
+                details.\(raw: WaypointDetailModel.FieldKeys.v1.detailText.description),
+                details.\(raw: WaypointDetailModel.FieldKeys.v1.userId.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.detailUserId.description),
+                details.\(raw: WaypointDetailModel.FieldKeys.v1.verifiedAt.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.detailVerifiedAt.description),
+                details.\(raw: WaypointDetailModel.FieldKeys.v1.createdAt.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.detailCreatedAt.description),
+                details.\(raw: WaypointDetailModel.FieldKeys.v1.updatedAt.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.detailUpdatedAt.description),
+                details.\(raw: WaypointDetailModel.FieldKeys.v1.deletedAt.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.detailDeletedAt.description),
+                locations.\(raw: FieldKey.id.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.locationId.description),
+                locations.\(raw: WaypointLocationModel.FieldKeys.v1.latitude.description),
+                locations.\(raw: WaypointLocationModel.FieldKeys.v1.longitude.description),
+                locations.\(raw: WaypointLocationModel.FieldKeys.v1.userId.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.locationUserId.description),
+                locations.\(raw: WaypointLocationModel.FieldKeys.v1.verifiedAt.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.locationVerifiedAt.description),
+                locations.\(raw: WaypointLocationModel.FieldKeys.v1.createdAt.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.locationCreatedAt.description),
+                locations.\(raw: WaypointLocationModel.FieldKeys.v1.updatedAt.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.locationUpdatedAt.description),
+                locations.\(raw: WaypointLocationModel.FieldKeys.v1.deletedAt.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.locationDeletedAt.description),
+                languages.\(raw: FieldKey.id.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.languageId.description),
+                languages.\(raw: LanguageModel.FieldKeys.v1.languageCode.description),
+                languages.\(raw: LanguageModel.FieldKeys.v1.name.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.languageName.description),
+                languages.\(raw: LanguageModel.FieldKeys.v1.isRTL.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.languageIsRTL.description),
+                languages.\(raw: LanguageModel.FieldKeys.v1.priority.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.languagePriority.description)
             FROM
                 latest_verified_waypoint_details details
-                INNER JOIN latest_verified_waypoint_locations locations ON locations.repository_id = details.repository_id
-                INNER JOIN languages ON languages.id = details.language_id
+                INNER JOIN latest_verified_waypoint_locations locations ON locations.\(raw: WaypointLocationModel.FieldKeys.v1.repositoryId.description) = details.\(raw: WaypointDetailModel.FieldKeys.v1.repositoryId.description)
+                INNER JOIN \(raw: LanguageModel.schema) ON \(SQLColumn(FieldKey.id.description, table: LanguageModel.schema)) = details.\(raw: WaypointDetailModel.FieldKeys.v1.languageId.description)
             WHERE
-                languages.priority IS NOT NULL
+                \(SQLColumn(LanguageModel.FieldKeys.v1.priority.description, table: LanguageModel.schema)) IS NOT NULL
             """)
             .run()
         }

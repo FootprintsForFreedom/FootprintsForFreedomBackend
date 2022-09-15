@@ -98,39 +98,44 @@ enum TagMigrations {
             let sqlDatabase = db as! SQLDatabase
             
             try await sqlDatabase.raw("""
-            CREATE VIEW latest_verified_tag_details AS
+            CREATE VIEW \(raw: LatestVerifiedTagModel.schema) AS
             WITH latest_verified_tag_details AS (
                 SELECT
-                    DISTINCT ON (repository_id, language_id) *
+                    DISTINCT ON (
+                        \(SQLColumn(TagDetailModel.FieldKeys.v1.repositoryId.description, table: TagDetailModel.schema)),
+                        \(SQLColumn(TagDetailModel.FieldKeys.v1.languageId.description, table: TagDetailModel.schema))
+                    ) *
                 FROM
-                    tag_details
+                    \(raw: TagDetailModel.schema)
                 WHERE
-                    verified_at IS NOT NULL
-                    AND deleted_at IS NULL
+                    \(SQLColumn(TagDetailModel.FieldKeys.v1.verifiedAt.description, table: TagDetailModel.schema)) IS NOT NULL
+                    AND \(SQLColumn(TagDetailModel.FieldKeys.v1.deletedAt.description, table: TagDetailModel.schema)) IS NULL
                 ORDER BY
-                    repository_id,
-                    language_id,
-                    verified_at DESC
+                    \(SQLColumn(TagDetailModel.FieldKeys.v1.repositoryId.description, table: TagDetailModel.schema)),
+                    \(SQLColumn(TagDetailModel.FieldKeys.v1.languageId.description, table: TagDetailModel.schema)),
+                    \(SQLColumn(TagDetailModel.FieldKeys.v1.verifiedAt.description, table: TagDetailModel.schema)) DESC
             )
             SELECT
-                details.repository_id AS id,
-                details.id AS detail_id,
-                details.title,
-                details.slug,
-                details.keywords,
-                details.user_id AS detail_user_id,
-                details.verified_at AS detail_verified_at,
-                details.created_at AS detail_created_at,
-                details.updated_at AS detail_updated_at,
-                details.deleted_at AS detail_deleted_at,
-                languages.id AS language_id,
-                languages.language_code,
-                languages.name AS language_name,
-                languages.is_rtl AS language_is_rtl,
-                languages.priority AS language_priority
+                details.\(raw: TagDetailModel.FieldKeys.v1.repositoryId.description) as \(raw: FieldKey.id.description),
+                details.\(raw: FieldKey.id.description) as \(raw: LatestVerifiedTagModel.FieldKeys.v1.detailId.description),
+                details.\(raw: TagDetailModel.FieldKeys.v1.title.description),
+                details.\(raw: TagDetailModel.FieldKeys.v1.slug.description),
+                details.\(raw: TagDetailModel.FieldKeys.v1.keywords.description),
+                details.\(raw: TagDetailModel.FieldKeys.v1.userId.description) as \(raw: LatestVerifiedTagModel.FieldKeys.v1.detailUserId.description),
+                details.\(raw: TagDetailModel.FieldKeys.v1.verifiedAt.description) as \(raw: LatestVerifiedTagModel.FieldKeys.v1.detailVerifiedAt.description),
+                details.\(raw: TagDetailModel.FieldKeys.v1.createdAt.description) as \(raw: LatestVerifiedTagModel.FieldKeys.v1.detailCreatedAt.description),
+                details.\(raw: TagDetailModel.FieldKeys.v1.updatedAt.description) as \(raw: LatestVerifiedTagModel.FieldKeys.v1.detailUpdatedAt.description),
+                details.\(raw: TagDetailModel.FieldKeys.v1.deletedAt.description) as \(raw: LatestVerifiedTagModel.FieldKeys.v1.detailDeletedAt.description),
+                languages.\(raw: FieldKey.id.description) as \(raw: LatestVerifiedTagModel.FieldKeys.v1.languageId.description),
+                languages.\(raw: LanguageModel.FieldKeys.v1.languageCode.description),
+                languages.\(raw: LanguageModel.FieldKeys.v1.name.description) as \(raw: LatestVerifiedTagModel.FieldKeys.v1.languageName.description),
+                languages.\(raw: LanguageModel.FieldKeys.v1.isRTL.description) as \(raw: LatestVerifiedTagModel.FieldKeys.v1.languageIsRTL.description),
+                languages.\(raw: LanguageModel.FieldKeys.v1.priority.description) as \(raw: LatestVerifiedTagModel.FieldKeys.v1.languagePriority.description)
             FROM
                 latest_verified_tag_details details
-                INNER JOIN languages ON languages.id = details.language_id
+                INNER JOIN \(raw: LanguageModel.schema) ON \(SQLColumn(FieldKey.id.description, table: LanguageModel.schema)) = details.\(raw: TagDetailModel.FieldKeys.v1.languageId.description)
+            WHERE
+                \(SQLColumn(LanguageModel.FieldKeys.v1.priority.description, table: LanguageModel.schema)) IS NOT NULL
             """)
             .run()
         }
