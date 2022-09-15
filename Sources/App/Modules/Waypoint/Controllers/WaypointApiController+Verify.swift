@@ -151,7 +151,9 @@ extension WaypointApiController: ApiRepositoryVerificationController {
             .query(on: req.db)
             .filter(\.$detailId == detail.requireID())
             .first() {
-            let elasticResponse = try await req.elastic.updateDocument(waypointSummary, id: "\(waypointSummary.requireID())_\(waypointSummary.languageCode)", in: "waypoints").get()
+            let tags = try await repository.$tags.$pivots.get(on: req.db).map { $0.$tag.id }
+            let newDocument = try waypointSummary.toElasticsearch(tags: tags)
+            let elasticResponse = try req.elastic.createOrUpdate(newDocument, id: newDocument.uniqueId, in: WaypointSummaryModel.Elasticsearch.schema)
             print(elasticResponse)
         }
     }
@@ -208,13 +210,16 @@ extension WaypointApiController: ApiRepositoryVerificationController {
         }
         try await detail.$language.load(on: req.db)
         
-        let newDocuments = try await WaypointSummaryModel
+        let waypointsToUpdate = try await WaypointSummaryModel
             .query(on: req.db)
             .filter(\.$locationId == location.requireID())
             .all()
-            .map { try ESBulkOperation(operationType: .create, index: "waypoints", id:  "\($0.requireID())_\($0.languageCode)", document: $0) }
-        if !newDocuments.isEmpty {
-            let elasticResponse = try await req.elastic.bulk(newDocuments).get()
+        if !waypointsToUpdate.isEmpty {
+            let tags = try await repository.$tags.$pivots.get(on: req.db).map { $0.$tag.id }
+            let newDocuments = try waypointsToUpdate
+                .map { try $0.toElasticsearch(tags: tags) }
+                .map { ESBulkOperation(operationType: .update, index: WaypointSummaryModel.Elasticsearch.schema, id:  $0.uniqueId, document: $0) }
+            let elasticResponse = try req.elastic.bulk(newDocuments)
             print(elasticResponse)
         }
         

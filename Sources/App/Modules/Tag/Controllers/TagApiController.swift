@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import ElasticsearchNIOClient
 
 extension Tag.Detail.List: Content { }
 extension Tag.Detail.Detail: Content { }
@@ -178,5 +179,12 @@ struct TagApiController: ApiRepositoryController {
     
     func beforeDelete(_ req: Request, _ repository: TagRepositoryModel) async throws {
         try await req.onlyFor(.moderator)
+    }
+    
+    func afterDelete(_ req: Request, _ model: TagRepositoryModel) async throws {
+        let languageCodes = try await LanguageModel.query(on: req.db).all()
+        let elementsToDelete = try languageCodes.map { try ESBulkOperation(operationType: .delete, index: "tags", id: "\(model.requireID())_\($0.languageCode)", document: LatestVerifiedTagModel.Elasticsearch.Delete()) }
+        let deleteResponse = try req.elastic.bulk(elementsToDelete)
+        print(deleteResponse)
     }
 }

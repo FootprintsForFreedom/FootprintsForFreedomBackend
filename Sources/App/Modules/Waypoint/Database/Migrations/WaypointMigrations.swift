@@ -149,6 +149,8 @@ enum WaypointMigrations {
         }
         
         func revert(on db: Database) async throws {
+            let sqlDatabase = db as! SQLDatabase
+            try await sqlDatabase.raw("DROP VIEW waypoint_summaries").run()
             try await db.schema(WaypointReportModel.schema).delete()
             try await db.schema(WaypointDetailModel.schema).delete()
             try await db.schema(WaypointLocationModel.schema).delete()

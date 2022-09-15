@@ -297,8 +297,8 @@ struct WaypointApiController: ApiRepositoryController {
     
     func afterDelete(_ req: Request, _ model: WaypointRepositoryModel) async throws {
         let languageCodes = try await LanguageModel.query(on: req.db).all()
-        let elementsToDelete = try languageCodes.map { try ESBulkOperation(operationType: .delete, index: "waypoints", id: "\(model.requireID())_\($0.languageCode)", document: $0) }
-        let deleteResponse = try await  req.elastic.bulk(elementsToDelete).get()
+        let elementsToDelete = try languageCodes.map { try ESBulkOperation(operationType: .delete, index: WaypointSummaryModel.Elasticsearch.schema, id: WaypointSummaryModel.Elasticsearch.uniqueId(repositoryId: model.requireID(), languageCode: $0.languageCode), document: WaypointSummaryModel.Elasticsearch.Delete()) }
+        let deleteResponse = try req.elastic.bulk(elementsToDelete)
         print(deleteResponse)
     }
 }

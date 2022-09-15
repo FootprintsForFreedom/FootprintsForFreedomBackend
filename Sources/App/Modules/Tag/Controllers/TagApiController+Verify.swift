@@ -78,6 +78,17 @@ extension TagApiController: ApiRepositoryVerificationController {
         try await req.onlyFor(.moderator)
     }
     
+    func afterVerifyDetail(_ req: Request, _ repository: TagRepositoryModel, _ detail: Detail) async throws {
+        if let latestVerifiedTag = try await LatestVerifiedTagModel
+            .query(on: req.db)
+            .filter(\.$detailId == detail.requireID())
+            .first() {
+            let newDocument = try latestVerifiedTag.toElasticsearch()
+            let elasticResponse = try req.elastic.createOrUpdate(newDocument, id: newDocument.uniqueId, in: LatestVerifiedTagModel.Elasticsearch.schema)
+            print(elasticResponse)
+        }
+    }
+    
     func verifyDetailOutput(_ req: Request, _ repository: TagRepositoryModel, _ detail: Detail) async throws -> Tag.Detail.Detail {
         return try await detailOutput(req, repository, detail)
     }
