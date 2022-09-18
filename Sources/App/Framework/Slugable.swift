@@ -9,7 +9,7 @@ import Vapor
 import Fluent
 
 /// Represents an object that has an unique slug identifier.
-protocol Slugable where Self: Fluent.Model {
+public protocol Slugable where Self: Fluent.Model {
     /// The model's slug.
     var slug: String { get set }
     /// The model's slug.
