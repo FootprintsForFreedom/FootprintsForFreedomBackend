@@ -172,29 +172,6 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
             .test()
     }
     
-    func testUpdateTagNeedsValidKeywords() async throws {
-        let token = try await getToken(for: .user, verified: true)
-        let (repository, _, updateContent) = try await getTagUpdateContent(updatedKeywords: [String](), verifiedAt: Date())
-        
-        try app
-            .describe("Update tag should require valid keywords")
-            .put(tagPath.appending(repository.requireID().uuidString))
-            .body(updateContent)
-            .bearerToken(token)
-            .expect(.badRequest)
-            .test()
-        
-        let (repository2, _, updateContent2) = try await getTagUpdateContent(updatedKeywords: [""], verifiedAt: Date())
-        
-        try app
-            .describe("Update tag should require valid keywords")
-            .put(tagPath.appending(repository2.requireID().uuidString))
-            .body(updateContent2)
-            .bearerToken(token)
-            .expect(.badRequest)
-            .test()
-    }
-    
     func testUpdateTagIgnoresEmptyKeywords() async throws {
         let token = try await getToken(for: .user, verified: true)
         let (repository, detail, updateContent) = try await getTagUpdateContent(updatedKeywords: ["hallo", "test", "", "\n", "was ist das", " "], verifiedAt: Date())

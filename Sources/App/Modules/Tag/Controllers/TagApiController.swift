@@ -131,9 +131,6 @@ struct TagApiController: ApiRepositoryController {
         }
         
         let keywords = input.keywords.compactMap { $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : $0 }
-        guard !keywords.isEmpty else {
-            throw Abort(.badRequest, reason: "The keywords are invalid")
-        }
         
         detail.title = input.title
         detail.keywords = keywords
