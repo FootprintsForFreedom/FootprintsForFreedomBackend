@@ -13,7 +13,7 @@ import Fluent
 /// The repository model contains timestamps.
 protocol RepositoryModel: DatabaseModelInterface, Timestamped {
     /// The type of the detail models which belong to the repository.
-    associatedtype Detail: DetailModel
+    associatedtype Detail: TitledDetailModel
     
     /// The details belonging to the repository.
     var details: [Detail] { get }
@@ -41,14 +41,6 @@ extension RepositoryModel {
         return verifiedDetailsCount > 0
     }
     
-    func deleteDependencies(on db: Database) async throws {
-        try await _$details
-            .query(on: db)
-            .delete()
-    }
-}
-
-extension RepositoryModel where Detail: TitledDetailModel {
     /// Fetches all available languages in which the repository has **verified** detail models.
     /// - Parameter db: The database on which to fetch the available languages.
     /// - Returns: An array of all available languages for the repository.
@@ -73,6 +65,12 @@ extension RepositoryModel where Detail: TitledDetailModel {
     /// - Returns: An array of all available language codes for the repository.
     func availableLanguageCodes(_ db: Database) async throws -> [String] {
         return try await availableLanguages(db).map(\.languageCode)
+    }
+    
+    func deleteDependencies(on db: Database) async throws {
+        try await _$details
+            .query(on: db)
+            .delete()
     }
 }
 
