@@ -126,7 +126,7 @@ final class WaypointApiDeleteTests: AppTestCase, WaypointTest {
 }
 
 extension WaypointApiDeleteTests {
-    func testDelteWaypointDeletesReports() async throws {
+    func testDeleteWaypointDeletesReports() async throws {
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
         let reportCount = try await WaypointReportModel.query(on: app.db).count()
         

@@ -47,7 +47,7 @@ final class MediaApiListUnverifiedTagsTests: AppTestCase, MediaTest, TagTest {
         try await tagPivot.save(on: app.db)
         
         try app
-            .describe("List unverified tags should list an request delted tag connection")
+            .describe("List unverified tags should list an request deleted tag connection")
             .get(mediaPath.appending("\(media.repository.requireID())/tags/unverified"))
             .bearerToken(moderatorToken)
             .expect(.ok)

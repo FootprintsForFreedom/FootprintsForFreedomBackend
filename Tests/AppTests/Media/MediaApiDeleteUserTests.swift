@@ -18,7 +18,7 @@ final class MediaApiDeleteUserTests: AppTestCase, MediaTest, UserTest {
         try await media.$language.load(on: app.db)
         
         try app
-            .describe("User should be able to delte himself; Delete user should set media detail user id to nil")
+            .describe("User should be able to delete himself; Delete user should set media detail user id to nil")
             .delete(usersPath.appending(user.requireID().uuidString))
             .bearerToken(token)
             .expect(.noContent)

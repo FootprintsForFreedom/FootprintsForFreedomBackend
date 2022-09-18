@@ -1,5 +1,5 @@
 //
-//  WaypointApiRequestDelteTagTests.swift
+//  WaypointApiRequestDeleteTagTests.swift
 //  
 //
 //  Created by niklhut on 31.05.22.
@@ -10,7 +10,7 @@ import XCTVapor
 import Fluent
 import Spec
 
-final class WaypointApiRequestDelteTagTests: AppTestCase, WaypointTest, TagTest {
+final class WaypointApiRequestDeleteTagTests: AppTestCase, WaypointTest, TagTest {
     func testSuccessfulRequestDeleteTag() async throws {
         let token = try await getToken(for: .user, verified: true)
         let tag = try await createNewTag(verifiedAt: Date())

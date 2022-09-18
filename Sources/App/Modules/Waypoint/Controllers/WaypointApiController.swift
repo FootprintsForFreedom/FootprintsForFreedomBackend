@@ -278,7 +278,7 @@ struct WaypointApiController: ApiRepositoryController {
     // Instead prompt the user to sumbmit a change and verify subsequently
     // but then also remove the previously sumbmitted not verifed text model
     
-    // or delte the entire repository when deleting first waypoint
+    // or delete the entire repository when deleting first waypoint
     // TODO: also enable user to delete own waypoint model/location
     // also do that with media
     

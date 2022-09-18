@@ -35,7 +35,7 @@ extension WaypointApiListUnverifiedTests: TagTest {
             .test()
     }
     
-    func testSuccessfulListRepositoriesWithUnverifiedModelsReturnsModelsWithRequestDeltedTags() async throws {
+    func testSuccessfulListRepositoriesWithUnverifiedModelsReturnsModelsWithRequestDeletedTags() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let tag = try await createNewTag(verifiedAt: Date())
         let waypoint = try await createNewWaypoint(verifiedAt: Date())

@@ -18,7 +18,7 @@ final class UserApiDeleteTests: AppTestCase, UserTest {
         let userCount = try await UserAccountModel.query(on: app.db).count()
         
         try app
-            .describe("User should be able to delte himself; Delete user should return ok")
+            .describe("User should be able to delete himself; Delete user should return ok")
             .delete(usersPath.appending(user.requireID().uuidString))
             .bearerToken(token)
             .expect(.noContent)
@@ -77,7 +77,7 @@ final class UserApiDeleteTests: AppTestCase, UserTest {
         let user = try await createNewUser()
         
         try app
-            .describe("Deleting a user should delte all tokens belonging to him")
+            .describe("Deleting a user should delete all tokens belonging to him")
             .delete(usersPath.appending(user.requireID().uuidString))
             .bearerToken(moderatorToken)
             .expect(.noContent)

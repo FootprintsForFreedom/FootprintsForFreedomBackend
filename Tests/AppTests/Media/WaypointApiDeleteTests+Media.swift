@@ -25,7 +25,7 @@ extension WaypointApiDeleteTests: MediaTest {
         let _ = try await createNewMedia(waypointId: waypointRepository.requireID())
         
         try app
-            .describe("A moderator should be able to delete a waypoint and all connected media should be delted as well")
+            .describe("A moderator should be able to delete a waypoint and all connected media should be deleted as well")
             .delete(waypointsPath.appending(waypointRepository.requireID().uuidString))
             .bearerToken(moderatorToken)
             .expect(.noContent)

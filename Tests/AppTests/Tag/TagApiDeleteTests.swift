@@ -204,7 +204,7 @@ extension TagApiDeleteTests: MediaTest {
 }
 
 extension TagApiDeleteTests {
-    func testDelteTagDeletesReports() async throws {
+    func testDeleteTagDeletesReports() async throws {
         let tagCount = try await TagRepositoryModel.query(on: app.db).count()
         let reportCount = try await TagReportModel.query(on: app.db).count()
         

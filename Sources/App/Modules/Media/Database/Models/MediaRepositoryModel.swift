@@ -59,6 +59,6 @@ extension MediaRepositoryModel {
             .concurrentForEach { try await MediaFileModel.find($0.$media.id, on: database)?.delete(on: database) }
         
         try await $details.query(on: database).delete()
-        // TODO: service that deletes soft delted entries after a certain time (-> .evn?) -> also delete the media fieles!
+        // TODO: service that deletes soft deleted entries after a certain time (-> .evn?) -> also delete the media fieles!
     }
 }

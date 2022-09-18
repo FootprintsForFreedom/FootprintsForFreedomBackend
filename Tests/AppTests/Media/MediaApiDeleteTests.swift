@@ -110,7 +110,7 @@ final class MediaApiDeleteTests: AppTestCase, MediaTest {
             .test()
     }
     
-    func testDelteNonExistingMediaFails() async throws {
+    func testDeleteNonExistingMediaFails() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         
         try app
@@ -123,7 +123,7 @@ final class MediaApiDeleteTests: AppTestCase, MediaTest {
 }
 
 extension MediaApiDeleteTests {
-    func testDelteMediaDeletesReports() async throws {
+    func testDeleteMediaDeletesReports() async throws {
         let mediaCount = try await MediaRepositoryModel.query(on: app.db).count()
         let reportCount = try await MediaReportModel.query(on: app.db).count()
         

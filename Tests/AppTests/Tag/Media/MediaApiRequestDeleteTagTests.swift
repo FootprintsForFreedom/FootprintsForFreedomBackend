@@ -1,5 +1,5 @@
 //
-//  MediaApiRequestDelteTagTests.swift
+//  MediaApiRequestDeleteTagTests.swift
 //  
 //
 //  Created by niklhut on 21.05.22.
@@ -10,7 +10,7 @@ import XCTVapor
 import Fluent
 import Spec
 
-final class MediaApiRequestDelteTagTests: AppTestCase, MediaTest, TagTest {
+final class MediaApiRequestDeleteTagTests: AppTestCase, MediaTest, TagTest {
     func testSuccessfulRequestDeleteTag() async throws {
         let token = try await getToken(for: .user, verified: true)
         let tag = try await createNewTag(verifiedAt: Date())
