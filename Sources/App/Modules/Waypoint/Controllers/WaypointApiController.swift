@@ -295,10 +295,7 @@ struct WaypointApiController: ApiRepositoryController {
         }
     }
     
-    func afterDelete(_ req: Request, _ model: WaypointRepositoryModel) async throws {
-        let languageCodes = try await LanguageModel.query(on: req.db).all()
-        let elementsToDelete = try languageCodes.map { try ESBulkOperation(operationType: .delete, index: WaypointSummaryModel.Elasticsearch.schema, id: WaypointSummaryModel.Elasticsearch.uniqueId(repositoryId: model.requireID(), languageCode: $0.languageCode), document: WaypointSummaryModel.Elasticsearch.Delete()) }
-        let deleteResponse = try req.elastic.bulk(elementsToDelete)
-        print(deleteResponse)
+    func afterDelete(_ req: Request, _ repository: WaypointRepositoryModel) async throws {
+        try await WaypointSummaryModel.Elasticsearch.delete(allDetailsWithRepositoryId: repository.requireID(), on: req)
     }
 }

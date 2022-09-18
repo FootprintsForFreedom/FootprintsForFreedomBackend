@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import ElasticsearchNIOClient
 
 extension LanguageApiController {
     
@@ -19,6 +20,9 @@ extension LanguageApiController {
         guard language.priority != nil else {
             throw Abort(.badRequest)
         }
+        
+        try await LatestVerifiedTagModel.Elasticsearch.deactivateLanguage(language.requireID(), on: req)
+        try await WaypointSummaryModel.Elasticsearch.deactivateLanguage(language.requireID(), on: req)
         
         language.priority = nil
         try await language.update(on: req.db)
@@ -48,6 +52,10 @@ extension LanguageApiController {
         
         language.priority = currentHighestPriority + 1
         try await language.update(on: req.db)
+        
+        try await LatestVerifiedTagModel.Elasticsearch.activateLanguage(language.requireID(), on: req)
+        try await WaypointSummaryModel.Elasticsearch.activateLanguage(language.requireID(), on: req)
+        
         return try .init(
             id: language.requireID(),
             languageCode: language.languageCode,
@@ -82,28 +90,24 @@ extension LanguageApiController {
     
     func setLanguagePriorities(_ req: Request) async throws -> [Language.Detail.List] {
         try await req.onlyFor(.admin)
-        
         try await RequestValidator(setLanguagePrioritiesValidators()).validate(req)
-        let input = try req.content.decode(Language.Detail.UpdatePriorities.self)
-        let newLanguagesOrder = try await input.newLanguagesOrder
-            .concurrentMap { languageId -> LanguageModel in
-                guard let language = try await LanguageModel.query(on: req.db)
-                    .filter(\.$id == languageId)
-                    .filter(\.$priority != nil)
-                    .first()
-                else {
-                    throw Abort(.badRequest)
-                }
-                return language
-            }
         
-        let activeLanguageCount = try await LanguageModel
+        let input = try req.content.decode(Language.Detail.UpdatePriorities.self)
+        let oldLanguagesOrder = try await LanguageModel
             .query(on: req.db)
             .filter(\.$priority != nil)
-            .count()
+            .sort(\.$priority, .ascending) // Lowest value first
+            .all()
         
-        guard newLanguagesOrder.count == activeLanguageCount else {
-            throw Abort(.badRequest, reason: "The newLanguagesOrder must contain all active languages.")
+        guard input.newLanguagesOrder.count == oldLanguagesOrder.count else {
+            throw Abort(.badRequest, reason: "'newLanguagesOrder' must contain all active languages.")
+        }
+        
+        let newLanguagesOrder = try input.newLanguagesOrder.map { languageId in
+            guard let language = try oldLanguagesOrder.first(where: { try $0.requireID() == languageId }) else {
+                throw Abort(.badRequest, reason: "'newLanguagesOrder' must contain all active languages.")
+            }
+            return language
         }
         
         try await req.db.transaction { transaction in
@@ -117,6 +121,15 @@ extension LanguageApiController {
                 try await language.update(on: transaction)
             }
         }
+        
+        let languagesWithChangedPriority = try newLanguagesOrder.enumerated().compactMap { newIndex, newLanguage in
+            if try oldLanguagesOrder[newIndex].requireID() != newLanguage.requireID() {
+                return try newLanguage.requireID()
+            }
+            return nil
+        }
+        try await LatestVerifiedTagModel.Elasticsearch.setLanguagePriorities(for: languagesWithChangedPriority, on: req)
+        try await WaypointSummaryModel.Elasticsearch.setLanguagePriorities(for: languagesWithChangedPriority, on: req)
         
         return try await listApi(req)
     }

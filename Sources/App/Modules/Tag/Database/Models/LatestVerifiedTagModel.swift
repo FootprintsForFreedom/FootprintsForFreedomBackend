@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class LatestVerifiedTagModel: DatabaseModelInterface {
+final class LatestVerifiedTagModel: DatabaseElasticsearchInterface {
     typealias Module = TagModule
     
     static var schema: String = "latest_verified_tag_details"
@@ -54,8 +54,14 @@ final class LatestVerifiedTagModel: DatabaseModelInterface {
 }
 
 extension LatestVerifiedTagModel {
+    var _$languageId: FieldProperty<LatestVerifiedTagModel, UUID> { $languageId }
+    var _$detailId: FieldProperty<LatestVerifiedTagModel, UUID> { $detailId }
+}
+
+extension LatestVerifiedTagModel {
     struct Elasticsearch: ElasticsearchModelInterface {
-        struct Delete: Codable, LockKey { }
+        typealias DatabaseModel = LatestVerifiedTagModel
+        struct Key: Codable, LockKey { }
         
         static var schema = "tags"
         
@@ -76,6 +82,10 @@ extension LatestVerifiedTagModel {
         var languageCode: String
         var languageIsRTL: Bool
         var languagePriority: Int?
+    }
+    
+    func toElasticsearch(on db: Database) async throws -> Elasticsearch {
+        try self.toElasticsearch()
     }
     
     func toElasticsearch() throws -> Elasticsearch {

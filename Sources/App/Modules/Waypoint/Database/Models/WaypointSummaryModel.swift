@@ -7,8 +7,9 @@
 
 import Vapor
 import Fluent
+import ElasticsearchNIOClient
 
-final class WaypointSummaryModel: DatabaseModelInterface {
+final class WaypointSummaryModel: DatabaseElasticsearchInterface {
     typealias Module = WaypointModule
     
     static var schema: String = "waypoint_summaries"
@@ -71,8 +72,14 @@ final class WaypointSummaryModel: DatabaseModelInterface {
 }
 
 extension WaypointSummaryModel {
+    var _$languageId: FieldProperty<WaypointSummaryModel, UUID> { $languageId }
+    var _$detailId: FieldProperty<WaypointSummaryModel, UUID> { $detailId }
+}
+
+extension WaypointSummaryModel {
     struct Elasticsearch: ElasticsearchModelInterface {
-        struct Delete: Codable, LockKey { }
+        typealias DatabaseModel = WaypointSummaryModel
+        struct Key: Codable, LockKey { }
         
         static var schema = "waypoints"
         
@@ -104,6 +111,29 @@ extension WaypointSummaryModel {
         var languagePriority: Int?
         
         var tags: [UUID]
+        
+        @discardableResult
+        static func createOrUpdate(detailsWithRepositoryId repositoryId: UUID, on req: Request) async throws -> ESBulkResponse? {
+            let elements = try await DatabaseModel
+                .query(on: req.db)
+                .filter(\.$id == repositoryId)
+                .all()
+            guard !elements.isEmpty else { return nil }
+            let documents = try await elements
+                .concurrentMap { try await $0.toElasticsearch(on: req.db) }
+                .map { ESBulkOperation(operationType: .index, index: Self.schema, id: $0.uniqueId, document: $0) }
+            let response = try req.elastic.bulk(documents)
+            return response
+        }
+    }
+    
+    func toElasticsearch(on db: Database) async throws -> Elasticsearch {
+        let tags = try await WaypointTagModel
+            .query(on: db)
+            .filter(\.$waypoint.$id == self.requireID())
+            .all()
+            .map { $0.$tag.id }
+        return try self.toElasticsearch(tags: tags)
     }
     
     func toElasticsearch(tags: [UUID]) throws -> Elasticsearch {

@@ -96,19 +96,7 @@ extension WaypointApiController {
         tagPivot.status = .verified
         try await tagPivot.save(on: req.db)
         
-        let waypointsToUpdate = try await WaypointSummaryModel
-            .query(on: req.db)
-            .filter(\.$id == repository.requireID())
-            .all()
-        if !waypointsToUpdate.isEmpty {
-            print(waypointsToUpdate.map { ($0.id!, $0.languageCode) })
-            let tags = try await repository.$tags.$pivots.get(on: req.db).map { $0.$tag.id }
-            let newDocuments = try waypointsToUpdate
-                .map { try $0.toElasticsearch(tags: tags) }
-                .map { ESBulkOperation(operationType: .update, index: WaypointSummaryModel.Elasticsearch.schema, id:  $0.uniqueId, document: $0) }
-            let response = try req.elastic.bulk(newDocuments)
-            print(response)
-        }
+        try await WaypointSummaryModel.Elasticsearch.createOrUpdate(detailsWithRepositoryId: repository.requireID(), on: req)
         
         return try await detailOutput(req, repository, detail, location)
     }
@@ -147,18 +135,7 @@ extension WaypointApiController {
         
         try await repository.$tags.detach(tag, on: req.db)
         
-        let waypointsToUpdate = try await WaypointSummaryModel
-            .query(on: req.db)
-            .filter(\.$id == repository.requireID())
-            .all()
-        if !waypointsToUpdate.isEmpty {
-            let tags = try await repository.$tags.$pivots.get(on: req.db).map { $0.$tag.id }
-            let newDocuments = try waypointsToUpdate
-                .map { try $0.toElasticsearch(tags: tags) }
-                .map { ESBulkOperation(operationType: .update, index: WaypointSummaryModel.Elasticsearch.schema, id:  $0.uniqueId, document: $0) }
-            let response = try req.elastic.bulk(newDocuments)
-            print(response)
-        }
+        try await WaypointSummaryModel.Elasticsearch.createOrUpdate(detailsWithRepositoryId: repository.requireID(), on: req)
         
         return try await detailOutput(req, repository, detail, location)
     }

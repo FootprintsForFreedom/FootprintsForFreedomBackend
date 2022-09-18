@@ -147,15 +147,7 @@ extension WaypointApiController: ApiRepositoryVerificationController {
     }
     
     func afterVerifyDetail(_ req: Request, _ repository: WaypointRepositoryModel, _ detail: Detail) async throws {
-        if let waypointSummary = try await WaypointSummaryModel
-            .query(on: req.db)
-            .filter(\.$detailId == detail.requireID())
-            .first() {
-            let tags = try await repository.$tags.$pivots.get(on: req.db).map { $0.$tag.id }
-            let newDocument = try waypointSummary.toElasticsearch(tags: tags)
-            let elasticResponse = try req.elastic.createOrUpdate(newDocument, id: newDocument.uniqueId, in: WaypointSummaryModel.Elasticsearch.schema)
-            print(elasticResponse)
-        }
+        try await WaypointSummaryModel.Elasticsearch.createOrUpdate(detailWithId: detail.requireID(), on: req)
     }
     
     // POST: api/waypoints/:repositoryId/waypoints/verify/:waypointModelId
@@ -203,25 +195,14 @@ extension WaypointApiController: ApiRepositoryVerificationController {
         location.verifiedAt = Date()
         try await location.update(on: req.db)
         
+        try await WaypointSummaryModel.Elasticsearch.createOrUpdate(detailsWithRepositoryId: repository.requireID(), on: req)
+        
         let allLanguageCodesByPriority = try await req.allLanguageCodesByPriority()
         
         guard let detail = try await repository._$details.firstFor(allLanguageCodesByPriority, needsToBeVerified: false, on: req.db) else {
             throw Abort(.internalServerError)
         }
         try await detail.$language.load(on: req.db)
-        
-        let waypointsToUpdate = try await WaypointSummaryModel
-            .query(on: req.db)
-            .filter(\.$locationId == location.requireID())
-            .all()
-        if !waypointsToUpdate.isEmpty {
-            let tags = try await repository.$tags.$pivots.get(on: req.db).map { $0.$tag.id }
-            let newDocuments = try waypointsToUpdate
-                .map { try $0.toElasticsearch(tags: tags) }
-                .map { ESBulkOperation(operationType: .update, index: WaypointSummaryModel.Elasticsearch.schema, id:  $0.uniqueId, document: $0) }
-            let elasticResponse = try req.elastic.bulk(newDocuments)
-            print(elasticResponse)
-        }
         
         return try await detailOutput(req, repository, detail, location)
     }
