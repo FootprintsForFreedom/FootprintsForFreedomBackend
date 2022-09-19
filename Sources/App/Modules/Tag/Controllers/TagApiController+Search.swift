@@ -44,7 +44,7 @@ extension TagApiController {
         // group the details by repository id
             .grouped(by: \.$repository.id)
         // get the newest detail for each repository
-            .map { $1.sorted { $0.updatedAt! > $1.updatedAt! }.first! }
+            .map { $1.sorted { $0.verifiedAt! > $1.verifiedAt! }.first! }
         // filter the details according to the search text
             .filter {
                 $0.title.lowercased().contains(searchText) ||

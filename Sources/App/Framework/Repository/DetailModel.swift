@@ -48,7 +48,7 @@ extension DetailModel {
     ///   - repositoryId: The id for the repository for which to get a detail.
     ///   - needsToBeVerified: Wether or not the detail needs to be verified.
     ///   - db: The database on which to load the detail model.
-    ///   - sortDirection: The direction in which the detail's `updatedAt` timestamp should be sorted.
+    ///   - sortDirection: The direction in which the detail's `verifiedAt` or `updatedAt` timestamp should be sorted depending on whether it is verified or not.
     /// - Returns: The first detail model matching the requirements or nil.
     static func firstFor(
         _ repositoryId: UUID,
@@ -60,7 +60,7 @@ extension DetailModel {
             .query(on: db)
             .filter(\._$repository.$id == repositoryId)
             .filter(\._$verifiedAt != nil)
-            .sort(\._$updatedAt, sortDirection)
+            .sort(\._$verifiedAt, sortDirection)
             .first()
         
         if let verifiedDetail = verifiedDetail {
@@ -83,7 +83,7 @@ extension DetailModel {
     ///   - repository: The repository for which to get a detail
     ///   - needsToBeVerified: Wether or not the detail needs to be verified.
     ///   - db: The database on which to load the detail model.
-    ///   - sortDirection: The direction in which the detail's `updatedAt` timestamp should be sorted.
+    ///   - sortDirection: The direction in which the detail's `verifiedAt` or `updatedAt` timestamp should be sorted depending on whether it is verified or not.
     /// - Returns: The first detail model matching the requirements or nil.
     func firstFor(
         _ repository: Repository,
@@ -102,7 +102,7 @@ extension ChildrenProperty where From: RepositoryModel, To: DetailModel {
     /// - Parameters:
     ///   - needsToBeVerified: Wether or not the detail needs to be verified.
     ///   - db: The database on which to load the detail model.
-    ///   - sortDirection: The direction in which the detail's `updatedAt` timestamp should be sorted.
+    ///   - sortDirection: The direction in which the detail's `verifiedAt` or `updatedAt` timestamp should be sorted depending on whether it is verified or not.
     /// - Returns: The first detail model matching the requirements or nil.
     func firstFor(
         needsToBeVerified: Bool,
@@ -111,7 +111,7 @@ extension ChildrenProperty where From: RepositoryModel, To: DetailModel {
     ) async throws -> To? {
         let verifiedDetail = try await projectedValue
             .query(on: db)
-            .sort(\._$updatedAt, sortDirection)
+            .sort(\._$verifiedAt, sortDirection)
             .filter(\._$verifiedAt != nil)
             .first()
         

@@ -45,7 +45,7 @@ extension MediaApiController {
         // group the details by repository id
             .grouped(by: \.$repository.id)
         // get the newest detail for each repository
-            .map { $1.sorted { $0.updatedAt! > $1.updatedAt! }.first! }
+            .map { $1.sorted { $0.verifiedAt! > $1.verifiedAt! }.first! }
         // load the tag for all remaining details
         
         var detailInLanguageForTagRepository = [TagRepositoryModel.IDValue: TagDetailModel]()
@@ -70,7 +70,7 @@ extension MediaApiController {
                                 .filter(LanguageModel.self, \.$languageCode == searchQuery.languageCode)
                                 .filter(\.$repository.$id == repositoryId)
                                 .filter(\.$verifiedAt != nil)
-                                .sort(\.$updatedAt, .descending) // newest first
+                                .sort(\.$verifiedAt, .descending) // newest first
                                 .first()
                             else {
                                 return nil

@@ -26,7 +26,7 @@ extension TitledDetailModel {
     ///   - repositoryId: The id for the repository for which to get a detail.
     ///   - needsToBeVerified: Wether or not the detail needs to be verified.
     ///   - db: The database on which to load the detail model.
-    ///   - sortDirection: The direction in which the detail's `updatedAt` timestamp should be sorted.
+    ///   - sortDirection: The direction in which the detail's `verifiedAt` or `updatedAt` timestamp should be sorted depending on whether it is verified or not.
     /// - Returns: The first detail model matching the requirements or nil.
     static func firstFor(
         _ repositoryId: UUID,
@@ -42,7 +42,7 @@ extension TitledDetailModel {
             .filter(LanguageModel.self, \.$languageCode == languageCode)
             .filter(LanguageModel.self, \.$priority != nil)
             .filter(\._$verifiedAt != nil)
-            .sort(\._$updatedAt, sortDirection)
+            .sort(\._$verifiedAt, sortDirection)
             .first()
         
         if let verifiedDetail = verifiedDetail {
@@ -69,7 +69,7 @@ extension TitledDetailModel {
     ///   - languageCode: The language code for the language in which the detail should be.
     ///   - needsToBeVerified: Wether or not the detail needs to be verified.
     ///   - db: The database on which to load the detail model.
-    ///   - sortDirection: The direction in which the detail's `updatedAt` timestamp should be sorted.
+    ///   - sortDirection: The direction in which the detail's `verifiedAt` or `updatedAt` timestamp should be sorted depending on whether it is verified or not.
     /// - Returns: The first detail model matching the requirements or nil.
     func firstFor(
         _ repository: Repository,
@@ -90,7 +90,7 @@ extension ChildrenProperty where From: RepositoryModel, To: TitledDetailModel {
     ///   - languageCode: The language code for the language in which the detail should be.
     ///   - needsToBeVerified: Wether or not the detail needs to be verified.
     ///   - db: The database on which to load the detail model.
-    ///   - sortDirection: The direction in which the detail's `updatedAt` timestamp should be sorted.
+    ///   - sortDirection: The direction in which the detail's `verifiedAt` or `updatedAt` timestamp should be sorted depending on whether it is verified or not.
     /// - Returns: The first detail model matching the requirements or nil.
     func firstFor(
         _ languageCode: String,
@@ -103,7 +103,7 @@ extension ChildrenProperty where From: RepositoryModel, To: TitledDetailModel {
             .join(parent: \._$language)
             .filter(LanguageModel.self, \.$languageCode == languageCode)
             .filter(LanguageModel.self, \.$priority != nil)
-            .sort(\._$updatedAt, sortDirection)
+            .sort(\._$verifiedAt, sortDirection)
             .filter(\._$verifiedAt != nil)
             .first()
         
@@ -129,7 +129,7 @@ extension ChildrenProperty where From: RepositoryModel, To: TitledDetailModel {
     ///   - languageCodesByPriority: All valid language codes for the languages in which the detail should be returned ordered by priority with the preferred language first.
     ///   - needsToBeVerified: Wether or not the detail needs to be verified.
     ///   - db: The database on which to load the detail model.
-    ///   - sortDirection: The direction in which the detail's `updatedAt` timestamp should be sorted.
+    ///   - sortDirection: The direction in which the detail's `verifiedAt` or `updatedAt` timestamp should be sorted depending on whether it is verified or not.
     /// - Returns: The first detail model matching the requirements or nil.
     func firstFor(
         _ languageCodesByPriority: [String],
