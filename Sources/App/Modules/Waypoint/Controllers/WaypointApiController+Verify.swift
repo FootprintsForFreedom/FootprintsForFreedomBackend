@@ -66,7 +66,7 @@ extension WaypointApiController: ApiRepositoryVerificationController {
                         $0
                         // only get unverified details
                             .filter(WaypointDetailModel.self, \.$verifiedAt == nil)
-                        // only select details which hava an active language
+                        // only select details which have an active language
                             .filter(LanguageModel.self, \.$priority != nil)
                     }
                     .filter(WaypointTagModel.self, \.$status ~~ [.pending, .deleteRequested])
