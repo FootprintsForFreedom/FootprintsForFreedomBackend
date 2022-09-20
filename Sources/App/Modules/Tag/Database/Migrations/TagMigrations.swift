@@ -11,6 +11,8 @@ import SQLKit
 
 enum TagMigrations {
     struct v1: AsyncMigration {
+        let elastic: ElasticsearchHandler
+        
         func prepare(on db: Database) async throws {
             try await db.schema(TagRepositoryModel.schema)
                 .id()
@@ -138,6 +140,8 @@ enum TagMigrations {
                 \(SQLColumn(LanguageModel.FieldKeys.v1.priority.description, table: LanguageModel.schema)) IS NOT NULL
             """)
             .run()
+            
+            try await elastic.createIndex(LatestVerifiedTagModel.Elasticsearch.schema, mappings: LatestVerifiedTagModel.Elasticsearch.mappings, settings: LatestVerifiedTagModel.Elasticsearch.settings)
         }
         
         func revert(on db: Database) async throws {
@@ -148,6 +152,7 @@ enum TagMigrations {
             try await db.schema(WaypointTagModel.schema).delete()
             try await db.schema(MediaTagModel.schema).delete()
             try await db.schema(TagRepositoryModel.schema).delete()
+            try await elastic.deleteIndex(LatestVerifiedTagModel.Elasticsearch.schema)
         }
     }
 }

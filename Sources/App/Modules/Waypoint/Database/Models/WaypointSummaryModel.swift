@@ -82,6 +82,77 @@ extension WaypointSummaryModel {
         struct Key: Codable, LockKey { }
         
         static var schema = "waypoints"
+        static var settings: [String : Any] = [
+            "analysis": [
+                "analyzer": [
+                    "default": [
+                        "tokenizer": "standard",
+                        "filter": [
+                            "classic",
+                            "lowercase",
+                            "asciifolding",
+                            "stemmer",
+                            "word_delimiter_graph"
+                        ]
+                    ]
+                ]
+            ]
+        ]
+        static var mappings: [String : Any] = [
+            "properties": [
+                "title": [
+                    "type": "text",
+                    "fields": [
+                        "keyword": [
+                            "type": "keyword"
+                        ],
+                        "suggest": [
+                            "type": "completion",
+                            "analyzer": "default",
+                            "contexts": [
+                                [
+                                    "name": "languageCode",
+                                    "type": "category",
+                                    "path": "languageCode"
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                "id": [
+                    "type": "keyword"
+                ],
+                "detailId": [
+                    "type": "keyword"
+                ],
+                "detailUserId": [
+                    "type": "keyword"
+                ],
+                "locationId": [
+                    "type": "keyword"
+                ],
+                "locationUserId": [
+                    "type": "keyword"
+                ],
+                "location": [
+                    "type": "geo_point"
+                ],
+                "languageId": [
+                    "type": "keyword"
+                ],
+                "languageIsRTL": [
+                    "type": "boolean"
+                ],
+                "languageCode": [
+                    "type": "keyword"
+                ]
+            ]
+        ]
+        
+        struct Location: Codable {
+            var lat: Double
+            var lon: Double
+        }
         
         var id: UUID
         
@@ -96,6 +167,7 @@ extension WaypointSummaryModel {
         var detailDeletedAt: Date?
         
         var locationId: UUID
+        var location: Location
         var latitude: Double
         var longitude: Double
         var locationUserId: UUID?
@@ -149,6 +221,7 @@ extension WaypointSummaryModel {
             detailUpdatedAt: self.detailUpdatedAt,
             detailDeletedAt: self.detailDeletedAt,
             locationId: self.locationId,
+            location: Elasticsearch.Location(lat: self.latitude, lon: self.longitude),
             latitude: self.latitude,
             longitude: self.longitude,
             locationUserId: self.locationUserId,

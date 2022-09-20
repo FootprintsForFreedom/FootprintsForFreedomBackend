@@ -12,7 +12,7 @@ struct WaypointModule: ModuleInterface {
     let router = WaypointRouter()
     
     func boot(_ app: Application) throws {
-        app.migrations.add(WaypointMigrations.v1())
+        try app.migrations.add(WaypointMigrations.v1(elastic: app.elastic))
         
         app.hooks.register("api-routes-v1", use: router.apiRoutesHook)
         

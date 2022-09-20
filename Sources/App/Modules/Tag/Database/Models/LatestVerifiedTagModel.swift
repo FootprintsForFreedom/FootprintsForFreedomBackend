@@ -64,6 +64,63 @@ extension LatestVerifiedTagModel {
         struct Key: Codable, LockKey { }
         
         static var schema = "tags"
+        static var settings: [String : Any] = [
+            "analysis": [
+                "analyzer": [
+                    "default": [
+                        "tokenizer": "standard",
+                        "filter": [
+                            "classic",
+                            "lowercase",
+                            "asciifolding",
+                            "stemmer",
+                            "word_delimiter_graph"
+                        ]
+                    ]
+                ]
+            ]
+        ]
+        static var mappings: [String : Any] = [
+            "properties": [
+                "title": [
+                    "type": "text",
+                    "fields": [
+                        "keyword": [
+                            "type": "keyword"
+                        ],
+                        "suggest": [
+                            "type": "completion",
+                            "analyzer": "default",
+                            "contexts": [
+                                [
+                                    "name": "languageCode",
+                                    "type": "category",
+                                    "path": "languageCode"
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                "id": [
+                    "type": "keyword"
+                ],
+                "detailId": [
+                    "type": "keyword"
+                ],
+                "detailUserId": [
+                    "type": "keyword"
+                ],
+                "languageId": [
+                    "type": "keyword"
+                ],
+                "languageIsRTL": [
+                    "type": "boolean"
+                ],
+                "languageCode": [
+                    "type": "keyword"
+                ]
+            ]
+        ]
         
         var id: UUID
         

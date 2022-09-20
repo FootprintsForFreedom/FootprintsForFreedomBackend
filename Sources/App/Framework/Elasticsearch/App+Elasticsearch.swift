@@ -17,7 +17,9 @@ extension Application {
                 httpClient: self.http.client.shared,
                 eventLoop: self.eventLoopGroup.next(),
                 logger: self.logger,
-                url: Environment.elasticsearchUrl
+                url: Environment.elasticsearchUrl,
+                jsonEncoder: ElasticsearchHandler.newJSONEncoder(),
+                jsonDecoder: ElasticsearchHandler.newJSONDecoder()
             )
         }
     }
@@ -36,7 +38,9 @@ extension Request {
                 httpClient: application.http.client.shared,
                 eventLoop: eventLoop,
                 logger: logger,
-                url: Environment.elasticsearchUrl
+                url: Environment.elasticsearchUrl,
+                jsonEncoder: ElasticsearchHandler.newJSONEncoder(),
+                jsonDecoder: ElasticsearchHandler.newJSONDecoder()
             )
         }
     }

@@ -14,6 +14,8 @@ protocol ElasticsearchModelInterface: Codable where DatabaseModel.Elasticsearch 
     associatedtype Key: Codable, LockKey
     associatedtype IDValue: Hashable
     static var schema: String { get }
+    static var mappings: [String: Any] { get }
+    static var settings: [String: Any] { get }
     
     var id: IDValue { get }
     var languageId: IDValue { get }
