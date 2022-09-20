@@ -50,8 +50,8 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest {
         XCTAssertEqual(content.detailText, detail.detailText)
         XCTAssertEqual(content.languageId, detail.$language.id)
         XCTAssertEqual(content.languageCode, detail.language.languageCode)
-        XCTAssertEqual(content.latitude, location.latitude)
-        XCTAssertEqual(content.longitude, location.longitude)
+        XCTAssertEqual(content.location.lat, location.latitude)
+        XCTAssertEqual(content.location.lon, location.longitude)
         XCTAssert(try content.tags.contains(tag.repository.requireID()))
     }
     
@@ -106,8 +106,8 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest {
         XCTAssertEqual(content.languageId, detail.$language.id)
         XCTAssertEqual(content.languageCode, detail.language.languageCode)
         XCTAssertEqual(content.languagePriority, detail.language.priority)
-        XCTAssertEqual(content.latitude, location.latitude)
-        XCTAssertEqual(content.longitude, location.longitude)
+        XCTAssertEqual(content.location.lat, location.latitude)
+        XCTAssertEqual(content.location.lon, location.longitude)
         XCTAssert(try content.tags.contains(tag.repository.requireID()))
         let secondElasticResponse = try await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema)
         let secondContent = secondElasticResponse.source
@@ -118,8 +118,8 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest {
         XCTAssertEqual(secondContent.languageId, newDetail.$language.id)
         XCTAssertEqual(secondContent.languageCode, newDetail.language.languageCode)
         XCTAssertEqual(secondContent.languagePriority, newDetail.language.priority)
-        XCTAssertEqual(secondContent.latitude, location.latitude)
-        XCTAssertEqual(secondContent.longitude, location.longitude)
+        XCTAssertEqual(secondContent.location.lat, location.latitude)
+        XCTAssertEqual(secondContent.location.lon, location.longitude)
         XCTAssert(try secondContent.tags.contains(tag.repository.requireID()))
 
         // Test update location
@@ -143,8 +143,8 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest {
         XCTAssertEqual(contentAfterUpdateLocation.languageId, detail.$language.id)
         XCTAssertEqual(contentAfterUpdateLocation.languageCode, detail.language.languageCode)
         XCTAssertEqual(contentAfterUpdateLocation.languagePriority, detail.language.priority)
-        XCTAssertEqual(contentAfterUpdateLocation.latitude, newLocation.latitude)
-        XCTAssertEqual(contentAfterUpdateLocation.longitude, newLocation.longitude)
+        XCTAssertEqual(contentAfterUpdateLocation.location.lat, newLocation.latitude)
+        XCTAssertEqual(contentAfterUpdateLocation.location.lon, newLocation.longitude)
         XCTAssert(try contentAfterUpdateLocation.tags.contains(tag.repository.requireID()))
         let secondElasticResponseAfterUpdateLocation = try await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema)
         let secondContentAfterUpdateLocation = secondElasticResponseAfterUpdateLocation.source
@@ -155,8 +155,8 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest {
         XCTAssertEqual(secondContentAfterUpdateLocation.languageId, newDetail.$language.id)
         XCTAssertEqual(secondContentAfterUpdateLocation.languageCode, newDetail.language.languageCode)
         XCTAssertEqual(secondContentAfterUpdateLocation.languagePriority, newDetail.language.priority)
-        XCTAssertEqual(secondContentAfterUpdateLocation.latitude, newLocation.latitude)
-        XCTAssertEqual(secondContentAfterUpdateLocation.longitude, newLocation.longitude)
+        XCTAssertEqual(secondContentAfterUpdateLocation.location.lat, newLocation.latitude)
+        XCTAssertEqual(secondContentAfterUpdateLocation.location.lon, newLocation.longitude)
         XCTAssert(try secondContentAfterUpdateLocation.tags.contains(tag.repository.requireID()))
     }
     
@@ -202,8 +202,8 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest {
         XCTAssertEqual(content.detailText, detail.detailText)
         XCTAssertEqual(content.languageId, detail.$language.id)
         XCTAssertEqual(content.languageCode, detail.language.languageCode)
-        XCTAssertEqual(content.latitude, location.latitude)
-        XCTAssertEqual(content.longitude, location.longitude)
+        XCTAssertEqual(content.location.lat, location.latitude)
+        XCTAssertEqual(content.location.lon, location.longitude)
         XCTAssert(try content.tags.contains(tag.repository.requireID()))
     }
     
@@ -257,8 +257,8 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest {
         XCTAssertEqual(content.languageId, newDetail.$language.id)
         XCTAssertEqual(content.languageCode, newDetail.language.languageCode)
         XCTAssertEqual(content.languagePriority, newDetail.language.priority)
-        XCTAssertEqual(content.latitude, location.latitude)
-        XCTAssertEqual(content.longitude, location.longitude)
+        XCTAssertEqual(content.location.lat, location.latitude)
+        XCTAssertEqual(content.location.lon, location.longitude)
         XCTAssert(try content.tags.contains(tag.repository.requireID()))
     }
     
@@ -313,8 +313,8 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest {
         XCTAssertEqual(content.languageId, detail.$language.id)
         XCTAssertEqual(content.languageCode, detail.language.languageCode)
         XCTAssertEqual(content.languagePriority, detail.language.priority)
-        XCTAssertEqual(content.latitude, location.latitude)
-        XCTAssertEqual(content.longitude, location.longitude)
+        XCTAssertEqual(content.location.lat, location.latitude)
+        XCTAssertEqual(content.location.lon, location.longitude)
         XCTAssert(try content.tags.contains(tag.repository.requireID()))
         let secondElasticResponse = try await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema)
         let secondContent = secondElasticResponse.source
@@ -325,8 +325,8 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest {
         XCTAssertEqual(secondContent.languageId, newDetail.$language.id)
         XCTAssertEqual(secondContent.languageCode, newDetail.language.languageCode)
         XCTAssertEqual(secondContent.languagePriority, newDetail.language.priority)
-        XCTAssertEqual(secondContent.latitude, location.latitude)
-        XCTAssertEqual(secondContent.longitude, location.longitude)
+        XCTAssertEqual(secondContent.location.lat, location.latitude)
+        XCTAssertEqual(secondContent.location.lon, location.longitude)
         XCTAssert(try secondContent.tags.contains(tag.repository.requireID()))
     }
     
@@ -448,8 +448,8 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest {
         XCTAssertEqual(content.languageId, newDetail.$language.id)
         XCTAssertEqual(content.languageCode, newDetail.language.languageCode)
         XCTAssertEqual(content.languagePriority, newDetail.language.priority)
-        XCTAssertEqual(content.latitude, location.latitude)
-        XCTAssertEqual(content.longitude, location.longitude)
+        XCTAssertEqual(content.location.lat, location.latitude)
+        XCTAssertEqual(content.location.lon, location.longitude)
         XCTAssert(try content.tags.contains(tag.repository.requireID()))
     }
     
@@ -522,8 +522,8 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest {
         XCTAssertEqual(content.detailText, detail.detailText)
         XCTAssertEqual(content.languageId, detail.$language.id)
         XCTAssertEqual(content.languageCode, detail.language.languageCode)
-        XCTAssertEqual(content.latitude, location.latitude)
-        XCTAssertEqual(content.longitude, location.longitude)
+        XCTAssertEqual(content.location.lat, location.latitude)
+        XCTAssertEqual(content.location.lon, location.longitude)
         XCTAssert(try content.tags.contains(tag.repository.requireID()))
         let secondElasticResponse = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema)
         XCTAssertNotNil(secondElasticResponse)
@@ -535,8 +535,8 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest {
         XCTAssertEqual(secondContent.detailText, newDetail.detailText)
         XCTAssertEqual(secondContent.languageId, newDetail.$language.id)
         XCTAssertEqual(secondContent.languageCode, newDetail.language.languageCode)
-        XCTAssertEqual(secondContent.latitude, location.latitude)
-        XCTAssertEqual(secondContent.longitude, location.longitude)
+        XCTAssertEqual(secondContent.location.lat, location.latitude)
+        XCTAssertEqual(secondContent.location.lon, location.longitude)
         XCTAssert(try secondContent.tags.contains(tag.repository.requireID()))
     }
 }

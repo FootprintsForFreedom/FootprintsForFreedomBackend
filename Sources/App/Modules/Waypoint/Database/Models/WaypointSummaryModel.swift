@@ -168,8 +168,6 @@ extension WaypointSummaryModel {
         
         var locationId: UUID
         var location: Location
-        var latitude: Double
-        var longitude: Double
         var locationUserId: UUID?
         var locationVerifiedAt: Date?
         var locationCreatedAt: Date?
@@ -222,8 +220,6 @@ extension WaypointSummaryModel {
             detailDeletedAt: self.detailDeletedAt,
             locationId: self.locationId,
             location: Elasticsearch.Location(lat: self.latitude, lon: self.longitude),
-            latitude: self.latitude,
-            longitude: self.longitude,
             locationUserId: self.locationUserId,
             locationVerifiedAt: self.locationVerifiedAt,
             locationCreatedAt: self.locationCreatedAt,
