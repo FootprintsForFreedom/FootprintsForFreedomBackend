@@ -11,7 +11,7 @@ import Fluent
 import Spec
 import ElasticsearchNIOClient
 
-final class LatestVerifiedTagTests: AppTestCase, TagTest {
+final class LatestVerifiedTagTests: AppTestCase, TagTest, UserTest {
     func testVerifyDetailAddsTagToElasticsearch() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let (repository, detail) = try await createNewTag()
@@ -307,6 +307,61 @@ final class LatestVerifiedTagTests: AppTestCase, TagTest {
             XCTAssertEqual(content.languageCode, languageUpdateContent.languageCode)
             XCTAssertEqual(content.languageName, languageUpdateContent.name)
             XCTAssertEqual(content.languageIsRTL, languageUpdateContent.isRTL)
+        } else {
+            XCTFail()
+        }
+    }
+    
+    func testDeleteUserUpdatesAllTheirTagsInElasticsearch() async throws {
+        let adminToken = try await getToken(for: .admin)
+        let (repository, detail) = try await createNewTag()
+        
+        try app
+            .describe("Verify tag as moderator should be successful and return ok")
+            .post(tagPath.appending("\(repository.requireID())/verify/\(detail.requireID())"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
+        
+        let user = try await getUser(role: .user)
+        let newLanguage = try await createLanguage()
+        let newDetail = try await detail.updateWith(languageId: newLanguage.requireID(), userId: user.requireID(), on: app.db)
+        
+        try app
+            .describe("Verify tag as moderator should be successful and return ok")
+            .post(tagPath.appending("\(repository.requireID())/verify/\(newDetail.requireID())"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
+                
+        try await app
+            .describe("User should be able to delete himself; Delete user should return ok")
+            .delete(usersPath.appending(user.requireID().uuidString))
+            .bearerToken(getToken(for: user))
+            .expect(.noContent)
+            .test()
+        
+        if let elasticResponse = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: LatestVerifiedTagModel.Elasticsearch.schema) {
+            let content = elasticResponse.source
+            XCTAssertEqual(content.id, repository.id)
+            XCTAssertEqual(content.title, detail.title)
+            XCTAssertEqual(content.slug, detail.title.slugify())
+            XCTAssertEqual(content.keywords, detail.keywords)
+            XCTAssertEqual(content.languageId, detail.$language.id)
+            XCTAssertEqual(content.detailUserId, detail.$user.id)
+        } else {
+            XCTFail()
+        }
+        if let secondElasticResponse = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: LatestVerifiedTagModel.Elasticsearch.schema) {
+            let content = secondElasticResponse.source
+            XCTAssertEqual(content.id, repository.id)
+            XCTAssertEqual(content.title, newDetail.title)
+            XCTAssertEqual(content.slug, newDetail.title.slugify())
+            XCTAssertEqual(content.keywords, newDetail.keywords)
+            XCTAssertEqual(content.languageId, newDetail.$language.id)
+            XCTAssertNil(content.detailUserId)
         } else {
             XCTFail()
         }

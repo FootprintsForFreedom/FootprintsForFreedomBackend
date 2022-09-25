@@ -74,6 +74,7 @@ final class WaypointSummaryModel: DatabaseElasticInterface {
 extension WaypointSummaryModel {
     var _$languageId: FieldProperty<WaypointSummaryModel, UUID> { $languageId }
     var _$detailId: FieldProperty<WaypointSummaryModel, UUID> { $detailId }
+    var _$detailUserId: OptionalFieldProperty<WaypointSummaryModel, UUID> { $detailUserId }
 }
 
 extension WaypointSummaryModel {
@@ -163,7 +164,7 @@ extension WaypointSummaryModel {
         var title: String
         var slug: String
         var detailText: String
-        var detailUserId: UUID?
+        @NullCodable var detailUserId: UUID?
         var detailVerifiedAt: Date?
         var detailCreatedAt: Date?
         var detailUpdatedAt: Date?
@@ -171,7 +172,7 @@ extension WaypointSummaryModel {
         
         var locationId: UUID
         var location: Location
-        var locationUserId: UUID?
+        @NullCodable var locationUserId: UUID?
         var locationVerifiedAt: Date?
         var locationCreatedAt: Date?
         var locationUpdatedAt: Date?
@@ -235,6 +236,37 @@ extension WaypointSummaryModel.Elasticsearch {
         let documents = try await elements
             .concurrentMap { try await $0.toElasticsearch(on: req.db) }
             .map { ESBulkOperation(operationType: .index, index: Self.schema, id: $0.uniqueId, document: $0) }
+        let response = try req.elastic.bulk(documents)
+        return response
+    }
+    
+    @discardableResult
+    static func deleteUser(_ userId: UUID, on req: Request) async throws -> ESBulkResponse? {
+        let elementsToDelete = try await DatabaseModel
+            .query(on: req.db)
+            .group(.or) { query in
+                query
+                    .filter(\.$detailUserId == userId)
+                    .filter(\.$locationUserId == userId)
+            }
+            
+            .all()
+        
+        guard !elementsToDelete.isEmpty else { return nil }
+        let documents = try await elementsToDelete
+            .concurrentMap { element in
+                var document = try await element.toElasticsearch(on: req.db)
+                if document.detailUserId == userId {
+                    document.detailUserId = nil
+                }
+                if document.locationUserId == userId {
+                    document.locationUserId = nil
+                }
+                return document
+            }
+            .map { (document: Self) in
+                return ESBulkOperation(operationType: .update, index: Self.schema, id: document.uniqueId, document: document)
+            }
         let response = try req.elastic.bulk(documents)
         return response
     }

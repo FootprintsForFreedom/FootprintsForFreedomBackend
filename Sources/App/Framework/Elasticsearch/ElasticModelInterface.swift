@@ -9,7 +9,7 @@ import Vapor
 import Fluent
 import ElasticsearchNIOClient
 
-public protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel == Self {
+protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel == Self {
     associatedtype DatabaseModel: DatabaseElasticInterface
     associatedtype Key: Codable, LockKey
     associatedtype IDValue: Hashable
@@ -19,6 +19,7 @@ public protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel 
     
     var id: IDValue { get }
     var languageId: IDValue { get }
+    var detailUserId: IDValue? { get set }
     
     var uniqueId: String { get }
     static func uniqueId(repositoryId: UUID, languageId: UUID) -> String
@@ -37,9 +38,12 @@ public protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel 
     static func updateLanguages(_ languageIds: [UUID], on req: Request) async throws -> ESBulkResponse?
     @discardableResult
     static func updateLanguage(_ languageId: UUID, on req: Request) async throws -> ESBulkResponse?
+    
+    @discardableResult
+    static func deleteUser(_ userId: UUID, on req: Request) async throws -> ESBulkResponse?
 }
 
-public extension ElasticModelInterface {
+extension ElasticModelInterface {
     var uniqueId: String {
         "\(self.id)_\(self.languageId)"
     }
@@ -114,5 +118,26 @@ public extension ElasticModelInterface {
     @discardableResult
     static func updateLanguage(_ languageId: UUID, on req: Request) async throws -> ESBulkResponse? {
         try await updateLanguages([languageId], on: req)
+    }
+    
+    @discardableResult
+    static func deleteUser(_ userId: UUID, on req: Request) async throws -> ESBulkResponse? {
+        let elementsToDelete = try await DatabaseModel
+            .query(on: req.db)
+            .filter(\._$detailUserId == userId)
+            .all()
+        
+        guard !elementsToDelete.isEmpty else { return nil }
+        let documents = try await elementsToDelete
+            .concurrentMap { element in
+                var document = try await element.toElasticsearch(on: req.db)
+                document.detailUserId = nil
+                return document
+            }
+            .map { (document: Self) in
+                return ESBulkOperation(operationType: .update, index: Self.schema, id: document.uniqueId, document: document)
+            }
+        let response = try req.elastic.bulk(documents)
+        return response
     }
 }

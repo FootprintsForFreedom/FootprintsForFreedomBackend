@@ -12,7 +12,7 @@ import ElasticsearchNIOClient
 
 // TODO: name and move
 
-public protocol ElasticModelController: RepositoryController {
+protocol ElasticModelController: RepositoryController {
     /// The database model.
     associatedtype ElasticModel: ElasticModelInterface
 }

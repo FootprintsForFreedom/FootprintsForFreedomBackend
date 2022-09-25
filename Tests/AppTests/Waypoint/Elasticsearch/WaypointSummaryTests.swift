@@ -11,7 +11,7 @@ import Fluent
 import Spec
 import ElasticsearchNIOClient
 
-final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest {
+final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest, UserTest {
     func testVerifyDetailAddsWaypointToElasticsearch() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let (repository, detail, location) = try await createNewWaypoint()
@@ -610,6 +610,136 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest {
             XCTAssertEqual(content.languageCode, languageUpdateContent.languageCode)
             XCTAssertEqual(content.languageName, languageUpdateContent.name)
             XCTAssertEqual(content.languageIsRTL, languageUpdateContent.isRTL)
+        } else {
+            XCTFail()
+        }
+    }
+    
+    func testDeleteUserUpdatesAllTheirWaypointDetailsInElasticsearch() async throws {
+        let adminToken = try await getToken(for: .admin)
+        let (repository, detail, location) = try await createNewWaypoint()
+        
+        try app
+            .describe("Verify location as moderator should be successful and return ok")
+            .post(waypointsPath.appending("\(repository.requireID())/locations/verify/\(location.requireID())"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
+        
+        try app
+            .describe("Verify waypoint as moderator should be successful and return ok")
+            .post(waypointsPath.appending("\(repository.requireID())/waypoints/verify/\(detail.requireID())"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
+        
+        let user = try await getUser(role: .user)
+        let newLanguage = try await createLanguage()
+        let newDetail = try await detail.updateWith(languageId: newLanguage.requireID(), userId: user.requireID(), on: app.db)
+        
+        try app
+            .describe("Verify waypoint as moderator should be successful and return ok")
+            .post(waypointsPath.appending("\(repository.requireID())/waypoints/verify/\(newDetail.requireID())"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
+        
+        try await app
+            .describe("User should be able to delete himself; Delete user should return ok")
+            .delete(usersPath.appending(user.requireID().uuidString))
+            .bearerToken(getToken(for: user))
+            .expect(.noContent)
+            .test()
+        
+        if let elasticResponse = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema) {
+            let content = elasticResponse.source
+            XCTAssertEqual(content.id, repository.id)
+            XCTAssertEqual(content.title, detail.title)
+            XCTAssertEqual(content.slug, detail.title.slugify())
+            XCTAssertEqual(content.detailText, detail.detailText)
+            XCTAssertEqual(content.location.lat, location.latitude)
+            XCTAssertEqual(content.location.lon, location.longitude)
+            XCTAssertEqual(content.languageId, detail.$language.id)
+            XCTAssertEqual(content.detailUserId, detail.$user.id)
+        } else {
+            XCTFail()
+        }
+        if let secondElasticResponse = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema) {
+            let content = secondElasticResponse.source
+            XCTAssertEqual(content.id, repository.id)
+            XCTAssertEqual(content.title, newDetail.title)
+            XCTAssertEqual(content.slug, newDetail.title.slugify())
+            XCTAssertEqual(content.detailText, newDetail.detailText)
+            XCTAssertEqual(content.location.lat, location.latitude)
+            XCTAssertEqual(content.location.lon, location.longitude)
+            XCTAssertEqual(content.languageId, newDetail.$language.id)
+            XCTAssertNil(content.detailUserId)
+        } else {
+            XCTFail()
+        }
+    }
+    
+    func testDeleteUserUpdatesAllTheirWaypointLocationsInElasticsearch() async throws {
+        let adminToken = try await getToken(for: .admin)
+        let (repository, detail, location) = try await createNewWaypoint()
+        
+        try app
+            .describe("Verify location as moderator should be successful and return ok")
+            .post(waypointsPath.appending("\(repository.requireID())/locations/verify/\(location.requireID())"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
+        
+        try app
+            .describe("Verify waypoint as moderator should be successful and return ok")
+            .post(waypointsPath.appending("\(repository.requireID())/waypoints/verify/\(detail.requireID())"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
+        
+        let user = try await getUser(role: .user)
+        let newDetail = try await detail.updateWith(userId: user.requireID(), on: app.db)
+        let newLocation = try await location.updateWith(userId: user.requireID(), on: app.db)
+        
+        try app
+            .describe("Verify waypoint as moderator should be successful and return ok")
+            .post(waypointsPath.appending("\(repository.requireID())/waypoints/verify/\(newDetail.requireID())"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
+        
+        try app
+            .describe("Verify location as moderator should be successful and return ok")
+            .post(waypointsPath.appending("\(repository.requireID())/locations/verify/\(newLocation.requireID())"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
+        
+        try await app
+            .describe("User should be able to delete himself; Delete user should return ok")
+            .delete(usersPath.appending(user.requireID().uuidString))
+            .bearerToken(getToken(for: user))
+            .expect(.noContent)
+            .test()
+        
+        if let elasticResponse = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema) {
+            let content = elasticResponse.source
+            XCTAssertEqual(content.id, repository.id)
+            XCTAssertEqual(content.title, newDetail.title)
+            XCTAssertEqual(content.slug, newDetail.title.slugify())
+            XCTAssertEqual(content.detailText, newDetail.detailText)
+            XCTAssertEqual(content.location.lat, newLocation.latitude)
+            XCTAssertEqual(content.location.lon, newLocation.longitude)
+            XCTAssertEqual(content.languageId, newDetail.$language.id)
+            XCTAssertNil(content.detailUserId)
+            XCTAssertNil(content.locationUserId)
         } else {
             XCTFail()
         }

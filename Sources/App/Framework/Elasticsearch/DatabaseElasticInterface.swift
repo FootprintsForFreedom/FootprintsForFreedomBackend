@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-public protocol DatabaseElasticInterface: DatabaseModelInterface {
+protocol DatabaseElasticInterface: DatabaseModelInterface {
     associatedtype ElasticModel: ElasticModelInterface
     
     var languageId: UUID { get }
@@ -16,6 +16,9 @@ public protocol DatabaseElasticInterface: DatabaseModelInterface {
     
     var detailId: UUID { get }
     var _$detailId: FieldProperty<Self, UUID> { get }
+    
+    var detailUserId: UUID? { get }
+    var _$detailUserId: OptionalFieldProperty<Self, UUID> { get }
     
     
     func toElasticsearch(on db: Database) async throws -> ElasticModel

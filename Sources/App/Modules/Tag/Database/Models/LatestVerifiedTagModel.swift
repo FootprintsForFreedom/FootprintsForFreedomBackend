@@ -56,6 +56,7 @@ final class LatestVerifiedTagModel: DatabaseElasticInterface {
 extension LatestVerifiedTagModel {
     var _$languageId: FieldProperty<LatestVerifiedTagModel, UUID> { $languageId }
     var _$detailId: FieldProperty<LatestVerifiedTagModel, UUID> { $detailId }
+    var _$detailUserId: OptionalFieldProperty<LatestVerifiedTagModel, UUID> { $detailUserId }
 }
 
 extension LatestVerifiedTagModel {
@@ -131,7 +132,7 @@ extension LatestVerifiedTagModel {
         var title: String
         var slug: String
         var keywords: [String]
-        var detailUserId: UUID?
+        @NullCodable var detailUserId: UUID?
         var detailVerifiedAt: Date?
         var detailCreatedAt: Date?
         var detailUpdatedAt: Date?

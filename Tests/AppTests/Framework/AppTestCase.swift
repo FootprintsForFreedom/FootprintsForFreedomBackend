@@ -54,11 +54,15 @@ open class AppTestCase: XCTestCase {
         return newUser
     }
     
-    func getToken(for userRole: User.Role, verified: Bool = false) async throws -> String {
-        let newUser = try await getUser(role: userRole, verified: verified)
-        let token = try newUser.generateToken()
+    func getToken(for user: UserAccountModel) async throws -> String {
+        let token = try user.generateToken()
         try await token.create(on: app.db)
         return token.value
+    }
+    
+    func getToken(for userRole: User.Role, verified: Bool = false) async throws -> String {
+        let newUser = try await getUser(role: userRole, verified: verified)
+        return try await getToken(for: newUser)
     }
     
     func data(for resource: String, withExtension fileExtension: String) throws -> Data {
