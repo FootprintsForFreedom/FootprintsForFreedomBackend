@@ -316,7 +316,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
             .test()
     }
     
-    func testListUnverifiedLocationsForReposiotryAsUserFails() async throws {
+    func testListUnverifiedLocationsForRepositoryAsUserFails() async throws {
         let userToken = try await getToken(for: .user)
         
         // Create an unverified waypoint
@@ -330,7 +330,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
             .test()
     }
     
-    func testListUnverifiedLocationsForReposiotryWithoutTokenFails() async throws {
+    func testListUnverifiedLocationsForRepositoryWithoutTokenFails() async throws {
         // Create an unverified waypoint
         let (waypointRepository, _, _) = try await createNewWaypoint()
         

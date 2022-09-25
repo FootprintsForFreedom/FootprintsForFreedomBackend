@@ -35,10 +35,10 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
             userId: userId,
             on: app.db
         )
-        // Create a reposiotry that is only available in the other language
+        // Create a repository that is only available in the other language
         let (verifiedMediaRepositoryInDifferentLanguage, createdVerifiedMediaInDifferentLanguage, _) = try await createNewMedia(verifiedAt: Date(), languageId: language2.requireID(), userId: userId)
         try await createdVerifiedMediaInDifferentLanguage.$language.load(on: app.db)
-        // Create a reposiotry that is available in both languages
+        // Create a repository that is available in both languages
         let (verifiedMediaRepositoryWithMultipleLanguages, _, _) = try await createNewMedia(verifiedAt: Date(), languageId: language2.requireID(), userId: userId)
         // Create a second model in the other language
         let createdVerifiedMediaInLanguage1 = try await MediaDetailModel.createWith(
@@ -121,10 +121,10 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
             userId: userId,
             on: app.db
         )
-        // Create a reposiotry that is only available in the other language
+        // Create a repository that is only available in the other language
         let (verifiedMediaRepositoryInDifferentLanguage, createdVerifiedMediaInDifferentLanguage, _) = try await createNewMedia(verifiedAt: Date(), languageId: language2.requireID(), userId: userId)
         try await createdVerifiedMediaInDifferentLanguage.$language.load(on: app.db)
-        // Create a reposiotry that is available in both languages
+        // Create a repository that is available in both languages
         let (verifiedMediaRepositoryWithMultipleLanguages, _, _) = try await createNewMedia(verifiedAt: Date(), languageId: language2.requireID(), userId: userId)
         // Create a second model in the other language
         let createdVerifiedMediaInLanguage1 = try await MediaDetailModel.createWith(

@@ -33,10 +33,10 @@ final class TagApiGetTests: AppTestCase, TagTest {
             userId: userId,
             on: self
         )
-        // Create a reposiotry that is only available in the other language
+        // Create a repository that is only available in the other language
         let (verifiedTagRepositoryInDifferentLanguage, createdVerifiedTagInDifferentLanguage) = try await createNewTag(verified: true, languageId: language2.requireID(), userId: userId)
         try await createdVerifiedTagInDifferentLanguage.$language.load(on: app.db)
-        // Create a reposiotry that is available in both languages
+        // Create a repository that is available in both languages
         let (verifiedTagRepositoryWithMultipleLanguages, _) = try await createNewTag(verified: true, languageId: language2.requireID(), userId: userId)
         // Create a second model in the other language
         let createdVerifiedTagInLanguage1 = try await TagDetailModel.createWith(
