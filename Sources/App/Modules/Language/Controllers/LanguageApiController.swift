@@ -141,6 +141,11 @@ struct LanguageApiController: UnpagedApiController {
         model.isRTL = input.isRTL
     }
     
+    func afterUpdate(_ req: Request, _ model: LanguageModel) async throws {
+        try await LatestVerifiedTagModel.Elasticsearch.updateLanguage(model.requireID(), on: req)
+        try await WaypointSummaryModel.Elasticsearch.updateLanguage(model.requireID(), on: req)
+    }
+    
     func beforePatch(_ req: Request, _ model: LanguageModel) async throws {
         try await req.onlyFor(.admin)
         guard let savedLanguage = try await LanguageModel.find(model.requireID(), on: req.db) else {

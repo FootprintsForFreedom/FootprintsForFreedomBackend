@@ -128,8 +128,8 @@ extension LanguageApiController {
             }
             return nil
         }
-        try await LatestVerifiedTagModel.Elasticsearch.setLanguagePriorities(for: languagesWithChangedPriority, on: req)
-        try await WaypointSummaryModel.Elasticsearch.setLanguagePriorities(for: languagesWithChangedPriority, on: req)
+        try await LatestVerifiedTagModel.Elasticsearch.updateLanguages(languagesWithChangedPriority, on: req)
+        try await WaypointSummaryModel.Elasticsearch.updateLanguages(languagesWithChangedPriority, on: req)
         
         return try await listApi(req)
     }

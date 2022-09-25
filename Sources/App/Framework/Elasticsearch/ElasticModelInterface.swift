@@ -34,7 +34,9 @@ public protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel 
     @discardableResult
     static func activateLanguage(_ languageId: UUID, on req: Request) async throws -> ESBulkResponse?
     @discardableResult
-    static func setLanguagePriorities(for languagesWithChangedPriority: [UUID], on req: Request) async throws -> ESBulkResponse?
+    static func updateLanguages(_ languageIds: [UUID], on req: Request) async throws -> ESBulkResponse?
+    @discardableResult
+    static func updateLanguage(_ languageId: UUID, on req: Request) async throws -> ESBulkResponse?
 }
 
 public extension ElasticModelInterface {
@@ -96,10 +98,10 @@ public extension ElasticModelInterface {
     }
     
     @discardableResult
-    static func setLanguagePriorities(for languagesWithChangedPriority: [UUID], on req: Request) async throws -> ESBulkResponse? {
+    static func updateLanguages(_ languageIds: [UUID], on req: Request) async throws -> ESBulkResponse? {
         let elementsToChange = try await DatabaseModel
             .query(on: req.db)
-            .filter(\._$languageId ~~ languagesWithChangedPriority)
+            .filter(\._$languageId ~~ languageIds)
             .all()
         
         guard !elementsToChange.isEmpty else { return nil }
@@ -107,5 +109,10 @@ public extension ElasticModelInterface {
             .concurrentMap { try await $0.toElasticsearch(on: req.db) }
             .map { ESBulkOperation(operationType: .update, index: Self.schema, id: $0.uniqueId, document: $0) }
         return try req.elastic.bulk(documents)
+    }
+    
+    @discardableResult
+    static func updateLanguage(_ languageId: UUID, on req: Request) async throws -> ESBulkResponse? {
+        try await updateLanguages([languageId], on: req)
     }
 }

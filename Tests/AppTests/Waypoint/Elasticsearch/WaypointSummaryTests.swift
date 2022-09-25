@@ -539,5 +539,80 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest {
         XCTAssertEqual(secondContent.location.lon, location.longitude)
         XCTAssert(try secondContent.tags.contains(tag.repository.requireID()))
     }
+    
+    func testUpdateLanguageChangesAllItsWaypointssInElasticsearch() async throws {
+        let adminToken = try await getToken(for: .admin)
+        let (repository, detail, location) = try await createNewWaypoint()
+        try await detail.$language.load(on: app.db)
+        
+        try app
+            .describe("Verify location as moderator should be successful and return ok")
+            .post(waypointsPath.appending("\(repository.requireID())/locations/verify/\(location.requireID())"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
+        
+        try app
+            .describe("Verify waypoint as moderator should be successful and return ok")
+            .post(waypointsPath.appending("\(repository.requireID())/waypoints/verify/\(detail.requireID())"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
+        
+        let newLanguage = try await createLanguage()
+        let newDetail = try await detail.updateWith(languageId: newLanguage.requireID(), on: app.db)
+        
+        try app
+            .describe("Verify waypoint as moderator should be successful and return ok")
+            .post(waypointsPath.appending("\(repository.requireID())/waypoints/verify/\(newDetail.requireID())"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
+        
+        let languageUpdateContent = Language.Detail.Update(languageCode: "updated language \(UUID())", name: "Some other name \(UUID())", isRTL: false)
+        
+        try app
+            .describe("Update language should return ok and the created language")
+            .put(languagesPath.appending(newLanguage.requireID().uuidString))
+            .body(languageUpdateContent)
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
+        
+        if let elasticResponse = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema) {
+            let content = elasticResponse.source
+            XCTAssertEqual(content.id, repository.id)
+            XCTAssertEqual(content.title, detail.title)
+            XCTAssertEqual(content.slug, detail.title.slugify())
+            XCTAssertEqual(content.detailText, detail.detailText)
+            XCTAssertEqual(content.location.lat, location.latitude)
+            XCTAssertEqual(content.location.lon, location.longitude)
+            XCTAssertEqual(content.languageId, detail.$language.id)
+            XCTAssertEqual(content.languageCode, detail.language.languageCode)
+            XCTAssertEqual(content.languageName, detail.language.name)
+            XCTAssertEqual(content.languageIsRTL, detail.language.isRTL)
+        } else {
+            XCTFail()
+        }
+        if let secondElasticResponse = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema) {
+            let content = secondElasticResponse.source
+            XCTAssertEqual(content.id, repository.id)
+            XCTAssertEqual(content.title, newDetail.title)
+            XCTAssertEqual(content.slug, newDetail.title.slugify())
+            XCTAssertEqual(content.detailText, newDetail.detailText)
+            XCTAssertEqual(content.location.lat, location.latitude)
+            XCTAssertEqual(content.location.lon, location.longitude)
+            XCTAssertEqual(content.languageId, newDetail.$language.id)
+            XCTAssertEqual(content.languageCode, languageUpdateContent.languageCode)
+            XCTAssertEqual(content.languageName, languageUpdateContent.name)
+            XCTAssertEqual(content.languageIsRTL, languageUpdateContent.isRTL)
+        } else {
+            XCTFail()
+        }
+    }
 }
 

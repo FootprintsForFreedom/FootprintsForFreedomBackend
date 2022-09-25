@@ -248,4 +248,67 @@ final class LatestVerifiedTagTests: AppTestCase, TagTest {
         XCTAssertNotNil(secondElasticResponse)
         XCTAssertEqual(secondElasticResponse?.source.languagePriority, try setLanguagesPriorityContent.newLanguagesOrder.firstIndex(of: newLanguage.requireID())! + 1)
     }
+    
+    func testUpdateLanguageChangesAllItsTagsInElasticsearch() async throws {
+        let adminToken = try await getToken(for: .admin)
+        let (repository, detail) = try await createNewTag()
+        try await detail.$language.load(on: app.db)
+        
+        try app
+            .describe("Verify tag as moderator should be successful and return ok")
+            .post(tagPath.appending("\(repository.requireID())/verify/\(detail.requireID())"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
+        
+        let newLanguage = try await createLanguage()
+        let newDetail = try await detail.updateWith(languageId: newLanguage.requireID(), on: app.db)
+        
+        try app
+            .describe("Verify tag as moderator should be successful and return ok")
+            .post(tagPath.appending("\(repository.requireID())/verify/\(newDetail.requireID())"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
+        
+        let languageUpdateContent = Language.Detail.Update(languageCode: "updated language \(UUID())", name: "Some other name \(UUID())", isRTL: false)
+        
+        try app
+            .describe("Update language should return ok and the created language")
+            .put(languagesPath.appending(newLanguage.requireID().uuidString))
+            .body(languageUpdateContent)
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
+        
+        if let elasticResponse = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: LatestVerifiedTagModel.Elasticsearch.schema) {
+            let content = elasticResponse.source
+            XCTAssertEqual(content.id, repository.id)
+            XCTAssertEqual(content.title, detail.title)
+            XCTAssertEqual(content.slug, detail.title.slugify())
+            XCTAssertEqual(content.keywords, detail.keywords)
+            XCTAssertEqual(content.languageId, detail.$language.id)
+            XCTAssertEqual(content.languageCode, detail.language.languageCode)
+            XCTAssertEqual(content.languageName, detail.language.name)
+            XCTAssertEqual(content.languageIsRTL, detail.language.isRTL)
+        } else {
+            XCTFail()
+        }
+        if let secondElasticResponse = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: LatestVerifiedTagModel.Elasticsearch.schema) {
+            let content = secondElasticResponse.source
+            XCTAssertEqual(content.id, repository.id)
+            XCTAssertEqual(content.title, newDetail.title)
+            XCTAssertEqual(content.slug, newDetail.title.slugify())
+            XCTAssertEqual(content.keywords, newDetail.keywords)
+            XCTAssertEqual(content.languageId, newDetail.$language.id)
+            XCTAssertEqual(content.languageCode, languageUpdateContent.languageCode)
+            XCTAssertEqual(content.languageName, languageUpdateContent.name)
+            XCTAssertEqual(content.languageIsRTL, languageUpdateContent.isRTL)
+        } else {
+            XCTFail()
+        }
+    }
 }
