@@ -21,22 +21,22 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
         location: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
         updatedLocation: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
         languageId: UUID? = nil,
-        updateLangugageCode: String = "de",
-        verifiedAt: Date? = nil,
+        updateLanguageCode: String = "de",
+        verified: Bool = false,
         userId: UUID? = nil
     ) async throws -> (repository: WaypointRepositoryModel, createdLocation: WaypointLocationModel, updateContent: Waypoint.Detail.Update) {
         let (waypointRepository, _, createdLocation) = try await createNewWaypoint(
             title: title,
             detailText: detailText,
             location: location,
-            verifiedAt: verifiedAt,
+            verified: verified,
             languageId: languageId,
             userId: userId
         )
         let updateContent = Waypoint.Detail.Update(
             title: updatedTitle,
             detailText: updatedDetailText,
-            languageCode: updateLangugageCode
+            languageCode: updateLanguageCode
         )
         return (waypointRepository, createdLocation, updateContent)
     }
@@ -199,8 +199,8 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
     func testUpdateWaypointNeedsValidLanguageCode() async throws {
         let language = try await createLanguage()
         let token = try await getToken(for: .user, verified: true)
-        let (waypointRepository1, _, updateContent1) = try await getWaypointUpdateContent(languageId: language.requireID(), updateLangugageCode: "")
-        let (waypointRepository2, _, updateContent2) = try await getWaypointUpdateContent(languageId: language.requireID(), updateLangugageCode: "hi")
+        let (waypointRepository1, _, updateContent1) = try await getWaypointUpdateContent(languageId: language.requireID(), updateLanguageCode: "")
+        let (waypointRepository2, _, updateContent2) = try await getWaypointUpdateContent(languageId: language.requireID(), updateLanguageCode: "hi")
         
         try app
             .describe("Update waypoint with empty language code should fail")

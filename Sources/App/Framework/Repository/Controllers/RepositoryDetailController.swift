@@ -9,7 +9,7 @@ import Vapor
 import Fluent
 
 /// Streamlines getting single ``RepositoryModel``s from the database.
-protocol RepositoryDetailController: RepositoryController {
+protocol RepositoryDetailController: DatabaseRepositoryController {
     
     /// Action performed prior to getting a repository from the database.
     /// - Parameters:

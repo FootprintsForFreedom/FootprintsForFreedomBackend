@@ -125,6 +125,7 @@ struct MediaApiController: ApiRepositoryController {
         
         guard let languageId = try await LanguageModel
             .query(on: req.db)
+            .filter(\.$priority != nil)
             .filter(\.$languageCode == input.languageCode)
             .first()?
             .requireID()

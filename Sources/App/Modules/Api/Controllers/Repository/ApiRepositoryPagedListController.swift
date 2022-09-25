@@ -9,7 +9,7 @@ import Vapor
 import Fluent
 
 /// Streamlines listing repositories in pages.
-protocol ApiRepositoryPagedListController: RepositoryController, PagedListController  {
+protocol ApiRepositoryPagedListController: DatabaseRepositoryController, PagedListController  {
     /// The list object content.
     associatedtype ListObject: Content
     

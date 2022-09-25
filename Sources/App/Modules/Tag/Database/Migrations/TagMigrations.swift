@@ -11,7 +11,7 @@ import SQLKit
 
 enum TagMigrations {
     struct v1: AsyncMigration {
-        let elastic: ElasticsearchHandler
+        let elastic: ElasticHandler
         
         func prepare(on db: Database) async throws {
             try await db.schema(TagRepositoryModel.schema)

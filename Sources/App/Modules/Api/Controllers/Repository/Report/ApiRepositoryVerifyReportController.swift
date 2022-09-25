@@ -9,7 +9,7 @@ import Vapor
 import Fluent
 
 /// Streamlines verifying repository reports.
-protocol ApiRepositoryVerifyReportController: RepositoryController where DatabaseModel: Reportable {
+protocol ApiRepositoryVerifyReportController: DatabaseRepositoryController where DatabaseModel: Reportable {
     /// The report detail object content
     associatedtype ReportDetailObject: Content
     /// The database detail object for the repository.

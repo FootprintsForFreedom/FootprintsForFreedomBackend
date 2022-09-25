@@ -34,7 +34,7 @@ final class TagApiDeleteTests: AppTestCase, TagTest {
         // Get original tag count
         let tagCount = try await TagRepositoryModel.query(on: app.db).count()
         
-        let (tagRepository, _) = try await createNewTag(verifiedAt: Date())
+        let (tagRepository, _) = try await createNewTag(verified: true)
         let moderatorToken = try await getToken(for: .moderator)
         
         try app
@@ -54,7 +54,7 @@ final class TagApiDeleteTests: AppTestCase, TagTest {
         let tagCount = try await TagRepositoryModel.query(on: app.db).count()
         let detailCount = try await TagDetailModel.query(on: app.db).count()
         
-        let (tagRepository, _) = try await createNewTag(verifiedAt: Date())
+        let (tagRepository, _) = try await createNewTag(verified: true)
         let moderatorToken = try await getToken(for: .moderator)
         
         try app
@@ -75,7 +75,7 @@ final class TagApiDeleteTests: AppTestCase, TagTest {
         let user = try await getUser(role: .user)
         let userToken = try user.generateToken()
         try await userToken.create(on: app.db)
-        let (tagRepository, _) = try await createNewTag(verifiedAt: Date())
+        let (tagRepository, _) = try await createNewTag(verified: true)
         
         try app
             .describe("A user should not be able to delete a tag")
@@ -86,7 +86,7 @@ final class TagApiDeleteTests: AppTestCase, TagTest {
     }
     
     func testDeleteUnverifiedTagAsUserFails() async throws {
-        let (tagRepository, _) = try await createNewTag(verifiedAt: Date())
+        let (tagRepository, _) = try await createNewTag(verified: true)
         let userToken = try await getToken(for: .user)
         
         try app
@@ -98,7 +98,7 @@ final class TagApiDeleteTests: AppTestCase, TagTest {
     }
     
     func testDeleteTagWithoutTokenFails() async throws {
-        let (tagRepository, _) = try await createNewTag(verifiedAt: Date())
+        let (tagRepository, _) = try await createNewTag(verified: true)
         
         try app
             .describe("Delete tag without token fails")

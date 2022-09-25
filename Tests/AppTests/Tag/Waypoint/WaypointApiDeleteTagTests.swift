@@ -13,7 +13,7 @@ import Spec
 final class WaypointApiDeleteTagTests: AppTestCase, WaypointTest, TagTest {
     func testSuccessfulDeleteTagOnWaypoint() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let waypoint = try await createNewWaypoint()
         try await waypoint.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         try await waypoint.detail.$language.load(on: app.db)
@@ -46,7 +46,7 @@ final class WaypointApiDeleteTagTests: AppTestCase, WaypointTest, TagTest {
     
     func testDeleteTagOnWaypointAsUserFails() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let waypoint = try await createNewWaypoint()
         try await waypoint.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -59,7 +59,7 @@ final class WaypointApiDeleteTagTests: AppTestCase, WaypointTest, TagTest {
     }
     
     func testDeleteTagOnWaypointWithoutTokenFails() async throws {
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let waypoint = try await createNewWaypoint()
         try await waypoint.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -72,7 +72,7 @@ final class WaypointApiDeleteTagTests: AppTestCase, WaypointTest, TagTest {
     
     func testDeleteTagOnWaypointNeedsValidWaypointId() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         
         try app
             .describe("Delete tag on waypoint required valid waypoint id")

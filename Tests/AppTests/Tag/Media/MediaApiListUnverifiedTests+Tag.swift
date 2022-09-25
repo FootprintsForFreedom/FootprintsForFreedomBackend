@@ -13,7 +13,7 @@ import Spec
 extension MediaApiListUnverifiedTests: TagTest {
     func testSuccessfulListRepositoriesWithUnverifiedModelsReturnsModelsWithUnverifiedTags() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let media = try await createNewMedia(verifiedAt: Date())
         
         try await media.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
@@ -37,7 +37,7 @@ extension MediaApiListUnverifiedTests: TagTest {
     
     func testSuccessfulListRepositoriesWithUnverifiedModelsReturnsModelsWithRequestDeletedTags() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let media = try await createNewMedia(verifiedAt: Date())
         
         try await media.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)

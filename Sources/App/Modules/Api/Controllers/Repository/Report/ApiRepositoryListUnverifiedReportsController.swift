@@ -9,7 +9,7 @@ import Vapor
 import Fluent
 
 /// Streamlines listing unverified repository reports.
-protocol ApiRepositoryListUnverifiedReportsController: RepositoryController where DatabaseModel: Reportable {
+protocol ApiRepositoryListUnverifiedReportsController: DatabaseRepositoryController where DatabaseModel: Reportable {
     /// The codable report list object.
     associatedtype ReportListObject: Codable
     

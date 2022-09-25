@@ -16,13 +16,16 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
         
         let language = try await createLanguage()
         let language2 = try await createLanguage()
+        let deactivatedLanguage = try await createLanguage(activated: false)
         
         let userId = try await getUser(role: .user).requireID()
         
         // Create an unverified waypoint
-        let (unverifiedWaypointRepository, createdUnverifiedWaypoint, _) = try await createNewWaypoint(languageId: language.requireID(), userId: userId)
+        let (unverifiedWaypointRepository, createdUnverifiedWaypoint, createdUnverifiedWaypointLocation) = try await createNewWaypoint(languageId: language.requireID(), userId: userId)
+        // Create an unverified waypoint for a deactivated language
+        let (unverifiedWaypointRepositoryForDeactivatedLanguage, _, _) = try await createNewWaypoint(languageId: deactivatedLanguage.requireID(), userId: userId)
         // Create a verified waypoint
-        let (verifiedWaypointRepository, createdVerifiedWaypoint, _) = try await createNewWaypoint(verifiedAt: Date(), languageId: language.requireID(), userId: userId)
+        let (verifiedWaypointRepository, createdVerifiedWaypoint, createdVerifiedWaypointLocation) = try await createNewWaypoint(verified: true, languageId: language.requireID(), userId: userId)
         // Create a second not verified model for the verified waypoint
         let _ = try await WaypointDetailModel.createWith(
             title: "Not visible \(UUID())",
@@ -30,11 +33,11 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
             repositoryId: verifiedWaypointRepository.requireID(),
             languageId: language.requireID(),
             userId: userId,
-            verifiedAt: nil,
-            on: app.db
+            verified: false,
+            on: self
         )
         // Create a waypoint in the other language
-        let (verifiedWaypointRepositoryInDifferentLanguage, _, _) = try await createNewWaypoint(verifiedAt: Date(), languageId: language2.requireID(), userId: userId)
+        let (verifiedWaypointRepositoryInDifferentLanguage, _, _) = try await createNewWaypoint(verified: true, languageId: language2.requireID(), userId: userId)
         
         // Get unverified waypoint count
         let waypoints = try await WaypointRepositoryModel
@@ -66,7 +69,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
                 if let unverifiedWaypoint = content.items.first(where: { $0.id == unverifiedWaypointRepository.id }) {
                     XCTAssertEqual(unverifiedWaypoint.id, unverifiedWaypointRepository.id)
                     XCTAssertEqual(unverifiedWaypoint.title, createdUnverifiedWaypoint.title)
-                    //                XCTAssertEqual(unverifiedWaypoint.location, createdUnverifiedWaypoint.location.value)
+                    XCTAssertEqual(unverifiedWaypoint.location, createdUnverifiedWaypointLocation.location)
                 }
                 
                 
@@ -76,10 +79,11 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
                 if let verifiedWaypoint = content.items.first(where: { $0.id == verifiedWaypointRepository.id }) {
                     XCTAssertEqual(verifiedWaypoint.id, verifiedWaypointRepository.id)
                     XCTAssertEqual(verifiedWaypoint.title, createdVerifiedWaypoint.title)
-                    //                XCTAssertEqual(verifiedWaypoint.location, createdVerifiedWaypoint.location.value)
+                    XCTAssertEqual(verifiedWaypoint.location, createdVerifiedWaypointLocation.location)
                 }
                 
                 XCTAssertFalse(content.items.contains { $0.id == verifiedWaypointRepositoryInDifferentLanguage.id })
+                XCTAssertFalse(content.items.contains { $0.id == unverifiedWaypointRepositoryForDeactivatedLanguage.id })
             }
             .test()
     }
@@ -108,6 +112,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
         
         let language = try await createLanguage()
         let language2 = try await createLanguage()
+        let deactivatedLanguage = try await createLanguage(activated: false)
         
         let userId = try await getUser(role: .user).requireID()
         
@@ -121,8 +126,8 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
             repositoryId: waypointRepository.requireID(),
             languageId: language.requireID(),
             userId: userId,
-            verifiedAt: Date(),
-            on: app.db
+            verified: true,
+            on: self
         )
         // Create a second not verified waypoint for the same repository
         let secondCreatedUnverifiedWaypoint = try await WaypointDetailModel.createWith(
@@ -131,10 +136,20 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
             repositoryId: waypointRepository.requireID(),
             languageId: language.requireID(),
             userId: userId,
-            verifiedAt: nil,
-            on: app.db
+            verified: false,
+            on: self
         )
         try await secondCreatedUnverifiedWaypoint.$language.load(on: app.db)
+        // Create an unverified waypoint for the same repository with a deactivated language
+        let unverifiedWaypointForDeactivatedLanguage = try await WaypointDetailModel.createWith(
+            title: "Not visible \(UUID())",
+            detailText: "Not visible",
+            repositoryId: waypointRepository.requireID(),
+            languageId: deactivatedLanguage.requireID(),
+            userId: userId,
+            verified: false,
+            on: self
+        )
         // Create a second not verified waypoint for the same repository in another language
         let createdUnverifiedWaypointInDifferentLanguage = try await WaypointDetailModel.createWith(
             title: "Different Language \(UUID())",
@@ -142,8 +157,8 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
             repositoryId: waypointRepository.requireID(),
             languageId: language2.requireID(),
             userId: userId,
-            verifiedAt: nil,
-            on: app.db
+            verified: false,
+            on: self
         )
         try await createdUnverifiedWaypointInDifferentLanguage.$language.load(on: app.db)
         // Create a not verified waypoint for another repository
@@ -157,6 +172,8 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
         let unverifiedWaypointForRepositoryCount = try await WaypointDetailModel
             .query(on: app.db)
             .filter(\.$verifiedAt == nil)
+            .join(parent: \._$language)
+            .filter(LanguageModel.self, \.$priority != nil)
             .filter(\.$repository.$id == waypointRepository.requireID())
             .count()
         
@@ -200,6 +217,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
                 }
                 
                 XCTAssertFalse(content.items.contains { $0.detailId == unverifiedWaypointForDifferentRepository.id })
+                XCTAssertFalse(content.items.contains { $0.detailId == unverifiedWaypointForDeactivatedLanguage.id })
             }
             .test()
     }
@@ -241,16 +259,16 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
             location: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
             repositoryId: waypointRepository.requireID(),
             userId: userId,
-            verifiedAt: Date(),
-            on: app.db
+            verified: true,
+            on: self
         )
         // Create a second not verified location for the same repository
         let secondCreatedUnverifiedLocation = try await WaypointLocationModel.createWith(
             location: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
             repositoryId: waypointRepository.requireID(),
             userId: userId,
-            verifiedAt: nil,
-            on: app.db
+            verified: false,
+            on: self
         )
         // Create a not verified location for another repository
         let (_, _, unverifiedLocationForDifferentRepository) = try await createNewWaypoint(userId: userId)

@@ -1,5 +1,5 @@
 //
-//  DatabaseElasticsearchInterface.swift
+//  DatabaseElasticInterface.swift
 //  
 //
 //  Created by niklhut on 18.09.22.
@@ -8,8 +8,8 @@
 import Vapor
 import Fluent
 
-protocol DatabaseElasticsearchInterface: DatabaseModelInterface {
-    associatedtype Elasticsearch: ElasticsearchModelInterface
+public protocol DatabaseElasticInterface: DatabaseModelInterface {
+    associatedtype ElasticModel: ElasticModelInterface
     
     var languageId: UUID { get }
     var _$languageId: FieldProperty<Self, UUID> { get }
@@ -18,6 +18,6 @@ protocol DatabaseElasticsearchInterface: DatabaseModelInterface {
     var _$detailId: FieldProperty<Self, UUID> { get }
     
     
-    func toElasticsearch(on db: Database) async throws -> Elasticsearch
+    func toElasticsearch(on db: Database) async throws -> ElasticModel
 }
 

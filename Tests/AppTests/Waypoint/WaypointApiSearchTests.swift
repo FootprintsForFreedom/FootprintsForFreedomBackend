@@ -12,7 +12,7 @@ import Spec
 
 final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
     func testSuccessfulSearchWaypointReturnsWhenTextInTitle() async throws {
-        let waypoint = try await createNewWaypoint(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verifiedAt: Date())
+        let waypoint = try await createNewWaypoint(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verified: true)
         try await waypoint.detail.$language.load(on: app.db)
         
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
@@ -34,7 +34,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
     }
     
     func testSuccessfulSearchWaypointReturnsWhenTextInDetailText() async throws {
-        let waypoint = try await createNewWaypoint(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verifiedAt: Date())
+        let waypoint = try await createNewWaypoint(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verified: true)
         try await waypoint.detail.$language.load(on: app.db)
         
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
@@ -56,7 +56,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
     }
     
     func testSuccessfulSearchWaypointOnlyReturnsVerifiedWaypoints() async throws {
-        let waypoint = try await createNewWaypoint(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verifiedAt: nil)
+        let waypoint = try await createNewWaypoint(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verified: false)
         try await waypoint.detail.$language.load(on: app.db)
         
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
@@ -73,7 +73,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
     }
     
     func testSuccessfulSearchWaypointDoesNotReturnWhenTextNotInTitleOrDetailText() async throws {
-        let waypoint = try await createNewWaypoint(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verifiedAt: Date())
+        let waypoint = try await createNewWaypoint(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verified: true)
         try await waypoint.detail.$language.load(on: app.db)
         
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
@@ -91,8 +91,8 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
     
     func testSuccessfulSearchWaypointReturnsWhenTextInTagTitle() async throws {
         let language = try await createLanguage()
-        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verifiedAt: Date(), languageId: language.requireID())
-        let waypoint = try await createNewWaypoint(verifiedAt: Date(), languageId: language.requireID())
+        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verified: true, languageId: language.requireID())
+        let waypoint = try await createNewWaypoint(verified: true, languageId: language.requireID())
         try await waypoint.repository.$tags.attach(tag.repository, on: app.db)
         try await waypoint.detail.$language.load(on: app.db)
         
@@ -116,8 +116,8 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
     
     func testSuccessfulSearchWaypointReturnsWhenTextInTagKeywords() async throws {
         let language = try await createLanguage()
-        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verifiedAt: Date(), languageId: language.requireID())
-        let waypoint = try await createNewWaypoint(verifiedAt: Date(), languageId: language.requireID())
+        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verified: true, languageId: language.requireID())
+        let waypoint = try await createNewWaypoint(verified: true, languageId: language.requireID())
         try await waypoint.repository.$tags.attach(tag.repository, on: app.db)
         try await waypoint.detail.$language.load(on: app.db)
         
@@ -142,18 +142,18 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
     func testSuccessfulSearchOnlySearchesNewestVerifiedVersionOfTag() async throws {
         let language = try await createLanguage()
         let userId = try await getUser(role: .user).requireID()
-        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verifiedAt: Date(), languageId: language.requireID())
+        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verified: true, languageId: language.requireID())
         let _ = try await TagDetailModel.createWith(
-            verifiedAt: Date(),
+            verified: true,
             title: "Das wird nicht gefunden",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
             repositoryId: tag.repository.requireID(),
             userId: userId,
-            on: app.db
+            on: self
         )
         
-        let waypoint = try await createNewWaypoint(verifiedAt: Date(), languageId: language.requireID())
+        let waypoint = try await createNewWaypoint(verified: true, languageId: language.requireID())
         try await waypoint.repository.$tags.attach(tag.repository, on: app.db)
         try await waypoint.detail.$language.load(on: app.db)
         
@@ -171,8 +171,8 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
     }
     
     func testSuccessfulSearchOnlySearchesTagsInSpecifiedLangauge() async throws {
-        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verifiedAt: Date())
-        let waypoint = try await createNewWaypoint(verifiedAt: Date())
+        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verified: true)
+        let waypoint = try await createNewWaypoint(verified: true)
         try await waypoint.repository.$tags.attach(tag.repository, on: app.db)
         try await waypoint.detail.$language.load(on: app.db)
         
@@ -192,7 +192,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
     func testSuccessfulSearchWaypointOnlyReturnsDetailsForSpecifiedLanguage() async throws {
         let language = try await createLanguage()
         let language2 = try await createLanguage()
-        let waypoint = try await createNewWaypoint(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verifiedAt: Date(), languageId: language.requireID())
+        let waypoint = try await createNewWaypoint(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verified: true, languageId: language.requireID())
         try await waypoint.detail.$language.load(on: app.db)
         
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
@@ -209,8 +209,18 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
     }
     
     func testSuccessfulSearchWaypointDoesNotReturnDetailsForDeactivatedLanguage() async throws {
-        let language = try await createLanguage(activated: false)
-        let waypoint = try await createNewWaypoint(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verifiedAt: Date(), languageId: language.requireID())
+        let language = try await createLanguage()
+        let waypoint = try await createNewWaypoint(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verified: true, languageId: language.requireID())
+        
+        let adminToken = try await getToken(for: .admin)
+        try app
+            .describe("Deactivate language as admin should return ok")
+            .put(languagesPath.appending("\(language.requireID().uuidString)/deactivate"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
+        
         try await waypoint.detail.$language.load(on: app.db)
         
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
@@ -229,15 +239,15 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
     func testSuccessfulSearchWaypointOnlyReturnsNewestVerifiedDetailForRepository() async throws {
         let language = try await createLanguage()
         let userId = try await getUser(role: .user).requireID()
-        let waypoint = try await createNewWaypoint(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verifiedAt: Date(), languageId: language.requireID())
+        let waypoint = try await createNewWaypoint(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verified: true, languageId: language.requireID())
         let newerWaypoint = try await WaypointDetailModel.createWith(
             title: "Ein besonderer Titel \(UUID()) neu",
             detailText: "Ein neuer anderer Text",
             repositoryId: waypoint.repository.requireID(),
             languageId: language.requireID(),
             userId: userId,
-            verifiedAt: Date(),
-            on: app.db
+            verified: true,
+            on: self
         )
         
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
@@ -262,7 +272,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
     }
     
     func testSearchWaypointNeedsValidText() async throws {
-        let waypoint = try await createNewWaypoint(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verifiedAt: Date())
+        let waypoint = try await createNewWaypoint(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verified: true)
         try await waypoint.detail.$language.load(on: app.db)
         
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
@@ -281,7 +291,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
     }
     
     func testSearchWaypointNeedsValidLanguageCode() async throws {
-        let waypoint = try await createNewWaypoint(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verifiedAt: Date())
+        let waypoint = try await createNewWaypoint(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verified: true)
         try await waypoint.detail.$language.load(on: app.db)
         
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()

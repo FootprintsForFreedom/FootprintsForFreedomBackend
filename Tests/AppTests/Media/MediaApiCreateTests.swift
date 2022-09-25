@@ -286,6 +286,25 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
             .test()
     }
     
+    func testCreateMediaForDeactivatedLanguageFails() async throws {
+        let token = try await getToken(for: .user, verified: true)
+        let language = try await createLanguage(activated: false)
+        let newMedia = try await getMediaCreateContent(languageCode: language.languageCode)
+        
+        let query = try URLEncodedFormEncoder().encode(newMedia)
+        let file = TestFile(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png")
+        let fileData = try data(for: file.filename, withExtension: file.fileExtension)
+        
+        try app
+            .describe("Create media for deactivated language code should fail")
+            .post(mediaPath.appending("?\(query)"))
+            .buffer(ByteBuffer(data: fileData))
+            .header("Content-Type", file.mimeType)
+            .bearerToken(token)
+            .expect(.badRequest)
+            .test()
+    }
+    
     func testCreateMediaNeedsValidWaypointId() async throws {
         let token = try await getToken(for: .user, verified: true)
         let newMedia = try await getMediaCreateContent(waypointId: UUID())

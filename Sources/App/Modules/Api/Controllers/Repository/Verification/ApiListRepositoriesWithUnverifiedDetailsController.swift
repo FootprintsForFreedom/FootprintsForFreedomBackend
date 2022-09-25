@@ -9,7 +9,7 @@ import Vapor
 import Fluent
 
 /// Streamlines listing repositories with unverified details.
-protocol ApiListRepositoriesWithUnverifiedDetailsController: RepositoryController {
+protocol ApiListRepositoriesWithUnverifiedDetailsController: DatabaseRepositoryController {
     /// The codable repository with unverified detail response object.
     associatedtype RepositoriesWithUnverifiedDetailsResponseObject: Codable
     

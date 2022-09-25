@@ -21,13 +21,13 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
         location: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
         patchedLocation: Waypoint.Location? = nil,
         languageId: UUID? = nil,
-        verifiedAt: Date? = nil,
+        verified: Bool = false,
         userId: UUID? = nil
     ) async throws -> (waypointRepository: WaypointRepositoryModel, createdModel: WaypointDetailModel, createdLocation: WaypointLocationModel, patchContent: Waypoint.Detail.Patch) {
         let (waypointRepository, createdModel, createdLocation) = try await createNewWaypoint(
             title: title,
             detailText: detailText,
-            verifiedAt: verifiedAt,
+            verified: verified,
             languageId: languageId,
             userId: userId
         )
@@ -43,7 +43,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
     
     func testSuccessfulPatchWaypointTitle() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(patchedTitle: "The patched title \(UUID())", verifiedAt: Date())
+        let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(patchedTitle: "The patched title \(UUID())", verified: true)
         try await createdModel.$language.load(on: app.db)
         
         try app
@@ -77,7 +77,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
     func testSuccessfulPatchWaypointTitleWithDuplicateTitle() async throws {
         let token = try await getToken(for: .user, verified: true)
         let title = "My new title \(UUID())"
-        let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(title: title, patchedTitle: title, verifiedAt: Date())
+        let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(title: title, patchedTitle: title, verified: true)
         try await createdModel.$language.load(on: app.db)
         
         try app
@@ -102,7 +102,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
     
     func testSuccessfulPatchWaypointDetailText() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(patchedDetailText: "The patched detailText", verifiedAt: Date())
+        let (waypointRepository, createdModel, createdLocation, patchContent) = try await getWaypointPatchContent(patchedDetailText: "The patched detailText", verified: true)
         try await createdModel.$language.load(on: app.db)
         
         try app
@@ -135,7 +135,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
     
     func testSuccessfulPatchWaypointLocation() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (waypointRepository, createdModel, _, patchContent) = try await getWaypointPatchContent(patchedLocation: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)), verifiedAt: Date())
+        let (waypointRepository, createdModel, _, patchContent) = try await getWaypointPatchContent(patchedLocation: .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)), verified: true)
         try await createdModel.$language.load(on: app.db)
         
         try app
@@ -230,7 +230,7 @@ final class WaypointApiPatchTests: AppTestCase, WaypointTest {
     
     func testPatchWaypointNeedsValididForWaypointDetailToPatch() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (waypointRepository, _, _, _) = try await getWaypointPatchContent(verifiedAt: Date())
+        let (waypointRepository, _, _, _) = try await getWaypointPatchContent(verified: true)
         let patchContent = Media.Detail.Patch(title: nil, detailText: nil, source: nil, idForMediaDetailToPatch: UUID())
         
         try app

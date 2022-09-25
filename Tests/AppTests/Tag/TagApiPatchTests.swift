@@ -24,7 +24,7 @@ final class TagApiPatchTests: AppTestCase, TagTest {
         let (repository, detail) = try await createNewTag(
             title: title,
             keywords: keywords,
-            verifiedAt: verifiedAt,
+            verified: true,
             languageId: languageId
         )
         

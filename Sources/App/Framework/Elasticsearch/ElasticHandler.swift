@@ -1,5 +1,5 @@
 //
-//  ElasticsearchHandler.swift
+//  ElasticHandler.swift
 //  
 //
 //  Created by niklhut on 18.09.22.
@@ -8,7 +8,7 @@
 import Vapor
 import ElasticsearchNIOClient
 
-struct ElasticsearchHandler {
+public struct ElasticHandler {
     static func newJSONDecoder() -> JSONDecoder {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .custom({ (decoder) -> Date in
@@ -51,13 +51,13 @@ struct ElasticsearchHandler {
         self.elastic = elastic
     }
     
-    func createOrUpdate<Document: ElasticsearchModelInterface>(_ document: Document) throws -> ESUpdateDocumentResponse<String> {
+    func createOrUpdate<Document: ElasticModelInterface>(_ document: Document) throws -> ESUpdateDocumentResponse<String> {
         try app.locks.lock(for: Document.Key.self).withLock {
             try elastic.updateDocument(document, id: document.uniqueId, in: Document.schema).wait()
         }
     }
     
-    func bulk<Document: ElasticsearchModelInterface>(_ operations: [ESBulkOperation<Document, String>]) throws -> ESBulkResponse {
+    func bulk<Document: ElasticModelInterface>(_ operations: [ESBulkOperation<Document, String>]) throws -> ESBulkResponse {
         try app.locks.lock(for: Document.Key.self).withLock {
             try elastic.bulk(operations).wait()
         }
@@ -65,9 +65,7 @@ struct ElasticsearchHandler {
     
     @discardableResult
     func createIndex(_ indexName: String, mappings: [String: Any], settings: [String: Any]) async throws -> ESDeleteIndexResponse {
-        let response = try await elastic.createIndex(indexName, mappings: mappings, settings: settings).get()
-        print(response)
-        return response
+        try await elastic.createIndex(indexName, mappings: mappings, settings: settings).get()
     }
     
     @discardableResult
@@ -81,5 +79,13 @@ struct ElasticsearchHandler {
     
     func searchDocumentsCount(from indexName: String, searchTerm: String?) async throws -> ESCountResponse {
         try await elastic.searchDocumentsCount(from: indexName, searchTerm: searchTerm).get()
+    }
+    
+    func customSearch<Document: Decodable, Query: Encodable>(index indexName: String, query: Query, type: Document.Type = Document.self) async throws -> ESGetMultipleDocumentsResponse<Document> {
+        try await elastic.customSearch(from: indexName, query: query, type: type).get()
+    }
+    
+    func custom(_ path: String, method: HTTPMethod, body: Data) async throws -> Data {
+        try await elastic.custom(path, method: method, body: body).get()
     }
 }

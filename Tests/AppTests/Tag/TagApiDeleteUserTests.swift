@@ -14,7 +14,7 @@ final class TagApiDeleteUserTests: AppTestCase, TagTest, UserTest {
     func testDeleteUserSetsUserIdToNil() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let (user, token) = try await createNewUserWithToken()
-        let (repository, detail) = try await createNewTag(verifiedAt: Date(), userId: user.requireID())
+        let (repository, detail) = try await createNewTag(verified: true, userId: user.requireID())
         try await detail.$language.load(on: app.db)
         
         try app

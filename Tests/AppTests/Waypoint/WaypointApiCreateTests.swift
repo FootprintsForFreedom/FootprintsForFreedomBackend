@@ -212,6 +212,20 @@ final class WaypointApiCreateTests: AppTestCase, WaypointTest {
             .test()
     }
     
+    func testCreateWaypointForDeactivatedLanguageFails() async throws {
+        let token = try await getToken(for: .user, verified: true)
+        let language = try await createLanguage(activated: false)
+        let newWaypoint = try await getWaypointCreateContent(languageCode: language.languageCode)
+        
+        try app
+            .describe("Create waypoint for deactivated language code should fail")
+            .post(waypointsPath)
+            .body(newWaypoint)
+            .bearerToken(token)
+            .expect(.badRequest)
+            .test()
+    }
+    
     func testCreateWaypointNeedsLocation() async throws {
         struct Create: Content {
             let title: String

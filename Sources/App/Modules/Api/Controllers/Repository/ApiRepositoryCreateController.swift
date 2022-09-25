@@ -9,7 +9,7 @@ import Vapor
 import Fluent
 
 /// Streamlines creating repositories-
-protocol ApiRepositoryCreateController: RepositoryController, CreateController {
+protocol ApiRepositoryCreateController: DatabaseRepositoryController, CreateController {
     /// The decodable create object.
     associatedtype CreateObject: Decodable
     

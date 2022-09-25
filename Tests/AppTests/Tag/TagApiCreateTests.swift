@@ -46,7 +46,7 @@ final class TagApiCreateTests: AppTestCase, TagTest {
             .test()
     }
     
-    func testSuccessfulCretateTagAsModerator() async throws {
+    func testSuccessfulCreateTagAsModerator() async throws {
         let token = try await getToken(for: .moderator, verified: true)
         let newTag = try await getTagCreateContent()
             
@@ -166,6 +166,42 @@ final class TagApiCreateTests: AppTestCase, TagTest {
                 XCTAssertEqual(content.keywords, newTag.keywords.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty })
                 XCTAssertEqual(content.languageCode, newTag.languageCode)
             }
+            .test()
+    }
+    
+    func testCreateTagNeedsValidLanguageCode() async throws {
+        let token = try await getToken(for: .user, verified: true)
+        let newTag1 = try await getTagCreateContent(languageCode: "")
+        let newTag2 = try await getTagCreateContent(languageCode: "hi")
+        
+        try app
+            .describe("Create waypoint with empty language code should fail")
+            .post(tagPath)
+            .body(newTag1)
+            .bearerToken(token)
+            .expect(.badRequest)
+            .test()
+        
+        try app
+            .describe("Create waypoint with non-existent language code should fail")
+            .post(tagPath)
+            .body(newTag2)
+            .bearerToken(token)
+            .expect(.badRequest)
+            .test()
+    }
+    
+    func testCreateTagForDeactivatedLanguageFails() async throws {
+        let token = try await getToken(for: .user, verified: true)
+        let language = try await createLanguage(activated: false)
+        let newTag = try await getTagCreateContent(languageCode: language.languageCode)
+        
+        try app
+            .describe("Create tag for deactivated language code should fail")
+            .post(tagPath)
+            .body(newTag)
+            .bearerToken(token)
+            .expect(.badRequest)
             .test()
     }
 }

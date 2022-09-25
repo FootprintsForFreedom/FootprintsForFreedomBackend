@@ -91,7 +91,7 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
     
     func testSuccessfulSearchMediaReturnsWhenTextInTagTitle() async throws {
         let language = try await createLanguage()
-        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verifiedAt: Date(), languageId: language.requireID())
+        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verified: true, languageId: language.requireID())
         let media = try await createNewMedia(verifiedAt: Date(), languageId: language.requireID())
         try await media.repository.$tags.attach(tag.repository, on: app.db)
         try await media.detail.$language.load(on: app.db)
@@ -116,7 +116,7 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
     
     func testSuccessfulSearchMediaReturnsWhenTextInTagKeywords() async throws {
         let language = try await createLanguage()
-        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verifiedAt: Date(), languageId: language.requireID())
+        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verified: true, languageId: language.requireID())
         let media = try await createNewMedia(verifiedAt: Date(), languageId: language.requireID())
         try await media.repository.$tags.attach(tag.repository, on: app.db)
         try await media.detail.$language.load(on: app.db)
@@ -142,15 +142,15 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
     func testSuccessfulSearchOnlySearchesNewestVerifiedVersionOfTag() async throws {
         let language = try await createLanguage()
         let userId = try await getUser(role: .user).requireID()
-        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verifiedAt: Date(), languageId: language.requireID())
+        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verified: true, languageId: language.requireID())
         let _ = try await TagDetailModel.createWith(
-            verifiedAt: Date(),
+            verified: true,
             title: "Das wird nicht gefunden",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
             repositoryId: tag.repository.requireID(),
             userId: userId,
-            on: app.db
+            on: self
         )
         
         let media = try await createNewMedia(verifiedAt: Date(), languageId: language.requireID())
@@ -171,7 +171,7 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
     }
     
     func testSuccessfulSearchOnlySearchesTagsInSpecifiedLangauge() async throws {
-        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verifiedAt: Date())
+        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verified: true)
         let media = try await createNewMedia(verifiedAt: Date())
         try await media.repository.$tags.attach(tag.repository, on: app.db)
         try await media.detail.$language.load(on: app.db)

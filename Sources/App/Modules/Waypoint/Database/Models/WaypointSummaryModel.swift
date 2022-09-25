@@ -9,7 +9,7 @@ import Vapor
 import Fluent
 import ElasticsearchNIOClient
 
-final class WaypointSummaryModel: DatabaseElasticsearchInterface {
+final class WaypointSummaryModel: DatabaseElasticInterface {
     typealias Module = WaypointModule
     
     static var schema: String = "waypoint_summaries"
@@ -77,7 +77,7 @@ extension WaypointSummaryModel {
 }
 
 extension WaypointSummaryModel {
-    struct Elasticsearch: ElasticsearchModelInterface {
+    struct Elasticsearch: ElasticModelInterface {
         typealias DatabaseModel = WaypointSummaryModel
         struct Key: Codable, LockKey { }
         
@@ -118,6 +118,9 @@ extension WaypointSummaryModel {
                             ]
                         ]
                     ]
+                ],
+                "slug": [
+                    "type": "keyword"
                 ],
                 "id": [
                     "type": "keyword"
@@ -181,20 +184,6 @@ extension WaypointSummaryModel {
         var languagePriority: Int?
         
         var tags: [UUID]
-        
-        @discardableResult
-        static func createOrUpdate(detailsWithRepositoryId repositoryId: UUID, on req: Request) async throws -> ESBulkResponse? {
-            let elements = try await DatabaseModel
-                .query(on: req.db)
-                .filter(\.$id == repositoryId)
-                .all()
-            guard !elements.isEmpty else { return nil }
-            let documents = try await elements
-                .concurrentMap { try await $0.toElasticsearch(on: req.db) }
-                .map { ESBulkOperation(operationType: .index, index: Self.schema, id: $0.uniqueId, document: $0) }
-            let response = try req.elastic.bulk(documents)
-            return response
-        }
     }
     
     func toElasticsearch(on db: Database) async throws -> Elasticsearch {
@@ -232,5 +221,77 @@ extension WaypointSummaryModel {
             languagePriority: self.languagePriority,
             tags: tags
         )
+    }
+}
+
+extension WaypointSummaryModel.Elasticsearch {
+    @discardableResult
+    static func createOrUpdate(detailsWithRepositoryId repositoryId: UUID, on req: Request) async throws -> ESBulkResponse? {
+        let elements = try await DatabaseModel
+            .query(on: req.db)
+            .filter(\.$id == repositoryId)
+            .all()
+        guard !elements.isEmpty else { return nil }
+        let documents = try await elements
+            .concurrentMap { try await $0.toElasticsearch(on: req.db) }
+            .map { ESBulkOperation(operationType: .index, index: Self.schema, id: $0.uniqueId, document: $0) }
+        let response = try req.elastic.bulk(documents)
+        return response
+    }
+    
+    func getTagList(preferredLanguageCode: String?, on elastic: ElasticHandler) async throws -> [Tag.Detail.List] {
+        if !self.tags.isEmpty {
+            var query: [String: Any] = [
+                "query": [
+                    "terms": [
+                        "id": self.tags.map { $0.uuidString }
+                    ]
+                ],
+                "collapse": [
+                    "field": "id"
+                ],
+            ]
+            var sort: [[String: Any]] = []
+            if let preferredLanguageCode = preferredLanguageCode {
+                sort.append(
+                    [
+                        "_script": [
+                            "type": "number",
+                            "script": [
+                                "lang": "painless",
+                                "source": "doc['languageCode'].value == params.preferredLanguageCode ? 0 : doc['languagePriority'].value",
+                                "params": [
+                                    "preferredLanguageCode": "\(preferredLanguageCode)"
+                                ]
+                            ],
+                            "order": "asc"
+                        ]
+                    ]
+                )
+            } else {
+                sort.append(["languagePriority": "asc"])
+            }
+            sort.append([ "title.keyword": "asc" ])
+            query["sort"] = sort
+            
+            guard
+                let queryData = try? JSONSerialization.data(withJSONObject: query),
+                let responseData = try? await elastic.custom("/\(LatestVerifiedTagModel.Elasticsearch.schema)/_search", method: .GET, body: queryData),
+                let response = try? ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<LatestVerifiedTagModel.Elasticsearch>.self, from: responseData)
+            else {
+                throw Abort(.internalServerError)
+            }
+            
+            return response.hits.hits.map {
+                let source = $0.source
+                return .init(
+                    id: source.id,
+                    title: source.title,
+                    slug: source.slug
+                )
+            }
+        } else {
+            return []
+        }
     }
 }

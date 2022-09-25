@@ -18,13 +18,13 @@ final class TagApiDetailChangesTests: AppTestCase, TagTest {
         let language = try await createLanguage()
         let (repository, detail) = try await createNewTag(languageId: language.requireID())
         let secondTagDetail = try await TagDetailModel.createWith(
-            verifiedAt: nil,
+            verified: false,
             title: "A different title \(UUID())",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
             repositoryId: repository.requireID(),
             userId: user.requireID(),
-            on: app.db
+            on: self
         )
         try await detail.$user.load(on: app.db)
         try await secondTagDetail.$user.load(on: app.db)
@@ -49,13 +49,13 @@ final class TagApiDetailChangesTests: AppTestCase, TagTest {
         let language = try await createLanguage()
         let (repository, detail) = try await createNewTag(languageId: language.requireID())
         let secondTagDetail = try await TagDetailModel.createWith(
-            verifiedAt: nil,
+            verified: false,
             title: "A different title \(UUID())",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
             repositoryId: repository.requireID(),
             userId: user.requireID(),
-            on: app.db
+            on: self
         )
         
         try app
@@ -71,13 +71,13 @@ final class TagApiDetailChangesTests: AppTestCase, TagTest {
         let language = try await createLanguage()
         let (repository, detail) = try await createNewTag(languageId: language.requireID())
         let secondTagDetail = try await TagDetailModel.createWith(
-            verifiedAt: nil,
+            verified: false,
             title: "A different title \(UUID())",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: language.requireID(),
             repositoryId: repository.requireID(),
             userId: user.requireID(),
-            on: app.db
+            on: self
         )
         
         try app
@@ -153,13 +153,13 @@ final class TagApiDetailChangesTests: AppTestCase, TagTest {
         let secondLanguage = try await createLanguage()
         let (repository, detail) = try await createNewTag(languageId: language.requireID())
         let secondTagDetail = try await TagDetailModel.createWith(
-            verifiedAt: nil,
+            verified: false,
             title: "A different title",
             keywords: (1...5).map { _ in String(Int.random(in: 10...100)) },
             languageId: secondLanguage.requireID(),
             repositoryId: repository.requireID(),
             userId: user.requireID(),
-            on: app.db
+            on: self
         )
         try await detail.$user.load(on: app.db)
         try await secondTagDetail.$user.load(on: app.db)

@@ -9,7 +9,7 @@ import Vapor
 import Fluent
 
 /// Streamlines updating repositories.
-protocol ApiRepositoryUpdateController: RepositoryController, UpdateController {
+protocol ApiRepositoryUpdateController: DatabaseRepositoryController, UpdateController {
     /// The decodable update object.
     associatedtype UpdateObject: Decodable
     

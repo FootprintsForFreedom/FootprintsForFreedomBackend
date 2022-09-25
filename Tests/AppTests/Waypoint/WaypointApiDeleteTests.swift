@@ -34,7 +34,7 @@ final class WaypointApiDeleteTests: AppTestCase, WaypointTest {
         // Get original waypoint count
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
         
-        let (waypointRepository, _, _) = try await createNewWaypoint(verifiedAt: Date())
+        let (waypointRepository, _, _) = try await createNewWaypoint(verified: true)
         let moderatorToken = try await getToken(for: .moderator)
         
         try app
@@ -55,7 +55,7 @@ final class WaypointApiDeleteTests: AppTestCase, WaypointTest {
         let waypointModelCount = try await WaypointDetailModel.query(on: app.db).count()
         let locationCount = try await WaypointLocationModel.query(on: app.db).count()
         
-        let (waypointRepository, _, _) = try await createNewWaypoint(verifiedAt: Date())
+        let (waypointRepository, _, _) = try await createNewWaypoint(verified: true)
         let moderatorToken = try await getToken(for: .moderator)
         
         try app

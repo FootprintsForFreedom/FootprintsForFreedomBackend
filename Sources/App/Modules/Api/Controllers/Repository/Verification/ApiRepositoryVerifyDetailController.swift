@@ -9,7 +9,7 @@ import Vapor
 import Fluent
 
 /// Streamlines verifying a detail object.
-protocol ApiRepositoryVerifyDetailController: RepositoryController {
+protocol ApiRepositoryVerifyDetailController: DatabaseRepositoryController {
     /// The detail object content.
     associatedtype DetailObject: Content
     
@@ -58,6 +58,10 @@ extension ApiRepositoryVerifyDetailController {
     func afterVerifyDetail(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws { }
     
     func verifyDetail(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws {
+        guard detail.language.priority != nil else {
+            throw Abort(.badRequest)
+        }
+        
         if let previousDetail = try await repository._$details.firstFor(detail.language.languageCode, needsToBeVerified: true, on: req.db) {
             previousDetail.slug = try await previousDetail.generateSlug(with: .day, on: req.db)
             try await previousDetail.update(on: req.db)

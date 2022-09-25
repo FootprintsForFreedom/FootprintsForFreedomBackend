@@ -15,6 +15,7 @@ extension Environment {
 
 open class AppTestCase: XCTestCase {
     var app: Application!
+    var moderatorToken: String!
     
     func createTestApp() async throws -> Application {
         let app = Application(.testing)
@@ -36,6 +37,7 @@ open class AppTestCase: XCTestCase {
     
     open override func setUp() async throws {
         app = try await createTestApp()
+        moderatorToken = try await getToken(for: .moderator)
     }
     
     open override func tearDown() async throws {

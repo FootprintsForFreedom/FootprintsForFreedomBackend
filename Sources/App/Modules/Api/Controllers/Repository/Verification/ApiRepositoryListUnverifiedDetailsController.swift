@@ -9,7 +9,7 @@ import Vapor
 import Fluent
 
 /// Streamlines listing unverified details for a repository.
-protocol ApiRepositoryListUnverifiedDetailsController: RepositoryController {
+protocol ApiRepositoryListUnverifiedDetailsController: DatabaseRepositoryController {
     /// The codable list unverified detail object.
     associatedtype ListUnverifiedDetailObject: Codable
     
@@ -65,6 +65,9 @@ extension ApiRepositoryListUnverifiedDetailsController {
         let unverifiedDetailsQuery = repository._$details
             .query(on: req.db)
             .filter(\._$verifiedAt == nil)
+        // only select details which have an active language
+            .join(from: Detail.self, parent: \._$language)
+            .filter(LanguageModel.self, \.$priority != nil)
             .sort(\._$updatedAt, .ascending) // oldest first
         
         let unverifiedDetails = try await beforeGetUnverifiedDetail(req, unverifiedDetailsQuery).paginate(for: req)

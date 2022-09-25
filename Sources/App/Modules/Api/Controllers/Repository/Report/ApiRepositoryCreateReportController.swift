@@ -9,7 +9,7 @@ import Vapor
 import Fluent
 
 ///Streamlines creating repository reports.
-protocol ApiRepositoryCreateReportController: RepositoryController where DatabaseModel: Reportable {
+protocol ApiRepositoryCreateReportController: DatabaseRepositoryController where DatabaseModel: Reportable {
     /// The codable report create object.
     associatedtype ReportCreateObject: Codable
     /// The report detail object content.

@@ -1,5 +1,5 @@
 //
-//  App+Elasticsearch.swift
+//  App+Elastic.swift
 //  
 //
 //  Created by niklhut on 12.09.22.
@@ -18,13 +18,13 @@ extension Application {
                 eventLoop: self.eventLoopGroup.next(),
                 logger: self.logger,
                 url: Environment.elasticsearchUrl,
-                jsonEncoder: ElasticsearchHandler.newJSONEncoder(),
-                jsonDecoder: ElasticsearchHandler.newJSONDecoder()
+                jsonEncoder: ElasticHandler.newJSONEncoder(),
+                jsonDecoder: ElasticHandler.newJSONDecoder()
             )
         }
     }
     
-    var elastic: ElasticsearchHandler {
+    var elastic: ElasticHandler {
         get throws {
             try .init(app: self, elastic: self.elasticClient)
         }
@@ -39,13 +39,13 @@ extension Request {
                 eventLoop: eventLoop,
                 logger: logger,
                 url: Environment.elasticsearchUrl,
-                jsonEncoder: ElasticsearchHandler.newJSONEncoder(),
-                jsonDecoder: ElasticsearchHandler.newJSONDecoder()
+                jsonEncoder: ElasticHandler.newJSONEncoder(),
+                jsonDecoder: ElasticHandler.newJSONDecoder()
             )
         }
     }
     
-    var elastic: ElasticsearchHandler {
+    var elastic: ElasticHandler {
         get throws {
             try .init(app: self.application, elastic: self.elasticClient)
         }

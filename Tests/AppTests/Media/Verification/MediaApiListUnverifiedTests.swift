@@ -16,11 +16,14 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
         
         let language = try await createLanguage()
         let language2 = try await createLanguage()
+        let deactivatedLanguage = try await createLanguage(activated: false)
         
         let userId = try await getUser(role: .user).requireID()
         
         // Create an unverified media
         let (unverifiedMediaRepository, createdUnverifiedDetail, _) = try await createNewMedia(languageId: language.requireID(), userId: userId)
+        // Create an unverified media for a deactivated language
+        let (unverifiedMediaRepositoryForDeactivatedLanguage, _, _) = try await createNewMedia(languageId: deactivatedLanguage.requireID(), userId: userId)
         // Create a verified media
         let (verifiedMediaRepository, createdVerifiedDetail, createdVerifiedFile) = try await createNewMedia(verifiedAt: Date(), languageId: language.requireID(), userId: userId)
         // Create a second not verified model for the verified media
@@ -80,6 +83,7 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
                 }
                 
                 XCTAssertFalse(content.items.contains { $0.id == verifiedMediaRepositoryInDifferentLanguage.id })
+                XCTAssertFalse(content.items.contains { $0.id == unverifiedMediaRepositoryForDeactivatedLanguage.id })
             }
             .test()
     }
@@ -108,6 +112,7 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
         
         let language = try await createLanguage()
         let language2 = try await createLanguage()
+        let deactivatedLanguage = try await createLanguage(activated: false)
         
         let userId = try await getUser(role: .user).requireID()
         
@@ -139,6 +144,18 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
             on: app.db
         )
         try await secondCreatedUnverifiedDetail.$language.load(on: app.db)
+        // Create a not verified media for a deactivated language
+        let unverifiedDetailForDeactivatedLanguage = try await MediaDetailModel.createWith(
+            verifiedAt: nil,
+            title: "Not visible \(UUID())",
+            detailText: "Some invisible detailText",
+            source: "What is that?",
+            languageId: deactivatedLanguage.requireID(),
+            repositoryId: mediaRepository.requireID(),
+            fileId: createdFile.requireID(),
+            userId: userId,
+            on: app.db
+        )
         // Create a second not verified media for the same repository in another language
         let createdUnverifiedDetailInDifferentLanguage = try await MediaDetailModel.createWith(
             verifiedAt: nil,
@@ -164,6 +181,8 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
             .query(on: app.db)
             .filter(\.$verifiedAt == nil)
             .filter(\.$repository.$id == mediaRepository.requireID())
+            .join(parent: \._$language)
+            .filter(LanguageModel.self, \.$priority != nil)
             .count()
 
         try app
@@ -206,6 +225,7 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
                 }
 
                 XCTAssertFalse(content.items.contains { $0.detailId == unverifiedDetailForDifferentRepository.id })
+                XCTAssertFalse(content.items.contains { $0.detailId == unverifiedDetailForDeactivatedLanguage.id })
             }
             .test()
     }

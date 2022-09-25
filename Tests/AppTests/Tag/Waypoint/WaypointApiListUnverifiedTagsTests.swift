@@ -13,7 +13,7 @@ import Spec
 final class WaypointApiListUnverifiedTagsTests: AppTestCase, WaypointTest, TagTest {
     func testSuccessfulListUnverifiedTagsListsUnverifiedTag() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let waypoint = try await createNewWaypoint()
         try await waypoint.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -35,7 +35,7 @@ final class WaypointApiListUnverifiedTagsTests: AppTestCase, WaypointTest, TagTe
     
     func testSuccessfulListUnverifiedTagsListsRequestDeletedTag() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let waypoint = try await createNewWaypoint()
         try await waypoint.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -64,7 +64,7 @@ final class WaypointApiListUnverifiedTagsTests: AppTestCase, WaypointTest, TagTe
     
     func testSuccessfulListUnverifiedTagsDoesNotListVerifiedTag() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let waypoint = try await createNewWaypoint()
         try await waypoint.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -89,7 +89,7 @@ final class WaypointApiListUnverifiedTagsTests: AppTestCase, WaypointTest, TagTe
     
     func testListUnverifiedTagsAsUserFails() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let waypoint = try await createNewWaypoint()
         try await waypoint.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -102,7 +102,7 @@ final class WaypointApiListUnverifiedTagsTests: AppTestCase, WaypointTest, TagTe
     }
     
     func testListUnverifiedTagsWithoutTokenFails() async throws {
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let waypoint = try await createNewWaypoint()
         try await waypoint.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         

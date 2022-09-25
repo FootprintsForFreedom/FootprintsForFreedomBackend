@@ -58,17 +58,14 @@ extension WaypointApiController: ApiRepositoryVerificationController {
             .join(children: \.$locations)
             .join(from: Detail.self, parent: \.$language)
             .join(children: \.$tags.$pivots, method: .left)
+        // only select details which have an active language
+            .filter(LanguageModel.self, \.$priority != nil)
             .group(.or) {
                 $0
                 // only get unverified locations
                     .filter(WaypointLocationModel.self, \.$verifiedAt == nil)
-                    .group(.and) {
-                        $0
-                        // only get unverified details
-                            .filter(WaypointDetailModel.self, \.$verifiedAt == nil)
-                        // only select details which have an active language
-                            .filter(LanguageModel.self, \.$priority != nil)
-                    }
+                // only get unverified details
+                    .filter(WaypointDetailModel.self, \.$verifiedAt == nil)
                     .filter(WaypointTagModel.self, \.$status ~~ [.pending, .deleteRequested])
             }
         // only select the id field and return each id only once

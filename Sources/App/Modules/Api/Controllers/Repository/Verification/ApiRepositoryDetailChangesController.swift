@@ -9,7 +9,7 @@ import Vapor
 import Fluent
 
 /// Streamlines detailing changes for repository detail models.
-protocol ApiRepositoryDetailChangesController: RepositoryController {
+protocol ApiRepositoryDetailChangesController: DatabaseRepositoryController {
     /// The detail changes object content.
     associatedtype DetailChangesResponseObject: Content
     

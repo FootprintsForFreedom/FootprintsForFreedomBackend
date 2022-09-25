@@ -13,7 +13,7 @@ import Spec
 final class WaypointApiAddTagTests: AppTestCase, WaypointTest, TagTest {
     func testSuccessfulAddTagToWaypoint() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let waypoint = try await createNewWaypoint()
         try await waypoint.detail.$language.load(on: app.db)
         
@@ -38,7 +38,7 @@ final class WaypointApiAddTagTests: AppTestCase, WaypointTest, TagTest {
     
     func testAddTagToWaypointAsUnverifiedUserFails() async throws {
         let token = try await getToken(for: .user, verified: false)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let waypoint = try await createNewWaypoint()
         
         try app
@@ -50,7 +50,7 @@ final class WaypointApiAddTagTests: AppTestCase, WaypointTest, TagTest {
     }
     
     func testAddTagToWaypointsWithoutTokenFails() async throws {
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let waypoint = try await createNewWaypoint()
         
         try app
@@ -62,7 +62,7 @@ final class WaypointApiAddTagTests: AppTestCase, WaypointTest, TagTest {
     
     func testAddTagToWaypointsNeedsValidWaypointId() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         
         try app
             .describe("Add tag to waypoint requires valid (but not necessarily verified) waypoint id")

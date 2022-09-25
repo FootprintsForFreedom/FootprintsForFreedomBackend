@@ -18,14 +18,14 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
         updatedTitle: String = "Updated Title",
         keywords: [String] = (1...5).map { _ in String(Int.random(in: 10...100)) }, // array with 5 random numbers between 10 and 100
         updatedKeywords: [String] = (1...5).map { _ in String(Int.random(in: 10...100)) },
-        verifiedAt: Date? = nil,
+        verified: Bool = false,
         languageId: UUID? = nil,
         updateLanguageCode: String? = nil
     ) async throws -> (repository: TagRepositoryModel, detail: TagDetailModel, updateContent: Tag.Detail.Update) {
         let (repository, detail) = try await createNewTag(
             title: title,
             keywords: keywords,
-            verifiedAt: verifiedAt,
+            verified: verified,
             languageId: languageId
         )
         
@@ -42,7 +42,7 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
     
     func testSuccessfulUpdateTag() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, _, updateContent) = try await getTagUpdateContent(verifiedAt: Date())
+        let (repository, _, updateContent) = try await getTagUpdateContent(verified: true)
         
         try app
             .describe("Update tag should return ok")
@@ -74,7 +74,7 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
     func testSuccessfulUpdateTagWithDuplicateTitle() async throws {
         let token = try await getToken(for: .user, verified: true)
         let title = "My new title \(UUID())"
-        let (repository, _, updateContent) = try await getTagUpdateContent(title: title, updatedTitle: title, verifiedAt: Date())
+        let (repository, _, updateContent) = try await getTagUpdateContent(title: title, updatedTitle: title, verified: true)
         
         try app
             .describe("Update tag should return ok")
@@ -106,7 +106,7 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
     func testSuccessfulUpdateWithNewLanguage() async throws {
         let token = try await getToken(for: .user, verified: true)
         let secondLanguage = try await createLanguage()
-        let (repository, _, updateContent) = try await getTagUpdateContent(verifiedAt: Date(), updateLanguageCode: secondLanguage.languageCode)
+        let (repository, _, updateContent) = try await getTagUpdateContent(verified: true, updateLanguageCode: secondLanguage.languageCode)
         
         try app
             .describe("Update tag with new language should return ok")
@@ -137,7 +137,7 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
     
     func testUpdateTagAsUnverifiedUserFails() async throws {
         let token = try await getToken(for: .user, verified: false)
-        let (repository, _, updateContent) = try await getTagUpdateContent(verifiedAt: Date())
+        let (repository, _, updateContent) = try await getTagUpdateContent(verified: true)
         
         try app
             .describe("Update tag as unverified user should fail")
@@ -149,7 +149,7 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
     }
     
     func testUpdateTagWithoutTokenFails() async throws {
-        let (repository, _, updateContent) = try await getTagUpdateContent(verifiedAt: Date())
+        let (repository, _, updateContent) = try await getTagUpdateContent(verified: true)
         
         try app
             .describe("Update tag as unverified user should fail")
@@ -161,7 +161,7 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
     
     func testUpdateTagNeedsValidTitle() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, _, updateContent) = try await getTagUpdateContent(updatedTitle: "", verifiedAt: Date())
+        let (repository, _, updateContent) = try await getTagUpdateContent(updatedTitle: "", verified: true)
         
         try app
             .describe("Update tag should require valid title")
@@ -174,7 +174,7 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
     
     func testUpdateTagIgnoresEmptyKeywords() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, detail, updateContent) = try await getTagUpdateContent(updatedKeywords: ["hallo", "test", "", "\n", "was ist das", " "], verifiedAt: Date())
+        let (repository, detail, updateContent) = try await getTagUpdateContent(updatedKeywords: ["hallo", "test", "", "\n", "was ist das", " "], verified: true)
         try await detail.$language.load(on: app.db)
         
         try app
@@ -196,8 +196,8 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
     
     func testUpdateTagNeedsValidLangaugeCode() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository1, _, updateContent1) = try await getTagUpdateContent(verifiedAt: Date(), updateLanguageCode: "")
-        let (repository2, _, updateContent2) = try await getTagUpdateContent(verifiedAt: Date(), updateLanguageCode: "hi")
+        let (repository1, _, updateContent1) = try await getTagUpdateContent(verified: true, updateLanguageCode: "")
+        let (repository2, _, updateContent2) = try await getTagUpdateContent(verified: true, updateLanguageCode: "hi")
         
         try app
             .describe("Update media should need valid language code or fail")

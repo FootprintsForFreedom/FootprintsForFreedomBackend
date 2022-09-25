@@ -36,6 +36,27 @@ final class MediaApiVerificationTests: AppTestCase, MediaTest {
             .test()
     }
     
+    func testVerifyMediaWithDeactivatedLanguageFails() async throws {
+        let language = try await createLanguage()
+        let (repository, detail, _) = try await createNewMedia(languageId: language.requireID())
+        
+        let adminToken = try await getToken(for: .admin)
+        try app
+            .describe("Deactivate language as admin should return ok")
+            .put(languagesPath.appending("\(language.requireID().uuidString)/deactivate"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
+        
+        try app
+            .describe("Verify media with deactivated language should fail")
+            .post(mediaPath.appending("\(repository.requireID())/verify/\(detail.requireID())"))
+            .bearerToken(moderatorToken)
+            .expect(.badRequest)
+            .test()
+    }
+    
     func testVerifyMediaAsUserFails() async throws {
         let userToken = try await getToken(for: .user)
         let (repository, detail, _) = try await createNewMedia()

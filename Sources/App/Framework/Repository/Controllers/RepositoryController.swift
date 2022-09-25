@@ -8,14 +8,28 @@
 import Vapor
 import Fluent
 
-protocol RepositoryController: ModelController where DatabaseModel: RepositoryModel, DatabaseModel.Detail.Repository == DatabaseModel {
-    /// The database detail model.
-    typealias Detail = DatabaseModel.Detail
-    
+public protocol RepositoryController: ModelController  {
     /// Gets the model slug from a request.
     /// - Parameter req: The request containing the model slug.
     /// - Returns: The model slug.
     func slug(_ req: Request) throws -> String
+}
+
+extension RepositoryController {
+    func slug(_ req: Request) throws -> String {
+        guard
+            let slug = req.parameters.get(ApiModel.pathIdKey),
+            slug == slug.slugify()
+        else {
+            throw Abort(.badRequest)
+        }
+        return slug
+    }
+}
+
+protocol DatabaseRepositoryController: RepositoryController, DatabaseModelController where DatabaseModel: RepositoryModel, DatabaseModel.Detail.Repository == DatabaseModel {
+    /// The database detail model.
+    typealias Detail = DatabaseModel.Detail
     
     /// Finds a detail by its slug on the database.
     /// - Parameters:
@@ -30,22 +44,12 @@ protocol RepositoryController: ModelController where DatabaseModel: RepositoryMo
     func repository(_ req: Request) async throws -> DatabaseModel
 }
 
-extension RepositoryController where DatabaseModel: Reportable  {
+extension DatabaseRepositoryController where DatabaseModel: Reportable  {
     /// The database report model.
     typealias Report = DatabaseModel.Report
 }
 
-extension RepositoryController {
-    func slug(_ req: Request) throws -> String {
-        guard
-            let slug = req.parameters.get(ApiModel.pathIdKey),
-            slug == slug.slugify()
-        else {
-            throw Abort(.badRequest)
-        }
-        return slug
-    }
-    
+extension DatabaseRepositoryController {
     func findBy(_ slug: String, on db: Database) async throws -> Detail {
         guard let detail = try await Detail
             .query(on: db)

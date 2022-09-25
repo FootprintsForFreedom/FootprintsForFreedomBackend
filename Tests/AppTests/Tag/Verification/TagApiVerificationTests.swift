@@ -32,6 +32,28 @@ final class TagApiVerificationTests: AppTestCase, TagTest {
             .test()
     }
     
+    func testVerifyTagWithDeactivatedLanguageFails() async throws {
+        let language = try await createLanguage()
+        let (repository, detail) = try await createNewTag(languageId: language.requireID())
+        
+        let adminToken = try await getToken(for: .admin)
+        try app
+            .describe("Deactivate language as admin should return ok")
+            .put(languagesPath.appending("\(language.requireID().uuidString)/deactivate"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
+        
+        try app
+            .describe("Verify tag with deactivated language should fail")
+            .post(tagPath.appending("\(repository.requireID())/verify/\(detail.requireID())"))
+            .bearerToken(moderatorToken)
+            .expect(.badRequest)
+            .test()
+
+    }
+    
     func testVerifyTagAsUserFails() async throws {
         let userToken = try await getToken(for: .user)
         let (repository, detail) = try await createNewTag()
@@ -56,7 +78,7 @@ final class TagApiVerificationTests: AppTestCase, TagTest {
     
     func testVerifyTagWithAlreadyVerifiedTagFails() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let (repository, detail) = try await createNewTag(verifiedAt: Date())
+        let (repository, detail) = try await createNewTag(verified: true)
         
         try app
             .describe("Verify tag for already verified tag should fail")

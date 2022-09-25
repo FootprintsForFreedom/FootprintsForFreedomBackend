@@ -13,7 +13,7 @@ import Spec
 final class MediaApiVerifyTagTests: AppTestCase, MediaTest, TagTest {
     func testSuccessfulVerifyTagOnMedia() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let media = try await createNewMedia()
         try await media.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         try await media.detail.$language.load(on: app.db)
@@ -39,7 +39,7 @@ final class MediaApiVerifyTagTests: AppTestCase, MediaTest, TagTest {
     
     func testVerifyTagOnMediaAsUserFails() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let media = try await createNewMedia()
         try await media.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -52,7 +52,7 @@ final class MediaApiVerifyTagTests: AppTestCase, MediaTest, TagTest {
     }
     
     func testVerifyTagOnMediaWithoutTokenFails() async throws {
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let media = try await createNewMedia()
         try await media.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -65,7 +65,7 @@ final class MediaApiVerifyTagTests: AppTestCase, MediaTest, TagTest {
     
     func testVerifyTagOnMediaNeedsValidMediaId() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         
         try app
             .describe("Verify tag on media required valid media id")
@@ -89,7 +89,7 @@ final class MediaApiVerifyTagTests: AppTestCase, MediaTest, TagTest {
     
     func testVerifyTagOnMediaNeedsConnectedTagAndMedia() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let media = try await createNewMedia()
         
         try app
@@ -102,7 +102,7 @@ final class MediaApiVerifyTagTests: AppTestCase, MediaTest, TagTest {
     
     func testVerifyTagOnMediaWithAlreadyVerifiedTagFails() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let media = try await createNewMedia()
         try await media.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         

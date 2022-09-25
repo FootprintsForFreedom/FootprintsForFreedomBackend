@@ -13,7 +13,7 @@ import Spec
 final class MediaApiListUnverifiedTagsTests: AppTestCase, MediaTest, TagTest {
     func testSuccessfulListUnverifiedTagsListsUnverifiedTag() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let media = try await createNewMedia()
         try await media.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -35,7 +35,7 @@ final class MediaApiListUnverifiedTagsTests: AppTestCase, MediaTest, TagTest {
     
     func testSuccessfulListUnverifiedTagsListsRequestDeletedTag() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let media = try await createNewMedia()
         try await media.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -64,7 +64,7 @@ final class MediaApiListUnverifiedTagsTests: AppTestCase, MediaTest, TagTest {
     
     func testSuccessfulListUnverifiedTagsDoesNotListVerifiedTag() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let media = try await createNewMedia()
         try await media.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -89,7 +89,7 @@ final class MediaApiListUnverifiedTagsTests: AppTestCase, MediaTest, TagTest {
     
     func testListUnverifiedTagsAsUserFails() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let media = try await createNewMedia()
         try await media.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         
@@ -102,7 +102,7 @@ final class MediaApiListUnverifiedTagsTests: AppTestCase, MediaTest, TagTest {
     }
     
     func testListUnverifiedTagsWithoutTokenFails() async throws {
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let media = try await createNewMedia()
         try await media.repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
         

@@ -13,7 +13,7 @@ import Spec
 final class MediaApiAddTagTests: AppTestCase, MediaTest, TagTest {
     func testSuccessfulAddTagToMedia() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let media = try await createNewMedia()
         try await media.detail.$language.load(on: app.db)
         
@@ -38,7 +38,7 @@ final class MediaApiAddTagTests: AppTestCase, MediaTest, TagTest {
     
     func testAddTagToMediaAsUnverifiedUserFails() async throws {
         let token = try await getToken(for: .user, verified: false)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let media = try await createNewMedia()
         
         try app
@@ -50,7 +50,7 @@ final class MediaApiAddTagTests: AppTestCase, MediaTest, TagTest {
     }
     
     func testAddTagToMediasWithoutTokenFails() async throws {
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let media = try await createNewMedia()
         
         try app
@@ -62,7 +62,7 @@ final class MediaApiAddTagTests: AppTestCase, MediaTest, TagTest {
     
     func testAddTagToMediasNeedsValidMediaId() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         
         try app
             .describe("Add tag to media requires valid (but not necessarily verified) media id")

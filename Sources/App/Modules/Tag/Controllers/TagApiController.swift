@@ -12,9 +12,10 @@ import ElasticsearchNIOClient
 extension Tag.Detail.List: Content { }
 extension Tag.Detail.Detail: Content { }
 
-struct TagApiController: ApiRepositoryController {
+struct TagApiController: ApiElasticDetailController, ApiElasticPagedListController, ApiRepositoryCreateController, ApiRepositoryUpdateController, ApiRepositoryPatchController, ApiDeleteController {
     typealias ApiModel = Tag.Detail
     typealias DatabaseModel = TagRepositoryModel
+    typealias ElasticModel = LatestVerifiedTagModel.Elasticsearch
     
     // MARK: - Validators
     
@@ -57,15 +58,27 @@ struct TagApiController: ApiRepositoryController {
     
     // MARK: - List
     
-    func listOutput(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> Tag.Detail.List {
-        return try .init(
-            id: repository.requireID(),
-            title: detail.title,
-            slug: detail.slug
+    func listOutput(_ req: Request, _ model: ElasticModel) async throws -> Tag.Detail.List {
+        return .init(
+            id: model.id,
+            title: model.title,
+            slug: model.slug
         )
     }
     
     // MARK: - Detail
+    
+    func detailOutput(_ req: Vapor.Request, _ model: LatestVerifiedTagModel.Elasticsearch, _ availableLanguageCodes: [String]) async throws -> AppApi.Tag.Detail.Detail {
+        .init(
+            id: model.id,
+            title: model.title,
+            slug: model.slug,
+            keywords: model.keywords,
+            languageCode: model.languageCode,
+            availableLanguageCodes: availableLanguageCodes,
+            detailId: model.detailId
+        )
+    }
     
     func detailOutput(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> Tag.Detail.Detail {
         try await detail.$language.load(on: req.db)
@@ -93,6 +106,7 @@ struct TagApiController: ApiRepositoryController {
         
         guard let languageId = try await LanguageModel
                 .query(on: req.db)
+                .filter(\.$priority != nil)
                 .filter(\.$languageCode == input.languageCode)
                 .first()?
                 .requireID()
@@ -109,6 +123,10 @@ struct TagApiController: ApiRepositoryController {
         detail.keywords = keywords
         detail.$language.id = languageId
         detail.$user.id = user.id
+    }
+    
+    func createResponse(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> Response {
+        try await detailOutput(req, repository, detail).encodeResponse(status: .created, for: req)
     }
     
     // MARK: - Update
@@ -136,6 +154,10 @@ struct TagApiController: ApiRepositoryController {
         detail.keywords = keywords
         detail.$language.id = languageId
         detail.$user.id = user.id
+    }
+    
+    func updateResponse(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> Response {
+        try await detailOutput(req, repository, detail).encodeResponse(for: req)
     }
     
     // MARK: - Patch
@@ -170,6 +192,10 @@ struct TagApiController: ApiRepositoryController {
         
         detail.$language.id = tagToPatch.$language.id
         detail.$user.id = user.id
+    }
+    
+    func patchResponse(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> Response {
+        try await detailOutput(req, repository, detail).encodeResponse(for: req)
     }
     
     // MARK: - Delete

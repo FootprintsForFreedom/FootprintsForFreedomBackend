@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class LatestVerifiedTagModel: DatabaseElasticsearchInterface {
+final class LatestVerifiedTagModel: DatabaseElasticInterface {
     typealias Module = TagModule
     
     static var schema: String = "latest_verified_tag_details"
@@ -59,7 +59,7 @@ extension LatestVerifiedTagModel {
 }
 
 extension LatestVerifiedTagModel {
-    struct Elasticsearch: ElasticsearchModelInterface {
+    struct Elasticsearch: ElasticModelInterface {
         typealias DatabaseModel = LatestVerifiedTagModel
         struct Key: Codable, LockKey { }
         
@@ -100,6 +100,9 @@ extension LatestVerifiedTagModel {
                             ]
                         ]
                     ]
+                ],
+                "slug": [
+                    "type": "keyword"
                 ],
                 "id": [
                     "type": "keyword"

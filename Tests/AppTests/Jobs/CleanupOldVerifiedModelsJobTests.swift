@@ -13,13 +13,13 @@ import Spec
 
 final class CleanupOldVerifiedModelsJobTests: AppTestCase, TagTest, WaypointTest, MediaTest, StaticContentTest {
     func testSuccessfulCleanupOldVerifiedModelsJobDeletesModelsOlderThanSpecifiedInEnvironment() async throws {
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         try await tag.detail.updateWith(verifiedAt: Date(), on: app.db)
         let createdTagReport = try await createNewTagReport(tag: tag, verifiedAt: Date())
         let media = try await createNewMedia(verifiedAt: Date())
         try await media.detail.updateWith(verifiedAt: Date(), on: app.db)
         let createdMediaReport = try await createNewMediaReport(media: media, verifiedAt: Date())
-        let waypoint = try await createNewWaypoint(verifiedAt: Date())
+        let waypoint = try await createNewWaypoint(verified: true)
         try await waypoint.detail.updateWith(verifiedAt: Date(), on: app.db)
         try await waypoint.location.updateWith(verifiedAt: Date(), on: app.db)
         let createdWaypointReport = try await createNewWaypointReport(waypoint: waypoint, verifiedAt: Date())
@@ -83,9 +83,9 @@ final class CleanupOldVerifiedModelsJobTests: AppTestCase, TagTest, WaypointTest
     }
     
     func testSuccessfulCleanupOldVerifiedModelsJobDoesNotDeleteModelsOlderThanSpecifiedInEnvironmentIfTheyAreTheNewestVerifiedOnes() async throws {
-        let tag = try await createNewTag(verifiedAt: Date())
+        let tag = try await createNewTag(verified: true)
         let media = try await createNewMedia(verifiedAt: Date())
-        let waypoint = try await createNewWaypoint(verifiedAt: Date())
+        let waypoint = try await createNewWaypoint(verified: true)
         let staticContent = try await createNewStaticContent()
         
         let context = QueueContext(

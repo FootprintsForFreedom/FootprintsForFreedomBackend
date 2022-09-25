@@ -1,5 +1,5 @@
 //
-//  ElasticsearchModelInterface.swift
+//  ElasticModelInterface.swift
 //  
 //
 //  Created by niklhut on 15.09.22.
@@ -9,8 +9,8 @@ import Vapor
 import Fluent
 import ElasticsearchNIOClient
 
-protocol ElasticsearchModelInterface: Codable where DatabaseModel.Elasticsearch == Self {
-    associatedtype DatabaseModel: DatabaseElasticsearchInterface
+public protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel == Self {
+    associatedtype DatabaseModel: DatabaseElasticInterface
     associatedtype Key: Codable, LockKey
     associatedtype IDValue: Hashable
     static var schema: String { get }
@@ -37,7 +37,7 @@ protocol ElasticsearchModelInterface: Codable where DatabaseModel.Elasticsearch 
     static func setLanguagePriorities(for languagesWithChangedPriority: [UUID], on req: Request) async throws -> ESBulkResponse?
 }
 
-extension ElasticsearchModelInterface {
+public extension ElasticModelInterface {
     var uniqueId: String {
         "\(self.id)_\(self.languageId)"
     }

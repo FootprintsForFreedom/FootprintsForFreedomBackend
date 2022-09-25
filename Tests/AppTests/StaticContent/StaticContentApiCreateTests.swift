@@ -164,7 +164,7 @@ final class StaticContentApiCreateTests: AppTestCase, StaticContentTest {
             .test()
     }
     
-    func testCreateStatiContentWithoutRequiredSnippetsInTextFails() async throws {
+    func testCreateStaticContentWithoutRequiredSnippetsInTextFails() async throws {
         let token = try await getToken(for: .admin, verified: true)
         let newStaticContent = try await getStaticContentCreateContent(requiredSnippets: StaticContent.Snippet.allCases, text: "My text without snippets")
         

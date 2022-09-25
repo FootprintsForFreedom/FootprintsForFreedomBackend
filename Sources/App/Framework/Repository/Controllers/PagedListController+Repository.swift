@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-extension PagedListController where Self: RepositoryController {
+extension PagedListController where Self: DatabaseRepositoryController {
     func list(_ req: Request) async throws -> Page<DatabaseModel> {
         let queryBuilder = DatabaseModel.query(on: req.db)
         let list = try await beforeList(req, queryBuilder)

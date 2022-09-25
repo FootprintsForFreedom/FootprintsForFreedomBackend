@@ -12,18 +12,19 @@ import ElasticsearchNIOClient
 extension Waypoint.Detail.List: Content { }
 extension Waypoint.Detail.Detail: Content { }
 
-struct WaypointApiController: ApiRepositoryController {
+struct WaypointApiController: ApiElasticDetailController, ApiElasticPagedListController, ApiRepositoryCreateController, ApiRepositoryUpdateController, ApiRepositoryPatchController, ApiDeleteController {
     typealias ApiModel = Waypoint.Detail
     typealias DatabaseModel = WaypointRepositoryModel
+    typealias ElasticModel = WaypointSummaryModel.Elasticsearch
     
     // MARK: - Validators
     
     @AsyncValidatorBuilder
-    func validators(optional: Bool) -> [AsyncValidator] {
-        KeyedContentValidator<String>.required("title", optional: optional)
-        KeyedContentValidator<String>.required("detailText", optional: optional)
-        KeyedContentValidator<Waypoint.Location>.location("location", optional: optional)
-        KeyedContentValidator<String>.required("languageCode", optional: false)
+    func createValidators() -> [AsyncValidator] {
+        KeyedContentValidator<String>.required("title")
+        KeyedContentValidator<String>.required("detailText")
+        KeyedContentValidator<Waypoint.Location>.location("location")
+        KeyedContentValidator<String>.required("languageCode")
     }
     
     @AsyncValidatorBuilder
@@ -60,47 +61,46 @@ struct WaypointApiController: ApiRepositoryController {
     
     // MARK: - List
     
-    func beforeList(_ req: Request, _ queryBuilder: QueryBuilder<WaypointRepositoryModel>) async throws -> QueryBuilder<WaypointRepositoryModel> {
-        queryBuilder
-        // also make sure the location is verified
-            .join(WaypointLocationModel.self, on: \WaypointLocationModel.$repository.$id == \WaypointRepositoryModel.$id)
-            .filter(WaypointLocationModel.self, \.$verifiedAt != nil)
+    func sortList(_ sort: inout [[String : Any]]) async throws {
+        // TODO: ip to location
+        let geoSort = [
+            "_geo_distance" : [
+                "location": [49.872833, 8.651222],
+                "order" : "asc",
+                "unit" : "km",
+                "mode" : "min",
+                "distance_type" : "arc",
+                "ignore_unmapped": true
+            ]
+        ]
+        sort.insert(geoSort, at: sort.startIndex)
     }
     
-    func listOutput(_ req: Request, _ repository: WaypointRepositoryModel, _ detail: Detail) async throws -> Waypoint.Detail.List {
-        fatalError()
-    }
-    
-    func listOutput(_ req: Request, _ repositories: Page<WaypointRepositoryModel>) async throws -> Page<Waypoint.Detail.List> {
-        // TODO: sort alphabetically
-        return try await repositories
-            .concurrentCompactMap { repository in
-                /// this should not fail since the beforeList only loads repositories which fullfill this criteria
-                /// however, to ensure the list works return nil otherwise and use compact map to ensure all other waypoints are returned
-                if
-                    let detail = try await repository._$details.firstFor(req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db),
-                    let location = try await repository.$locations.firstFor(needsToBeVerified: true, on: req.db)
-                {
-                    return try .init(
-                        id: repository.requireID(),
-                        title: detail.title,
-                        slug: detail.slug,
-                        location: location.location
-                    )
-                } else {
-                    return nil
-                }
-            }
+    func listOutput(_ req: Request, _ model: WaypointSummaryModel.Elasticsearch) async throws -> Waypoint.Detail.List {
+        .init(
+            id: model.id,
+            title: model.title,
+            slug: model.slug,
+            location: .init(latitude: model.location.lat, longitude: model.location.lon)
+        )
     }
     
     // MARK: - Detail
     
-    func detailOutput(_ req: Request, _ repository: WaypointRepositoryModel, _ detail: WaypointDetailModel) async throws -> Waypoint.Detail.Detail {
-        guard let location = try await repository.$locations.firstFor(needsToBeVerified: true, on: req.db) else {
-            throw Abort(.notFound)
-        }
-        
-        return try await detailOutput(req, repository, detail, location)
+    func detailOutput(_ req: Request, _ model: WaypointSummaryModel.Elasticsearch, _ availableLanguageCodes: [String]) async throws -> Waypoint.Detail.Detail {
+        let tagList = try await model.getTagList(preferredLanguageCode: req.preferredLanguageCode(), on: req.elastic) // TODO: we get the preferred language code twice...
+        return .init(
+            id: model.id,
+            title: model.title,
+            slug: model.slug,
+            detailText: model.detailText,
+            location: .init(latitude: model.location.lat, longitude: model.location.lon),
+            tags: tagList,
+            languageCode: model.languageCode,
+            availableLanguageCodes: availableLanguageCodes,
+            detailId: model.detailId,
+            locationId: model.locationId
+        )
     }
     
     func detailOutput(_ req: Request, _ repository: WaypointRepositoryModel, _ detail: WaypointDetailModel, _ location: WaypointLocationModel) async throws -> Waypoint.Detail.Detail {
@@ -149,6 +149,7 @@ struct WaypointApiController: ApiRepositoryController {
         
         guard let languageId = try await LanguageModel
             .query(on: req.db)
+            .filter(\.$priority != nil)
             .filter(\.$languageCode == input.languageCode)
             .first()?
             .requireID()
@@ -164,6 +165,11 @@ struct WaypointApiController: ApiRepositoryController {
         location.latitude = input.location.latitude
         location.longitude = input.location.longitude
         location.$user.id = user.id
+    }
+    
+    // not implemented, instead function below is used, however this function is required by the protocol
+    func createResponse(_ req: Request, _ repository: DatabaseModel, _ detail: Detail) async throws -> Response {
+        fatalError()
     }
     
     func createResponse(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointDetailModel, _ location: WaypointLocationModel) async throws -> Response {
@@ -266,6 +272,11 @@ struct WaypointApiController: ApiRepositoryController {
             location = storedLocation
         }
         return (waypoint, location)
+    }
+    
+    // not implemented, instead function below is used, however this function is required by the protocol
+    func patchResponse(_ req: Request, _ repository: WaypointRepositoryModel, _ detail: Detail) async throws -> Response {
+        fatalError()
     }
     
     func patchResponse(_ req: Request, _ repository: WaypointRepositoryModel, _ waypoint: WaypointDetailModel, _ location: WaypointLocationModel) async throws -> Response {

@@ -19,7 +19,7 @@ final class WaypointApiVerificationTests: AppTestCase, WaypointTest {
         try await waypointModel.$language.load(on: app.db)
         
         try app
-            .describe("Verify waypoint as moderator should be successfull and return ok")
+            .describe("Verify waypoint as moderator should be successful and return ok")
             .post(waypointsPath.appending("\(waypointRepository.requireID())/waypoints/verify/\(waypointModel.requireID())"))
             .bearerToken(moderatorToken)
             .expect(.ok)
@@ -32,6 +32,27 @@ final class WaypointApiVerificationTests: AppTestCase, WaypointTest {
                 XCTAssertEqual(content.location, location.location)
                 XCTAssertEqual(content.languageCode, waypointModel.language.languageCode)
             }
+            .test()
+    }
+    
+    func testVerifyWaypointWithDeactivatedLanguageFails() async throws {
+        let language = try await createLanguage()
+        let (waypointRepository, waypointModel, _) = try await createNewWaypoint(languageId: language.requireID())
+        
+        let adminToken = try await getToken(for: .admin)
+        try app
+            .describe("Deactivate language as admin should return ok")
+            .put(languagesPath.appending("\(language.requireID().uuidString)/deactivate"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
+        
+        try app
+            .describe("Verify waypoint with deactivated language should fail")
+            .post(waypointsPath.appending("\(waypointRepository.requireID())/waypoints/verify/\(waypointModel.requireID())"))
+            .bearerToken(moderatorToken)
+            .expect(.badRequest)
             .test()
     }
     
@@ -59,7 +80,7 @@ final class WaypointApiVerificationTests: AppTestCase, WaypointTest {
     
     func testVerifyWaypointWithAlreadyVerifiedWaypointFails() async throws {
         let userToken = try await getToken(for: .moderator)
-        let (waypointRepository, waypointModel, _) = try await createNewWaypoint(verifiedAt: Date())
+        let (waypointRepository, waypointModel, _) = try await createNewWaypoint(verified: true)
         
         try app
             .describe("Verify waypoint for already verified waypoint should fail")
@@ -116,7 +137,7 @@ final class WaypointApiVerificationTests: AppTestCase, WaypointTest {
     
     func testVerifyLocationWithAlreadyVerifiedWaypointFails() async throws {
         let userToken = try await getToken(for: .moderator)
-        let (waypointRepository, _, locationModel) = try await createNewWaypoint(verifiedAt: Date())
+        let (waypointRepository, _, locationModel) = try await createNewWaypoint(verified: true)
         
         try app
             .describe("Verify location for already verified waypoint should fail")

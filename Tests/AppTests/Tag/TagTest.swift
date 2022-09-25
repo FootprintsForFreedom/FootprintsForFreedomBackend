@@ -8,6 +8,7 @@
 @testable import App
 import XCTVapor
 import Fluent
+import Spec
 
 protocol TagTest: LanguageTest { }
 
@@ -17,7 +18,7 @@ extension TagTest {
     func createNewTag(
         title: String = "New Tag title \(UUID())",
         keywords: [String] = (1...5).map { _ in String(Int.random(in: 10...100)) }, // array with 5 random numbers between 10 and 100
-        verifiedAt: Date? = nil,
+        verified: Bool = false,
         languageId: UUID? = nil,
         userId: UUID? = nil
     ) async throws -> (repository: TagRepositoryModel, detail: TagDetailModel) {
@@ -38,13 +39,13 @@ extension TagTest {
         try await repository.create(on: app.db)
         
         let detail = try await TagDetailModel.createWith(
-            verifiedAt: verifiedAt,
+            verified: verified,
             title: title,
             keywords: keywords,
             languageId: languageId,
             repositoryId: repository.requireID(),
             userId: userId,
-            on: app.db
+            on: self
         )
         
         return (repository, detail)
@@ -53,18 +54,18 @@ extension TagTest {
 
 extension TagDetailModel {
     static func createWith(
-        verifiedAt: Date?,
+        verified: Bool,
         title: String,
         slug: String? = nil,
         keywords: [String],
         languageId: UUID,
         repositoryId: UUID,
         userId: UUID,
-        on db: Database
+        on test: TagTest
     ) async throws -> Self {
         let slug = slug ?? title.appending(" ").appending(Date().toString(with: .day)).slugify()
         let detail = self.init(
-            verifiedAt: verifiedAt,
+            verifiedAt: nil,
             title: title,
             slug: slug,
             keywords: keywords,
@@ -72,7 +73,21 @@ extension TagDetailModel {
             repositoryId: repositoryId,
             userId: userId
         )
-        try await detail.create(on: db)
+        try await detail.create(on: test.app.db)
+        
+        if verified {
+            try test.app
+                .describe("Verify tag as moderator should be successful and return ok")
+                .post(test.tagPath.appending("\(repositoryId)/verify/\(detail.requireID())"))
+                .bearerToken(test.moderatorToken)
+                .expect(.ok)
+                .expect(.json)
+                .expect(Tag.Detail.Detail.self) { content in
+                    detail.slug = content.slug
+                }
+                .test()
+        }
+        
         return detail
     }
     

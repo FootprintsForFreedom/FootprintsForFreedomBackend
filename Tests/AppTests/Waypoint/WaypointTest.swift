@@ -8,6 +8,7 @@
 @testable import App
 import XCTVapor
 import Fluent
+import Spec
 
 protocol WaypointTest: LanguageTest { }
 
@@ -18,7 +19,7 @@ extension WaypointTest {
         title: String = "New Waypoint Title \(UUID())",
         detailText: String = "New Waypoint detail text",
         location: Waypoint.Location = .init(latitude: Double.random(in: -90...90), longitude: Double.random(in: -180...180)),
-        verifiedAt: Date? = nil,
+        verified: Bool = false,
         languageId: UUID? = nil,
         userId: UUID? = nil
     ) async throws -> (repository: WaypointRepositoryModel, detail: WaypointDetailModel, location: WaypointLocationModel) {
@@ -43,16 +44,37 @@ extension WaypointTest {
             repositoryId: waypointRepository.requireID(),
             languageId: languageId,
             userId: userId,
-            verifiedAt: verifiedAt,
-            on: app.db
+            verified: false,
+            on: self
         )
         let location = try await WaypointLocationModel.createWith(
             location: location,
             repositoryId: waypointRepository.requireID(),
             userId: userId,
-            verifiedAt: verifiedAt,
-            on: app.db
+            verified: false,
+            on: self
         )
+        
+        if verified {
+            try app
+                .describe("Verify waypoint detail as moderator should be successful and return ok")
+                .post(waypointsPath.appending("\(waypointRepository.requireID())/waypoints/verify/\(waypointModel.requireID())"))
+                .bearerToken(moderatorToken)
+                .expect(.ok)
+                .expect(.json)
+                .expect(Waypoint.Detail.Detail.self) { content in
+                    waypointModel.slug = content.slug
+                }
+                .test()
+            
+            try app
+                .describe("Verify waypoint location as moderator should be successful and return ok")
+                .post(waypointsPath.appending("\(waypointRepository.requireID())/locations/verify/\(location.requireID())"))
+                .bearerToken(moderatorToken)
+                .expect(.ok)
+                .expect(.json)
+                .test()
+        }
         
         return (waypointRepository, waypointModel, location)
     }
@@ -66,12 +88,12 @@ extension WaypointDetailModel {
         repositoryId: UUID,
         languageId: UUID,
         userId: UUID,
-        verifiedAt: Date?,
-        on db: Database
+        verified: Bool,
+        on test: WaypointTest
     ) async throws -> Self {
         let slug = slug ?? title.appending(" ").appending(Date().toString(with: .day)).slugify()
         let waypoint = self.init(
-            verifiedAt: verifiedAt,
+            verifiedAt: nil,
             title: title,
             slug: slug,
             detailText: detailText,
@@ -79,7 +101,21 @@ extension WaypointDetailModel {
             repositoryId: repositoryId,
             userId: userId
         )
-        try await waypoint.create(on: db)
+        try await waypoint.create(on: test.app.db)
+        
+        if verified {
+            try test.app
+                .describe("Verify waypoint detail as moderator should be successful and return ok")
+                .post(test.waypointsPath.appending("\(repositoryId)/waypoints/verify/\(waypoint.requireID())"))
+                .bearerToken(test.moderatorToken)
+                .expect(.ok)
+                .expect(.json)
+                .expect(Waypoint.Detail.Detail.self) { content in
+                    waypoint.slug = content.slug
+                }
+                .test()
+        }
+        
         return waypoint
     }
     
@@ -113,17 +149,28 @@ extension WaypointLocationModel {
         location: Waypoint.Location,
         repositoryId: UUID,
         userId: UUID,
-        verifiedAt: Date?,
-        on db: Database
+        verified: Bool,
+        on test: WaypointTest
     ) async throws -> Self {
         let location = self.init(
-            verifiedAt: verifiedAt,
+            verifiedAt: nil,
             latitude: location.latitude,
             longitude: location.longitude,
             repositoryId: repositoryId,
             userId: userId
         )
-        try await location.create(on: db)
+        try await location.create(on: test.app.db)
+        
+        if verified {
+            try test.app
+                .describe("Verify waypoint location as moderator should be successful and return ok")
+                .post(test.waypointsPath.appending("\(repositoryId)/locations/verify/\(location.requireID())"))
+                .bearerToken(test.moderatorToken)
+                .expect(.ok)
+                .expect(.json)
+                .test()
+        }
+        
         return location
     }
     
