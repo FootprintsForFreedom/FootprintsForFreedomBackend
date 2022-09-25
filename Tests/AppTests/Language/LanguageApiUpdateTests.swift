@@ -10,8 +10,6 @@ import XCTVapor
 import Fluent
 import Spec
 
-extension Language.Detail.Update: Content { }
-
 final class LanguageApiUpdateTests: AppTestCase, LanguageTest {
     private func getLanguageUpdateContent(
         languageCode: String = UUID().uuidString,

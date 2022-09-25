@@ -95,25 +95,7 @@ public extension Tag.Detail {
     }
     
     /// Used to update tag objects.
-    struct Update: Codable {
-        /// The tag title.
-        public let title: String
-        /// The keywords connected to this tag.
-        public let keywords: [String]
-        /// The language code for the tag title and keywords.
-        public let languageCode: String
-        
-        /// Creates a tag update object.
-        /// - Parameters:
-        ///   - title: The tag title.
-        ///   - keywords: The keywords connected to this tag.
-        ///   - languageCode: The language code for the tag title and keywords.
-        public init(title: String, keywords: [String], languageCode: String) {
-            self.title = title
-            self.keywords = keywords
-            self.languageCode = languageCode
-        }
-    }
+    typealias Update = Create
     
     /// Used to patch tag objects.
     struct Patch: Codable {

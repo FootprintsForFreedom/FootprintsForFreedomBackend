@@ -10,8 +10,6 @@ import XCTVapor
 import Fluent
 import Spec
 
-extension Tag.Detail.Update: Content { }
-
 final class TagApiUpdateTests: AppTestCase, TagTest {
     private func getTagUpdateContent(
         title: String = "New Tag title \(UUID())",

@@ -8,7 +8,6 @@
 import Vapor
 import Fluent
 
-extension Language.Detail.List: Content { }
 extension Language.Detail.Detail: Content { }
 
 struct LanguageApiController: UnpagedApiController {
