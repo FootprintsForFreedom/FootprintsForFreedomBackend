@@ -36,8 +36,6 @@ protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel == Self
     static func activateLanguage(_ languageId: UUID, on req: Request) async throws -> ESBulkResponse?
     @discardableResult
     static func updateLanguages(_ languageIds: [UUID], on req: Request) async throws -> ESBulkResponse?
-    @discardableResult
-    static func updateLanguage(_ languageId: UUID, on req: Request) async throws -> ESBulkResponse?
     
     @discardableResult
     static func deleteUser(_ userId: UUID, on req: Request) async throws -> ESBulkResponse?
@@ -113,11 +111,6 @@ extension ElasticModelInterface {
             .concurrentMap { try await $0.toElasticsearch(on: req.db) }
             .map { ESBulkOperation(operationType: .update, index: Self.schema, id: $0.uniqueId, document: $0) }
         return try req.elastic.bulk(documents)
-    }
-    
-    @discardableResult
-    static func updateLanguage(_ languageId: UUID, on req: Request) async throws -> ESBulkResponse? {
-        try await updateLanguages([languageId], on: req)
     }
     
     @discardableResult
