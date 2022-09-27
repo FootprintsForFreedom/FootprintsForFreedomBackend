@@ -21,8 +21,7 @@ extension LanguageApiController {
             throw Abort(.badRequest)
         }
         
-        try await LatestVerifiedTagModel.Elasticsearch.deactivateLanguage(language.requireID(), on: req)
-        try await WaypointSummaryModel.Elasticsearch.deactivateLanguage(language.requireID(), on: req)
+        try await ElasticModule.deactivateLanguage(language.requireID(), on: req)
         
         language.priority = nil
         try await language.update(on: req.db)
@@ -54,8 +53,7 @@ extension LanguageApiController {
         language.priority = currentHighestPriority + 1
         try await language.update(on: req.db)
         
-        try await LatestVerifiedTagModel.Elasticsearch.activateLanguage(language.requireID(), on: req)
-        try await WaypointSummaryModel.Elasticsearch.activateLanguage(language.requireID(), on: req)
+        try await ElasticModule.activateLanguage(language.requireID(), on: req)
         
         return try .init(
             id: language.requireID(),
@@ -131,8 +129,7 @@ extension LanguageApiController {
             }
             return nil
         }
-        try await LatestVerifiedTagModel.Elasticsearch.updateLanguages(languagesWithChangedPriority, on: req)
-        try await WaypointSummaryModel.Elasticsearch.updateLanguages(languagesWithChangedPriority, on: req)
+        try await ElasticModule.updateLanguages(languagesWithChangedPriority, on: req)
         
         return try await listApi(req)
     }

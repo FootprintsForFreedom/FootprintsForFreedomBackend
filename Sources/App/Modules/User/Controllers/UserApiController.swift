@@ -152,8 +152,7 @@ struct UserApiController: ApiController {
     // MARK: - Delete
     
     func beforeDelete(_ req: Request, _ model: UserAccountModel) async throws {
-        try await LatestVerifiedTagModel.Elasticsearch.deleteUser(model.requireID(), on: req)
-        try await WaypointSummaryModel.Elasticsearch.deleteUser(model.requireID(), on: req)
+        try await ElasticModule.deleteUser(model.requireID(), on: req)
         
         try await req.onlyFor(model, or: .admin)
     }
