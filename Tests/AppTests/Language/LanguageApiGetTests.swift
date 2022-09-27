@@ -111,4 +111,48 @@ final class LanguageApiGetTests: AppTestCase, LanguageTest {
             .expect(.forbidden)
             .test()
     }
+    
+    func testSuccessfulListUnusedLanguages() async throws {
+        let adminToken = try await getToken(for: .admin)
+        
+        try app
+            .describe("Moderator should be able to list unused languages.")
+            .get(languagesPath.appending("unused"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .expect([AppApi.Language.Detail.ListUnused].self) { content in
+                // Confirm it does not contain existing language
+                XCTAssert(!content.contains { $0.languageCode == "de" })
+            }
+            .test()
+    }
+    
+    func testListUnusedLanguagesAsModeratorFails() async throws {
+        try app
+            .describe("Moderator should be able to list unused languages.")
+            .get(languagesPath.appending("unused"))
+            .bearerToken(moderatorToken)
+            .expect(.forbidden)
+            .test()
+    }
+    
+    func testListUnusedLanguagesAsUserFails() async throws {
+        let userToken = try await getToken(for: .user, verified: true)
+        
+        try app
+            .describe("Moderator should be able to list unused languages.")
+            .get(languagesPath.appending("unused"))
+            .bearerToken(userToken)
+            .expect(.forbidden)
+            .test()
+    }
+    
+    func testListUnusedLanguagesWithoutTokenFails() async throws {
+        try app
+            .describe("Moderator should be able to list unused languages.")
+            .get(languagesPath.appending("unused"))
+            .expect(.unauthorized)
+            .test()
+    }
 }

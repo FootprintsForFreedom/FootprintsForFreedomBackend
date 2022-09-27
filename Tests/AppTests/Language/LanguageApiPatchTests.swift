@@ -1,6 +1,6 @@
 //
 //  LanguageApiPatchTests.swift
-//  
+//
 //
 //  Created by niklhut on 07.03.22.
 //
@@ -10,201 +10,16 @@ import XCTVapor
 import Fluent
 import Spec
 
-extension Language.Detail.Patch: Content { }
-
 final class LanguageApiPatchTests: AppTestCase, LanguageTest {
-    private func getLanguagePatchContent(
-        languageCode: String? = nil,
-        name: String? = nil,
-        isRTL: Bool? = nil
-    ) -> Language.Detail.Patch {
-        return .init(languageCode: languageCode, name: name, isRTL: isRTL)
-    }
-    
-    func testSuccessfulPatchLanguageCodeAsAdmin() async throws {
-        let token = try await getToken(for: .admin)
+    func testPatchLanguageFails() async throws {
+        let token = try await getToken(for: .superAdmin)
         let language = try await createLanguage()
-        let patchedLanguage = getLanguagePatchContent(languageCode: UUID().uuidString)
         
         try app
-            .describe("Patch language code should return ok and the created language")
+            .describe("Delete language always fails succeeds")
             .patch(languagesPath.appending(language.requireID().uuidString))
-            .body(patchedLanguage)
             .bearerToken(token)
-            .expect(.ok)
-            .expect(.json)
-            .expect(Language.Detail.Detail.self) { content in
-                XCTAssertEqual(content.languageCode, patchedLanguage.languageCode)
-                XCTAssertEqual(content.name, language.name)
-                XCTAssertEqual(content.isRTL, language.isRTL)
-            }
-            .test()
-    }
-    
-    func testSuccessfulPatchLanguageNameAsAdmin() async throws {
-        let token = try await getToken(for: .admin)
-        let language = try await createLanguage()
-        let patchedLanguage = getLanguagePatchContent(name: UUID().uuidString)
-        
-        try app
-            .describe("Patch language name should return ok and the created language")
-            .patch(languagesPath.appending(language.requireID().uuidString))
-            .body(patchedLanguage)
-            .bearerToken(token)
-            .expect(.ok)
-            .expect(.json)
-            .expect(Language.Detail.Detail.self) { content in
-                XCTAssertEqual(content.languageCode, language.languageCode)
-                XCTAssertEqual(content.name, patchedLanguage.name)
-                XCTAssertEqual(content.isRTL, language.isRTL)
-            }
-            .test()
-    }
-    
-    func testSuccessfulPatchLanguageRTLAsAdmin() async throws {
-        let token = try await getToken(for: .admin)
-        let language = try await createLanguage()
-        let patchedLanguage = getLanguagePatchContent(isRTL: true)
-        
-        try app
-            .describe("Patch language is RTL should return ok and the created language")
-            .patch(languagesPath.appending(language.requireID().uuidString))
-            .body(patchedLanguage)
-            .bearerToken(token)
-            .expect(.ok)
-            .expect(.json)
-            .expect(Language.Detail.Detail.self) { content in
-                XCTAssertEqual(content.languageCode, language.languageCode)
-                XCTAssertEqual(content.name, language.name)
-                XCTAssertEqual(content.isRTL, patchedLanguage.isRTL)
-            }
-            .test()
-    }
-    
-    func testEmptyPatchFails() async throws {
-        let token = try await getToken(for: .admin)
-        let language = try await createLanguage()
-        let patchedLanguage = getLanguagePatchContent()
-        
-        try app
-            .describe("Empty patch language should fail")
-            .patch(languagesPath.appending(language.requireID().uuidString))
-            .body(patchedLanguage)
-            .bearerToken(token)
-            .expect(.badRequest)
-            .test()
-    }
-    
-    func testPatchLanguageAsModeratorFails() async throws {
-        let token = try await getToken(for: .moderator)
-        let language = try await createLanguage()
-        let patchedLanguage = getLanguagePatchContent(name: "English")
-
-        try app
-            .describe("Patch language as moderator should fail")
-            .patch(languagesPath.appending(language.requireID().uuidString))
-            .body(patchedLanguage)
-            .bearerToken(token)
-            .expect(.forbidden)
-            .test()
-    }
-    
-    func testPatchLanguageAsUserFails() async throws {
-        let token = try await getToken(for: .user)
-        let language = try await createLanguage()
-        let patchedLanguage = getLanguagePatchContent(name: "English")
-
-        try app
-            .describe("Patch language as user should fail")
-            .patch(languagesPath.appending(language.requireID().uuidString))
-            .body(patchedLanguage)
-            .bearerToken(token)
-            .expect(.forbidden)
-            .test()
-    }
-    
-    func testPatchLanguageWithoutTokenFails() async throws {
-        let language = try await createLanguage()
-        let patchedLanguage = getLanguagePatchContent(name: "English")
-
-        try app
-            .describe("Patch language without token should fail")
-            .patch(languagesPath.appending(language.requireID().uuidString))
-            .body(patchedLanguage)
-            .expect(.unauthorized)
-            .test()
-    }
-        
-    func testPatchLanguageNeedsValidLanguageCode() async throws {
-        let token = try await getToken(for: .admin)
-        let language = try await createLanguage()
-        let patchedLanguage = getLanguagePatchContent(languageCode: "")
-        
-        try app
-            .describe("Patch language with empty language code should fail")
-            .patch(languagesPath.appending(language.requireID().uuidString))
-            .body(patchedLanguage)
-            .bearerToken(token)
-            .expect(.badRequest)
-            .test()
-    }
-    
-    func testPatchLanguageNeedsUniqueLanguageCode() async throws  {
-        let token = try await getToken(for: .admin)
-        let language = try await createLanguage()
-        
-        let highestPriority = try await LanguageModel
-            .query(on: app.db)
-            .filter(\.$priority != nil)
-            .sort(\.$priority, .descending)
-            .first()?.priority ?? 0
-        let createdLanguage = LanguageModel(languageCode: UUID().uuidString, name: UUID().uuidString, isRTL: false, priority: highestPriority + 1)
-        try await createdLanguage.create(on: app.db)
-        
-        let patchedLanguage = getLanguagePatchContent(languageCode: createdLanguage.languageCode)
-        
-        try app
-            .describe("Patch language with already present language code should fail")
-            .patch(languagesPath.appending(language.requireID().uuidString))
-            .body(patchedLanguage)
-            .bearerToken(token)
-            .expect(.badRequest)
-            .test()
-    }
-    
-    func testPatchLanguageNeedsValidName() async throws {
-        let token = try await getToken(for: .admin)
-        let language = try await createLanguage()
-        let patchedLanguage = getLanguagePatchContent(name: "")
-        
-        try app
-            .describe("Patch language with empty name should fail")
-            .patch(languagesPath.appending(language.requireID().uuidString))
-            .body(patchedLanguage)
-            .bearerToken(token)
-            .expect(.badRequest)
-            .test()
-    }
-    
-    func testPatchLanguageNeedsUniqueName() async throws {
-        let token = try await getToken(for: .admin)
-        let language = try await createLanguage()
-        
-        let highestPriority = try await LanguageModel
-            .query(on: app.db)
-            .filter(\.$priority != nil)
-            .sort(\.$priority, .descending)
-            .first()?.priority ?? 0
-        let createdLanguage = LanguageModel(languageCode: UUID().uuidString, name: UUID().uuidString, isRTL: false, priority: highestPriority + 1)
-        try await createdLanguage.create(on: app.db)
-        let patchedLanguage = getLanguagePatchContent(name: createdLanguage.name)
-        
-        try app
-            .describe("Create language with already present name should fail")
-            .patch(languagesPath.appending(language.requireID().uuidString))
-            .body(patchedLanguage)
-            .bearerToken(token)
-            .expect(.badRequest)
+            .expect(.internalServerError)
             .test()
     }
 }

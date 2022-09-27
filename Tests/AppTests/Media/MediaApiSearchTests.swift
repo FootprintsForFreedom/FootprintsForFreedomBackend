@@ -170,8 +170,9 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
             .test()
     }
     
-    func testSuccessfulSearchOnlySearchesTagsInSpecifiedLangauge() async throws {
-        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verified: true)
+    func testSuccessfulSearchOnlySearchesTagsInSpecifiedLanguage() async throws {
+        let otherLanguage = try await createLanguage()
+        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verified: true, languageId: otherLanguage.requireID())
         let media = try await createNewMedia(verifiedAt: Date())
         try await media.repository.$tags.attach(tag.repository, on: app.db)
         try await media.detail.$language.load(on: app.db)

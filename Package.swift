@@ -25,6 +25,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
         .package(url: "https://github.com/brokenhandsio/VaporSecurityHeaders.git", from: "4.0.0"),
         .package(url: "https://github.com/niklhut/elasticsearch-nio-client.git", branch: "with-id-improvements"),
+        .package(url: "https://github.com/SwiftPackageRepository/ISO639.swift.git", branch: "master"),
     ],
     targets: [
         .target(name: "AppApi", dependencies: [
@@ -44,6 +45,7 @@ let package = Package(
                 .product(name: "ShellOut", package: "ShellOut"),
                 .product(name: "VaporSecurityHeaders", package: "VaporSecurityHeaders"),
                 .product(name: "ElasticsearchNIOClient", package: "elasticsearch-nio-client"),
+                .product(name: "ISO639", package: "ISO639.swift"),
                 .target(name: "AppApi")
             ],
             swiftSettings: [

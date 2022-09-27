@@ -170,8 +170,9 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
             .test()
     }
     
-    func testSuccessfulSearchOnlySearchesTagsInSpecifiedLangauge() async throws {
-        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verified: true)
+    func testSuccessfulSearchOnlySearchesTagsInSpecifiedLanguage() async throws {
+        let otherLanguage = try await createLanguage()
+        let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verified: true, languageId: otherLanguage.requireID())
         let waypoint = try await createNewWaypoint(verified: true)
         try await waypoint.repository.$tags.attach(tag.repository, on: app.db)
         try await waypoint.detail.$language.load(on: app.db)
@@ -179,7 +180,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
         
         try app
-            .describe("Search waypoint should only serach tag details in the specified language")
+            .describe("Search waypoint should only search tag details in the specified language")
             .get(waypointsPath.appending("search/?text=er&languageCode=\(waypoint.detail.language.languageCode)&per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)

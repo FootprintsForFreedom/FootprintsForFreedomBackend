@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import ISO639
 
 final class LanguageModel: DatabaseModelInterface {
     typealias Module = LanguageModule
@@ -17,35 +18,37 @@ final class LanguageModel: DatabaseModelInterface {
         struct v1 {
             static var languageCode: FieldKey { "language_code" }
             static var name: FieldKey { "name" }
+            static var officialName: FieldKey { "official_name" }
             static var isRTL: FieldKey { "is_rtl" }
             static var priority: FieldKey { "priority" }
         }
     }
     
     @ID() var id: UUID?
-    @Field(key: FieldKeys.v1.languageCode) var languageCode: String
-    @Field(key: FieldKeys.v1.name) var name: String
-    @Field(key: FieldKeys.v1.isRTL) var isRTL: Bool
+    @Field(key: FieldKeys.v1.languageCode) private(set) var languageCode: String
+    @Field(key: FieldKeys.v1.name) private(set) var name: String
+    @Field(key: FieldKeys.v1.officialName) private(set) var officialName: String
+    @Field(key: FieldKeys.v1.isRTL) private(set) var isRTL: Bool
     @OptionalField(key: FieldKeys.v1.priority) var priority: Int?
     
     init() { }
     
-    init(
-        id: UUID? = nil,
-        languageCode: String,
-        name: String,
-        isRTL: Bool,
-        priority: Int?
-    ) {
-        self.id = id
-        self.languageCode = languageCode
-        self.name = name
-        self.isRTL = isRTL
+    init(languageCode: String, priority: Int?) throws {
+        try self.from(languageCode)
         self.priority = priority
     }
 }
 
 extension LanguageModel {
+    func from(_ languageCode: String) throws {
+        guard let language = Language.from(with: languageCode) else { throw Abort(.badRequest, reason: "Invalid ISO639-1 language code.") }
+        let rtlLanguageCodes = ["ar", "arc", "dv", "fa", "ha", "he", "khw", "ks", "ku", "ps", "ur", "yi"]
+        self.languageCode = language.alpha1.rawValue
+        self.name = language.name
+        self.officialName = language.official
+        self.isRTL = rtlLanguageCodes.contains(language.alpha1.rawValue) ? true : false
+    }
+    
     static func languageCodesByPriority(preferredLanguageCode: String? = nil, on db: Database) async throws -> [String] {
         return try await self
             .query(on: db)

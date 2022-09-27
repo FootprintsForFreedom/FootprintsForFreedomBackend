@@ -32,7 +32,11 @@ extension StaticContentTest {
             if let languageId = languageId {
                 return languageId
             } else {
-                return try await createLanguage().requireID()
+                return try await LanguageModel
+                    .query(on: app.db)
+                    .filter(\.$languageCode == "de")
+                    .first()!
+                    .requireID()
             }
         }()
         

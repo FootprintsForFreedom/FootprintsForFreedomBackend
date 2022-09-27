@@ -110,7 +110,7 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
     func testSuccessfulUpdateWithNewLanguage() async throws {
         let token = try await getToken(for: .user, verified: true)
         let (waypointRepository, _, createdLocation) = try await createNewWaypoint()
-        let secondLanguage = try await createLanguage(languageCode: UUID().uuidString, name: UUID().uuidString, isRTL: false)
+        let secondLanguage = try await createLanguage()
         
         let updateContent = Waypoint.Detail.Update(
             title: "Language 2",
@@ -200,7 +200,7 @@ final class WaypointApiUpdateTests: AppTestCase, WaypointTest {
         let language = try await createLanguage()
         let token = try await getToken(for: .user, verified: true)
         let (waypointRepository1, _, updateContent1) = try await getWaypointUpdateContent(languageId: language.requireID(), updateLanguageCode: "")
-        let (waypointRepository2, _, updateContent2) = try await getWaypointUpdateContent(languageId: language.requireID(), updateLanguageCode: "hi")
+        let (waypointRepository2, _, updateContent2) = try await getWaypointUpdateContent(languageId: language.requireID(), updateLanguageCode: "zz")
         
         try app
             .describe("Update waypoint with empty language code should fail")

@@ -30,6 +30,7 @@ extension LanguageApiController {
             id: language.requireID(),
             languageCode: language.languageCode,
             name: language.name,
+            officialName: language.officialName,
             isRTL: language.isRTL
         )
     }
@@ -60,6 +61,7 @@ extension LanguageApiController {
             id: language.requireID(),
             languageCode: language.languageCode,
             name: language.name,
+            officialName: language.officialName,
             isRTL: language.isRTL
         )
     }
@@ -78,6 +80,7 @@ extension LanguageApiController {
                 id: language.requireID(),
                 languageCode: language.languageCode,
                 name: language.name,
+                officialName: language.officialName,
                 isRTL: language.isRTL
             )
         }

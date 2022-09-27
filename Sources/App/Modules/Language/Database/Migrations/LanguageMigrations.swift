@@ -20,6 +20,8 @@ enum LanguageMigrations {
                 .field(LanguageModel.FieldKeys.v1.name, .string, .required)
                 .unique(on: LanguageModel.FieldKeys.v1.name)
             
+                .field(LanguageModel.FieldKeys.v1.officialName, .string, .required)
+            
                 .field(LanguageModel.FieldKeys.v1.isRTL, .bool, .required)
             
                 .field(LanguageModel.FieldKeys.v1.priority, .int64)
@@ -36,13 +38,9 @@ enum LanguageMigrations {
     struct seed: AsyncMigration {
         func prepare(on db: Database) async throws {
             let languageCode = "de"
-            let name = "Deutsch"
-            let isRTL = false
             let priority = 1
-            let language = LanguageModel(
+            let language = try LanguageModel(
                 languageCode: languageCode,
-                name: name,
-                isRTL: isRTL,
                 priority: priority
             )
             try await language.create(on: db)

@@ -10,40 +10,32 @@ import Fluent
 
 extension Language.Detail.Detail: Content { }
 
-struct LanguageApiController: UnpagedApiController {
+struct LanguageApiController: ApiListController, ApiDetailController, ApiCreateController {
     typealias ApiModel = Language.Detail
     typealias DatabaseModel = LanguageModel
     
-    func requireUniqueLanguageCode(_ req: Request, _ model: LanguageModel) async throws {
-        guard try await LanguageModel
-                .query(on: req.db)
-                .filter(\.$languageCode == model.languageCode)
-                .count() == 0
-        else {
-            throw Abort(.badRequest, reason: "Unique language code is required. The language code \"\(model.languageCode)\" already exists.")
-        }
+    // MARK: - Validators
+    
+    @AsyncValidatorBuilder
+    func createValidators() -> [AsyncValidator] {
+        KeyedContentValidator<String>.required("languageCode")
     }
     
-    func requireUniqueName(_ req: Request, _ model: LanguageModel) async throws {
-        guard try await LanguageModel
-                .query(on: req.db)
-                .filter(\.$name == model.name)
-                .count() == 0
-        else {
-            throw Abort(.badRequest, reason: "Unique language name is required. The language name \"\(model.name)\" already exists.")
-        }
-    }
+    // MARK: - Routes
     
     func getBaseRoutes(_ routes: RoutesBuilder) -> RoutesBuilder {
         routes.grouped("languages")
     }
     
-    @AsyncValidatorBuilder
-    func validators(optional: Bool) -> [AsyncValidator] {
-        KeyedContentValidator<String>.required("languageCode", optional: optional)
-        KeyedContentValidator<String>.required("name", optional: optional)
-        KeyedContentValidator<Bool>.required("isRTL", optional: optional)
+    func setupRoutes(_ routes: RoutesBuilder) {
+        let protectedRoutes = routes.grouped(AuthenticatedUser.guardMiddleware())
+        setupListRoutes(routes)
+        setupListUnusedLanguagesRoutes(protectedRoutes)
+        setupDetailRoutes(routes)
+        setupCreateRoutes(protectedRoutes)
     }
+    
+    // MARK: - List
     
     func beforeList(_ req: Request, _ queryBuilder: QueryBuilder<LanguageModel>) async throws -> QueryBuilder<LanguageModel> {
         queryBuilder
@@ -57,10 +49,13 @@ struct LanguageApiController: UnpagedApiController {
                 id: model.id!,
                 languageCode: model.languageCode,
                 name: model.name,
+                officialName: model.officialName,
                 isRTL: model.isRTL
             )
         }
     }
+    
+    // MARK: - Detail
     
     var languageCodePathIdKey: String { "languageCode" }
     var languageCodePathIdComponent: PathComponent { .init(stringLiteral: ":" + languageCodePathIdKey) }
@@ -99,82 +94,36 @@ struct LanguageApiController: UnpagedApiController {
             id: model.id!,
             languageCode: model.languageCode,
             name: model.name,
+            officialName: model.officialName,
             isRTL: model.isRTL
         )
     }
     
+    // MARK: - Create
+    
     func beforeCreate(_ req: Request, _ model: LanguageModel) async throws {
         try await req.onlyFor(.admin)
-        try await requireUniqueLanguageCode(req, model)
-        try await requireUniqueName(req, model)
     }
     
     func createInput(_ req: Request, _ model: LanguageModel, _ input: Language.Detail.Create) async throws {
-        let currentHighestPriority = try await LanguageModel
-            .query(on: req.db)
-            .filter(\.$priority != nil)
-            .sort(\.$priority, .descending)
-            .first()?.priority ?? 0
+        let existingLanguages = try await LanguageModel.query(on: req.db).all()
         
-        model.languageCode = input.languageCode
-        model.name = input.name
-        model.isRTL = input.isRTL
+        guard !existingLanguages
+            .map(\.languageCode)
+            .contains(input.languageCode)
+        else {
+            throw Abort(.badRequest, reason: "The language with this language code already exists.")
+        }
+        
+        let currentHighestPriority = existingLanguages
+            .compactMap(\.priority)
+            .max() ?? 0
+        
+        try model.from(input.languageCode)
         model.priority = currentHighestPriority + 1
     }
     
-    func beforeUpdate(_ req: Request, _ model: LanguageModel) async throws {
-        try await req.onlyFor(.admin)
-        guard let savedLanguage = try await LanguageModel.find(model.requireID(), on: req.db) else {
-            throw Abort(.badRequest)
-        }
-        if savedLanguage.languageCode != model.languageCode {
-            try await requireUniqueLanguageCode(req, model)
-        }
-        if savedLanguage.name != model.name {
-            try await requireUniqueName(req, model)
-        }
-    }
-    
-    func updateInput(_ req: Request, _ model: LanguageModel, _ input: Language.Detail.Update) async throws {
-        model.languageCode = input.languageCode
-        model.name = input.name
-        model.isRTL = input.isRTL
-    }
-    
-    func afterUpdate(_ req: Request, _ model: LanguageModel) async throws {
-        try await LatestVerifiedTagModel.Elasticsearch.updateLanguage(model.requireID(), on: req)
-        try await WaypointSummaryModel.Elasticsearch.updateLanguage(model.requireID(), on: req)
-    }
-    
-    func beforePatch(_ req: Request, _ model: LanguageModel) async throws {
-        try await req.onlyFor(.admin)
-        guard let savedLanguage = try await LanguageModel.find(model.requireID(), on: req.db) else {
-            throw Abort(.badRequest)
-        }
-        if savedLanguage.languageCode != model.languageCode {
-            try await requireUniqueLanguageCode(req, model)
-        }
-        if savedLanguage.name != model.name {
-            try await requireUniqueName(req, model)
-        }
-    }
-    
-    func patchInput(_ req: Request, _ model: LanguageModel, _ input: Language.Detail.Patch) async throws {
-        if input.languageCode == nil && input.name == nil && input.isRTL == nil {
-            throw Abort(.badRequest)
-        }
-        
-        model.languageCode = input.languageCode ?? model.languageCode
-        model.name = input.name ?? model.name
-        model.isRTL = input.isRTL ?? model.isRTL
-    }
-    
-    func setupRoutes(_ routes: RoutesBuilder) {
-        let protectedRoutes = routes.grouped(AuthenticatedUser.guardMiddleware())
-        setupListRoutes(routes)
-        setupDetailRoutes(routes)
-        setupCreateRoutes(protectedRoutes)
-        setupUpdateRoutes(protectedRoutes)
-        setupPatchRoutes(protectedRoutes)
+    func createResponse(_ req: Request, _ model: DatabaseModel) async throws -> Response {
+        try await detailOutput(req, model).encodeResponse(status: .created, for: req)
     }
 }

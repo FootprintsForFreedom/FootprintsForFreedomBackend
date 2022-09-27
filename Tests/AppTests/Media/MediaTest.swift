@@ -33,7 +33,11 @@ extension MediaTest {
             if let languageId = languageId {
                 return languageId
             } else {
-                return try await createLanguage().requireID()
+                return try await LanguageModel
+                    .query(on: app.db)
+                    .filter(\.$languageCode == "de")
+                    .first()!
+                    .requireID()
             }
         }()
         
@@ -41,7 +45,7 @@ extension MediaTest {
             if let waypointId = waypointId {
                 return waypointId
             } else {
-                return try await createNewWaypoint().repository.requireID()
+                return try await createNewWaypoint(languageId: languageId).repository.requireID()
             }
         }()
         

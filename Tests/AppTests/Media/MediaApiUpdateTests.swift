@@ -162,9 +162,9 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
         XCTAssertNil(newMediaModel.verifiedAt)
     }
     
-    func testSucessfulUpdateWithNewLanguage() async throws {
+    func testSuccessfulUpdateWithNewLanguage() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let secondLanguage = try await createLanguage(languageCode: UUID().uuidString, name: UUID().uuidString, isRTL: false)
+        let secondLanguage = try await createLanguage()
         let (repository, _, file, updateContent) = try await getMediaUpdateContent(updateLanguageCode: secondLanguage.languageCode, verifiedAt: Date())
         
         let query = try URLEncodedFormEncoder().encode(updateContent)
@@ -281,7 +281,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
         let token = try await getToken(for: .user, verified: true)
         let (repository1, _, _, updateContent1) = try await getMediaUpdateContent(updateLanguageCode: "", verifiedAt: Date())
         let query1 = try URLEncodedFormEncoder().encode(updateContent1)
-        let (repository2, _, _, updateContent2) = try await getMediaUpdateContent(updateLanguageCode: "hi", verifiedAt: Date())
+        let (repository2, _, _, updateContent2) = try await getMediaUpdateContent(updateLanguageCode: "zz", verifiedAt: Date())
         let query2 = try URLEncodedFormEncoder().encode(updateContent2)
         
         try app

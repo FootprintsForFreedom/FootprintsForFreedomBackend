@@ -260,7 +260,7 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
     func testCreateMediaNeedsValidLanguageCode() async throws {
         let token = try await getToken(for: .user, verified: true)
         let newMedia1 = try await getMediaCreateContent(languageCode: "")
-        let newMedia2 = try await getMediaCreateContent(languageCode: "hi")
+        let newMedia2 = try await getMediaCreateContent(languageCode: "zz")
         
         let query1 = try URLEncodedFormEncoder().encode(newMedia1)
         let query2 = try URLEncodedFormEncoder().encode(newMedia2)

@@ -193,7 +193,7 @@ final class WaypointApiCreateTests: AppTestCase, WaypointTest {
     func testCreateWaypointNeedsValidLanguageCode() async throws {
         let token = try await getToken(for: .user, verified: true)
         let newWaypoint1 = try await getWaypointCreateContent(languageCode: "")
-        let newWaypoint2 = try await getWaypointCreateContent(languageCode: "hi")
+        let newWaypoint2 = try await getWaypointCreateContent(languageCode: "zz")
         
         try app
             .describe("Create waypoint with empty language code should fail")

@@ -172,7 +172,7 @@ final class TagApiCreateTests: AppTestCase, TagTest {
     func testCreateTagNeedsValidLanguageCode() async throws {
         let token = try await getToken(for: .user, verified: true)
         let newTag1 = try await getTagCreateContent(languageCode: "")
-        let newTag2 = try await getTagCreateContent(languageCode: "hi")
+        let newTag2 = try await getTagCreateContent(languageCode: "zz")
         
         try app
             .describe("Create waypoint with empty language code should fail")

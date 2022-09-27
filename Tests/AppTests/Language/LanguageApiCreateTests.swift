@@ -9,22 +9,41 @@
 import XCTVapor
 import Fluent
 import Spec
+import ISO639
 
-extension Language.Detail.Create: Content { }
+extension AppApi.Language.Detail.Create: Content { }
 
 final class LanguageApiCreateTests: AppTestCase, LanguageTest {
     private func getLanguageCreateContent(
-        languageCode: String = UUID().uuidString,
-        name: String = UUID().uuidString,
-        isRTL: Bool = false
-    ) -> Language.Detail.Create {
-        return .init(languageCode: languageCode, name: name, isRTL: isRTL)
+        languageCode: String? = nil
+    ) async throws -> AppApi.Language.Detail.Create {
+        let languageCode: String = try await {
+            var languageCode = languageCode
+            if languageCode == nil {
+                try app
+                    .describe("Moderator should be able to list unused languages.")
+                    .get(languagesPath.appending("unused"))
+                    .bearerToken(try await getToken(for: .admin))
+                    .expect(.ok)
+                    .expect(.json)
+                    .expect([AppApi.Language.Detail.ListUnused].self) { content in
+                        guard let randomLanguageCode = content.randomElement() else {
+                            XCTFail()
+                            return
+                        }
+                        languageCode = randomLanguageCode.languageCode
+                    }
+                    .test()
+            }
+            return languageCode!
+        }()
+        return .init(languageCode: languageCode)
     }
     
     func testSuccessfulCreateLanguageAsAdmin() async throws {
         let token = try await getToken(for: .admin)
         for _ in 0...3 {
-            let newLanguage = getLanguageCreateContent()
+            let newLanguage = try await getLanguageCreateContent()
             
             // Get original languages count
             let languagesCount = try await LanguageModel.query(on: app.db).count()
@@ -36,10 +55,15 @@ final class LanguageApiCreateTests: AppTestCase, LanguageTest {
                 .bearerToken(token)
                 .expect(.created)
                 .expect(.json)
-                .expect(Language.Detail.Detail.self) { content in
+                .expect(AppApi.Language.Detail.Detail.self) { content in
                     XCTAssertEqual(content.languageCode, newLanguage.languageCode)
-                    XCTAssertEqual(content.name, newLanguage.name)
-                    XCTAssertEqual(content.isRTL, newLanguage.isRTL)
+                    guard let language = ISO639.Language.from(with: content.languageCode) else {
+                        XCTFail()
+                        return
+                    }
+                    XCTAssertEqual(content.name, language.name)
+                    XCTAssertEqual(content.officialName, language.official)
+                    XCTAssertEqual(content.isRTL, ["ar", "arc", "dv", "fa", "ha", "he", "khw", "ks", "ku", "ps", "ur", "yi"].contains(content.languageCode))
                 }
                 .test()
             
@@ -59,7 +83,7 @@ final class LanguageApiCreateTests: AppTestCase, LanguageTest {
     
     func testCreateLanguageAsModeratorFails() async throws {
         let token = try await getToken(for: .moderator)
-        let newLanguage = getLanguageCreateContent()
+        let newLanguage = try await getLanguageCreateContent()
         
         try app
             .describe("Create language as moderator should fail")
@@ -72,7 +96,7 @@ final class LanguageApiCreateTests: AppTestCase, LanguageTest {
     
     func testCreateLanguageAsUserFails() async throws {
         let token = try await getToken(for: .user)
-        let newLanguage = getLanguageCreateContent()
+        let newLanguage = try await getLanguageCreateContent()
         
         try app
             .describe("Create language as user should fail")
@@ -84,10 +108,10 @@ final class LanguageApiCreateTests: AppTestCase, LanguageTest {
     }
     
     func testCreateLanguageWithoutTokenFails() async throws {
-        let newLanguage = getLanguageCreateContent()
+        let newLanguage = try await getLanguageCreateContent()
         
         try app
-            .describe("Create language wihtout token should fail")
+            .describe("Create language without token should fail")
             .post(languagesPath)
             .body(newLanguage)
             .expect(.unauthorized)
@@ -96,7 +120,7 @@ final class LanguageApiCreateTests: AppTestCase, LanguageTest {
     
     func testCreateLanguageNeedsValidLanguageCode() async throws {
         let token = try await getToken(for: .admin)
-        let newLanguage = getLanguageCreateContent(languageCode: "")
+        let newLanguage = try await getLanguageCreateContent(languageCode: "")
         
         try app
             .describe("Create language with empty language code should fail")
@@ -109,69 +133,10 @@ final class LanguageApiCreateTests: AppTestCase, LanguageTest {
     
     func testCreateLanguageNeedsUniqueLanguageCode() async throws  {
         let token = try await getToken(for: .admin)
-        
-        let highestPriority = try await LanguageModel
-            .query(on: app.db)
-            .filter(\.$priority != nil)
-            .sort(\.$priority, .descending)
-            .first()?.priority ?? 0
-        let createdLanguage = LanguageModel(languageCode: UUID().uuidString, name: UUID().uuidString, isRTL: false, priority: highestPriority + 1)
-        try await createdLanguage.create(on: app.db)
-        let newLanguage = getLanguageCreateContent(languageCode: "de")
+        let newLanguage = try await getLanguageCreateContent(languageCode: "de")
         
         try app
             .describe("Create language with already present language code should fail")
-            .post(languagesPath)
-            .body(newLanguage)
-            .bearerToken(token)
-            .expect(.badRequest)
-            .test()
-    }
-    
-    func testCreateLanguageNeedsValidName() async throws {
-        let token = try await getToken(for: .admin)
-        let newLanguage = getLanguageCreateContent(name: "")
-        
-        try app
-            .describe("Create language with empty name should fail")
-            .post(languagesPath)
-            .body(newLanguage)
-            .bearerToken(token)
-            .expect(.badRequest)
-            .test()
-    }
-    
-    func testCreateLanguageNeedsUniqueName() async throws {
-        let token = try await getToken(for: .admin)
-        
-        let highestPriority = try await LanguageModel
-            .query(on: app.db)
-            .filter(\.$priority != nil)
-            .sort(\.$priority, .descending)
-            .first()?.priority ?? 0
-        let createdLanguage = LanguageModel(languageCode: UUID().uuidString, name: UUID().uuidString, isRTL: false, priority: highestPriority + 1)
-        try await createdLanguage.create(on: app.db)
-        let newLanguage = getLanguageCreateContent(name: "Deutsch")
-        
-        try app
-            .describe("Create language with already present name should fail")
-            .post(languagesPath)
-            .body(newLanguage)
-            .bearerToken(token)
-            .expect(.badRequest)
-            .test()
-    }
-    
-    func testCreateLanguageNeedsIsRTL() async throws {
-        let token = try await getToken(for: .admin)
-        struct Create: Content {
-            public let languageCode: String
-            public let name: String
-        }
-        let newLanguage = Create(languageCode: "en", name: "English")
-        
-        try app
-            .describe("Create language with empty language code should fail")
             .post(languagesPath)
             .body(newLanguage)
             .bearerToken(token)

@@ -195,7 +195,7 @@ final class TagApiUpdateTests: AppTestCase, TagTest {
     func testUpdateTagNeedsValidLangaugeCode() async throws {
         let token = try await getToken(for: .user, verified: true)
         let (repository1, _, updateContent1) = try await getTagUpdateContent(verified: true, updateLanguageCode: "")
-        let (repository2, _, updateContent2) = try await getTagUpdateContent(verified: true, updateLanguageCode: "hi")
+        let (repository2, _, updateContent2) = try await getTagUpdateContent(verified: true, updateLanguageCode: "zz")
         
         try app
             .describe("Update media should need valid language code or fail")
