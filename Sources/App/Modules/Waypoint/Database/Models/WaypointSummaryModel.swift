@@ -83,22 +83,6 @@ extension WaypointSummaryModel {
         struct Key: Codable, LockKey { }
         
         static var schema = "waypoints"
-        static var settings: [String : Any] = [
-            "analysis": [
-                "analyzer": [
-                    "default": [
-                        "tokenizer": "standard",
-                        "filter": [
-                            "classic",
-                            "lowercase",
-                            "asciifolding",
-                            "stemmer",
-                            "word_delimiter_graph"
-                        ]
-                    ]
-                ]
-            ]
-        ]
         static var mappings: [String : Any] = [
             "properties": [
                 "title": [

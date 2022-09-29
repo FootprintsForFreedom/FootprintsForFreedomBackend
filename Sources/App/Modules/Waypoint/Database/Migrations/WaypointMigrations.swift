@@ -153,8 +153,6 @@ enum WaypointMigrations {
                 \(SQLColumn(LanguageModel.FieldKeys.v1.priority.description, table: LanguageModel.schema)) IS NOT NULL
             """)
             .run()
-            
-            try await elastic.createIndex(WaypointSummaryModel.Elasticsearch.schema, mappings: WaypointSummaryModel.Elasticsearch.mappings, settings: WaypointSummaryModel.Elasticsearch.settings)
         }
         
         func revert(on db: Database) async throws {
@@ -164,7 +162,7 @@ enum WaypointMigrations {
             try await db.schema(WaypointDetailModel.schema).delete()
             try await db.schema(WaypointLocationModel.schema).delete()
             try await db.schema(WaypointRepositoryModel.schema).delete()
-            try await elastic.deleteIndex(WaypointSummaryModel.Elasticsearch.schema)
+            try await elastic.deleteIndex(WaypointSummaryModel.Elasticsearch.schema.appending("*"))
         }
     }
 }

@@ -13,7 +13,7 @@ struct LanguageModule: ModuleInterface {
     
     func boot(_ app: Application) throws {
         app.migrations.add(LanguageMigrations.v1())
-        app.migrations.add(LanguageMigrations.seed())
+        try app.migrations.add(LanguageMigrations.seed(elastic: app.elastic))
         
         app.hooks.register("api-routes-v1", use: router.apiRoutesHook)
         

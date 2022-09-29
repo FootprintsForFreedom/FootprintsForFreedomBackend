@@ -123,6 +123,10 @@ struct LanguageApiController: ApiListController, ApiDetailController, ApiCreateC
         model.priority = currentHighestPriority + 1
     }
     
+    func afterCreate(_ req: Request, _ model: LanguageModel) async throws {
+        try await ElasticModule.createIndex(for: model.languageCode, on: req.elastic)
+    }
+    
     func createResponse(_ req: Request, _ model: DatabaseModel) async throws -> Response {
         try await detailOutput(req, model).encodeResponse(status: .created, for: req)
     }

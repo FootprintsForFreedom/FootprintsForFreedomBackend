@@ -36,6 +36,8 @@ enum LanguageMigrations {
     }
     
     struct seed: AsyncMigration {
+        let elastic: ElasticHandler
+        
         func prepare(on db: Database) async throws {
             let languageCode = "de"
             let priority = 1
@@ -44,6 +46,7 @@ enum LanguageMigrations {
                 priority: priority
             )
             try await language.create(on: db)
+            try await ElasticModule.createIndex(for: languageCode, on: elastic)
         }
         
         func revert(on db: Database) async throws {

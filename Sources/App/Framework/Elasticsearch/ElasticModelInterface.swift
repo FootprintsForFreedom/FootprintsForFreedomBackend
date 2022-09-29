@@ -8,6 +8,7 @@
 import Vapor
 import Fluent
 import ElasticsearchNIOClient
+import ISO639
 
 protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel == Self {
     associatedtype DatabaseModel: DatabaseElasticInterface
@@ -15,7 +16,6 @@ protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel == Self
     associatedtype IDValue: Hashable
     static var schema: String { get }
     static var mappings: [String: Any] { get }
-    static var settings: [String: Any] { get }
     
     var id: IDValue { get }
     var languageId: IDValue { get }
@@ -29,6 +29,9 @@ protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel == Self
     @discardableResult
     static func delete(allDetailsWithRepositoryId repositoryId: UUID, on req: Request) async throws -> ESBulkResponse
     
+    
+    @discardableResult
+    static func createIndex(for languageCode: String, on elastic: ElasticHandler) async throws -> ESDeleteIndexResponse
     
     @discardableResult
     static func deactivateLanguage(_ languageId: UUID, on req: Request) async throws -> ESBulkResponse?
@@ -70,6 +73,15 @@ extension ElasticModelInterface {
         let elementsToDelete = try languageCodes
             .map { try ESBulkOperation<Self, String>(operationType: .delete, index: Self.schema, id: Self.uniqueId(repositoryId: repositoryId, languageId: $0.requireID()), document: nil) }
         return try req.elastic.bulk(elementsToDelete)
+    }
+    
+    @discardableResult
+    static func createIndex(for languageCode: String, on elastic: ElasticHandler) async throws -> ESDeleteIndexResponse {
+        guard let language = Language.from(with: languageCode) else { throw Abort(.internalServerError) }
+        print(language.analyzer.json)
+        let json = try! JSONSerialization.data(withJSONObject: language.analyzer.json)
+        print(String(data: json, encoding: .utf8)!)
+        return try await elastic.createIndex(Self.schema.appending("_\(languageCode)"), mappings: Self.mappings, settings: language.analyzer.json)
     }
     
     @discardableResult

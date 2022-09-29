@@ -15,6 +15,11 @@ struct ElasticModule: ModuleInterface {
     ]
     
     @discardableResult
+    static func createIndex(for languageCode: String, on elastic: ElasticHandler) async throws -> [ESDeleteIndexResponse] {
+        try await models.concurrentMap { try await $0.createIndex(for: languageCode, on: elastic)}
+    }
+    
+    @discardableResult
     static func deactivateLanguage(_ languageId: UUID, on req: Request) async throws -> [ESBulkResponse?] {
         try await models.concurrentMap { try await $0.deactivateLanguage(languageId, on: req) }
     }
