@@ -25,7 +25,7 @@ final class LatestVerifiedTagTests: AppTestCase, TagTest, UserTest {
             .expect(.json)
             .test()
         
-        let elasticResponse = try await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: LatestVerifiedTagModel.Elasticsearch.schema)
+        let elasticResponse = try await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: repository.requireID().uuidString, from: LatestVerifiedTagModel.Elasticsearch.schema(for: detail.language.languageCode))
         let content = elasticResponse.source
         XCTAssertEqual(content.id, repository.id)
         XCTAssertEqual(content.title, detail.title)
@@ -59,7 +59,7 @@ final class LatestVerifiedTagTests: AppTestCase, TagTest, UserTest {
             .test()
         
         
-        let elasticResponse = try await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: LatestVerifiedTagModel.Elasticsearch.schema)
+        let elasticResponse = try await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: repository.requireID().uuidString, from: LatestVerifiedTagModel.Elasticsearch.schema(for: newDetail.language.languageCode))
         let content = elasticResponse.source
         XCTAssertEqual(content.id, repository.id)
         XCTAssertEqual(content.title, newDetail.title)
@@ -95,7 +95,7 @@ final class LatestVerifiedTagTests: AppTestCase, TagTest, UserTest {
             .expect(.json)
             .test()
         
-        let elasticResponse = try await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: LatestVerifiedTagModel.Elasticsearch.schema)
+        let elasticResponse = try await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: repository.requireID().uuidString, from: LatestVerifiedTagModel.Elasticsearch.schema(for: detail.language.languageCode))
         let content = elasticResponse.source
         XCTAssertEqual(content.id, repository.id)
         XCTAssertEqual(content.title, detail.title)
@@ -104,7 +104,7 @@ final class LatestVerifiedTagTests: AppTestCase, TagTest, UserTest {
         XCTAssertEqual(content.languageId, detail.$language.id)
         XCTAssertEqual(content.languageCode, detail.language.languageCode)
         XCTAssertEqual(content.languagePriority, detail.language.priority)
-        let secondElasticResponse = try await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: LatestVerifiedTagModel.Elasticsearch.schema)
+        let secondElasticResponse = try await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: repository.requireID(), from: LatestVerifiedTagModel.Elasticsearch.schema(for: newDetail.language.languageCode))
         let secondContent = secondElasticResponse.source
         XCTAssertEqual(secondContent.id, repository.id)
         XCTAssertEqual(secondContent.title, newDetail.title)
@@ -145,15 +145,16 @@ final class LatestVerifiedTagTests: AppTestCase, TagTest, UserTest {
             .expect(.noContent)
             .test()
         
-        let elasticResponse = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: LatestVerifiedTagModel.Elasticsearch.schema)
+        let elasticResponse = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: repository.requireID().uuidString, from: LatestVerifiedTagModel.Elasticsearch.wildcardSchema)
         XCTAssertNil(elasticResponse)
-        let secondElasticResponse = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: LatestVerifiedTagModel.Elasticsearch.schema)
+        let secondElasticResponse = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: LatestVerifiedTagModel.Elasticsearch.wildcardSchema)
         XCTAssertNil(secondElasticResponse)
     }
     
     func testDeactivateAndActivateLanguageRemovesAndAddsAllItsTagsFromAndToElasticsearch() async throws {
         let adminToken = try await getToken(for: .admin)
         let (repository, detail) = try await createNewTag()
+        try await detail.$language.load(on: app.db)
         
         try app
             .describe("Verify tag as moderator should be successful and return ok")
@@ -182,9 +183,9 @@ final class LatestVerifiedTagTests: AppTestCase, TagTest, UserTest {
             .expect(.json)
             .test()
         
-        let elasticResponseAfterDeactivate = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: LatestVerifiedTagModel.Elasticsearch.schema)
+        let elasticResponseAfterDeactivate = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: repository.requireID().uuidString, from: LatestVerifiedTagModel.Elasticsearch.schema(for: detail.language.languageCode))
         XCTAssertNotNil(elasticResponseAfterDeactivate)
-        let secondElasticResponseAfterDeactivate = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: LatestVerifiedTagModel.Elasticsearch.schema)
+        let secondElasticResponseAfterDeactivate = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: repository.requireID().uuidString, from: LatestVerifiedTagModel.Elasticsearch.schema(for: newLanguage.languageCode))
         XCTAssertNil(secondElasticResponseAfterDeactivate)
         
         try app
@@ -195,15 +196,16 @@ final class LatestVerifiedTagTests: AppTestCase, TagTest, UserTest {
             .expect(.json)
             .test()
         
-        let elasticResponseAfterActivate = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: LatestVerifiedTagModel.Elasticsearch.schema)
+        let elasticResponseAfterActivate = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: repository.requireID().uuidString, from: LatestVerifiedTagModel.Elasticsearch.schema(for: detail.language.languageCode))
         XCTAssertNotNil(elasticResponseAfterActivate)
-        let secondElasticResponseAfterActivate = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: LatestVerifiedTagModel.Elasticsearch.schema)
+        let secondElasticResponseAfterActivate = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: repository.requireID().uuidString, from: LatestVerifiedTagModel.Elasticsearch.schema(for: newLanguage.languageCode))
         XCTAssertNotNil(secondElasticResponseAfterActivate)
     }
     
     func testChangeLanguagePriorityChangesAllItsTagsLanguagePrioritiesInElasticsearch() async throws {
         let adminToken = try await getToken(for: .admin)
         let (repository, detail) = try await createNewTag()
+        try await detail.$language.load(on: app.db)
         
         try app
             .describe("Verify tag as moderator should be successful and return ok")
@@ -241,10 +243,10 @@ final class LatestVerifiedTagTests: AppTestCase, TagTest, UserTest {
             .expect(.json)
             .test()
         
-        let elasticResponse = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: LatestVerifiedTagModel.Elasticsearch.schema)
+        let elasticResponse = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: repository.requireID().uuidString, from: LatestVerifiedTagModel.Elasticsearch.schema(for: detail.language.languageCode))
         XCTAssertNotNil(elasticResponse)
         XCTAssertEqual(elasticResponse?.source.languagePriority, setLanguagesPriorityContent.newLanguagesOrder.firstIndex(of: detail.$language.id)! + 1)
-        let secondElasticResponse = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: LatestVerifiedTagModel.Elasticsearch.schema)
+        let secondElasticResponse = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: repository.requireID().uuidString, from: LatestVerifiedTagModel.Elasticsearch.schema(for: newLanguage.languageCode))
         XCTAssertNotNil(secondElasticResponse)
         XCTAssertEqual(secondElasticResponse?.source.languagePriority, try setLanguagesPriorityContent.newLanguagesOrder.firstIndex(of: newLanguage.requireID())! + 1)
     }
@@ -252,6 +254,7 @@ final class LatestVerifiedTagTests: AppTestCase, TagTest, UserTest {
     func testDeleteUserUpdatesAllTheirTagsInElasticsearch() async throws {
         let adminToken = try await getToken(for: .admin)
         let (repository, detail) = try await createNewTag()
+        try await detail.$language.load(on: app.db)
         
         try app
             .describe("Verify tag as moderator should be successful and return ok")
@@ -280,7 +283,7 @@ final class LatestVerifiedTagTests: AppTestCase, TagTest, UserTest {
             .expect(.noContent)
             .test()
         
-        if let elasticResponse = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: LatestVerifiedTagModel.Elasticsearch.schema) {
+        if let elasticResponse = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: repository.requireID().uuidString, from: LatestVerifiedTagModel.Elasticsearch.schema(for: detail.language.languageCode)) {
             let content = elasticResponse.source
             XCTAssertEqual(content.id, repository.id)
             XCTAssertEqual(content.title, detail.title)
@@ -291,7 +294,7 @@ final class LatestVerifiedTagTests: AppTestCase, TagTest, UserTest {
         } else {
             XCTFail()
         }
-        if let secondElasticResponse = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: LatestVerifiedTagModel.Elasticsearch.schema) {
+        if let secondElasticResponse = try? await app.elastic.get(document: LatestVerifiedTagModel.Elasticsearch.self, id: repository.requireID().uuidString, from: LatestVerifiedTagModel.Elasticsearch.schema(for: newLanguage.languageCode)) {
             let content = secondElasticResponse.source
             XCTAssertEqual(content.id, repository.id)
             XCTAssertEqual(content.title, newDetail.title)

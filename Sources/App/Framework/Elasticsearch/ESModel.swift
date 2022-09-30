@@ -61,7 +61,7 @@ extension ElasticModelController {
         
         guard
             let queryData = try? JSONSerialization.data(withJSONObject: query),
-            let responseData = try? await elastic.custom("/\(ElasticModel.schema)/_search", method: .GET, body: queryData),
+            let responseData = try? await elastic.custom("/\(ElasticModel.wildcardSchema)/_search", method: .GET, body: queryData),
             let response = try? ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<ElasticModel>.self, from: responseData),
             response.hits.hits.count <= 1,
             let responseJson = try JSONSerialization.jsonObject(with: responseData) as? [String: Any],
@@ -89,7 +89,7 @@ extension ElasticModelController {
         
         guard
             let queryData = try? JSONSerialization.data(withJSONObject: query),
-            let responseData = try? await elastic.custom("/\(ElasticModel.schema)/_search", method: .GET, body: queryData),
+            let responseData = try? await elastic.custom("/\(ElasticModel.wildcardSchema)/_search", method: .GET, body: queryData),
             let response = try? ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<ElasticModel>.self, from: responseData),
             response.hits.hits.count <= 1
         else {
@@ -116,7 +116,7 @@ extension ElasticModelController {
         
         guard
             let languageCodesQueryData = try? JSONSerialization.data(withJSONObject: languageCodesQuery),
-            let languageCodesResponseData = try? await elastic.custom("/\(ElasticModel.schema)/_search", method: .GET, body: languageCodesQueryData),
+            let languageCodesResponseData = try? await elastic.custom("/\(ElasticModel.wildcardSchema)/_search", method: .GET, body: languageCodesQueryData),
             let responseJson = try? JSONSerialization.jsonObject(with: languageCodesResponseData) as? [String: Any],
             let aggregations = responseJson["aggregations"] as? [String: Any],
             let languageCodesAggregation = aggregations["languageCodes"] as? [String: Any],
@@ -230,7 +230,7 @@ extension ElasticPagedListController {
         query["sort"] = sort
         
         let queryData = try JSONSerialization.data(withJSONObject: query)
-        let responseData = try await req.elastic.custom("/\(ElasticModel.schema)/_search", method: .GET, body: queryData)
+        let responseData = try await req.elastic.custom("/\(ElasticModel.wildcardSchema)/_search", method: .GET, body: queryData)
         guard
             let response = try? ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<ElasticModel>.self, from: responseData),
             let responseJson = try JSONSerialization.jsonObject(with: responseData) as? [String: Any],

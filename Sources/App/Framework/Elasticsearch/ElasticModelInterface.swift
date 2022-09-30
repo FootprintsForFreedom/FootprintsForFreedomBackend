@@ -14,15 +14,17 @@ protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel == Self
     associatedtype DatabaseModel: DatabaseElasticInterface
     associatedtype Key: Codable, LockKey
     associatedtype IDValue: Hashable
-    static var schema: String { get }
+    static var baseSchema: String { get }
     static var mappings: [String: Any] { get }
     
-    var id: IDValue { get }
+    var id: UUID { get }
     var languageId: IDValue { get }
+    var languageCode: String { get }
     var detailUserId: IDValue? { get set }
     
-    var uniqueId: String { get }
-    static func uniqueId(repositoryId: UUID, languageId: UUID) -> String
+    var schema: String { get }
+    static var wildcardSchema: String { get }
+    static func schema(for languageCode: String) -> String
     
     @discardableResult
     static func createOrUpdate(detailWithId detailId: UUID, on req: Request) async throws -> ESUpdateDocumentResponse<String>?
@@ -45,12 +47,16 @@ protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel == Self
 }
 
 extension ElasticModelInterface {
-    var uniqueId: String {
-        "\(self.id)_\(self.languageId)"
+    var schema: String {
+        Self.baseSchema.appending("_\(languageCode)")
     }
     
-    static func uniqueId(repositoryId: UUID, languageId: UUID) -> String {
-        "\(repositoryId)_\(languageId)"
+    static var wildcardSchema: String {
+        Self.baseSchema.appending("*")
+    }
+    
+    static func schema(for languageCode: String) -> String {
+        return Self.baseSchema.appending("_\(languageCode)")
     }
     
     @discardableResult
@@ -69,9 +75,9 @@ extension ElasticModelInterface {
     
     @discardableResult
     static func delete(allDetailsWithRepositoryId repositoryId: UUID, on req: Request) async throws -> ESBulkResponse {
-        let languageCodes = try await LanguageModel.query(on: req.db).all()
-        let elementsToDelete = try languageCodes
-            .map { try ESBulkOperation<Self, String>(operationType: .delete, index: Self.schema, id: Self.uniqueId(repositoryId: repositoryId, languageId: $0.requireID()), document: nil) }
+        let languages = try await LanguageModel.query(on: req.db).all()
+        let elementsToDelete = languages
+            .map { ESBulkOperation<Self, String>(operationType: .delete, index: Self.schema(for: $0.languageCode), id: repositoryId.uuidString, document: nil) }
         return try req.elastic.bulk(elementsToDelete)
     }
     
@@ -81,7 +87,7 @@ extension ElasticModelInterface {
         print(language.analyzer.json)
         let json = try! JSONSerialization.data(withJSONObject: language.analyzer.json)
         print(String(data: json, encoding: .utf8)!)
-        return try await elastic.createIndex(Self.schema.appending("_\(languageCode)"), mappings: Self.mappings, settings: language.analyzer.json)
+        return try await elastic.createIndex(Self.schema(for: languageCode), mappings: Self.mappings, settings: language.analyzer.json)
     }
     
     @discardableResult
@@ -93,7 +99,7 @@ extension ElasticModelInterface {
         
         guard !elementsToDeactivate.isEmpty else { return nil }
         let documents = try elementsToDeactivate
-            .map { try ESBulkOperation<Self, String>(operationType: .delete, index: Self.schema, id: Self.uniqueId(repositoryId: $0.requireID(), languageId: languageId), document: nil) }
+            .map { try ESBulkOperation<Self, String>(operationType: .delete, index: Self.schema(for: $0.languageCode), id: $0.requireID().uuidString, document: nil) }
         return try req.elastic.bulk(documents)
     }
     
@@ -107,7 +113,7 @@ extension ElasticModelInterface {
         guard !elementsToActivate.isEmpty else { return nil }
         let documents = try await elementsToActivate
             .concurrentMap { try await $0.toElasticsearch(on: req.db) }
-            .map { ESBulkOperation(operationType: .create, index: Self.schema, id: $0.uniqueId, document: $0) }
+            .map { ESBulkOperation(operationType: .create, index: $0.schema, id: $0.id.uuidString, document: $0) }
         return try req.elastic.bulk(documents)
     }
     
@@ -121,7 +127,7 @@ extension ElasticModelInterface {
         guard !elementsToChange.isEmpty else { return nil }
         let documents = try await elementsToChange
             .concurrentMap { try await $0.toElasticsearch(on: req.db) }
-            .map { ESBulkOperation(operationType: .update, index: Self.schema, id: $0.uniqueId, document: $0) }
+            .map { ESBulkOperation(operationType: .update, index: $0.schema, id: $0.id.uuidString, document: $0) }
         return try req.elastic.bulk(documents)
     }
     
@@ -140,7 +146,7 @@ extension ElasticModelInterface {
                 return document
             }
             .map { (document: Self) in
-                return ESBulkOperation(operationType: .update, index: Self.schema, id: document.uniqueId, document: document)
+                return ESBulkOperation(operationType: .update, index: document.schema, id: document.id.uuidString, document: document)
             }
         let response = try req.elastic.bulk(documents)
         return response

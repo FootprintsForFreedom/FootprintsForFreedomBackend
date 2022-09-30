@@ -42,7 +42,7 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest, UserTest {
             .expect(.json)
             .test()
         
-        let elasticResponse = try await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema)
+        let elasticResponse = try await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: repository.requireID().uuidString, from: WaypointSummaryModel.Elasticsearch.schema(for: detail.language.languageCode))
         let content = elasticResponse.source
         XCTAssertEqual(content.id, repository.id)
         XCTAssertEqual(content.title, detail.title)
@@ -97,7 +97,7 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest, UserTest {
             .expect(.json)
             .test()
 
-        let elasticResponse = try await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema)
+        let elasticResponse = try await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: repository.requireID().uuidString, from: WaypointSummaryModel.Elasticsearch.schema(for: detail.language.languageCode))
         let content = elasticResponse.source
         XCTAssertEqual(content.id, repository.id)
         XCTAssertEqual(content.title, detail.title)
@@ -109,7 +109,7 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest, UserTest {
         XCTAssertEqual(content.location.lat, location.latitude)
         XCTAssertEqual(content.location.lon, location.longitude)
         XCTAssert(try content.tags.contains(tag.repository.requireID()))
-        let secondElasticResponse = try await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema)
+        let secondElasticResponse = try await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: repository.requireID().uuidString, from: WaypointSummaryModel.Elasticsearch.schema(for: newLanguage.languageCode))
         let secondContent = secondElasticResponse.source
         XCTAssertEqual(secondContent.id, repository.id)
         XCTAssertEqual(secondContent.title, newDetail.title)
@@ -134,7 +134,7 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest, UserTest {
             .expect(.json)
             .test()
         
-        let elasticResponseAfterUpdateLocation = try await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema)
+        let elasticResponseAfterUpdateLocation = try await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: repository.requireID().uuidString, from: WaypointSummaryModel.Elasticsearch.schema(for: detail.language.languageCode))
         let contentAfterUpdateLocation = elasticResponseAfterUpdateLocation.source
         XCTAssertEqual(contentAfterUpdateLocation.id, repository.id)
         XCTAssertEqual(contentAfterUpdateLocation.title, detail.title)
@@ -146,7 +146,7 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest, UserTest {
         XCTAssertEqual(contentAfterUpdateLocation.location.lat, newLocation.latitude)
         XCTAssertEqual(contentAfterUpdateLocation.location.lon, newLocation.longitude)
         XCTAssert(try contentAfterUpdateLocation.tags.contains(tag.repository.requireID()))
-        let secondElasticResponseAfterUpdateLocation = try await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema)
+        let secondElasticResponseAfterUpdateLocation = try await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: repository.requireID().uuidString, from: WaypointSummaryModel.Elasticsearch.schema(for: newLanguage.languageCode))
         let secondContentAfterUpdateLocation = secondElasticResponseAfterUpdateLocation.source
         XCTAssertEqual(secondContentAfterUpdateLocation.id, repository.id)
         XCTAssertEqual(secondContentAfterUpdateLocation.title, newDetail.title)
@@ -194,7 +194,7 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest, UserTest {
             .expect(.json)
             .test()
         
-        let elasticResponse = try await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema)
+        let elasticResponse = try await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: repository.requireID().uuidString, from: WaypointSummaryModel.Elasticsearch.schema(for: detail.language.languageCode))
         let content = elasticResponse.source
         XCTAssertEqual(content.id, repository.id)
         XCTAssertEqual(content.title, detail.title)
@@ -248,7 +248,7 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest, UserTest {
             .test()
         
         
-        let elasticResponse = try await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema)
+        let elasticResponse = try await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: repository.requireID().uuidString, from: WaypointSummaryModel.Elasticsearch.schema(for: newDetail.language.languageCode))
         let content = elasticResponse.source
         XCTAssertEqual(content.id, repository.id)
         XCTAssertEqual(content.title, newDetail.title)
@@ -304,7 +304,7 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest, UserTest {
             .expect(.json)
             .test()
         
-        let elasticResponse = try await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema)
+        let elasticResponse = try await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: repository.requireID().uuidString, from: WaypointSummaryModel.Elasticsearch.schema(for: detail.language.languageCode))
         let content = elasticResponse.source
         XCTAssertEqual(content.id, repository.id)
         XCTAssertEqual(content.title, detail.title)
@@ -316,7 +316,7 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest, UserTest {
         XCTAssertEqual(content.location.lat, location.latitude)
         XCTAssertEqual(content.location.lon, location.longitude)
         XCTAssert(try content.tags.contains(tag.repository.requireID()))
-        let secondElasticResponse = try await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema)
+        let secondElasticResponse = try await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: repository.requireID().uuidString, from: WaypointSummaryModel.Elasticsearch.schema(for: newLanguage.languageCode))
         let secondContent = secondElasticResponse.source
         XCTAssertEqual(secondContent.id, repository.id)
         XCTAssertEqual(secondContent.title, newDetail.title)
@@ -368,15 +368,16 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest, UserTest {
             .expect(.noContent)
             .test()
         
-        let elasticResponse = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema)
+        let elasticResponse = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: repository.requireID().uuidString, from: WaypointSummaryModel.Elasticsearch.wildcardSchema)
         XCTAssertNil(elasticResponse)
-        let secondElasticResponse = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema)
+        let secondElasticResponse = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: repository.requireID().uuidString, from: WaypointSummaryModel.Elasticsearch.wildcardSchema)
         XCTAssertNil(secondElasticResponse)
     }
     
     func testDeactivateAndActivateLanguageRemovesAndAddsAllItsWaypointsFromAndToElasticsearch() async throws {
         let adminToken = try await getToken(for: .admin)
         let (repository, detail, location) = try await createNewWaypoint()
+        try await detail.$language.load(on: app.db)
         
         let tag = try await createNewTag()
         try await repository.$tags.attach(tag.repository, method: .ifNotExists, on: app.db)
@@ -423,9 +424,9 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest, UserTest {
             .expect(.json)
             .test()
         
-        let elasticResponseAfterDeactivate = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema)
+        let elasticResponseAfterDeactivate = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: repository.requireID().uuidString, from: WaypointSummaryModel.Elasticsearch.schema(for: detail.language.languageCode))
         XCTAssertNotNil(elasticResponseAfterDeactivate)
-        let secondElasticResponseAfterDeactivate = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema)
+        let secondElasticResponseAfterDeactivate = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: repository.requireID().uuidString, from: WaypointSummaryModel.Elasticsearch.schema(for: newDetail.language.languageCode))
         XCTAssertNil(secondElasticResponseAfterDeactivate)
         
         try app
@@ -436,21 +437,23 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest, UserTest {
             .expect(.json)
             .test()
         
-        let elasticResponseAfterActivate = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema)
+        let elasticResponseAfterActivate = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: repository.requireID().uuidString, from: WaypointSummaryModel.Elasticsearch.schema(for: detail.language.languageCode))
         XCTAssertNotNil(elasticResponseAfterActivate)
-        let secondElasticResponseAfterActivate = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema)
-        XCTAssertNotNil(secondElasticResponseAfterActivate)
-        let content = secondElasticResponseAfterActivate!.source
-        XCTAssertEqual(content.id, repository.id)
-        XCTAssertEqual(content.title, newDetail.title)
-        XCTAssertEqual(content.slug, newDetail.title.slugify())
-        XCTAssertEqual(content.detailText, newDetail.detailText)
-        XCTAssertEqual(content.languageId, newDetail.$language.id)
-        XCTAssertEqual(content.languageCode, newDetail.language.languageCode)
-        XCTAssertEqual(content.languagePriority, newDetail.language.priority)
-        XCTAssertEqual(content.location.lat, location.latitude)
-        XCTAssertEqual(content.location.lon, location.longitude)
-        XCTAssert(try content.tags.contains(tag.repository.requireID()))
+        if let secondElasticResponseAfterActivate = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: repository.requireID().uuidString, from: WaypointSummaryModel.Elasticsearch.schema(for: newDetail.language.languageCode)) {
+            let content = secondElasticResponseAfterActivate.source
+            XCTAssertEqual(content.id, repository.id)
+            XCTAssertEqual(content.title, newDetail.title)
+            XCTAssertEqual(content.slug, newDetail.title.slugify())
+            XCTAssertEqual(content.detailText, newDetail.detailText)
+            XCTAssertEqual(content.languageId, newDetail.$language.id)
+            XCTAssertEqual(content.languageCode, newDetail.language.languageCode)
+            XCTAssertEqual(content.languagePriority, newDetail.language.priority)
+            XCTAssertEqual(content.location.lat, location.latitude)
+            XCTAssertEqual(content.location.lon, location.longitude)
+            XCTAssert(try content.tags.contains(tag.repository.requireID()))
+        } else {
+            XCTFail()
+        }
     }
     
     func testChangeLanguagePriorityChangesAllItsWaypointsLanguagePrioritiesInElasticsearch() async throws {
@@ -512,37 +515,42 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest, UserTest {
             .expect(.json)
             .test()
         
-        let elasticResponse = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema)
-        XCTAssertNotNil(elasticResponse)
-        let content = elasticResponse!.source
-        XCTAssertEqual(content.languagePriority, setLanguagesPriorityContent.newLanguagesOrder.firstIndex(of: detail.$language.id)! + 1)
-        XCTAssertEqual(content.id, repository.id)
-        XCTAssertEqual(content.title, detail.title)
-        XCTAssertEqual(content.slug, detail.title.slugify())
-        XCTAssertEqual(content.detailText, detail.detailText)
-        XCTAssertEqual(content.languageId, detail.$language.id)
-        XCTAssertEqual(content.languageCode, detail.language.languageCode)
-        XCTAssertEqual(content.location.lat, location.latitude)
-        XCTAssertEqual(content.location.lon, location.longitude)
-        XCTAssert(try content.tags.contains(tag.repository.requireID()))
-        let secondElasticResponse = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema)
-        XCTAssertNotNil(secondElasticResponse)
-        let secondContent = secondElasticResponse!.source
-        XCTAssertEqual(secondContent.languagePriority, try setLanguagesPriorityContent.newLanguagesOrder.firstIndex(of: newLanguage.requireID())! + 1)
-        XCTAssertEqual(secondContent.id, repository.id)
-        XCTAssertEqual(secondContent.title, newDetail.title)
-        XCTAssertEqual(secondContent.slug, newDetail.title.slugify())
-        XCTAssertEqual(secondContent.detailText, newDetail.detailText)
-        XCTAssertEqual(secondContent.languageId, newDetail.$language.id)
-        XCTAssertEqual(secondContent.languageCode, newDetail.language.languageCode)
-        XCTAssertEqual(secondContent.location.lat, location.latitude)
-        XCTAssertEqual(secondContent.location.lon, location.longitude)
-        XCTAssert(try secondContent.tags.contains(tag.repository.requireID()))
+        if let elasticResponse = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: repository.requireID().uuidString, from: WaypointSummaryModel.Elasticsearch.schema(for: detail.language.languageCode)) {
+            let content = elasticResponse.source
+            XCTAssertEqual(content.languagePriority, setLanguagesPriorityContent.newLanguagesOrder.firstIndex(of: detail.$language.id)! + 1)
+            XCTAssertEqual(content.id, repository.id)
+            XCTAssertEqual(content.title, detail.title)
+            XCTAssertEqual(content.slug, detail.title.slugify())
+            XCTAssertEqual(content.detailText, detail.detailText)
+            XCTAssertEqual(content.languageId, detail.$language.id)
+            XCTAssertEqual(content.languageCode, detail.language.languageCode)
+            XCTAssertEqual(content.location.lat, location.latitude)
+            XCTAssertEqual(content.location.lon, location.longitude)
+            XCTAssert(try content.tags.contains(tag.repository.requireID()))
+        } else {
+            XCTFail()
+        }
+        if  let secondElasticResponse = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: repository.requireID().uuidString, from: WaypointSummaryModel.Elasticsearch.schema(for: newDetail.language.languageCode)) {
+            let secondContent = secondElasticResponse.source
+            XCTAssertEqual(secondContent.languagePriority, try setLanguagesPriorityContent.newLanguagesOrder.firstIndex(of: newLanguage.requireID())! + 1)
+            XCTAssertEqual(secondContent.id, repository.id)
+            XCTAssertEqual(secondContent.title, newDetail.title)
+            XCTAssertEqual(secondContent.slug, newDetail.title.slugify())
+            XCTAssertEqual(secondContent.detailText, newDetail.detailText)
+            XCTAssertEqual(secondContent.languageId, newDetail.$language.id)
+            XCTAssertEqual(secondContent.languageCode, newDetail.language.languageCode)
+            XCTAssertEqual(secondContent.location.lat, location.latitude)
+            XCTAssertEqual(secondContent.location.lon, location.longitude)
+            XCTAssert(try secondContent.tags.contains(tag.repository.requireID()))
+        } else {
+            XCTFail()
+        }
     }
     
     func testDeleteUserUpdatesAllTheirWaypointDetailsInElasticsearch() async throws {
         let adminToken = try await getToken(for: .admin)
         let (repository, detail, location) = try await createNewWaypoint()
+        try await detail.$language.load(on: app.db)
         
         try app
             .describe("Verify location as moderator should be successful and return ok")
@@ -579,7 +587,7 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest, UserTest {
             .expect(.noContent)
             .test()
         
-        if let elasticResponse = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema) {
+        if let elasticResponse = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: repository.requireID().uuidString, from: WaypointSummaryModel.Elasticsearch.schema(for: detail.language.languageCode)) {
             let content = elasticResponse.source
             XCTAssertEqual(content.id, repository.id)
             XCTAssertEqual(content.title, detail.title)
@@ -592,7 +600,7 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest, UserTest {
         } else {
             XCTFail()
         }
-        if let secondElasticResponse = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(newDetail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema) {
+        if let secondElasticResponse = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: repository.requireID().uuidString, from: WaypointSummaryModel.Elasticsearch.schema(for: newLanguage.languageCode)) {
             let content = secondElasticResponse.source
             XCTAssertEqual(content.id, repository.id)
             XCTAssertEqual(content.title, newDetail.title)
@@ -610,6 +618,7 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest, UserTest {
     func testDeleteUserUpdatesAllTheirWaypointLocationsInElasticsearch() async throws {
         let adminToken = try await getToken(for: .admin)
         let (repository, detail, location) = try await createNewWaypoint()
+        try await detail.$language.load(on: app.db)
         
         try app
             .describe("Verify location as moderator should be successful and return ok")
@@ -654,7 +663,7 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest, UserTest {
             .expect(.noContent)
             .test()
         
-        if let elasticResponse = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: "\(repository.requireID())_\(detail.$language.id)", from: WaypointSummaryModel.Elasticsearch.schema) {
+        if let elasticResponse = try? await app.elastic.get(document: WaypointSummaryModel.Elasticsearch.self, id: repository.requireID().uuidString, from: WaypointSummaryModel.Elasticsearch.schema(for: detail.language.languageCode)) {
             let content = elasticResponse.source
             XCTAssertEqual(content.id, repository.id)
             XCTAssertEqual(content.title, newDetail.title)

@@ -64,7 +64,7 @@ extension LatestVerifiedTagModel {
         typealias DatabaseModel = LatestVerifiedTagModel
         struct Key: Codable, LockKey { }
         
-        static var schema = "tags"
+        static var baseSchema = "tags"
         static var mappings: [String : Any] = [
             "properties": [
                 "title": [

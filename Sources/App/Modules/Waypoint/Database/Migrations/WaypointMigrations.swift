@@ -162,7 +162,7 @@ enum WaypointMigrations {
             try await db.schema(WaypointDetailModel.schema).delete()
             try await db.schema(WaypointLocationModel.schema).delete()
             try await db.schema(WaypointRepositoryModel.schema).delete()
-            try await elastic.deleteIndex(WaypointSummaryModel.Elasticsearch.schema.appending("*"))
+            try await elastic.deleteIndex(WaypointSummaryModel.Elasticsearch.wildcardSchema)
         }
     }
 }

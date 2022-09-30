@@ -19,7 +19,7 @@ public struct ElasticHandler {
     
     func createOrUpdate<Document: ElasticModelInterface>(_ document: Document) throws -> ESUpdateDocumentResponse<String> {
         try app.locks.lock(for: Document.Key.self).withLock {
-            try elastic.updateDocument(document, id: document.uniqueId, in: Document.schema).wait()
+            try elastic.updateDocument(document, id: document.id.uuidString, in: document.schema).wait()
         }
     }
     

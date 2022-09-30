@@ -14,6 +14,8 @@ protocol DatabaseElasticInterface: DatabaseModelInterface {
     var languageId: UUID { get }
     var _$languageId: FieldProperty<Self, UUID> { get }
     
+    var languageCode: String { get }
+    
     var detailId: UUID { get }
     var _$detailId: FieldProperty<Self, UUID> { get }
     

@@ -82,7 +82,7 @@ extension WaypointSummaryModel {
         typealias DatabaseModel = WaypointSummaryModel
         struct Key: Codable, LockKey { }
         
-        static var schema = "waypoints"
+        static var baseSchema = "waypoints"
         static var mappings: [String : Any] = [
             "properties": [
                 "title": [
@@ -219,7 +219,7 @@ extension WaypointSummaryModel.Elasticsearch {
         guard !elements.isEmpty else { return nil }
         let documents = try await elements
             .concurrentMap { try await $0.toElasticsearch(on: req.db) }
-            .map { ESBulkOperation(operationType: .index, index: Self.schema, id: $0.uniqueId, document: $0) }
+            .map { ESBulkOperation(operationType: .index, index: $0.schema, id: $0.id.uuidString, document: $0) }
         let response = try req.elastic.bulk(documents)
         return response
     }
@@ -249,7 +249,7 @@ extension WaypointSummaryModel.Elasticsearch {
                 return document
             }
             .map { (document: Self) in
-                return ESBulkOperation(operationType: .update, index: Self.schema, id: document.uniqueId, document: document)
+                return ESBulkOperation(operationType: .update, index: document.schema, id: document.id.uuidString, document: document)
             }
         let response = try req.elastic.bulk(documents)
         return response
@@ -292,7 +292,7 @@ extension WaypointSummaryModel.Elasticsearch {
             
             guard
                 let queryData = try? JSONSerialization.data(withJSONObject: query),
-                let responseData = try? await elastic.custom("/\(LatestVerifiedTagModel.Elasticsearch.schema)/_search", method: .GET, body: queryData),
+                let responseData = try? await elastic.custom("/\(LatestVerifiedTagModel.Elasticsearch.baseSchema)/_search", method: .GET, body: queryData),
                 let response = try? ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<LatestVerifiedTagModel.Elasticsearch>.self, from: responseData)
             else {
                 throw Abort(.internalServerError)
