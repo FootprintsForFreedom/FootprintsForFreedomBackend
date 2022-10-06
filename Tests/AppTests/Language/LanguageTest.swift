@@ -41,6 +41,7 @@ extension LanguageTest {
             return languageCode!
         }()
         
+        var languageId: UUID?
         try app
             .describe("Create language should return ok and the created language")
             .post(languagesPath)
@@ -48,7 +49,20 @@ extension LanguageTest {
             .bearerToken(adminToken)
             .expect(.created)
             .expect(.json)
+            .expect(Language.Detail.Detail.self) { content in
+                languageId = content.id
+            }
             .test()
+        
+        if let languageId, !activated {
+            try app
+                .describe("Deactivate language as admin should return ok")
+                .put(languagesPath.appending("\(languageId)/deactivate"))
+                .bearerToken(adminToken)
+                .expect(.ok)
+                .expect(.json)
+                .test()
+        }
         
         let language = try await LanguageModel.query(on: app.db).filter(\.$languageCode == languageCode).first()!
         return language
