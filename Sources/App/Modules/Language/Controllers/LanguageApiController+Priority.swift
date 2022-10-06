@@ -21,7 +21,7 @@ extension LanguageApiController {
             throw Abort(.badRequest)
         }
         
-        try await ElasticModule.deactivateLanguage(language.requireID(), on: req)
+        try await ElasticModule.deactivateLanguage(language, on: req.elastic)
         
         language.priority = nil
         try await language.update(on: req.db)
@@ -53,7 +53,7 @@ extension LanguageApiController {
         language.priority = currentHighestPriority + 1
         try await language.update(on: req.db)
         
-        try await ElasticModule.activateLanguage(language.requireID(), on: req)
+        try await ElasticModule.activateLanguage(language, on: req)
         
         return try .init(
             id: language.requireID(),

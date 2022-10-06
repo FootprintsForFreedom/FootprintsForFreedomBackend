@@ -36,9 +36,9 @@ protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel == Self
     static func createIndex(for languageCode: String, on elastic: ElasticHandler) async throws -> ESDeleteIndexResponse
     
     @discardableResult
-    static func deactivateLanguage(_ languageId: UUID, on req: Request) async throws -> ESBulkResponse?
+    static func deactivateLanguage(_ language: LanguageModel, on elastic: ElasticHandler) async throws -> ESDeleteIndexResponse
     @discardableResult
-    static func activateLanguage(_ languageId: UUID, on req: Request) async throws -> ESBulkResponse?
+    static func activateLanguage(_ language: LanguageModel, on req: Request) async throws -> ESBulkResponse?
     @discardableResult
     static func updateLanguages(_ languageIds: [UUID], on req: Request) async throws -> ESBulkResponse?
     
@@ -88,23 +88,17 @@ extension ElasticModelInterface {
     }
     
     @discardableResult
-    static func deactivateLanguage(_ languageId: UUID, on req: Request) async throws -> ESBulkResponse? {
-        let elementsToDeactivate = try await DatabaseModel
-            .query(on: req.db)
-            .filter(\._$languageId == languageId)
-            .all()
-        
-        guard !elementsToDeactivate.isEmpty else { return nil }
-        let documents = try elementsToDeactivate
-            .map { try ESBulkOperation<Self, String>(operationType: .delete, index: Self.schema(for: $0.languageCode), id: $0.requireID().uuidString, document: nil) }
-        return try req.elastic.bulk(documents)
+    static func deactivateLanguage(_ language: LanguageModel, on elastic: ElasticHandler) async throws -> ESDeleteIndexResponse {
+        try await elastic.deleteIndex(Self.schema(for: language.languageCode))
     }
     
     @discardableResult
-    static func activateLanguage(_ languageId: UUID, on req: Request) async throws -> ESBulkResponse? {
+    static func activateLanguage(_ language: LanguageModel, on req: Request) async throws -> ESBulkResponse? {
+        try await createIndex(for: language.languageCode, on: req.elastic)
+        
         let elementsToActivate = try await DatabaseModel
             .query(on: req.db)
-            .filter(\._$languageId == languageId)
+            .filter(\._$languageId == language.requireID())
             .all()
         
         guard !elementsToActivate.isEmpty else { return nil }
