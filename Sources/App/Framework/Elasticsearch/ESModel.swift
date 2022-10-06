@@ -24,8 +24,10 @@ extension ElasticModelController {
                 "field": "id"
             ],
             "query": [
-                "match": [
-                    "id": id.uuidString
+                "term": [
+                    "id": [
+                        "value": id.uuidString
+                    ]
                 ]
             ],
             "aggs": [
@@ -81,8 +83,10 @@ extension ElasticModelController {
     func findBy(_ slug: String, on elastic: ElasticHandler) async throws -> (model: ElasticModel, availableLanguageCodes: [String]) {
         let query: [String : Any] = [
             "query": [
-                "match": [
-                    "slug": "\(slug)"
+                "term": [
+                    "slug": [
+                        "value": slug
+                    ]
                 ]
             ]
         ]
@@ -102,7 +106,11 @@ extension ElasticModelController {
         let languageCodesQuery: [String: Any] = [
             "_source": false,
             "query": [
-                "match": [ "id": "\(detail.id)" ]
+                "term": [
+                    "id": [
+                        "value": detail.id.uuidString
+                    ]
+                ]
             ],
             "aggs": [
                 "languageCodes": [
