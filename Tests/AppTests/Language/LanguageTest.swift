@@ -18,19 +18,15 @@ extension LanguageTest {
         languageCode: String? = nil,
         activated: Bool = true
     ) async throws -> LanguageModel {
-        let highestPriority = try await LanguageModel
-            .query(on: app.db)
-            .filter(\.$priority != nil)
-            .sort(\.$priority, .descending)
-            .first()?.priority ?? 0
+        let adminToken = try await getToken(for: .admin)
         
-        let languageCode: String = try await {
+        let languageCode: String = try {
             var languageCode = languageCode
             if languageCode == nil {
                 try app
                     .describe("Moderator should be able to list unused languages.")
                     .get(languagesPath.appending("unused"))
-                    .bearerToken(try await getToken(for: .admin))
+                    .bearerToken(adminToken)
                     .expect(.ok)
                     .expect(.json)
                     .expect([AppApi.Language.Detail.ListUnused].self) { content in
@@ -44,15 +40,17 @@ extension LanguageTest {
             }
             return languageCode!
         }()
-        do {
-            let language = try LanguageModel(languageCode: languageCode, priority: activated ? highestPriority + 1 : nil)
-            try await language.create(on: app.db)
-            return language
-        } catch {
-            print(languageCode)
-            let existingLanguages = try await LanguageModel.query(on: app.db).all()
-            dump(existingLanguages)
-            fatalError()
-        }
+        
+        try app
+            .describe("Create language should return ok and the created language")
+            .post(languagesPath)
+            .body(Language.Detail.Create(languageCode: languageCode))
+            .bearerToken(adminToken)
+            .expect(.created)
+            .expect(.json)
+            .test()
+        
+        let language = try await LanguageModel.query(on: app.db).filter(\.$languageCode == languageCode).first()!
+        return language
     }
 }
