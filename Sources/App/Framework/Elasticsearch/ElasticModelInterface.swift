@@ -84,9 +84,6 @@ extension ElasticModelInterface {
     @discardableResult
     static func createIndex(for languageCode: String, on elastic: ElasticHandler) async throws -> ESDeleteIndexResponse {
         guard let language = Language.from(with: languageCode) else { throw Abort(.internalServerError) }
-        print(language.analyzer.json)
-        let json = try! JSONSerialization.data(withJSONObject: language.analyzer.json)
-        print(String(data: json, encoding: .utf8)!)
         return try await elastic.createIndex(Self.schema(for: languageCode), mappings: Self.mappings, settings: language.analyzer.json)
     }
     
