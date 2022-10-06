@@ -41,8 +41,9 @@ open class AppTestCase: XCTestCase {
     }
     
     open override func tearDown() async throws {
-        let waypointCount = try await LanguageModel.query(on: app.db).count()
-        if  waypointCount > 100 {
+        let waypointCount = try await WaypointDetailModel.query(on: app.db).count()
+        let languageCount = try await LanguageModel.query(on: app.db).count()
+        if  waypointCount > 50 || languageCount > 100 {
             try await app.autoRevert()
         }
         app.shutdown()
