@@ -232,6 +232,53 @@ struct ElasticStemmerOverride: CustomElasticFilter {
     }
 }
 
+struct ElasticNGram: CustomElasticFilter {
+    static var `default` = "ngram"
+    
+    var name: String
+    var minGram: Int
+    var maxGram: Int
+    // note that empty array keeps all
+    var tokenChars: [TokenChars]
+    // note that .custom token chars must be set to use this
+    var customTokenChars: [Character]
+    
+    enum TokenChars: String {
+        case letter
+        case digit
+        case whitespace
+        case punctuation
+        case symbol
+        case custom
+    }
+    
+    init(name: String, minGram: Int, maxGram: Int, tokenChars: [TokenChars], customTokenChars: [Character]? = nil) {
+        self.name = name
+        self.minGram = minGram
+        self.maxGram = maxGram
+        self.tokenChars = tokenChars
+        self.customTokenChars = customTokenChars ?? []
+    }
+    
+    var json: [String : Any] {
+        [
+            name: [
+                "type": Self.default,
+                "min_gram": minGram,
+                "max_gram": maxGram,
+                "token_chars": tokenChars.map { $0.rawValue },
+                "custom_token_chars": customTokenChars
+            ]
+        ]
+    }
+}
+
+extension ElasticNGram {
+    static var trigram: Self {
+        .init(name: "trigram", minGram: 3, maxGram: 3, tokenChars: [.letter, .digit])
+    }
+}
+
 enum ElasticFilter: Equatable {
     case stop(ElasticStop?)
     case stemmer(ElasticStemmer?)
@@ -239,6 +286,7 @@ enum ElasticFilter: Equatable {
     case lowercase(ElasticLowercase? = nil)
     case normalization(ElasticNormalization?)
     case elision(ElasticElision?)
+    case ngram(ElasticNGram?)
     case wordDelimiterGraph
     case apostrophe
     case cjkWidth
@@ -253,6 +301,7 @@ enum ElasticFilter: Equatable {
         case .lowercase(let lowercase): return lowercase?.name ?? ElasticLowercase.default
         case .normalization(let normalization): return normalization?.name ?? ElasticNormalization.default
         case .elision(let elision): return elision?.name ?? ElasticElision.default
+        case .ngram(let ngram): return ngram?.name ?? ElasticNGram.default
         case .wordDelimiterGraph: return "word_delimiter_graph"
         case .apostrophe: return "apostrophe"
         case .cjkWidth: return "cjk_width"
@@ -268,6 +317,7 @@ enum ElasticFilter: Equatable {
         case .stemmerOverride(let stemmerOverride): return stemmerOverride
         case .lowercase(let lowercase): return lowercase
         case .elision(let elision): return elision
+        case .ngram(let ngram): return ngram
         default: return nil
         }
     }
@@ -326,7 +376,7 @@ extension ISO639.Language {
         case .fi: return .init(.lowercase(), .stop(.finnish), .stemmer(.finnish), .wordDelimiterGraph)
         case .fr: return .init(.elision(.french), .lowercase(), .stop(.french), .stemmer(.french), .wordDelimiterGraph)
         case .gl: return .init(.lowercase(), .stop(.galician), .stemmer(.galician), .wordDelimiterGraph)
-        case .de: return .init(.lowercase(), .stop(.german), .normalization(.german), .stemmer(.german), .wordDelimiterGraph) // TODO: trigram?
+        case .de: return .init(.lowercase(), .stop(.german), .normalization(.german), .stemmer(.german), .wordDelimiterGraph, .ngram(.trigram))
         case .el: return .init(.lowercase(.greek), .stop(.greek), .stemmer(.greek), .wordDelimiterGraph)
         case .hi: return .init(.lowercase(), .decimalDigit, .normalization(.indic), .normalization(.hindi), .stop(.hindi), .stemmer(.hindi), .wordDelimiterGraph)
         case .hu: return .init(.lowercase(), .stop(.hungarian), .stemmer(.hungarian), .wordDelimiterGraph)
