@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// A token filter tries to normalize special characters of a certain language.
 enum ElasticNormalization: String, DefaultElasticFilter {
     case arabic
     case bengali

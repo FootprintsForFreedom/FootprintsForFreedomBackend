@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Represents an elasticsearch filter.
 enum ElasticFilter: Equatable {
     case stop(ElasticStop?)
     case stemmer(ElasticStemmer?)
@@ -21,6 +22,7 @@ enum ElasticFilter: Equatable {
     case cjkBigram
     case decimalDigit
     
+    /// The filter's name.
     var name: String {
         switch self {
         case .stop(let stop): return stop?.name ?? ElasticStop.default
@@ -38,6 +40,7 @@ enum ElasticFilter: Equatable {
         }
     }
     
+    /// The filter's json representation if it is not a default filter.
     var customFilter: (any CustomElasticFilter)? {
         switch self {
         case .stop(let stop): return stop
