@@ -11,10 +11,8 @@ import Fluent
 protocol DatabaseElasticInterface: DatabaseModelInterface {
     associatedtype ElasticModel: ElasticModelInterface
     
-    var languageId: UUID { get }
-    var _$languageId: FieldProperty<Self, UUID> { get }
-    
     var languageCode: String { get }
+    var _$languageCode: FieldProperty<Self, String> { get }
     
     var detailId: UUID { get }
     var _$detailId: FieldProperty<Self, UUID> { get }

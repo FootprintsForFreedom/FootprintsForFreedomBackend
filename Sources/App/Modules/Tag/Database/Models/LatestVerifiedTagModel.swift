@@ -54,7 +54,7 @@ final class LatestVerifiedTagModel: DatabaseElasticInterface {
 }
 
 extension LatestVerifiedTagModel {
-    var _$languageId: FieldProperty<LatestVerifiedTagModel, UUID> { $languageId }
+    var _$languageCode: FieldProperty<LatestVerifiedTagModel, String> { $languageCode }
     var _$detailId: FieldProperty<LatestVerifiedTagModel, UUID> { $detailId }
     var _$detailUserId: OptionalFieldProperty<LatestVerifiedTagModel, UUID> { $detailUserId }
 }

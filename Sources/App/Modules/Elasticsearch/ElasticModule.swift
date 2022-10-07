@@ -20,18 +20,18 @@ struct ElasticModule: ModuleInterface {
     }
     
     @discardableResult
-    static func deactivateLanguage(_ language: LanguageModel, on elastic: ElasticHandler) async throws -> [ESDeleteIndexResponse] {
-        try await models.concurrentMap { try await $0.deactivateLanguage(language, on: elastic) }
+    static func deactivateLanguage(_ languageCode: String, on elastic: ElasticHandler) async throws -> [ESDeleteIndexResponse] {
+        try await models.concurrentMap { try await $0.deactivateLanguage(languageCode, on: elastic) }
     }
     
     @discardableResult
-    static func activateLanguage(_ language: LanguageModel, on req: Request) async throws -> [ESBulkResponse?] {
-        try await models.concurrentMap { try await $0.activateLanguage(language, on: req)}
+    static func activateLanguage(_ languageCode: String, on req: Request) async throws -> [ESBulkResponse?] {
+        try await models.concurrentMap { try await $0.activateLanguage(languageCode, on: req)}
     }
     
     @discardableResult
-    static func updateLanguages(_ languageIds: [UUID], on req: Request) async throws -> [ESBulkResponse?] {
-        try await models.concurrentMap { try await $0.updateLanguages(languageIds, on: req) }
+    static func updateLanguages(_ languageCodes: [String], on req: Request) async throws -> [ESBulkResponse?] {
+        try await models.concurrentMap { try await $0.updateLanguages(languageCodes, on: req) }
     }
     
     @discardableResult

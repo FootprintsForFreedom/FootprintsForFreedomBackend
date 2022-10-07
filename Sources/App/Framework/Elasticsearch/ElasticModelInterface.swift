@@ -36,11 +36,11 @@ protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel == Self
     static func createIndex(for languageCode: String, on elastic: ElasticHandler) async throws -> ESDeleteIndexResponse
     
     @discardableResult
-    static func deactivateLanguage(_ language: LanguageModel, on elastic: ElasticHandler) async throws -> ESDeleteIndexResponse
+    static func deactivateLanguage(_ languageCode: String, on elastic: ElasticHandler) async throws -> ESDeleteIndexResponse
     @discardableResult
-    static func activateLanguage(_ language: LanguageModel, on req: Request) async throws -> ESBulkResponse?
+    static func activateLanguage(_ languageCode: String, on req: Request) async throws -> ESBulkResponse?
     @discardableResult
-    static func updateLanguages(_ languageIds: [UUID], on req: Request) async throws -> ESBulkResponse?
+    static func updateLanguages(_ languageCodes: [String], on req: Request) async throws -> ESBulkResponse?
     
     @discardableResult
     static func deleteUser(_ userId: UUID, on req: Request) async throws -> ESBulkResponse?
@@ -88,17 +88,17 @@ extension ElasticModelInterface {
     }
     
     @discardableResult
-    static func deactivateLanguage(_ language: LanguageModel, on elastic: ElasticHandler) async throws -> ESDeleteIndexResponse {
-        try await elastic.deleteIndex(Self.schema(for: language.languageCode))
+    static func deactivateLanguage(_ languageCode: String, on elastic: ElasticHandler) async throws -> ESDeleteIndexResponse {
+        try await elastic.deleteIndex(Self.schema(for: languageCode))
     }
     
     @discardableResult
-    static func activateLanguage(_ language: LanguageModel, on req: Request) async throws -> ESBulkResponse? {
-        try await createIndex(for: language.languageCode, on: req.elastic)
+    static func activateLanguage(_ languageCode: String, on req: Request) async throws -> ESBulkResponse? {
+        try await createIndex(for: languageCode, on: req.elastic)
         
         let elementsToActivate = try await DatabaseModel
             .query(on: req.db)
-            .filter(\._$languageId == language.requireID())
+            .filter(\._$languageCode == languageCode)
             .all()
         
         guard !elementsToActivate.isEmpty else { return nil }
@@ -109,10 +109,10 @@ extension ElasticModelInterface {
     }
     
     @discardableResult
-    static func updateLanguages(_ languageIds: [UUID], on req: Request) async throws -> ESBulkResponse? {
+    static func updateLanguages(_ languageCodes: [String], on req: Request) async throws -> ESBulkResponse? {
         let elementsToChange = try await DatabaseModel
             .query(on: req.db)
-            .filter(\._$languageId ~~ languageIds)
+            .filter(\._$languageCode ~~ languageCodes)
             .all()
         
         guard !elementsToChange.isEmpty else { return nil }

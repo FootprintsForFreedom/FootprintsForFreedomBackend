@@ -72,7 +72,7 @@ final class WaypointSummaryModel: DatabaseElasticInterface {
 }
 
 extension WaypointSummaryModel {
-    var _$languageId: FieldProperty<WaypointSummaryModel, UUID> { $languageId }
+    var _$languageCode: FieldProperty<WaypointSummaryModel, String> { $languageCode }
     var _$detailId: FieldProperty<WaypointSummaryModel, UUID> { $detailId }
     var _$detailUserId: OptionalFieldProperty<WaypointSummaryModel, UUID> { $detailUserId }
 }

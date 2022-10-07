@@ -21,7 +21,7 @@ extension LanguageApiController {
             throw Abort(.badRequest)
         }
         
-        try await ElasticModule.deactivateLanguage(language, on: req.elastic)
+        try await ElasticModule.deactivateLanguage(language.languageCode, on: req.elastic)
         
         language.priority = nil
         try await language.update(on: req.db)
@@ -53,7 +53,7 @@ extension LanguageApiController {
         language.priority = currentHighestPriority + 1
         try await language.update(on: req.db)
         
-        try await ElasticModule.activateLanguage(language, on: req)
+        try await ElasticModule.activateLanguage(language.languageCode, on: req)
         
         return try .init(
             id: language.requireID(),
@@ -125,7 +125,7 @@ extension LanguageApiController {
         
         let languagesWithChangedPriority = try newLanguagesOrder.enumerated().compactMap { newIndex, newLanguage in
             if try oldLanguagesOrder[newIndex].requireID() != newLanguage.requireID() {
-                return try newLanguage.requireID()
+                return newLanguage.languageCode
             }
             return nil
         }
