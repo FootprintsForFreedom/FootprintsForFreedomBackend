@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-protocol DatabaseElasticInterface: DatabaseModelInterface {
+public protocol DatabaseElasticInterface: DatabaseModelInterface {
     associatedtype ElasticModel: ElasticModelInterface
     
     var languageCode: String { get }

@@ -10,7 +10,7 @@ import Fluent
 import ElasticsearchNIOClient
 import ISO639
 
-protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel == Self {
+public protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel == Self {
     associatedtype DatabaseModel: DatabaseElasticInterface
     associatedtype Key: Codable, LockKey
     associatedtype IDValue: Hashable
