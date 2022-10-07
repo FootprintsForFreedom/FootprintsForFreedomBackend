@@ -10,7 +10,7 @@ import Fluent
 import ElasticsearchNIOClient
 
 extension Application {
-    // TODO: make configurable in configure.swift?
+    /// The elasticsearch client to interact with elasticsearch.
     private var elasticClient: ElasticsearchClient {
         get throws {
             try ElasticsearchClient(
@@ -24,6 +24,7 @@ extension Application {
         }
     }
     
+    /// The elasticsearch handler.
     var elastic: ElasticHandler {
         get throws {
             try .init(app: self, elastic: self.elasticClient)
@@ -32,6 +33,7 @@ extension Application {
 }
 
 extension Request {
+    /// The elasticsearch client to interact with elasticsearch.
     private var elasticClient: ElasticsearchClient {
         get throws {
             try ElasticsearchClient(
@@ -45,6 +47,7 @@ extension Request {
         }
     }
     
+    /// The elasticsearch handler
     var elastic: ElasticHandler {
         get throws {
             try .init(app: self.application, elastic: self.elasticClient)

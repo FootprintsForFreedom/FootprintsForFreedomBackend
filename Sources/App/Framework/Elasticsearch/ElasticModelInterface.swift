@@ -10,38 +10,94 @@ import Fluent
 import ElasticsearchNIOClient
 import ISO639
 
+/// Iterface between elasticsearch and a model.
 public protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel == Self {
+    /// The associated database model.
     associatedtype DatabaseModel: DatabaseElasticInterface
+    /// The associated key.
     associatedtype Key: Codable, LockKey
+    /// The associated id value.
     associatedtype IDValue: Hashable
+    
+    /// The base schema for this model.
     static var baseSchema: String { get }
+    
+    /// The mappings for this model.
     static var mappings: [String: Any] { get }
     
+    /// The model's id.
     var id: UUID { get }
-    var languageId: IDValue { get }
+    
+    /// The model's language code.
     var languageCode: String { get }
+    
+    /// The model's detail user id.
     var detailUserId: IDValue? { get set }
     
+    /// The model's schema.
     var schema: String { get }
+    
+    /// The schema for all models regardless of language.
     static var wildcardSchema: String { get }
+    
+    /// Gets the schema for this model in a certain language.
+    /// - Parameter languageCode: The language code of the language for the schema.
+    /// - Returns: The schema for the model in the specified language.
     static func schema(for languageCode: String) -> String
     
+    /// Create or update a model.
+    /// - Parameters:
+    ///   - detailId: The detail id of the model.
+    ///   - req: The request on which to create or update the model.
+    /// - Returns: The document response
     @discardableResult
     static func createOrUpdate(detailWithId detailId: UUID, on req: Request) async throws -> ESUpdateDocumentResponse<String>?
+    
+    /// Deletes all models with a repository id from elasticsearch.
+    /// - Parameters:
+    ///   - repositoryId: The repository id for which to delete all models.
+    ///   - req: The request on which to delete the models.
+    /// - Returns: An elasticsearch bulk response.
     @discardableResult
     static func delete(allDetailsWithRepositoryId repositoryId: UUID, on req: Request) async throws -> ESBulkResponse
     
-    
+    /// Creates an index for the model in a specified language.
+    /// - Parameters:
+    ///   - languageCode: The language code of the language for the new index.
+    ///   - elastic: The elastic handler on which to create the index.
+    /// - Returns: Wether or not the request was acknowledged.
     @discardableResult
     static func createIndex(for languageCode: String, on elastic: ElasticHandler) async throws -> ESDeleteIndexResponse
     
+    /// Deactivates a language.
+    /// - Parameters:
+    ///   - languageCode: The language code of the language to deactivate.
+    ///   - elastic: The elastic handler on which to deactivate the language.
+    /// - Returns:Wether or not the request was acknowledged.
     @discardableResult
     static func deactivateLanguage(_ languageCode: String, on elastic: ElasticHandler) async throws -> ESDeleteIndexResponse
+    
+    /// Activates a language.
+    /// - Parameters:
+    ///   - languageCode: The language code of the language to activate.
+    ///   - req: The request on which to activate the language.
+    /// - Returns: An elasticsearch bulk response.
     @discardableResult
     static func activateLanguage(_ languageCode: String, on req: Request) async throws -> ESBulkResponse?
+    
+    /// Updates all models of certain  languages to reflect the changes to the languages.
+    /// - Parameters:
+    ///   - languageCodes: The language codes of the languages to update.
+    ///   - req: The request on which to update the languages.
+    /// - Returns: An elasticsearch bulk response.
     @discardableResult
     static func updateLanguages(_ languageCodes: [String], on req: Request) async throws -> ESBulkResponse?
     
+    /// Removes a user form all its models.
+    /// - Parameters:
+    ///   - userId: The id of the user to remove.
+    ///   - req: The request on which to remove the user.
+    /// - Returns: An elasticsearch bulk response.
     @discardableResult
     static func deleteUser(_ userId: UUID, on req: Request) async throws -> ESBulkResponse?
 }
