@@ -9,6 +9,7 @@ import Vapor
 import Fluent
 import ElasticsearchNIOClient
 
+/// Streamlines paged loading of all ``ElasticModelController/ElasticModel``s of one Type from the database.
 protocol ElasticPagedListController: ElasticModelController {
     func sortList(_ sort: inout [[String: Any]]) async throws
     

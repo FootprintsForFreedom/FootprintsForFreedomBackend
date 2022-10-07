@@ -7,6 +7,7 @@
 
 import Vapor
 
+/// Streamlines detailing a model from elasticsearch.
 protocol ApiElasticDetailController: ElasticModelController {
     /// The detail object content.
     associatedtype DetailObject: Content

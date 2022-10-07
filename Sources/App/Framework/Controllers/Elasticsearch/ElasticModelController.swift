@@ -8,6 +8,7 @@
 import Vapor
 import ElasticsearchNIOClient
 
+/// Streamlines controlling elasticsearch models.
 protocol ElasticModelController: RepositoryController {
     /// The database model.
     associatedtype ElasticModel: ElasticModelInterface
