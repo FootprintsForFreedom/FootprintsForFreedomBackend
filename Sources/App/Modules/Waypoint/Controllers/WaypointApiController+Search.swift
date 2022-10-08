@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import ElasticsearchNIOClient
 
 extension WaypointApiController {
     
@@ -16,95 +17,63 @@ extension WaypointApiController {
         KeyedContentValidator<String>.required("languageCode")
     }
     
-    struct SearchQuery: Codable {
-        let text: String
-        let languageCode: String
-    }
-    
     func searchApi(_ req: Request) async throws -> Page<Waypoint.Detail.List> {
         try await RequestValidator(searchValidators()).validate(req, .query)
-        let searchQuery = try req.query.decode(SearchQuery.self)
+        let searchQuery = try req.query.decode(RepositoryDefaultSearchQuery.self)
         
         guard searchQuery.text.trimmingCharacters(in: .whitespacesAndNewlines) != "" else {
             throw Abort(.badRequest)
         }
-        let searchText = searchQuery.text.lowercased()
         
-        let allDetails = try await WaypointDetailModel
-            .query(on: req.db)
-        // only search verified details
-            .filter(\.$verifiedAt != nil)
-            .join(parent: \.$language)
-        // only search details with given language
-            .filter(LanguageModel.self, \.$languageCode == searchQuery.languageCode)
-            .filter(LanguageModel.self, \.$priority != nil)
-        // get all verified details for the repository in the specified language
-            .all()
+        let pageRequest = try req.query.decode(PageRequest.self)
         
-        let newestDetailsForRepositories = try allDetails
-        // group the details by repository id
-            .grouped(by: \.$repository.id)
-        // get the newest detail for each repository
-            .map { $1.sorted { $0.verifiedAt! > $1.verifiedAt! }.first! }
-        // load the tag for all remaining details
+        return try await search(searchQuery, pageRequest, on: req.elastic)
+            .map { .init(id: $0.id, title: $0.title, slug: $0.slug, location: .init(latitude: $0.location.lat, longitude: $0.location.lon)) }
         
-        var detailInLanguageForTagRepository = [TagRepositoryModel.IDValue: TagDetailModel]()
+    }
+    
+    func search(_ searchQuery: RepositoryDefaultSearchQuery, _ pageRequest: PageRequest, on elastic: ElasticHandler) async throws -> Page<ElasticModel> {
+        let tags = try await TagApiController().search(searchQuery, PageRequest(page: 1, per: 100), on: elastic)
         
-        let filteredDetails = try await newestDetailsForRepositories
-            .concurrentMap { waypointDetail -> (WaypointDetailModel, [TagDetailModel]) in
-                let tagRepositoryIds = try await WaypointTagModel.query(on: req.db)
-                    .filter(\.$waypoint.$id == waypointDetail.$repository.id)
-                    .field(\.$tag.$id)
-                    .unique()
-                    .all()
-                    .map(\.$tag.id)
-                
-                let tagDetails = try await tagRepositoryIds
-                    .concurrentCompactMap { repositoryId -> TagDetailModel? in
-                        if let detail = detailInLanguageForTagRepository[repositoryId] {
-                            return detail
-                        } else {
-                            guard let detail = try await TagDetailModel
-                                .query(on: req.db)
-                                .join(parent: \.$language)
-                                .filter(LanguageModel.self, \.$languageCode == searchQuery.languageCode)
-                                .filter(\.$repository.$id == repositoryId)
-                                .filter(\.$verifiedAt != nil)
-                                .sort(\.$verifiedAt, .descending) // newest first
-                                .first()
-                            else {
-                                return nil
-                            }
-                            detailInLanguageForTagRepository[repositoryId] = detail
-                            return detail
-                        }
-                    }
-                
-                return (waypointDetail, tagDetails)
-            }
-            .filter { waypointDetail, tagDetails in
-                return waypointDetail.title.lowercased().contains(searchText) ||
-                waypointDetail.detailText.lowercased().contains(searchText) ||
-                tagDetails.contains { $0.title.lowercased().contains(searchText) } ||
-                tagDetails.contains { $0.keywords.contains { $0.lowercased().contains(searchText) } }
-            }
-            .concurrentCompactMap { (detail, tagDetails) -> (waypoint: WaypointDetailModel, location: WaypointLocationModel)? in
-                guard let location = try await WaypointLocationModel.firstFor(detail.$repository.id, needsToBeVerified: true, on: req.db) else {
-                    return nil
-                }
-                return (detail, location)
-            }
+        var shouldQueries: [[String: Any]] = [
+            [
+                "multi_match": [
+                    "query": searchQuery.text,
+                    "fields": ["title", "detailText"]
+                ]
+            ]
+        ]
         
-        let count = filteredDetails.count
-        let page = try req.query.decode(PageRequest.self)
+        let tagTermQueries: [[String: Any]] = tags.items.map {
+            [
+                "term": [
+                    "tags": [
+                        "value": $0.id.uuidString
+                    ]
+                ]
+            ]
+        }
+        shouldQueries.append(contentsOf: tagTermQueries)
         
-        let relevantDetails = filteredDetails.dropFirst((page.page - 1) * page.per).prefix(page.per)
+        let query: [String: Any] = [
+            "query": [
+                "bool": [
+                    "should": shouldQueries
+                ]
+            ]
+        ]
+        
+        guard
+            let queryData = try? JSONSerialization.data(withJSONObject: query),
+            let responseData = try? await elastic.custom("/\(ElasticModel.schema(for: searchQuery.languageCode))/_search", method: .GET, body: queryData),
+            let response = try? ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<ElasticModel>.self, from: responseData)
+        else {
+            throw Abort(.internalServerError)
+        }
         
         return Page(
-            items: relevantDetails.map { detail, location in
-                return .init(id: detail.$repository.id, title: detail.title, slug: detail.slug, location: location.location)
-            },
-            metadata: PageMetadata(page: page.page, per: page.per, total: count)
+            items: response.hits.hits.map(\.source),
+            metadata: PageMetadata(page: pageRequest.page, per: pageRequest.per, total: response.hits.total.value)
         )
     }
     

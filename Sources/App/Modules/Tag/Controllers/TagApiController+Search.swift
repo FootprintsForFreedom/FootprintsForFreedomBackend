@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import ElasticsearchNIOClient
 
 extension TagApiController {
     
@@ -16,51 +17,44 @@ extension TagApiController {
         KeyedContentValidator<String>.required("languageCode")
     }
     
-    struct SearchQuery: Codable {
-        let text: String
-        let languageCode: String
-    }
-    
     // GET: api/tags/search?text=searchText
     func searchApi(_ req: Request) async throws -> Page<Tag.Detail.List> {
         try await RequestValidator(searchValidators()).validate(req, .query)
-        let searchQuery = try req.query.decode(SearchQuery.self)
+        let searchQuery = try req.query.decode(RepositoryDefaultSearchQuery.self)
         
         guard searchQuery.text.trimmingCharacters(in: .whitespacesAndNewlines) != "" else {
             throw Abort(.badRequest)
         }
-        let searchText = searchQuery.text.lowercased()
         
-        let filteredDetails = try await TagDetailModel
-            .query(on: req.db)
-        // only search verified details
-            .filter(\.$verifiedAt != nil)
-            .join(parent: \.$language)
-        // only search details with given language
-            .filter(LanguageModel.self, \.$languageCode == searchQuery.languageCode)
-            .filter(LanguageModel.self, \.$priority != nil)
-        // get all verified details for the repository in the specified language
-            .all()
-        // group the details by repository id
-            .grouped(by: \.$repository.id)
-        // get the newest detail for each repository
-            .map { $1.sorted { $0.verifiedAt! > $1.verifiedAt! }.first! }
-        // filter the details according to the search text
-            .filter {
-                $0.title.lowercased().contains(searchText) ||
-                $0.keywords.contains { $0.lowercased().contains(searchText) }
-            }
+        let pageRequest = try req.query.decode(PageRequest.self)
         
-        let count = filteredDetails.count
-        let page = try req.query.decode(PageRequest.self)
+        return try await search(searchQuery, pageRequest, on: req.elastic)
+            .map { .init(id: $0.id, title: $0.title, slug: $0.slug) }
+    }
+    
+    func search(_ searchQuery: RepositoryDefaultSearchQuery, _ pageRequest: PageRequest, on elastic: ElasticHandler) async throws -> Page<ElasticModel> {
+        let query: [String: Any] = [
+            "from": (pageRequest.page - 1) * pageRequest.per,
+            "size": pageRequest.per,
+            "query": [
+                "multi_match": [
+                    "query": searchQuery.text,
+                    "fields": [ "title", "keywords"]
+                ]
+            ]
+        ]
         
-        let relevantDetails = filteredDetails.dropFirst((page.page - 1) * page.per).prefix(page.per)
+        guard
+            let queryData = try? JSONSerialization.data(withJSONObject: query),
+            let responseData = try? await elastic.custom("/\(ElasticModel.schema(for: searchQuery.languageCode))/_search", method: .GET, body: queryData),
+            let response = try? ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<ElasticModel>.self, from: responseData)
+        else {
+            throw Abort(.internalServerError)
+        }
         
         return Page(
-            items: relevantDetails.map { detail in
-                return .init(id: detail.$repository.id, title: detail.title, slug: detail.slug)
-            },
-            metadata: PageMetadata(page: page.page, per: page.per, total: count)
+            items: response.hits.hits.map(\.source),
+            metadata: PageMetadata(page: pageRequest.page, per: pageRequest.per, total: response.hits.total.value)
         )
     }
     
