@@ -56,12 +56,24 @@ struct ElasticStop: CustomElasticFilter {
         self.removeTrailing = removeTrailing
     }
     
+    var stopwordsValue: Any {
+        if let language {
+            return language
+        } else if let stopwords {
+            return stopwords
+        } else {
+            return ""
+        }
+    }
+    
     var json: [String: Any] {
         [
             name: [
                 "type": Self.default,
-                "stopwords": (language ?? stopwords) ?? ""
-            ] as [String: Any]
+                "stopwords": stopwordsValue,
+                "ignore_case": ignoreCase,
+                "remove_trailing": removeTrailing
+            ] 
         ]
     }
 }
