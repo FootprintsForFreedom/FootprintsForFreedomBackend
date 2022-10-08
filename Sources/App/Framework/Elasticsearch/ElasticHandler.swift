@@ -10,31 +10,25 @@ import ElasticsearchNIOClient
 
 /// Steamlines handling elasticsearch requests.
 public struct ElasticHandler {
-    private let app: Application
     /// The elasticsearch client to handle the requests
     private let elastic: ElasticsearchClient
     
-    init(app: Application, elastic: ElasticsearchClient) {
-        self.app = app
+    init(elastic: ElasticsearchClient) {
         self.elastic = elastic
     }
     
     /// Create or update an elastic model interface.
     /// - Parameter document: The elastic model to create or update.
     /// - Returns: The document response.
-    func createOrUpdate<Document: ElasticModelInterface>(_ document: Document) throws -> ESUpdateDocumentResponse<String> {
-        try app.locks.lock(for: Document.Key.self).withLock {
-            try elastic.updateDocument(document, id: document.id.uuidString, in: document.schema).wait()
-        }
+    func createOrUpdate<Document: ElasticModelInterface>(_ document: Document) async throws -> ESUpdateDocumentResponse<String> {
+        try await elastic.updateDocument(document, id: document.id.uuidString, in: document.schema).get()
     }
     
     /// Performs a bulk operation.
     /// - Parameter operations: The single operations to perform.
     /// - Returns: An elasticsearch bulk response.
-    func bulk<Document: ElasticModelInterface>(_ operations: [ESBulkOperation<Document, String>]) throws -> ESBulkResponse {
-        try app.locks.lock(for: Document.Key.self).withLock {
-            try elastic.bulk(operations).wait()
-        }
+    func bulk<Document: ElasticModelInterface>(_ operations: [ESBulkOperation<Document, String>]) async throws -> ESBulkResponse {
+        try await elastic.bulk(operations).get()
     }
     
     /// Creates an index.

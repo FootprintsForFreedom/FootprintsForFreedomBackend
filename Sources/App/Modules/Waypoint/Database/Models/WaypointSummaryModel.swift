@@ -220,7 +220,7 @@ extension WaypointSummaryModel.Elasticsearch {
         let documents = try await elements
             .concurrentMap { try await $0.toElasticsearch(on: req.db) }
             .map { ESBulkOperation(operationType: .index, index: $0.schema, id: $0.id.uuidString, document: $0) }
-        let response = try req.elastic.bulk(documents)
+        let response = try await req.elastic.bulk(documents)
         return response
     }
     
@@ -251,7 +251,7 @@ extension WaypointSummaryModel.Elasticsearch {
             .map { (document: Self) in
                 return ESBulkOperation(operationType: .update, index: document.schema, id: document.id.uuidString, document: document)
             }
-        let response = try req.elastic.bulk(documents)
+        let response = try await req.elastic.bulk(documents)
         return response
     }
     

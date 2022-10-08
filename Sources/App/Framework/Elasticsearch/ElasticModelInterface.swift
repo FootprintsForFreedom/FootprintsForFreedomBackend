@@ -125,7 +125,7 @@ extension ElasticModelInterface {
             return nil
         }
         let document = try await element.toElasticsearch(on: req.db)
-        let response = try req.elastic.createOrUpdate(document)
+        let response = try await req.elastic.createOrUpdate(document)
         return response
     }
     
@@ -134,7 +134,7 @@ extension ElasticModelInterface {
         let languages = try await LanguageModel.query(on: req.db).all()
         let elementsToDelete = languages
             .map { ESBulkOperation<Self, String>(operationType: .delete, index: Self.schema(for: $0.languageCode), id: repositoryId.uuidString, document: nil) }
-        return try req.elastic.bulk(elementsToDelete)
+        return try await req.elastic.bulk(elementsToDelete)
     }
     
     @discardableResult
@@ -161,7 +161,7 @@ extension ElasticModelInterface {
         let documents = try await elementsToActivate
             .concurrentMap { try await $0.toElasticsearch(on: req.db) }
             .map { ESBulkOperation(operationType: .create, index: $0.schema, id: $0.id.uuidString, document: $0) }
-        return try req.elastic.bulk(documents)
+        return try await req.elastic.bulk(documents)
     }
     
     @discardableResult
@@ -175,7 +175,7 @@ extension ElasticModelInterface {
         let documents = try await elementsToChange
             .concurrentMap { try await $0.toElasticsearch(on: req.db) }
             .map { ESBulkOperation(operationType: .update, index: $0.schema, id: $0.id.uuidString, document: $0) }
-        return try req.elastic.bulk(documents)
+        return try await req.elastic.bulk(documents)
     }
     
     @discardableResult
@@ -195,7 +195,7 @@ extension ElasticModelInterface {
             .map { (document: Self) in
                 return ESBulkOperation(operationType: .update, index: document.schema, id: document.id.uuidString, document: document)
             }
-        let response = try req.elastic.bulk(documents)
+        let response = try await req.elastic.bulk(documents)
         return response
     }
 }

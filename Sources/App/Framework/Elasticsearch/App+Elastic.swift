@@ -27,7 +27,7 @@ extension Application {
     /// The elasticsearch handler.
     var elastic: ElasticHandler {
         get throws {
-            try .init(app: self, elastic: self.elasticClient)
+            try .init(elastic: self.elasticClient)
         }
     }
 }
@@ -50,7 +50,7 @@ extension Request {
     /// The elasticsearch handler
     var elastic: ElasticHandler {
         get throws {
-            try .init(app: self.application, elastic: self.elasticClient)
+            try .init(elastic: self.elasticClient)
         }
     }
 }
