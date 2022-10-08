@@ -75,14 +75,7 @@ extension LatestVerifiedTagModel {
                         ],
                         "suggest": [
                             "type": "completion",
-                            "analyzer": "default",
-                            "contexts": [
-                                [
-                                    "name": "languageCode",
-                                    "type": "category",
-                                    "path": "languageCode"
-                                ]
-                            ]
+                            "analyzer": "default"
                         ]
                     ]
                 ],
