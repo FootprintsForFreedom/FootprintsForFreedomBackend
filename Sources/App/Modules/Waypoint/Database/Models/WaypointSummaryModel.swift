@@ -126,6 +126,9 @@ extension WaypointSummaryModel {
                 ],
                 "languageCode": [
                     "type": "keyword"
+                ],
+                "tags": [
+                    "type": "keyword"
                 ]
             ]
         ]
