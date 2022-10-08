@@ -78,7 +78,7 @@ extension ElasticModelController {
             let responseData = try? await elastic.custom("/\(ElasticModel.wildcardSchema)/_search", method: .GET, body: queryData),
             let response = try? ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<ElasticModel>.self, from: responseData),
             response.hits.hits.count <= 1,
-            let responseJson = try JSONSerialization.jsonObject(with: responseData) as? [String: Any],
+            let responseJson = try? JSONSerialization.jsonObject(with: responseData) as? [String: Any],
             let aggregations = responseJson["aggregations"] as? [String: Any],
             let languageCodesAggregation = aggregations["languageCodes"] as? [String: Any],
             let languageCodes = languageCodesAggregation["buckets"] as? [[String: Any]]

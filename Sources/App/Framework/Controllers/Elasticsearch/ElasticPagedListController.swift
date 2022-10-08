@@ -60,11 +60,11 @@ extension ElasticPagedListController {
         try await sortList(&sort)
         query["sort"] = sort
         
-        let queryData = try JSONSerialization.data(withJSONObject: query)
-        let responseData = try await req.elastic.custom("/\(ElasticModel.wildcardSchema)/_search", method: .GET, body: queryData)
         guard
+            let queryData = try? JSONSerialization.data(withJSONObject: query),
+            let responseData = try? await req.elastic.custom("/\(ElasticModel.wildcardSchema)/_search", method: .GET, body: queryData),
             let response = try? ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<ElasticModel>.self, from: responseData),
-            let responseJson = try JSONSerialization.jsonObject(with: responseData) as? [String: Any],
+            let responseJson = try? JSONSerialization.jsonObject(with: responseData) as? [String: Any],
             let aggregations = responseJson["aggregations"] as? [String: Any],
             let countAggregation = aggregations["count"] as? [String: Any],
             let count = countAggregation["value"] as? Int
@@ -73,7 +73,7 @@ extension ElasticPagedListController {
         }
         
         return Page(
-            items: response.hits.hits.map { $0.source },
+            items: response.hits.hits.map(\.source),
             metadata: PageMetadata(page: pageRequest.page, per: pageRequest.per, total: count)
         )
     }
