@@ -17,6 +17,8 @@ final class TagApiSearchTests: AppTestCase, TagTest {
         
         let tagCount = try await TagRepositoryModel.query(on: app.db).count()
         
+        try await Task.sleep(nanoseconds: UInt64(0.5 * Double(NSEC_PER_SEC)))
+        
         try app
             .describe("Search tag should return the tag if it is verified and has the search text in the title")
             .get(tagPath.appending("search/?text=besonder&languageCode=\(tag.detail.language.languageCode)&per=\(tagCount)"))
@@ -38,6 +40,8 @@ final class TagApiSearchTests: AppTestCase, TagTest {
         try await tag.detail.$language.load(on: app.db)
         
         let tagCount = try await TagRepositoryModel.query(on: app.db).count()
+        
+        try await Task.sleep(nanoseconds: UInt64(0.5 * Double(NSEC_PER_SEC)))
         
         try app
             .describe("Search tag should return the tag if it is verified and has the search text in the keywords")
@@ -127,11 +131,7 @@ final class TagApiSearchTests: AppTestCase, TagTest {
         try app
             .describe("Search tag should only return tags for the specified language")
             .get(tagPath.appending("search/?text=ander&languageCode=\(language.languageCode)&per=\(tagCount)"))
-            .expect(.ok)
-            .expect(.json)
-            .expect(Page<Tag.Detail.List>.self) { content in
-                XCTAssert(!content.items.contains { $0.id == tag.repository.id })
-            }
+            .expect(.notFound)
             .test()
     }
     
@@ -151,9 +151,11 @@ final class TagApiSearchTests: AppTestCase, TagTest {
         
         let tagCount = try await TagRepositoryModel.query(on: app.db).count()
         
+        try await Task.sleep(nanoseconds: UInt64(0.5 * Double(NSEC_PER_SEC)))
+        
         try app
             .describe("Search tag should only return the newest verified detail for a tag repository")
-            .get(tagPath.appending("search/?text=besonder&languageCode=\(language.languageCode)&per=\(tagCount)"))
+            .get(tagPath.appending("search/?text=besonderer&languageCode=\(language.languageCode)&per=\(tagCount)"))
             .expect(.ok)
             .expect(.json)
             .expect(Page<Tag.Detail.List>.self) { content in

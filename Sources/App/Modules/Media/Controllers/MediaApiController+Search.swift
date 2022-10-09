@@ -16,14 +16,9 @@ extension MediaApiController {
         KeyedContentValidator<String>.required("languageCode")
     }
     
-    struct SearchQuery: Codable {
-        let text: String
-        let languageCode: String
-    }
-    
     func searchApi(_ req: Request) async throws -> Page<Media.Detail.List> {
         try await RequestValidator(searchValidators()).validate(req, .query)
-        let searchQuery = try req.query.decode(SearchQuery.self)
+        let searchQuery = try req.query.decode(RepositoryDefaultSearchQuery.self)
         
         guard searchQuery.text.trimmingCharacters(in: .whitespacesAndNewlines) != "" else {
             throw Abort(.badRequest)

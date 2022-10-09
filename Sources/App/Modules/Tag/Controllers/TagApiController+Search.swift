@@ -44,18 +44,21 @@ extension TagApiController {
             ]
         ]
         
-        guard
-            let queryData = try? JSONSerialization.data(withJSONObject: query),
-            let responseData = try? await elastic.custom("/\(ElasticModel.schema(for: searchQuery.languageCode))/_search", method: .GET, body: queryData),
-            let response = try? ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<ElasticModel>.self, from: responseData)
-        else {
+        do {
+            let queryData = try JSONSerialization.data(withJSONObject: query)
+            let responseData = try await elastic.custom("/\(ElasticModel.schema(for: searchQuery.languageCode))/_search", method: .GET, body: queryData)
+            let response = try ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<ElasticModel>.self, from: responseData)
+            
+            return Page(
+                items: response.hits.hits.map(\.source),
+                metadata: PageMetadata(page: pageRequest.page, per: pageRequest.per, total: response.hits.total.value)
+            )
+        } catch let error as ElasticSearchClientError {
+            guard let status = error.status else { throw Abort(.internalServerError) }
+            throw Abort(status)
+        } catch {
             throw Abort(.internalServerError)
         }
-        
-        return Page(
-            items: response.hits.hits.map(\.source),
-            metadata: PageMetadata(page: pageRequest.page, per: pageRequest.per, total: response.hits.total.value)
-        )
     }
     
     func setupSearchRoutes(_ routes: RoutesBuilder) {
