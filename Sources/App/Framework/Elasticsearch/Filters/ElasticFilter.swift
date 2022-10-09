@@ -9,8 +9,8 @@ import Foundation
 
 /// Represents an elasticsearch filter.
 enum ElasticFilter: Equatable {
-    case stop(ElasticStop?)
-    case stemmer(ElasticStemmer?)
+    case stop(ElasticStop? = nil)
+    case stemmer(ElasticStemmer? = nil)
     case stemmerOverride(ElasticStemmerOverride?)
     case lowercase(ElasticLowercase? = nil)
     case normalization(ElasticNormalization?)

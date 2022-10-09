@@ -45,7 +45,7 @@ extension ISO639.Language {
         case .sv: return .init(.lowercase(), .stop(.swedish), .stemmer(.swedish), .wordDelimiterGraph)
         case .tr: return .init(.apostrophe, .lowercase(.turkish), .stop(.turkish), .stemmer(.turkish), .wordDelimiterGraph)
         case .th: return .init(.lowercase(), .decimalDigit, .stop(.thai), .wordDelimiterGraph)
-        default: return .init()
+        default: return .init(.lowercase(), .stop(), .stemmer(), .wordDelimiterGraph)
         }
     }
 }
