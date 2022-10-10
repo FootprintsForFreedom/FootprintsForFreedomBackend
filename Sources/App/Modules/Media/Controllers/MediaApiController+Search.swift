@@ -86,7 +86,7 @@ extension MediaApiController {
             .map { $0.0 }
         
         let count = filteredDetails.count
-        let page = try req.query.decode(PageRequest.self)
+        let page = try req.pageRequest
         
         let relevantDetails = filteredDetails.dropFirst((page.page - 1) * page.per).prefix(page.per)
         

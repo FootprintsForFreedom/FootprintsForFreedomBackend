@@ -25,7 +25,7 @@ extension ElasticPagedListController {
     func sortList(_ sort: inout [[String: Any]]) async throws { }
     
     func list(_ req: Request) async throws -> Page<ElasticModel> {
-        let pageRequest = try req.query.decode(PageRequest.self)
+        let pageRequest = try req.pageRequest
         
         var query: [String : Any] = [
             "from": (pageRequest.page - 1) * pageRequest.per,

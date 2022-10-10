@@ -53,7 +53,7 @@ extension ApiElasticSearchController {
             throw Abort(.badRequest)
         }
         
-        let pageRequest = try req.query.decode(PageRequest.self)
+        let pageRequest = try req.pageRequest
         
         let models = try await search(searchContext, pageRequest, on: req.elastic)
         return try await searchOutput(req, models)
