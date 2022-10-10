@@ -7,9 +7,10 @@
 
 import Vapor
 import Fluent
-import ElasticsearchNIOClient
 
-extension WaypointApiController {
+extension WaypointApiController: ApiElasticSearchController {
+    
+    // MARK: - Validators
     
     @AsyncValidatorBuilder
     func searchValidators() -> [AsyncValidator] {
@@ -17,28 +18,31 @@ extension WaypointApiController {
         KeyedContentValidator<String>.required("languageCode")
     }
     
-    func searchApi(_ req: Request) async throws -> Page<Waypoint.Detail.List> {
-        try await RequestValidator(searchValidators()).validate(req, .query)
-        let searchQuery = try req.query.decode(RepositoryDefaultSearchQuery.self)
-        
-        guard searchQuery.text.trimmingCharacters(in: .whitespacesAndNewlines) != "" else {
-            throw Abort(.badRequest)
-        }
-        
-        let pageRequest = try req.query.decode(PageRequest.self)
-        
-        return try await search(searchQuery, pageRequest, on: req.elastic)
-            .map { .init(id: $0.id, title: $0.title, slug: $0.slug, location: .init(latitude: $0.location.lat, longitude: $0.location.lon)) }
-        
+    @AsyncValidatorBuilder
+    func getInCoordinatesValidators() -> [AsyncValidator] {
+        KeyedContentValidator<Double>.required("tepLeftLatitude")
+        KeyedContentValidator<Double>.required("tepLeftLongitude")
+        KeyedContentValidator<Double>.required("bottomRightLatitude")
+        KeyedContentValidator<Double>.required("bottomRightLongitude")
     }
     
-    func search(_ searchQuery: RepositoryDefaultSearchQuery, _ pageRequest: PageRequest, on elastic: ElasticHandler) async throws -> Page<ElasticModel> {
-        let tags = try await TagApiController().search(searchQuery, PageRequest(page: 1, per: 100), on: elastic)
+    // MARK: - Routes
+    
+    func setupSearchRoutes(_ routes: RoutesBuilder) {
+        let baseRoutes = getBaseRoutes(routes)
+        baseRoutes.get("search", use: searchApi)
+        baseRoutes.get("in", use: getInCoordinatesApi)
+    }
+    
+    // MARK: - Search
+    
+    func searchQuery(_ searchContext: RepositoryDefaultSearchContext, _ pageRequest: PageRequest, on elastic: ElasticHandler) async throws -> [String : Any] {
+        let tags = try await TagApiController().search(searchContext, PageRequest(page: 1, per: 100), on: elastic)
         
         var shouldQueries: [[String: Any]] = [
             [
                 "multi_match": [
-                    "query": searchQuery.text,
+                    "query": searchContext.text,
                     "fields": ["title", "detailText"]
                 ]
             ]
@@ -65,30 +69,14 @@ extension WaypointApiController {
             ]
         ]
         
-        do {
-            let queryData = try JSONSerialization.data(withJSONObject: query)
-            let responseData = try await elastic.custom("/\(ElasticModel.schema(for: searchQuery.languageCode))/_search", method: .GET, body: queryData)
-            let response = try ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<ElasticModel>.self, from: responseData)
-            
-            return Page(
-                items: response.hits.hits.map(\.source),
-                metadata: PageMetadata(page: pageRequest.page, per: pageRequest.per, total: response.hits.total.value)
-            )
-        } catch let error as ElasticSearchClientError {
-            guard let status = error.status else { throw Abort(.internalServerError) }
-            throw Abort(status)
-        } catch {
-            throw Abort(.internalServerError)
-        }
+        return query
     }
     
-    @AsyncValidatorBuilder
-    func getInCoordinatesValidators() -> [AsyncValidator] {
-        KeyedContentValidator<Double>.required("tepLeftLatitude")
-        KeyedContentValidator<Double>.required("tepLeftLongitude")
-        KeyedContentValidator<Double>.required("bottomRightLatitude")
-        KeyedContentValidator<Double>.required("bottomRightLongitude")
+    func searchOutput(_ req: Request, _ model: WaypointSummaryModel.Elasticsearch) async throws -> Waypoint.Detail.List {
+        .init(id: model.id, title: model.title, slug: model.slug, location: .init(latitude: model.location.lat, longitude: model.location.lon))
     }
+    
+    // MARK: - Get in Range
     
     struct GetInRangeQuery: Codable {
         let tepLeftLatitude: Double
@@ -131,11 +119,5 @@ extension WaypointApiController {
                 location: location.location
             )
         }
-    }
-    
-    func setupSearchRoutes(_ routes: RoutesBuilder) {
-        let baseRoutes = getBaseRoutes(routes)
-        baseRoutes.get("search", use: searchApi)
-        baseRoutes.get("in", use: getInCoordinatesApi)
     }
 }

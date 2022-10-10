@@ -18,7 +18,7 @@ extension MediaApiController {
     
     func searchApi(_ req: Request) async throws -> Page<Media.Detail.List> {
         try await RequestValidator(searchValidators()).validate(req, .query)
-        let searchQuery = try req.query.decode(RepositoryDefaultSearchQuery.self)
+        let searchQuery = try req.query.decode(RepositoryDefaultSearchContext.self)
         
         guard searchQuery.text.trimmingCharacters(in: .whitespacesAndNewlines) != "" else {
             throw Abort(.badRequest)

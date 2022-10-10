@@ -1,5 +1,5 @@
 //
-//  RepositoryDefaultSearchQuery.swift
+//  RepositoryDefaultSearchContext.swift
 //  
 //
 //  Created by niklhut on 09.10.22.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct RepositoryDefaultSearchQuery: Codable {
+struct RepositoryDefaultSearchContext: Codable {
     let text: String
     let languageCode: String
 }
