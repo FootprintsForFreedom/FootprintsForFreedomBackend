@@ -11,8 +11,13 @@ import ElasticsearchNIOClient
 
 /// Streamlines paged loading of all ``ElasticModelController/ElasticModel``s of one Type from the database.
 protocol ElasticPagedListController: ElasticModelController {
+    /// A json convertible array which extends the default search capabilities
+    /// - Parameter sort: The default sort object which can be changed.
     func sortList(_ sort: inout [[String: Any]]) async throws
     
+    /// Queries elasticsearch to get a paged list of elastic models.
+    /// - Parameter req: The request on which to perform the list.
+    /// - Returns: A page of elastic models.
     func list(_ req: Request) async throws -> Page<ElasticModel>
 }
 
