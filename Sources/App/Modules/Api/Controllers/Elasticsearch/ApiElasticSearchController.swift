@@ -35,6 +35,8 @@ protocol ApiElasticSearchController: ElasticSearchController {
     /// - Returns: A paged search of the repositories.
     func searchApi(_ req: Request) async throws -> Page<ListObject>
     
+    func suggestApi(_ req: Request) async throws -> [ListObject]
+    
     /// Sets up the search repository routes.
     /// - Parameter routes: The routes on which to setup the search repository routes.
     func setupSearchRoutes(_ routes: RoutesBuilder)
@@ -59,6 +61,18 @@ extension ApiElasticSearchController {
         return try await searchOutput(req, models)
     }
     
+    func suggestApi(_ req: Request) async throws -> [ListObject] {
+        try await RequestValidator(searchValidators()).validate(req, .query)
+        let searchContext = try req.query.decode(RepositoryDefaultSearchContext.self)
+        
+        guard searchContext.text.trimmingCharacters(in: .whitespacesAndNewlines) != "" else {
+            throw Abort(.badRequest)
+        }
+        
+        let models = try await suggest(searchContext, on: req.elastic)
+        return try await models.concurrentCompactMap { try await searchOutput(req, $0) }
+    }
+    
     func searchOutput(_ req: Request, _ models: Page<ElasticModel>) async throws -> Page<ListObject> {
         try await models.concurrentCompactMap { model in
             try await searchOutput(req, model)
@@ -68,5 +82,6 @@ extension ApiElasticSearchController {
     func setupSearchRoutes(_ routes: RoutesBuilder) {
         let baseRoutes = getBaseRoutes(routes)
         baseRoutes.get("search", use: searchApi)
+        baseRoutes.get("suggest", use: suggestApi)
     }
 }

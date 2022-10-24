@@ -31,6 +31,7 @@ extension WaypointApiController: ApiElasticSearchController {
     func setupSearchRoutes(_ routes: RoutesBuilder) {
         let baseRoutes = getBaseRoutes(routes)
         baseRoutes.get("search", use: searchApi)
+        baseRoutes.get("suggest", use: suggestApi)
         baseRoutes.get("in", use: getInCoordinatesApi)
     }
     
