@@ -15,8 +15,8 @@ final class WaypointApiGetInCoordinatesTests: AppTestCase, WaypointTest {
         let waypoint = try await createNewWaypoint(verified: true)
         
         let getInRangeContent = WaypointApiController.GetInRangeQuery(
-            tepLeftLatitude: waypoint.location.latitude + 1,
-            tepLeftLongitude: waypoint.location.longitude + 1,
+            topLeftLatitude: waypoint.location.latitude + 1,
+            topLeftLongitude: waypoint.location.longitude + 1,
             bottomRightLatitude: waypoint.location.latitude - 1,
             bottomRightLongitude: waypoint.location.longitude - 1
         )
@@ -40,8 +40,8 @@ final class WaypointApiGetInCoordinatesTests: AppTestCase, WaypointTest {
         try await waypoint.detail.update(on: app.db)
         
         let getInRangeContent = WaypointApiController.GetInRangeQuery(
-            tepLeftLatitude: waypoint.location.latitude + 1,
-            tepLeftLongitude: waypoint.location.longitude + 1,
+            topLeftLatitude: waypoint.location.latitude + 1,
+            topLeftLongitude: waypoint.location.longitude + 1,
             bottomRightLatitude: waypoint.location.latitude - 1,
             bottomRightLongitude: waypoint.location.longitude - 1
         )
@@ -65,8 +65,8 @@ final class WaypointApiGetInCoordinatesTests: AppTestCase, WaypointTest {
         try await waypoint.detail.update(on: app.db)
         
         let getInRangeContent = WaypointApiController.GetInRangeQuery(
-            tepLeftLatitude: waypoint.location.latitude + 1,
-            tepLeftLongitude: waypoint.location.longitude + 1,
+            topLeftLatitude: waypoint.location.latitude + 1,
+            topLeftLongitude: waypoint.location.longitude + 1,
             bottomRightLatitude: waypoint.location.latitude - 1,
             bottomRightLongitude: waypoint.location.longitude - 1
         )

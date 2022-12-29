@@ -20,8 +20,8 @@ extension WaypointApiController: ApiElasticSearchController {
     
     @AsyncValidatorBuilder
     func getInCoordinatesValidators() -> [AsyncValidator] {
-        KeyedContentValidator<Double>.required("tepLeftLatitude")
-        KeyedContentValidator<Double>.required("tepLeftLongitude")
+        KeyedContentValidator<Double>.required("topLeftLatitude")
+        KeyedContentValidator<Double>.required("topLeftLongitude")
         KeyedContentValidator<Double>.required("bottomRightLatitude")
         KeyedContentValidator<Double>.required("bottomRightLongitude")
     }
@@ -80,8 +80,8 @@ extension WaypointApiController: ApiElasticSearchController {
     // MARK: - Get in Range
     
     struct GetInRangeQuery: Codable {
-        let tepLeftLatitude: Double
-        let tepLeftLongitude: Double
+        let topLeftLatitude: Double
+        let topLeftLongitude: Double
         let bottomRightLatitude: Double
         let bottomRightLongitude: Double
     }
@@ -95,9 +95,9 @@ extension WaypointApiController: ApiElasticSearchController {
         let repositoryIds = try await WaypointLocationModel
             .query(on: req.db)
             .filter(\.$verifiedAt != nil)
-            .filter(\.$latitude <= getInRangeQuery.tepLeftLatitude)
+            .filter(\.$latitude <= getInRangeQuery.topLeftLatitude)
             .filter(\.$latitude >= getInRangeQuery.bottomRightLatitude)
-            .filter(\.$longitude <= getInRangeQuery.tepLeftLongitude)
+            .filter(\.$longitude <= getInRangeQuery.topLeftLongitude)
             .filter(\.$longitude >= getInRangeQuery.bottomRightLongitude)
             .field(\.$repository.$id)
             .unique()
