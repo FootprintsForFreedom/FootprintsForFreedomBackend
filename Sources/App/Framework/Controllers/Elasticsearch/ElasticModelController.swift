@@ -73,23 +73,25 @@ extension ElasticModelController {
         }
         query["sort"] = sort
         
-        guard
-            let queryData = try? JSONSerialization.data(withJSONObject: query),
-            let responseData = try? await elastic.custom("/\(ElasticModel.wildcardSchema)/_search", method: .GET, body: queryData),
-            let response = try? ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<ElasticModel>.self, from: responseData),
-            response.hits.hits.count <= 1,
-            let responseJson = try? JSONSerialization.jsonObject(with: responseData) as? [String: Any],
-            let aggregations = responseJson["aggregations"] as? [String: Any],
-            let languageCodesAggregation = aggregations["languageCodes"] as? [String: Any],
-            let languageCodes = languageCodesAggregation["buckets"] as? [[String: Any]]
-        else {
-            throw Abort(.internalServerError)
+        return try await elastic.perform {
+            let queryData = try JSONSerialization.data(withJSONObject: query)
+            let responseData = try await elastic.custom("/\(ElasticModel.wildcardSchema)/_search", method: .GET, body: queryData)
+            let response = try ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<ElasticModel>.self, from: responseData)
+            guard
+                response.hits.hits.count <= 1,
+                let responseJson = try JSONSerialization.jsonObject(with: responseData) as? [String: Any],
+                let aggregations = responseJson["aggregations"] as? [String: Any],
+                let languageCodesAggregation = aggregations["languageCodes"] as? [String: Any],
+                let languageCodes = languageCodesAggregation["buckets"] as? [[String: Any]]
+            else {
+                throw Abort(.internalServerError)
+            }
+            guard let detail = response.hits.hits.first?.source else {
+                throw Abort(.notFound)
+            }
+            
+            return (detail, languageCodes.compactMap { $0["key"] as? String })
         }
-        guard let detail = response.hits.hits.first?.source else {
-            throw Abort(.notFound)
-        }
-        
-        return (detail, languageCodes.compactMap { $0["key"] as? String })
     }
     
     func findBy(_ slug: String, on elastic: ElasticHandler) async throws -> (model: ElasticModel, availableLanguageCodes: [String]) {
@@ -103,48 +105,48 @@ extension ElasticModelController {
             ]
         ]
         
-        guard
-            let queryData = try? JSONSerialization.data(withJSONObject: query),
-            let responseData = try? await elastic.custom("/\(ElasticModel.wildcardSchema)/_search", method: .GET, body: queryData),
-            let response = try? ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<ElasticModel>.self, from: responseData),
-            response.hits.hits.count <= 1
-        else {
-            throw Abort(.internalServerError)
-        }
-        guard let detail = response.hits.hits.first?.source else {
-            throw Abort(.notFound)
-        }
-        
-        let languageCodesQuery: [String: Any] = [
-            "_source": false,
-            "query": [
-                "term": [
-                    "id": [
-                        "value": detail.id.uuidString
+        return try await elastic.perform {
+            let queryData = try JSONSerialization.data(withJSONObject: query)
+            let responseData = try await elastic.custom("/\(ElasticModel.wildcardSchema)/_search", method: .GET, body: queryData)
+            let response = try ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<ElasticModel>.self, from: responseData)
+            guard response.hits.hits.count <= 1 else {
+                throw Abort(.internalServerError)
+            }
+            guard let detail = response.hits.hits.first?.source else {
+                throw Abort(.notFound)
+            }
+            
+            let languageCodesQuery: [String: Any] = [
+                "_source": false,
+                "query": [
+                    "term": [
+                        "id": [
+                            "value": detail.id.uuidString
+                        ]
                     ]
-                ]
-            ],
-            "aggs": [
-                "languageCodes": [
-                    "terms": [
-                        "field": "languageCode",
-                        "size": 20
+                ],
+                "aggs": [
+                    "languageCodes": [
+                        "terms": [
+                            "field": "languageCode",
+                            "size": 20
+                        ]
                     ]
                 ]
             ]
-        ]
-        
-        guard
-            let languageCodesQueryData = try? JSONSerialization.data(withJSONObject: languageCodesQuery),
-            let languageCodesResponseData = try? await elastic.custom("/\(ElasticModel.wildcardSchema)/_search", method: .GET, body: languageCodesQueryData),
-            let responseJson = try? JSONSerialization.jsonObject(with: languageCodesResponseData) as? [String: Any],
-            let aggregations = responseJson["aggregations"] as? [String: Any],
-            let languageCodesAggregation = aggregations["languageCodes"] as? [String: Any],
-            let languageCodes = languageCodesAggregation["buckets"] as? [[String: Any]]
-        else {
-            throw Abort(.internalServerError)
+            
+            let languageCodesQueryData = try JSONSerialization.data(withJSONObject: languageCodesQuery)
+            let languageCodesResponseData = try await elastic.custom("/\(ElasticModel.wildcardSchema)/_search", method: .GET, body: languageCodesQueryData)
+            guard
+                let responseJson = try JSONSerialization.jsonObject(with: languageCodesResponseData) as? [String: Any],
+                let aggregations = responseJson["aggregations"] as? [String: Any],
+                let languageCodesAggregation = aggregations["languageCodes"] as? [String: Any],
+                let languageCodes = languageCodesAggregation["buckets"] as? [[String: Any]]
+            else {
+                throw Abort(.internalServerError)
+            }
+            
+            return (detail, languageCodes.compactMap { $0["key"] as? String })
         }
-        
-        return (detail, languageCodes.compactMap { $0["key"] as? String })
     }
 }

@@ -61,25 +61,26 @@ extension ElasticPagedListController {
         } else {
             sort.append(["languagePriority": "asc"])
         }
-        sort.append([ "title.keyword": "asc" ])
+        sort.append([ "title.keyword": "asc"])
         try await sortList(&sort)
         query["sort"] = sort
         
-        guard
-            let queryData = try? JSONSerialization.data(withJSONObject: query),
-            let responseData = try? await req.elastic.custom("/\(ElasticModel.wildcardSchema)/_search", method: .GET, body: queryData),
-            let response = try? ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<ElasticModel>.self, from: responseData),
-            let responseJson = try? JSONSerialization.jsonObject(with: responseData) as? [String: Any],
-            let aggregations = responseJson["aggregations"] as? [String: Any],
-            let countAggregation = aggregations["count"] as? [String: Any],
-            let count = countAggregation["value"] as? Int
-        else {
-            throw Abort(.internalServerError)
+        return try await req.elastic.perform {
+            let queryData = try JSONSerialization.data(withJSONObject: query)
+            let responseData = try await req.elastic.custom("/\(ElasticModel.wildcardSchema)/_search", method: .GET, body: queryData)
+            let response = try ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<ElasticModel>.self, from: responseData)
+            guard
+                let responseJson = try JSONSerialization.jsonObject(with: responseData) as? [String: Any],
+                let aggregations = responseJson["aggregations"] as? [String: Any],
+                let countAggregation = aggregations["count"] as? [String: Any],
+                let count = countAggregation["value"] as? Int
+            else {
+                throw Abort(.internalServerError)
+            }
+            return Page(
+                items: response.hits.hits.map(\.source),
+                metadata: PageMetadata(page: pageRequest.page, per: pageRequest.per, total: count)
+            )
         }
-        
-        return Page(
-            items: response.hits.hits.map(\.source),
-            metadata: PageMetadata(page: pageRequest.page, per: pageRequest.per, total: count)
-        )
     }
 }

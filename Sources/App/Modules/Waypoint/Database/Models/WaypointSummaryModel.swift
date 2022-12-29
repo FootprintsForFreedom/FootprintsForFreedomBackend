@@ -229,7 +229,6 @@ extension WaypointSummaryModel.Elasticsearch {
                     .filter(\.$detailUserId == userId)
                     .filter(\.$locationUserId == userId)
             }
-            
             .all()
         
         guard !elementsToDelete.isEmpty else { return nil }
@@ -286,21 +285,23 @@ extension WaypointSummaryModel.Elasticsearch {
             sort.append([ "title.keyword": "asc" ])
             query["sort"] = sort
             
-            guard
-                let queryData = try? JSONSerialization.data(withJSONObject: query),
-                let responseData = try? await elastic.custom("/\(LatestVerifiedTagModel.Elasticsearch.baseSchema)/_search", method: .GET, body: queryData),
-                let response = try? ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<LatestVerifiedTagModel.Elasticsearch>.self, from: responseData)
-            else {
-                throw Abort(.internalServerError)
-            }
-            
-            return response.hits.hits.map {
-                let source = $0.source
-                return .init(
-                    id: source.id,
-                    title: source.title,
-                    slug: source.slug
-                )
+            return try await elastic.perform {
+                guard
+                    let queryData = try? JSONSerialization.data(withJSONObject: query),
+                    let responseData = try? await elastic.custom("/\(LatestVerifiedTagModel.Elasticsearch.baseSchema)/_search", method: .GET, body: queryData),
+                    let response = try? ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<LatestVerifiedTagModel.Elasticsearch>.self, from: responseData)
+                else {
+                    throw Abort(.internalServerError)
+                }
+                
+                return response.hits.hits.map {
+                    let source = $0.source
+                    return .init(
+                        id: source.id,
+                        title: source.title,
+                        slug: source.slug
+                    )
+                }
             }
         } else {
             return []

@@ -44,7 +44,7 @@ extension ElasticSearchController {
     func search(_ searchContext: RepositoryDefaultSearchContext, _ pageRequest: PageRequest, on elastic: ElasticHandler) async throws -> Page<ElasticModel> {
         let query = try await searchQuery(searchContext, pageRequest, on: elastic)
         
-        do {
+        return try await elastic.perform {
             let queryData = try JSONSerialization.data(withJSONObject: query)
             let responseData = try await elastic.custom("/\(ElasticModel.schema(for: searchContext.languageCode))/_search", method: .GET, body: queryData)
             let response = try ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<ElasticModel>.self, from: responseData)
@@ -53,11 +53,6 @@ extension ElasticSearchController {
                 items: response.hits.hits.map(\.source),
                 metadata: PageMetadata(page: pageRequest.page, per: pageRequest.per, total: response.hits.total.value)
             )
-        } catch let error as ElasticSearchClientError {
-            guard let status = error.status else { throw Abort(.internalServerError) }
-            throw Abort(status)
-        } catch {
-            throw Abort(.internalServerError)
         }
     }
     
@@ -78,18 +73,13 @@ extension ElasticSearchController {
     
     func suggest(_ searchContext: RepositoryDefaultSearchContext, on elastic: ElasticHandler) async throws -> [ElasticModel] {
         let query = try await suggestQuery(searchContext, on: elastic)
-        do {
+        return try await elastic.perform {
             let queryData = try JSONSerialization.data(withJSONObject: query)
             let responseData = try await elastic.custom("/\(ElasticModel.schema(for: searchContext.languageCode))/_search", method: .GET, body: queryData)
             let response = try ElasticHandler.newJSONDecoder().decode(ESSuggestDocumentsResponse<ElasticModel>.self, from: responseData)
             let suggest = try response.suggestFor("completion")
             
             return suggest.options.map(\.source)
-        } catch let error as ElasticSearchClientError {
-            guard let status = error.status else { throw Abort(.internalServerError) }
-            throw Abort(status)
-        } catch {
-            throw Abort(.internalServerError)
         }
     }
 }

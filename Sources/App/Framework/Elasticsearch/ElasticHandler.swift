@@ -69,4 +69,20 @@ public struct ElasticHandler {
     func custom(_ path: String, method: HTTPMethod, body: Data) async throws -> Data {
         try await elastic.custom(path, method: method, body: body).get()
     }
+    
+    /// Performs an elasticsearch request and handles any thrown error appropriately.
+    /// - Parameter request: The request to perform.
+    /// - Returns: The result of the request if no error was thrown.
+    func perform<ReturnType>(_ request: () async throws -> ReturnType) async rethrows -> ReturnType {
+        do {
+            return try await request()
+        } catch let error as ElasticSearchClientError {
+            guard let status = error.status else { throw Abort(.internalServerError) }
+            throw Abort(status)
+        } catch let error as Abort {
+            throw error
+        } catch {
+            throw Abort(.internalServerError)
+        }
+    }
 }
