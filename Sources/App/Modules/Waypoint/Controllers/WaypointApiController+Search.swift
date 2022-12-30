@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import ElasticsearchNIOClient
 
 extension WaypointApiController: ApiElasticSearchController {
     
@@ -86,39 +87,79 @@ extension WaypointApiController: ApiElasticSearchController {
         let bottomRightLongitude: Double
     }
     
-    func getInCoordinatesApi(_ req: Request) async throws -> [Waypoint.Detail.List] {
+    func getInCoordinatesApi(_ req: Request) async throws -> Page<Waypoint.Detail.List> {
         try await RequestValidator(getInCoordinatesValidators()).validate(req, .query)
+        let pageRequest = try req.pageRequest
         let getInRangeQuery = try req.query.decode(GetInRangeQuery.self)
         
-        // filters all locations - also those that are no longer the newest ones
-        // this might lead to a few more waypoints in the results but should still be more performant than further in memory processing
-        let repositoryIds = try await WaypointLocationModel
-            .query(on: req.db)
-            .filter(\.$verifiedAt != nil)
-            .filter(\.$latitude <= getInRangeQuery.topLeftLatitude)
-            .filter(\.$latitude >= getInRangeQuery.bottomRightLatitude)
-            .filter(\.$longitude <= getInRangeQuery.topLeftLongitude)
-            .filter(\.$longitude >= getInRangeQuery.bottomRightLongitude)
-            .field(\.$repository.$id)
-            .unique()
-            .all()
-            .map(\.$repository.id)
+        var query: [String: Any] = [
+            "from": (pageRequest.page - 1) * pageRequest.per,
+            "size": pageRequest.per,
+            "collapse": [
+                "field": "id"
+            ],
+            "aggs": [
+                "count": [
+                    "cardinality": [
+                        "field": "id"
+                    ]
+                ]
+            ],
+            "query": [
+                "geo_bounding_box": [
+                    "location": [
+                        "top_left": [
+                            "lat": getInRangeQuery.topLeftLatitude,
+                            "lon": getInRangeQuery.topLeftLongitude
+                        ],
+                        "bottom_right": [
+                            "lat": getInRangeQuery.bottomRightLatitude,
+                            "lon": getInRangeQuery.bottomRightLongitude
+                        ]
+                    ]
+                ]
+            ]
+        ]
         
-        
-        return try await repositoryIds.concurrentCompactMap { repositoryId in
-            guard
-                let repository = try await WaypointRepositoryModel.find(repositoryId, on: req.db),
-                let detail = try await repository._$details.firstFor(req.allLanguageCodesByPriority(), needsToBeVerified: true, on: req.db),
-                let location = try await repository.$locations.firstFor(needsToBeVerified: true, on: req.db)
-            else {
-                return nil
-            }
-            return .init(
-                id: repositoryId,
-                title: detail.title,
-                slug: detail.slug,
-                location: location.location
+        var sort: [[String: Any]] = []
+        if let preferredLanguageCode = try? req.preferredLanguageCode() {
+            sort.append(
+                [
+                    "_script": [
+                        "type": "number",
+                        "script": [
+                            "lang": "painless",
+                            "source": "doc['languageCode'].value == params.preferredLanguageCode ? 0 : doc['languagePriority'].value",
+                            "params": [
+                                "preferredLanguageCode": "\(preferredLanguageCode)"
+                            ]
+                        ],
+                        "order": "asc"
+                    ]
+                ]
             )
+        } else {
+            sort.append(["languagePriority": "asc"])
+        }
+        sort.append(["title.keyword": "asc"])
+        query["sort"] = sort
+        
+        return try await req.elastic.perform {
+            let queryData = try JSONSerialization.data(withJSONObject: query)
+            let responseData = try await req.elastic.custom("/\(ElasticModel.wildcardSchema)/_search", method: .GET, body: queryData)
+            let response = try ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<ElasticModel>.self, from: responseData)
+            guard
+                let responseJson = try JSONSerialization.jsonObject(with: responseData) as? [String: Any],
+                let aggregations = responseJson["aggregations"] as? [String: Any],
+                let countAggregation = aggregations["count"] as? [String: Any],
+                let count = countAggregation["value"] as? Int
+            else {
+                throw Abort(.internalServerError)
+            }
+            let items = response.hits.hits.map(\.source).map {
+                Waypoint.Detail.List(id: $0.id, title: $0.title, slug: $0.slug, location: .init(latitude: $0.location.lat, longitude: $0.location.lon))
+            }
+            return Page(items: items, metadata: .init(page: pageRequest.page, per: pageRequest.per, total: count))
         }
     }
 }

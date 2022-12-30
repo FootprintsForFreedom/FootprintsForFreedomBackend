@@ -16,20 +16,23 @@ final class WaypointApiGetInCoordinatesTests: AppTestCase, WaypointTest {
         
         let getInRangeContent = WaypointApiController.GetInRangeQuery(
             topLeftLatitude: waypoint.location.latitude + 1,
-            topLeftLongitude: waypoint.location.longitude + 1,
+            topLeftLongitude: waypoint.location.longitude - 1,
             bottomRightLatitude: waypoint.location.latitude - 1,
-            bottomRightLongitude: waypoint.location.longitude - 1
+            bottomRightLongitude: waypoint.location.longitude + 1
         )
         
         let query = try URLEncodedFormEncoder().encode(getInRangeContent)
+        let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
+        
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Successful get waypoints in coordinate range should return all waypoints in this coordinate range")
-            .get(waypointsPath.appending("in/?\(query)"))
+            .get(waypointsPath.appending("in/?\(query)&per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect([Waypoint.Detail.List].self) { content in
-                XCTAssert(content.contains { $0.id == waypoint.repository.id! })
+            .expect(Page<Waypoint.Detail.List>.self) { content in
+                XCTAssert(content.items.contains { $0.id == waypoint.repository.id! })
             }
             .test()
     }
@@ -41,20 +44,22 @@ final class WaypointApiGetInCoordinatesTests: AppTestCase, WaypointTest {
         
         let getInRangeContent = WaypointApiController.GetInRangeQuery(
             topLeftLatitude: waypoint.location.latitude + 1,
-            topLeftLongitude: waypoint.location.longitude + 1,
+            topLeftLongitude: waypoint.location.longitude - 1,
             bottomRightLatitude: waypoint.location.latitude - 1,
-            bottomRightLongitude: waypoint.location.longitude - 1
+            bottomRightLongitude: waypoint.location.longitude + 1
         )
         
         let query = try URLEncodedFormEncoder().encode(getInRangeContent)
+        
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Successful get waypoints in coordinate range should return all waypoints in this coordinate range")
             .get(waypointsPath.appending("in/?\(query)"))
             .expect(.ok)
             .expect(.json)
-            .expect([Waypoint.Detail.List].self) { content in
-                XCTAssert(!content.contains { $0.id == waypoint.repository.id! })
+            .expect(Page<Waypoint.Detail.List>.self) { content in
+                XCTAssert(!content.items.contains { $0.id == waypoint.repository.id! })
             }
             .test()
     }
@@ -66,20 +71,22 @@ final class WaypointApiGetInCoordinatesTests: AppTestCase, WaypointTest {
         
         let getInRangeContent = WaypointApiController.GetInRangeQuery(
             topLeftLatitude: waypoint.location.latitude + 1,
-            topLeftLongitude: waypoint.location.longitude + 1,
+            topLeftLongitude: waypoint.location.longitude - 1,
             bottomRightLatitude: waypoint.location.latitude - 1,
-            bottomRightLongitude: waypoint.location.longitude - 1
+            bottomRightLongitude: waypoint.location.longitude + 1
         )
         
         let query = try URLEncodedFormEncoder().encode(getInRangeContent)
+        
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Successful get waypoints in coordinate range should return all waypoints in this coordinate range")
             .get(waypointsPath.appending("in/?\(query)"))
             .expect(.ok)
             .expect(.json)
-            .expect([Waypoint.Detail.List].self) { content in
-                XCTAssert(!content.contains { $0.id == waypoint.repository.id! })
+            .expect(Page<Waypoint.Detail.List>.self) { content in
+                XCTAssert(!content.items.contains { $0.id == waypoint.repository.id! })
             }
             .test()
     }
