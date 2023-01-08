@@ -9,11 +9,16 @@ import Vapor
 import Fluent
 import ElasticsearchNIOClient
 
+struct Empty: Codable { }
+
 /// Streamlines paged loading of all ``ElasticModelController/ElasticModel``s of one Type from the database.
 protocol ElasticPagedListController: ElasticModelController {
+    /// The list parameters
+    associatedtype ListParameters: Codable = Empty
+    
     /// A json convertible array which extends the default search capabilities
     /// - Parameter sort: The default sort object which can be changed.
-    func sortList(_ sort: inout [[String: Any]]) async throws
+    func sortList(_ sort: inout [[String: Any]], on req: Request, with parameters: ListParameters) async throws
     
     /// Queries elasticsearch to get a paged list of elastic models.
     /// - Parameter req: The request on which to perform the list.
@@ -22,10 +27,11 @@ protocol ElasticPagedListController: ElasticModelController {
 }
 
 extension ElasticPagedListController {
-    func sortList(_ sort: inout [[String: Any]]) async throws { }
+    func sortList(_ sort: inout [[String: Any]], on req: Request, with parameters: ListParameters) async throws { }
     
     func list(_ req: Request) async throws -> Page<ElasticModel> {
         let pageRequest = try req.pageRequest
+        let listParameters = try req.query.decode(ListParameters.self)
         
         var query: [String : Any] = [
             "from": (pageRequest.page - 1) * pageRequest.per,
@@ -61,8 +67,8 @@ extension ElasticPagedListController {
         } else {
             sort.append(["languagePriority": "asc"])
         }
-        sort.append([ "title.keyword": "asc"])
-        try await sortList(&sort)
+        try await sortList(&sort, on: req, with: listParameters)
+        sort.append(["title.keyword": "asc"])
         query["sort"] = sort
         
         return try await req.elastic.perform {

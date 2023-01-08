@@ -57,10 +57,16 @@ public func configure(_ app: Application) throws {
         .on(.thursday)
         .at(2, 0)
     
-    /// Initialize SwiftSMTP
+    // Initialize SwiftSMTP
     app.swiftSMTP.initialize(with: .fromEnvironment())
     
-    /// setup modules
+    // Initialize MMDB
+    try app.mmdb.loadMMDB()
+    app.queues.schedule(ReloadMMDBJob())
+        .hourly()
+        .at(5)
+    
+    // setup modules
     let modules: [ModuleInterface] = [
         StatusModule(),
         UserModule(),
@@ -78,7 +84,7 @@ public func configure(_ app: Application) throws {
         try module.setUp(app)
     }
     
-    /// use automatic database migration
+    // use automatic database migration
     if app.environment != .production {
         try app.autoMigrate().wait()
     }

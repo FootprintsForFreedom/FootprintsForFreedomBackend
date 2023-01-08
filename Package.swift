@@ -26,6 +26,7 @@ let package = Package(
         .package(url: "https://github.com/brokenhandsio/VaporSecurityHeaders.git", from: "4.0.0"),
         .package(url: "https://github.com/niklhut/elasticsearch-nio-client.git", branch: "with-id-improvements"),
         .package(url: "https://github.com/SwiftPackageRepository/ISO639.swift.git", branch: "master"),
+        .package(url: "https://github.com/niklhut/swift-mmdb.git", branch: "city"),
     ],
     targets: [
         .target(name: "AppApi", dependencies: [
@@ -46,6 +47,7 @@ let package = Package(
                 .product(name: "VaporSecurityHeaders", package: "VaporSecurityHeaders"),
                 .product(name: "ElasticsearchNIOClient", package: "elasticsearch-nio-client"),
                 .product(name: "ISO639", package: "ISO639.swift"),
+                .product(name: "MMDB", package: "swift-mmdb"),
                 .target(name: "AppApi")
             ],
             swiftSettings: [

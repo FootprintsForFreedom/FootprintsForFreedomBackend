@@ -70,7 +70,8 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
             .get(waypointsPath.appending("?preferredLanguage=\(language.languageCode)&per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Detail.List>.self) { content in
+            .expect(Waypoint.Detail.ListWrapper.self) { wrapper in
+                let content = wrapper.items
                 XCTAssertEqual(content.metadata.total, content.items.count)
                 XCTAssertEqual(content.items.count, verifiedWaypointCount)
                 XCTAssertEqual(content.items.map { $0.id }.uniqued().count, verifiedWaypointCount)
@@ -160,7 +161,8 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
             .get(waypointsPath.appending("?per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Detail.List>.self) { content in
+            .expect(Waypoint.Detail.ListWrapper.self) { wrapper in
+                let content = wrapper.items
                 XCTAssertEqual(content.items.count, verifiedWaypointCount)
                 
                 XCTAssert(content.items.contains { $0.id == verifiedWaypointRepository.id })
@@ -226,7 +228,8 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
             .get(waypointsPath.appending("?per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Detail.List>.self) { content in
+            .expect(Waypoint.Detail.ListWrapper.self) { wrapper in
+                let content = wrapper.items
                 XCTAssert(content.items.contains { $0.id == verifiedWaypointRepository.id })
                 XCTAssertFalse(content.items.contains { $0.id == verifiedWaypointRepositoryForDeactivatedLanguage.id })
             }

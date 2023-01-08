@@ -34,6 +34,11 @@ extension Environment {
     /// The elasticsearch url.
     static let elasticsearchUrl = Self.get("ELASTICSEARCH_URL")!
     
+    // MARK: - MMDB
+    
+    /// The maxmind GeoLite2 db path inside the resources directory.
+    static let mmdbPath = Self.get("MMDB_PATH")!
+    
     // MARK: - Email
     
     /// The email address used for sending mails.

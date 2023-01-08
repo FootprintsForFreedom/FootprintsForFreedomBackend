@@ -15,6 +15,51 @@ public extension Waypoint {
 }
 
 public extension Waypoint.Detail {
+    /// Used to request a list of waypoint objects. The location specifies the area for which results should be listed.
+    ///
+    /// - Note: If no valid location is enclosed the request handler will try to resolve the user's location by its ip address and otherwise fall back to a default value.
+    struct GetList: Codable {
+        /// The latitude of the area in which the user is. If unavailable set to nil.
+        public let latitude: Double?
+        /// The longitude of the area in which the user is. If unavailable set to nil.
+        public let longitude: Double?
+        
+        /// Used to request a list of waypoint objects.
+        /// - Parameters:
+        ///   - latitude: The latitude of the area in which the user is. If unavailable set to nil.
+        ///   - longitude: The longitude of the area in which the user is. If unavailable set to nil.
+        public init(latitude: Double?, longitude: Double?) {
+            self.latitude = latitude
+            self.longitude = longitude
+        }
+    }
+    
+    /// Used to list waypoint objects with a user location.
+    ///
+    /// Contains ``Waypoint/Location`` as as user location and ``List`` items as ``Subset`` near this location.
+    struct ListWrapper: Codable {
+        /// The location of the user sending the initial ``Waypoint/Detail/GetList`` request.
+        ///
+        /// If the ``Waypoint/Detail/GetList`` request already contained a location, this is going to be the same one.
+        ///
+        /// Otherwise the approximate location is derived from the users ip address. If no location can be found for the user's ip address a default value will be used.
+        ///
+        /// - Note: The items enclosed will be sorted to be near this location.
+        public let userLocation: Waypoint.Location
+        /// A ``Subset`` of ``Waypoint/Detail/List`` items near the user's location.
+        public let items: Subset<List>
+        
+        
+        /// Used to list waypoint objects with a user location.
+        /// - Parameters:
+        ///   - userLocation: The location of the user sending the initial ``Waypoint/Detail/GetList`` request.
+        ///   - items: A ``Subset`` of ``Waypoint/Detail/List`` items near the user's location.
+        public init(userLocation: Waypoint.Location, items: Subset<List>) {
+            self.userLocation = userLocation
+            self.items = items
+        }
+    }
+    
     /// Used to list waypoint objects.
     struct List: Codable {
         /// Id uniquely identifying the waypoint repository.

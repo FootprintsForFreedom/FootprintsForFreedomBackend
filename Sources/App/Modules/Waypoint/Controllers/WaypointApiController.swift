@@ -8,8 +8,10 @@
 import Vapor
 import Fluent
 import ElasticsearchNIOClient
+import MMDB
 
 extension Waypoint.Detail.List: Content { }
+extension Waypoint.Detail.ListWrapper: Content { }
 extension Waypoint.Detail.Detail: Content { }
 
 struct WaypointApiController: ApiElasticDetailController, ApiElasticPagedListController, ApiRepositoryCreateController, ApiRepositoryUpdateController, ApiRepositoryPatchController, ApiDeleteController {
@@ -40,7 +42,6 @@ struct WaypointApiController: ApiElasticDetailController, ApiElasticPagedListCon
         KeyedContentValidator<String>.required("detailText", optional: true)
         KeyedContentValidator<Waypoint.Location>.location("location", optional: true)
         KeyedContentValidator<String>.required("idForWaypointDetailToPatch")
-
     }
     
     // MARK: - Routes
@@ -61,11 +62,52 @@ struct WaypointApiController: ApiElasticDetailController, ApiElasticPagedListCon
     
     // MARK: - List
     
-    func sortList(_ sort: inout [[String : Any]]) async throws {
-        // TODO: ip to location
+    func setupListRoutes(_ routes: RoutesBuilder) {
+        let baseRoutes = getBaseRoutes(routes)
+        baseRoutes.get(use: listWrapper)
+    }
+    
+    func listWrapper(_ req: Request) async throws -> Waypoint.Detail.ListWrapper {
+        /// Contains all values that can be encoded into the query of this request
+        struct QueryValues: Encodable {
+            let latitude: Double
+            let longitude: Double
+            let page: Int
+            let per: Int
+        }
+        
+        let location: Waypoint.Location
+        let decodedLocation = try req.query.decode(Waypoint.Detail.GetList.self)
+        if decodedLocation.latitude == nil || decodedLocation.longitude == nil {
+            if let userIp = req.remoteAddress?.ipAddress,
+               case let .value(result) = req.mmdb.search(address: userIp),
+               case let .map(map) = result,
+               case let .map(locationMap) = map["location"],
+               case let .double(latitude) = locationMap["latitude"],
+               case let .double(longitude) = locationMap["longitude"] {
+                // set location from ip address
+                location = Waypoint.Location(latitude: latitude, longitude: longitude)
+            } else {
+                // set default location
+                location = Waypoint.Location(latitude: 49.872222, longitude: 8.652778)
+            }
+            let pageRequest = try req.pageRequest
+            // Encode the query values struct since encoding only the location would reset the query and therefore delete the page request
+            try req.query.encode(QueryValues(latitude: location.latitude, longitude: location.longitude, page: pageRequest.page, per: pageRequest.per))
+            print(req.query)
+        } else {
+            // set location sent with request
+            location = .init(latitude: decodedLocation.latitude!, longitude: decodedLocation.longitude!)
+        }
+        
+        let items = try await listApi(req)
+        return .init(userLocation: location, items: .from(items))
+    }
+    
+    func sortList(_ sort: inout [[String: Any]], on req: Request, with parameters: Waypoint.Location) async throws {
         let geoSort = [
             "_geo_distance" : [
-                "location": [49.872833, 8.651222],
+                "location": [parameters.latitude, parameters.longitude],
                 "order" : "asc",
                 "unit" : "km",
                 "mode" : "min",
