@@ -14,8 +14,6 @@ import ISO639
 public protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel == Self {
     /// The associated database model.
     associatedtype DatabaseModel: DatabaseElasticInterface
-    /// The associated key.
-    associatedtype Key: Codable, LockKey
     /// The associated id value.
     associatedtype IDValue: Hashable
     

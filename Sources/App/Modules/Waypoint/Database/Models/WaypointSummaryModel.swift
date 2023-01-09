@@ -80,7 +80,6 @@ extension WaypointSummaryModel {
 extension WaypointSummaryModel {
     struct Elasticsearch: ElasticModelInterface {
         typealias DatabaseModel = WaypointSummaryModel
-        struct Key: Codable, LockKey { }
         
         static var baseSchema = "waypoints"
         static var mappings: [String : Any] = [
