@@ -170,6 +170,7 @@ extension WaypointSummaryModel {
         let tags = try await WaypointTagModel
             .query(on: db)
             .filter(\.$waypoint.$id == self.requireID())
+            .field(\.$tag.$id)
             .all()
             .map { $0.$tag.id }
         return try self.toElasticsearch(tags: tags)
