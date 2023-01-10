@@ -14,7 +14,7 @@ extension Media.Detail.Update: Content { }
 
 final class MediaApiUpdateTests: AppTestCase, MediaTest {
     private func getMediaUpdateContent(
-        title: String = "New Meidia Title \(UUID())",
+        title: String = "New Media Title \(UUID())",
         updatedTitle: String = "Updated Title",
         detailText: String = "New Media Description",
         updatedDetailText: String = "Updated Description",
