@@ -140,11 +140,11 @@ enum WaypointMigrations {
                 locations.\(raw: WaypointLocationModel.FieldKeys.v1.createdAt.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.locationCreatedAt.description),
                 locations.\(raw: WaypointLocationModel.FieldKeys.v1.updatedAt.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.locationUpdatedAt.description),
                 locations.\(raw: WaypointLocationModel.FieldKeys.v1.deletedAt.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.locationDeletedAt.description),
-                languages.\(raw: FieldKey.id.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.languageId.description),
-                languages.\(raw: LanguageModel.FieldKeys.v1.languageCode.description),
-                languages.\(raw: LanguageModel.FieldKeys.v1.name.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.languageName.description),
-                languages.\(raw: LanguageModel.FieldKeys.v1.isRTL.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.languageIsRTL.description),
-                languages.\(raw: LanguageModel.FieldKeys.v1.priority.description) as \(raw: WaypointSummaryModel.FieldKeys.v1.languagePriority.description)
+                \(SQLColumn(FieldKey.id.description, table: LanguageModel.schema)) as \(raw: WaypointSummaryModel.FieldKeys.v1.languageId.description),
+                \(SQLColumn(LanguageModel.FieldKeys.v1.languageCode.description, table: LanguageModel.schema)),
+                \(SQLColumn(LanguageModel.FieldKeys.v1.name.description, table: LanguageModel.schema)) as \(raw: WaypointSummaryModel.FieldKeys.v1.languageName.description),
+                \(SQLColumn(LanguageModel.FieldKeys.v1.isRTL.description, table: LanguageModel.schema)) as \(raw: WaypointSummaryModel.FieldKeys.v1.languageIsRTL.description),
+                \(SQLColumn(LanguageModel.FieldKeys.v1.priority.description, table: LanguageModel.schema)) as \(raw: WaypointSummaryModel.FieldKeys.v1.languagePriority.description)
             FROM
                 latest_verified_waypoint_details details
                 INNER JOIN latest_verified_waypoint_locations locations ON locations.\(raw: WaypointLocationModel.FieldKeys.v1.repositoryId.description) = details.\(raw: WaypointDetailModel.FieldKeys.v1.repositoryId.description)
@@ -157,7 +157,7 @@ enum WaypointMigrations {
         
         func revert(on db: Database) async throws {
             let sqlDatabase = db as! SQLDatabase
-            try await sqlDatabase.raw("DROP VIEW waypoint_summaries").run()
+            try await sqlDatabase.raw("DROP VIEW \(raw: WaypointSummaryModel.schema)").run()
             try await db.schema(WaypointReportModel.schema).delete()
             try await db.schema(WaypointDetailModel.schema).delete()
             try await db.schema(WaypointLocationModel.schema).delete()
