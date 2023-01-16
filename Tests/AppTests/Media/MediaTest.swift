@@ -19,7 +19,7 @@ extension MediaTest {
         detailText: String = "New Media Description",
         source: String = "New Media Source",
         group: Media.Detail.Group = .image,
-        verifiedAt: Date? = nil,
+        verified: Bool = false,
         waypointId: UUID? = nil,
         languageId: UUID? = nil,
         userId: UUID? = nil
@@ -61,7 +61,7 @@ extension MediaTest {
         )
         
         let mediaDetail = try await MediaDetailModel.createWith(
-            verifiedAt: verifiedAt,
+            verified: false,
             title: title,
             detailText: detailText,
             source: source,
@@ -69,8 +69,21 @@ extension MediaTest {
             repositoryId: mediaRepository.requireID(),
             fileId: mediaFile.requireID(),
             userId: userId,
-            on: app.db
+            on: self
         )
+        
+        if verified {
+            try app
+                .describe("Verify media as moderator should be successful and return ok")
+                .post(mediaPath.appending("\(mediaRepository.requireID())/verify/\(mediaDetail.requireID())"))
+                .bearerToken(moderatorToken)
+                .expect(.ok)
+                .expect(.json)
+                .expect(Media.Detail.Detail.self) { content in
+                    mediaDetail.slug = content.slug
+                }
+                .test()
+        }
         
         return (mediaRepository, mediaDetail, mediaFile)
     }
@@ -95,7 +108,7 @@ extension MediaFileModel {
 
 extension MediaDetailModel {
     static func createWith(
-        verifiedAt: Date?,
+        verified: Bool,
         title: String,
         slug: String? = nil,
         detailText: String,
@@ -104,11 +117,10 @@ extension MediaDetailModel {
         repositoryId: UUID,
         fileId: UUID,
         userId: UUID,
-        on db: Database
+        on test: MediaTest
     ) async throws -> Self {
         let slug = slug ?? title.appending(" ").appending(Date().toString(with: .day)).slugify()
         let mediaDetail = self.init(
-            verifiedAt: verifiedAt,
             title: title,
             slug: slug,
             detailText: detailText,
@@ -118,7 +130,21 @@ extension MediaDetailModel {
             fileId: fileId,
             userId: userId
         )
-        try await mediaDetail.create(on: db)
+        try await mediaDetail.create(on: test.app.db)
+        
+        if verified {
+            try test.app
+                .describe("Verify media as moderator should be successful and return ok")
+                .post(test.mediaPath.appending("\(repositoryId)/verify/\(mediaDetail.requireID())"))
+                .bearerToken(test.moderatorToken)
+                .expect(.ok)
+                .expect(.json)
+                .expect(Media.Detail.Detail.self) { content in
+                    mediaDetail.slug = content.slug
+                }
+                .test()
+        }
+        
         return mediaDetail
     }
     

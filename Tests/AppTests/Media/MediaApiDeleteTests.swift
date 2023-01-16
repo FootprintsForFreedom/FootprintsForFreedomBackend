@@ -34,7 +34,7 @@ final class MediaApiDeleteTests: AppTestCase, MediaTest {
         // Get original media count
         let mediaCount = try await MediaRepositoryModel.query(on: app.db).count()
         
-        let (mediaRepository, _, _) = try await createNewMedia(verifiedAt: Date())
+        let (mediaRepository, _, _) = try await createNewMedia(verified: true)
         let moderatorToken = try await getToken(for: .moderator)
         
         try app
@@ -55,7 +55,7 @@ final class MediaApiDeleteTests: AppTestCase, MediaTest {
         let mediaDetailCount = try await MediaDetailModel.query(on: app.db).count()
         let mediaFileCount = try await MediaFileModel.query(on: app.db).count()
         
-        let (mediaRepository, _, _) = try await createNewMedia(verifiedAt: Date())
+        let (mediaRepository, _, _) = try await createNewMedia(verified: true)
         let moderatorToken = try await getToken(for: .moderator)
         
         try app

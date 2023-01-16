@@ -14,7 +14,7 @@ final class MediaApiDeleteUserTests: AppTestCase, MediaTest, UserTest {
     func testDeleteUserSetsUserIdToNil() async throws {
         let moderatorToken = try await getToken(for: .moderator)
         let (user, token) = try await createNewUserWithToken()
-        let (mediaRepository, media, file) = try await createNewMedia(verifiedAt: Date(), userId: user.requireID())
+        let (mediaRepository, media, file) = try await createNewMedia(verified: true, userId: user.requireID())
         try await media.$language.load(on: app.db)
         
         try app
@@ -23,6 +23,8 @@ final class MediaApiDeleteUserTests: AppTestCase, MediaTest, UserTest {
             .bearerToken(token)
             .expect(.noContent)
             .test()
+        
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Get verified media with deleted user should return ok and more details")

@@ -108,6 +108,10 @@ extension MediaApiController: ApiRepositoryVerificationController {
         try await req.onlyFor(.moderator)
     }
     
+    func afterVerifyDetail(_ req: Request, _ repository: MediaRepositoryModel, _ detail: Detail) async throws {
+        try await MediaSummaryModel.Elasticsearch.createOrUpdate(detailWithId: detail.requireID(), on: req)
+    }
+    
     // POST: api/media/:repositoryId/verify/:waypointModelId
     func verifyDetailOutput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: Detail) async throws -> Media.Detail.Detail {
         return try await detailOutput(req, repository, detail)

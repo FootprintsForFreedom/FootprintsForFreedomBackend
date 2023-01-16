@@ -12,14 +12,16 @@ import Spec
 
 final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
     func testSuccessfulSearchMediaReturnsWhenTextInTitle() async throws {
-        let media = try await createNewMedia(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verifiedAt: Date())
+        let media = try await createNewMedia(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verified: true)
         try await media.detail.$language.load(on: app.db)
         
         let mediaCount = try await MediaRepositoryModel.query(on: app.db).count()
         
+        try await Task.sleep(for: .seconds(1))
+        
         try app
             .describe("Search media should return the media if it is verified and has the search text in the title")
-            .get(mediaPath.appending("search/?text=besonder&languageCode=\(media.detail.language.languageCode)&per=\(mediaCount)"))
+            .get(mediaPath.appending("search/?text=besonderer&languageCode=\(media.detail.language.languageCode)&per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
             .expect(Page<Media.Detail.List>.self) { content in
@@ -34,14 +36,16 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
     }
     
     func testSuccessfulSearchMediaReturnsWhenTextInDetailText() async throws {
-        let media = try await createNewMedia(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verifiedAt: Date())
+        let media = try await createNewMedia(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verified: true)
         try await media.detail.$language.load(on: app.db)
         
         let mediaCount = try await MediaRepositoryModel.query(on: app.db).count()
         
+        try await Task.sleep(for: .seconds(1))
+        
         try app
             .describe("Search media should return the media if it is verified and has the search text in the detail text")
-            .get(mediaPath.appending("search/?text=ander&languageCode=\(media.detail.language.languageCode)&per=\(mediaCount)"))
+            .get(mediaPath.appending("search/?text=anderer&languageCode=\(media.detail.language.languageCode)&per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
             .expect(Page<Media.Detail.List>.self) { content in
@@ -56,7 +60,7 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
     }
     
     func testSuccessfulSearchMediaOnlyReturnsVerifiedMedias() async throws {
-        let media = try await createNewMedia(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verifiedAt: nil)
+        let media = try await createNewMedia(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verified: false)
         try await media.detail.$language.load(on: app.db)
         
         let mediaCount = try await MediaRepositoryModel.query(on: app.db).count()
@@ -73,7 +77,7 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
     }
     
     func testSuccessfulSearchMediaDoesNotReturnWhenTextNotInTitleOrDetailText() async throws {
-        let media = try await createNewMedia(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verifiedAt: Date())
+        let media = try await createNewMedia(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verified: true)
         try await media.detail.$language.load(on: app.db)
         
         let mediaCount = try await MediaRepositoryModel.query(on: app.db).count()
@@ -92,15 +96,24 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
     func testSuccessfulSearchMediaReturnsWhenTextInTagTitle() async throws {
         let language = try await createLanguage()
         let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verified: true, languageId: language.requireID())
-        let media = try await createNewMedia(verifiedAt: Date(), languageId: language.requireID())
+        let media = try await createNewMedia(verified: true, languageId: language.requireID())
         try await media.repository.$tags.attach(tag.repository, on: app.db)
-        try await media.detail.$language.load(on: app.db)
+        
+        try app
+            .describe("Verify tag on media should return ok and the media with the tag")
+            .post(mediaPath.appending("\(media.repository.requireID())/tags/verify/\(tag.repository.requireID())"))
+            .bearerToken(moderatorToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
         
         let mediaCount = try await MediaRepositoryModel.query(on: app.db).count()
         
+        try await Task.sleep(for: .seconds(1))
+        
         try app
             .describe("Search media should return the media if it is verified and has the search text in a connected tag title")
-            .get(mediaPath.appending("search/?text=besonder&languageCode=\(media.detail.language.languageCode)&per=\(mediaCount)"))
+            .get(mediaPath.appending("search/?text=besonderer&languageCode=\(language.languageCode)&per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
             .expect(Page<Media.Detail.List>.self) { content in
@@ -117,15 +130,24 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
     func testSuccessfulSearchMediaReturnsWhenTextInTagKeywords() async throws {
         let language = try await createLanguage()
         let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verified: true, languageId: language.requireID())
-        let media = try await createNewMedia(verifiedAt: Date(), languageId: language.requireID())
+        let media = try await createNewMedia(verified: true, languageId: language.requireID())
         try await media.repository.$tags.attach(tag.repository, on: app.db)
-        try await media.detail.$language.load(on: app.db)
+        
+        try app
+            .describe("Verify tag on media should return ok and the media with the tag")
+            .post(mediaPath.appending("\(media.repository.requireID())/tags/verify/\(tag.repository.requireID())"))
+            .bearerToken(moderatorToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
         
         let mediaCount = try await MediaRepositoryModel.query(on: app.db).count()
         
+        try await Task.sleep(for: .seconds(1))
+        
         try app
             .describe("Search media should return the media if it is verified and has the search text in a connected tag keyword")
-            .get(mediaPath.appending("search/?text=ander&languageCode=\(media.detail.language.languageCode)&per=\(mediaCount)"))
+            .get(mediaPath.appending("search/?text=anders&languageCode=\(language.languageCode)&per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
             .expect(Page<Media.Detail.List>.self) { content in
@@ -153,7 +175,7 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
             on: self
         )
         
-        let media = try await createNewMedia(verifiedAt: Date(), languageId: language.requireID())
+        let media = try await createNewMedia(verified: true, languageId: language.requireID())
         try await media.repository.$tags.attach(tag.repository, on: app.db)
         try await media.detail.$language.load(on: app.db)
         
@@ -173,7 +195,7 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
     func testSuccessfulSearchOnlySearchesTagsInSpecifiedLanguage() async throws {
         let otherLanguage = try await createLanguage()
         let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verified: true, languageId: otherLanguage.requireID())
-        let media = try await createNewMedia(verifiedAt: Date())
+        let media = try await createNewMedia(verified: true)
         try await media.repository.$tags.attach(tag.repository, on: app.db)
         try await media.detail.$language.load(on: app.db)
         
@@ -193,7 +215,7 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
     func testSuccessfulSearchMediaOnlyReturnsDetailsForSpecifiedLanguage() async throws {
         let language = try await createLanguage()
         let language2 = try await createLanguage()
-        let media = try await createNewMedia(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verifiedAt: Date(), languageId: language.requireID())
+        let media = try await createNewMedia(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verified: true, languageId: language.requireID())
         try await media.detail.$language.load(on: app.db)
         
         let mediaCount = try await MediaRepositoryModel.query(on: app.db).count()
@@ -210,29 +232,35 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
     }
     
     func testSuccessfulSearchMediaDoesNotReturnDetailsForDeactivatedLanguage() async throws {
-        let language = try await createLanguage(activated: false)
-        let media = try await createNewMedia(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verifiedAt: Date(), languageId: language.requireID())
-        try await media.detail.$language.load(on: app.db)
+        let language = try await createLanguage()
+        let _ = try await createNewMedia(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verified: true, languageId: language.requireID())
+        
+        let adminToken = try await getToken(for: .admin)
+        try app
+            .describe("Deactivate language as admin should return ok")
+            .put(languagesPath.appending("\(language.requireID().uuidString)/deactivate"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
         
         let mediaCount = try await MediaRepositoryModel.query(on: app.db).count()
         
+        try await Task.sleep(for: .seconds(1))
+        
         try app
             .describe("Search media should only return medias for the specified language")
-            .get(mediaPath.appending("search/?text=ander&languageCode=\(language.languageCode)&per=\(mediaCount)"))
-            .expect(.ok)
-            .expect(.json)
-            .expect(Page<Media.Detail.List>.self) { content in
-                XCTAssert(!content.items.contains { $0.id == media.repository.id })
-            }
+            .get(mediaPath.appending("search/?text=anderer&languageCode=\(language.languageCode)&per=\(mediaCount)"))
+            .expect(.notFound)
             .test()
     }
     
     func testSuccessfulSearchMediaOnlyReturnsNewestVerifiedDetailForRepository() async throws {
         let language = try await createLanguage()
         let userId = try await getUser(role: .user).requireID()
-        let media = try await createNewMedia(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verifiedAt: Date(), languageId: language.requireID())
+        let media = try await createNewMedia(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verified: true, languageId: language.requireID())
         let newerMedia = try await MediaDetailModel.createWith(
-            verifiedAt: Date(),
+            verified: true,
             title: "Ein besonderer Titel \(UUID()) neu",
             detailText: "Ein neuer anderer Text",
             source: "Quelle",
@@ -240,14 +268,16 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
             repositoryId: media.repository.requireID(),
             fileId: media.file.requireID(),
             userId: userId,
-            on: app.db
+            on: self
         )
         
         let mediaCount = try await MediaRepositoryModel.query(on: app.db).count()
         
+        try await Task.sleep(for: .seconds(1))
+        
         try app
             .describe("Search media should only return the newest verified detail for a media repository")
-            .get(mediaPath.appending("search/?text=besonder&languageCode=\(language.languageCode)&per=\(mediaCount)"))
+            .get(mediaPath.appending("search/?text=besonderer&languageCode=\(language.languageCode)&per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
             .expect(Page<Media.Detail.List>.self) { content in
@@ -265,7 +295,7 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
     }
     
     func testSearchMediaNeedsValidText() async throws {
-        let media = try await createNewMedia(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verifiedAt: Date())
+        let media = try await createNewMedia(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verified: true)
         try await media.detail.$language.load(on: app.db)
         
         let mediaCount = try await MediaRepositoryModel.query(on: app.db).count()
@@ -284,7 +314,7 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
     }
     
     func testSearchMediaNeedsValidLanguageCode() async throws {
-        let media = try await createNewMedia(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verifiedAt: Date())
+        let media = try await createNewMedia(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verified: true)
         try await media.detail.$language.load(on: app.db)
         
         let mediaCount = try await MediaRepositoryModel.query(on: app.db).count()

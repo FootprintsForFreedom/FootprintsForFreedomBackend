@@ -20,14 +20,14 @@ public struct ElasticHandler {
     /// Create or update an elastic model interface.
     /// - Parameter document: The elastic model to create or update.
     /// - Returns: The document response.
-    func createOrUpdate<Document: ElasticModelInterface>(_ document: Document) async throws -> ESUpdateDocumentResponse<String> {
-        try await elastic.updateDocument(document, id: document.id.uuidString, in: document.schema).get()
+    func createOrUpdate<Document: ElasticModelInterface>(_ document: Document) async throws -> ESUpdateDocumentResponse<Document.ID> {
+        try await elastic.updateDocument(document, in: document.schema).get()
     }
     
     /// Performs a bulk operation.
     /// - Parameter operations: The single operations to perform.
     /// - Returns: An elasticsearch bulk response.
-    func bulk<Document: ElasticModelInterface>(_ operations: [ESBulkOperation<Document, String>]) async throws -> ESBulkResponse {
+    func bulk<Document: ElasticModelInterface, ID: Hashable>(_ operations: [ESBulkOperation<Document, ID>]) async throws -> ESBulkResponse {
         try await elastic.bulk(operations).get()
     }
     
@@ -38,7 +38,7 @@ public struct ElasticHandler {
     ///   - settings: The settings to be used for this index.
     /// - Returns: Wether or not the request was acknowledged.
     @discardableResult
-    func createIndex(_ indexName: String, mappings: [String: Any], settings: [String: Any]) async throws -> ESDeleteIndexResponse {
+    func createIndex(_ indexName: String, mappings: [String: Any], settings: [String: Any]) async throws -> ESAcknowledgedResponse {
         try await elastic.createIndex(indexName, mappings: mappings, settings: settings).get()
     }
     
@@ -46,7 +46,7 @@ public struct ElasticHandler {
     /// - Parameter indexName: The name of the index to delete.
     /// - Returns: Wether or not the request was acknowledged.
     @discardableResult
-    func deleteIndex(_ indexName: String) async throws -> ESDeleteIndexResponse {
+    func deleteIndex(_ indexName: String) async throws -> ESAcknowledgedResponse {
         try await elastic.deleteIndex(indexName).get()
     }
     

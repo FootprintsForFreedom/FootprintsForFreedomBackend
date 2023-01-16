@@ -81,7 +81,7 @@ final class MediaApiVerificationTests: AppTestCase, MediaTest {
     
     func testVerifyMediaWithAlreadyVerifiedMediaFails() async throws {
         let moderatorToken = try await getToken(for: .moderator)
-        let (repository, detail, _) = try await createNewMedia(verifiedAt: Date())
+        let (repository, detail, _) = try await createNewMedia(verified: true)
         
         try app
             .describe("Verify media for already verified media should fail")

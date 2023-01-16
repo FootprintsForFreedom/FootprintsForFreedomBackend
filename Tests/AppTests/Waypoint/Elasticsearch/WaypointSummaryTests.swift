@@ -679,4 +679,3 @@ final class WaypointSummaryTests: AppTestCase, WaypointTest, TagTest, UserTest {
         }
     }
 }
-

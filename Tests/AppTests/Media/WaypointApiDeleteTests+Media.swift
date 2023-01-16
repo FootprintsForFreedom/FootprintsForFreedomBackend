@@ -20,9 +20,9 @@ extension WaypointApiDeleteTests: MediaTest {
         let mediaDetailCount = try await MediaDetailModel.query(on: app.db).count()
         let mediaFileCount = try await MediaFileModel.query(on: app.db).count()
         
-        let (waypointRepository, _, _) = try await createNewWaypoint()
+        let (waypointRepository, _, _) = try await createNewWaypoint(verified: true)
         let moderatorToken = try await getToken(for: .moderator)
-        let _ = try await createNewMedia(waypointId: waypointRepository.requireID())
+        let _ = try await createNewMedia(verified: true, waypointId: waypointRepository.requireID())
         
         try app
             .describe("A moderator should be able to delete a waypoint and all connected media should be deleted as well")

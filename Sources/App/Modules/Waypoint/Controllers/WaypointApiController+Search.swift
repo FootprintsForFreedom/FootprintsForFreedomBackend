@@ -75,7 +75,7 @@ extension WaypointApiController: ApiElasticSearchController {
     }
     
     func searchOutput(_ req: Request, _ model: WaypointSummaryModel.Elasticsearch) async throws -> Waypoint.Detail.List {
-        .init(id: model.id, title: model.title, slug: model.slug, location: .init(latitude: model.location.lat, longitude: model.location.lon))
+        listOutput(req, model)
     }
     
     // MARK: - Get in Range

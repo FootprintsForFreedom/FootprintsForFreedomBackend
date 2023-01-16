@@ -11,7 +11,7 @@ import ElasticsearchNIOClient
 import ISO639
 
 /// Iterface between elasticsearch and a model.
-public protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel == Self {
+public protocol ElasticModelInterface: Identifiable, Codable where ID == UUID, DatabaseModel.ElasticModel == Self {
     /// The associated database model.
     associatedtype DatabaseModel: DatabaseElasticInterface
     /// The associated id value.
@@ -49,7 +49,7 @@ public protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel 
     ///   - req: The request on which to create or update the model.
     /// - Returns: The document response
     @discardableResult
-    static func createOrUpdate(detailWithId detailId: UUID, on req: Request) async throws -> ESUpdateDocumentResponse<String>?
+    static func createOrUpdate(detailWithId detailId: UUID, on req: Request) async throws -> ESUpdateDocumentResponse<UUID>?
     
     /// Deletes all models with a repository id from elasticsearch.
     /// - Parameters:
@@ -65,7 +65,7 @@ public protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel 
     ///   - elastic: The elastic handler on which to create the index.
     /// - Returns: Wether or not the request was acknowledged.
     @discardableResult
-    static func createIndex(for languageCode: String, on elastic: ElasticHandler) async throws -> ESDeleteIndexResponse
+    static func createIndex(for languageCode: String, on elastic: ElasticHandler) async throws -> ESAcknowledgedResponse
     
     /// Deactivates a language.
     /// - Parameters:
@@ -73,7 +73,7 @@ public protocol ElasticModelInterface: Codable where DatabaseModel.ElasticModel 
     ///   - elastic: The elastic handler on which to deactivate the language.
     /// - Returns:Wether or not the request was acknowledged.
     @discardableResult
-    static func deactivateLanguage(_ languageCode: String, on elastic: ElasticHandler) async throws -> ESDeleteIndexResponse
+    static func deactivateLanguage(_ languageCode: String, on elastic: ElasticHandler) async throws -> ESAcknowledgedResponse
     
     /// Activates a language.
     /// - Parameters:
@@ -114,7 +114,7 @@ extension ElasticModelInterface {
     }
     
     @discardableResult
-    static func createOrUpdate(detailWithId detailId: UUID, on req: Request) async throws -> ESUpdateDocumentResponse<String>? {
+    static func createOrUpdate(detailWithId detailId: UUID, on req: Request) async throws -> ESUpdateDocumentResponse<UUID>? {
         guard let element = try await DatabaseModel
             .query(on: req.db)
             .filter(\._$detailId == detailId)
@@ -131,18 +131,18 @@ extension ElasticModelInterface {
     static func delete(allDetailsWithRepositoryId repositoryId: UUID, on req: Request) async throws -> ESBulkResponse {
         let languages = try await LanguageModel.query(on: req.db).all()
         let elementsToDelete = languages
-            .map { ESBulkOperation<Self, String>(operationType: .delete, index: Self.schema(for: $0.languageCode), id: repositoryId.uuidString, document: nil) }
+            .map { ESBulkOperation<Self, UUID>(operationType: .delete, index: Self.schema(for: $0.languageCode), id: repositoryId, document: nil) }
         return try await req.elastic.bulk(elementsToDelete)
     }
     
     @discardableResult
-    static func createIndex(for languageCode: String, on elastic: ElasticHandler) async throws -> ESDeleteIndexResponse {
+    static func createIndex(for languageCode: String, on elastic: ElasticHandler) async throws -> ESAcknowledgedResponse {
         guard let language = Language.from(with: languageCode) else { throw Abort(.internalServerError) }
         return try await elastic.createIndex(Self.schema(for: languageCode), mappings: Self.mappings, settings: language.analyzer.json)
     }
     
     @discardableResult
-    static func deactivateLanguage(_ languageCode: String, on elastic: ElasticHandler) async throws -> ESDeleteIndexResponse {
+    static func deactivateLanguage(_ languageCode: String, on elastic: ElasticHandler) async throws -> ESAcknowledgedResponse {
         try await elastic.deleteIndex(Self.schema(for: languageCode))
     }
     
@@ -158,7 +158,7 @@ extension ElasticModelInterface {
         guard !elementsToActivate.isEmpty else { return nil }
         let documents = try await elementsToActivate
             .concurrentMap { try await $0.toElasticsearch(on: req.db) }
-            .map { ESBulkOperation(operationType: .create, index: $0.schema, id: $0.id.uuidString, document: $0) }
+            .map { ESBulkOperation(operationType: .create, index: $0.schema, id: $0.id, document: $0) }
         return try await req.elastic.bulk(documents)
     }
     
@@ -172,7 +172,7 @@ extension ElasticModelInterface {
         guard !elementsToChange.isEmpty else { return nil }
         let documents = try await elementsToChange
             .concurrentMap { try await $0.toElasticsearch(on: req.db) }
-            .map { ESBulkOperation(operationType: .update, index: $0.schema, id: $0.id.uuidString, document: $0) }
+            .map { ESBulkOperation(operationType: .update, index: $0.schema, id: $0.id, document: $0) }
         return try await req.elastic.bulk(documents)
     }
     
@@ -191,7 +191,7 @@ extension ElasticModelInterface {
                 return document
             }
             .map { (document: Self) in
-                return ESBulkOperation(operationType: .update, index: document.schema, id: document.id.uuidString, document: document)
+                return ESBulkOperation(operationType: .update, index: document.schema, id: document.id, document: document)
             }
         let response = try await req.elastic.bulk(documents)
         return response

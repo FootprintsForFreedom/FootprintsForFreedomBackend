@@ -11,7 +11,7 @@ struct MediaModule: ModuleInterface {
     let router = MediaRouter()
     
     func boot(_ app: Application) throws {
-        app.migrations.add(MediaMigrations.v1())
+        try app.migrations.add(MediaMigrations.v1(elastic: app.elastic))
         
         app.hooks.register("api-routes-v1", use: router.apiRoutesHook)
         

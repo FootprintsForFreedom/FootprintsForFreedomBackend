@@ -25,10 +25,10 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
         // Create an unverified media for a deactivated language
         let (unverifiedMediaRepositoryForDeactivatedLanguage, _, _) = try await createNewMedia(languageId: deactivatedLanguage.requireID(), userId: userId)
         // Create a verified media
-        let (verifiedMediaRepository, createdVerifiedDetail, createdVerifiedFile) = try await createNewMedia(verifiedAt: Date(), languageId: language.requireID(), userId: userId)
+        let (verifiedMediaRepository, createdVerifiedDetail, createdVerifiedFile) = try await createNewMedia(verified: true, languageId: language.requireID(), userId: userId)
         // Create a second not verified model for the verified media
         let _ = try await MediaDetailModel.createWith(
-            verifiedAt: nil,
+            verified: false,
             title: "Not visible \(UUID())",
             detailText: "Some invisible detailText",
             source: "What is this?",
@@ -36,10 +36,10 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
             repositoryId: verifiedMediaRepository.requireID(),
             fileId: createdVerifiedFile.requireID(),
             userId: userId,
-            on: app.db
+            on: self
         )
         // Create a media in the other language
-        let (verifiedMediaRepositoryInDifferentLanguage, _, _) = try await createNewMedia(verifiedAt: Date(), languageId: language2.requireID(), userId: userId)
+        let (verifiedMediaRepositoryInDifferentLanguage, _, _) = try await createNewMedia(verified: true, languageId: language2.requireID(), userId: userId)
         
         // Get unverified media count
         let media = try await MediaRepositoryModel
@@ -121,7 +121,7 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
         try await createdUnverifiedDetail.$language.load(on: app.db)
         // Create a verified media for the same repository
         let verifiedDetail = try await MediaDetailModel.createWith(
-            verifiedAt: Date(),
+            verified: true,
             title: "Verified Media \(UUID())",
             detailText: "This is text",
             source: "What is this?",
@@ -129,11 +129,11 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
             repositoryId: mediaRepository.requireID(),
             fileId: createdFile.requireID(),
             userId: userId,
-            on: app.db
+            on: self
         )
         // Create a second not verified media for the same repository
         let secondCreatedUnverifiedDetail = try await MediaDetailModel.createWith(
-            verifiedAt: nil,
+            verified: false,
             title: "Not visible \(UUID())",
             detailText: "Some invisible detailText",
             source: "What is that?",
@@ -141,12 +141,12 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
             repositoryId: mediaRepository.requireID(),
             fileId: createdFile.requireID(),
             userId: userId,
-            on: app.db
+            on: self
         )
         try await secondCreatedUnverifiedDetail.$language.load(on: app.db)
         // Create a not verified media for a deactivated language
         let unverifiedDetailForDeactivatedLanguage = try await MediaDetailModel.createWith(
-            verifiedAt: nil,
+            verified: false,
             title: "Not visible \(UUID())",
             detailText: "Some invisible detailText",
             source: "What is that?",
@@ -154,11 +154,11 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
             repositoryId: mediaRepository.requireID(),
             fileId: createdFile.requireID(),
             userId: userId,
-            on: app.db
+            on: self
         )
         // Create a second not verified media for the same repository in another language
         let createdUnverifiedDetailInDifferentLanguage = try await MediaDetailModel.createWith(
-            verifiedAt: nil,
+            verified: false,
             title: "Different Language \(UUID())",
             detailText: "Not visible detailText, other language",
             source: "Hallo, was ist das?",
@@ -166,7 +166,7 @@ final class MediaApiListUnverifiedTests: AppTestCase, MediaTest {
             repositoryId: mediaRepository.requireID(),
             fileId: createdFile.requireID(),
             userId: userId,
-            on: app.db
+            on: self
         )
         try await createdUnverifiedDetailInDifferentLanguage.$language.load(on: app.db)
         // Create a not verified media for another repository

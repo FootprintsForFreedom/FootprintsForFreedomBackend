@@ -11,16 +11,17 @@ import ElasticsearchNIOClient
 struct ElasticModule: ModuleInterface {
     static let models: [any ElasticModelInterface.Type] = [
         LatestVerifiedTagModel.Elasticsearch.self,
-        WaypointSummaryModel.Elasticsearch.self
+        WaypointSummaryModel.Elasticsearch.self,
+        MediaSummaryModel.Elasticsearch.self
     ]
     
     @discardableResult
-    static func createIndex(for languageCode: String, on elastic: ElasticHandler) async throws -> [ESDeleteIndexResponse] {
+    static func createIndex(for languageCode: String, on elastic: ElasticHandler) async throws -> [ESAcknowledgedResponse] {
         try await models.concurrentMap { try await $0.createIndex(for: languageCode, on: elastic)}
     }
     
     @discardableResult
-    static func deactivateLanguage(_ languageCode: String, on elastic: ElasticHandler) async throws -> [ESDeleteIndexResponse] {
+    static func deactivateLanguage(_ languageCode: String, on elastic: ElasticHandler) async throws -> [ESAcknowledgedResponse] {
         try await models.concurrentMap { try await $0.deactivateLanguage(languageCode, on: elastic) }
     }
     

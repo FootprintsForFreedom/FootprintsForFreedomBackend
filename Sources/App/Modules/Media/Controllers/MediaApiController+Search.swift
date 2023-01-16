@@ -8,7 +8,9 @@
 import Vapor
 import Fluent
 
-extension MediaApiController {
+extension MediaApiController: ApiElasticSearchController {
+    
+    // MARK: - Validators
     
     @AsyncValidatorBuilder
     func searchValidators() -> [AsyncValidator] {
@@ -16,97 +18,52 @@ extension MediaApiController {
         KeyedContentValidator<String>.required("languageCode")
     }
     
-    func searchApi(_ req: Request) async throws -> Page<Media.Detail.List> {
-        try await RequestValidator(searchValidators()).validate(req, .query)
-        let searchQuery = try req.query.decode(RepositoryDefaultSearchContext.self)
-        
-        guard searchQuery.text.trimmingCharacters(in: .whitespacesAndNewlines) != "" else {
-            throw Abort(.badRequest)
-        }
-        let searchText = searchQuery.text.lowercased()
-        
-        let allDetails = try await MediaDetailModel
-            .query(on: req.db)
-        // only search verified details
-            .filter(\.$verifiedAt != nil)
-            .join(parent: \.$language)
-        // only search details with given language
-            .filter(LanguageModel.self, \.$languageCode == searchQuery.languageCode)
-            .filter(LanguageModel.self, \.$priority != nil)
-        // get all verified details for the repository in the specified language
-            .all()
-        
-        let newestDetailsForRepositories = try allDetails
-        // group the details by repository id
-            .grouped(by: \.$repository.id)
-        // get the newest detail for each repository
-            .map { $1.sorted { $0.verifiedAt! > $1.verifiedAt! }.first! }
-        // load the tag for all remaining details
-        
-        var detailInLanguageForTagRepository = [TagRepositoryModel.IDValue: TagDetailModel]()
-        
-        let filteredDetails = try await newestDetailsForRepositories
-            .concurrentMap { mediaDetail -> (MediaDetailModel, [TagDetailModel]) in
-                let tagRepositoryIds = try await MediaTagModel.query(on: req.db)
-                    .filter(\.$media.$id == mediaDetail.$repository.id)
-                    .field(\.$tag.$id)
-                    .unique()
-                    .all()
-                    .map(\.$tag.id)
-                
-                let tagDetails = try await tagRepositoryIds
-                    .concurrentCompactMap { repositoryId -> TagDetailModel? in
-                        if let detail = detailInLanguageForTagRepository[repositoryId] {
-                            return detail
-                        } else {
-                            guard let detail = try await TagDetailModel
-                                .query(on: req.db)
-                                .join(parent: \.$language)
-                                .filter(LanguageModel.self, \.$languageCode == searchQuery.languageCode)
-                                .filter(\.$repository.$id == repositoryId)
-                                .filter(\.$verifiedAt != nil)
-                                .sort(\.$verifiedAt, .descending) // newest first
-                                .first()
-                            else {
-                                return nil
-                            }
-                            detailInLanguageForTagRepository[repositoryId] = detail
-                            return detail
-                        }
-                    }
-                
-                return (mediaDetail, tagDetails)
-            }
-            .filter { mediaDetail, tagDetails in
-                return mediaDetail.title.lowercased().contains(searchText) ||
-                mediaDetail.detailText.lowercased().contains(searchText) ||
-                tagDetails.contains { $0.title.lowercased().contains(searchText) } ||
-                tagDetails.contains { $0.keywords.contains { $0.lowercased().contains(searchText) } }
-            }
-            .map { $0.0 }
-        
-        let count = filteredDetails.count
-        let page = try req.pageRequest
-        
-        let relevantDetails = filteredDetails.dropFirst((page.page - 1) * page.per).prefix(page.per)
-        
-        return try await Page(
-            items: relevantDetails.concurrentMap { detail in
-                try await detail.$media.load(on: req.db)
-                return .init(
-                    id: detail.$repository.id,
-                    title: detail.title,
-                    slug: detail.slug,
-                    group: detail.media.group,
-                    thumbnailFilePath: detail.media.relativeThumbnailFilePath
-                )
-            },
-            metadata: PageMetadata(page: page.page, per: page.per, total: count)
-        )
-    }
+    // MARK: - Routes
     
     func setupSearchRoutes(_ routes: RoutesBuilder) {
         let baseRoutes = getBaseRoutes(routes)
         baseRoutes.get("search", use: searchApi)
+    }
+    
+    // MARK: - Search
+    
+    func searchQuery(_ searchContext: RepositoryDefaultSearchContext, _ pageRequest: PageRequest, on elastic: ElasticHandler) async throws -> [String : Any] {
+        let tags = try await TagApiController().search(searchContext, PageRequest(page: 1, per: 100), on: elastic)
+        
+        var shouldQueries: [[String: Any]] = [
+            [
+                "multi_match": [
+                    "query": searchContext.text,
+                    "fields": ["title", "detailText"]
+                ]
+            ]
+        ]
+        
+        let tagTermQueries: [[String: Any]] = tags.items.map {
+            [
+                "term": [
+                    "tags": [
+                        "value": $0.id.uuidString
+                    ]
+                ]
+            ]
+        }
+        shouldQueries.append(contentsOf: tagTermQueries)
+        
+        let query: [String: Any] = [
+            "from": (pageRequest.page - 1) * pageRequest.per,
+            "size": pageRequest.per,
+            "query": [
+                "bool": [
+                    "should": shouldQueries
+                ]
+            ]
+        ]
+        
+        return query
+    }
+    
+    func searchOutput(_ req: Request, _ model: MediaSummaryModel.Elasticsearch) async throws -> Media.Detail.List {
+        listOutput(req, model)
     }
 }

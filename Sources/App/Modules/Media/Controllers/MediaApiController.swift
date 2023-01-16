@@ -11,9 +11,11 @@ import Fluent
 extension Media.Detail.List: Content { }
 extension Media.Detail.Detail: Content { }
 
-struct MediaApiController: ApiRepositoryController {
+//struct MediaApiController: ApiRepositoryController {
+struct MediaApiController: ApiElasticDetailController, ApiElasticPagedListController, ApiRepositoryCreateController, ApiRepositoryUpdateController, ApiRepositoryPatchController, ApiDeleteController {
     typealias ApiModel = Media.Detail
     typealias DatabaseModel = MediaRepositoryModel
+    typealias ElasticModel = MediaSummaryModel.Elasticsearch
     
     // MARK: - Validators
     
@@ -60,24 +62,52 @@ struct MediaApiController: ApiRepositoryController {
     
     // MARK: - List
     
-    func listOutput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: MediaDetailModel) async throws -> Media.Detail.List {
-        // TODO: is this a bottleneck for the time it takes to return a result?
-        try await detail.$media.load(on: req.db)
+    func listOutput(_ req: Request, _ model: MediaSummaryModel.Elasticsearch) -> Media.Detail.List {
         return .init(
-            id: try repository.requireID(),
-            title: detail.title,
-            slug: detail.slug,
-            group: detail.media.group,
-            thumbnailFilePath: detail.media.relativeThumbnailFilePath
+            id: model.id,
+            title: model.title,
+            slug: model.slug,
+            group: model.group,
+            // TODO: actual thumbnail file path!!!
+            thumbnailFilePath: model.relativeMediaFilePath
         )
     }
     
+//    func listOutput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: MediaDetailModel) async throws -> Media.Detail.List {
+//        // TODO: is this a bottleneck for the time it takes to return a result?
+//        try await detail.$media.load(on: req.db)
+//        return .init(
+//            id: try repository.requireID(),
+//            title: detail.title,
+//            slug: detail.slug,
+//            group: detail.media.group,
+//            thumbnailFilePath: detail.media.relativeThumbnailFilePath
+//        )
+//    }
+    
     // MARK: - Detail
+    
+    func detailOutput(_ req: Request, _ model: MediaSummaryModel.Elasticsearch, _ availableLanguageCodes: [String]) async throws -> Media.Detail.Detail {
+        let tagList = try await model.getTagList(preferredLanguageCode: req.preferredLanguageCode(), on: req.elastic) // TODO: we get the preferred language code twice...
+        return .init(
+            id: model.id,
+            languageCode: model.languageCode,
+            availableLanguageCodes: availableLanguageCodes,
+            title: model.title,
+            slug: model.slug,
+            detailText: model.detailText,
+            source: model.source,
+            group: model.group,
+            filePath: model.relativeMediaFilePath,
+            tags: tagList,
+            detailId: model.detailId
+        )
+    }
     
     func detailOutput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: MediaDetailModel) async throws -> Media.Detail.Detail {
         try await detail.$media.load(on: req.db)
         try await detail.$language.load(on: req.db)
-        
+
         return try await .init(
             id: repository.requireID(),
             languageCode: detail.language.languageCode,
@@ -164,6 +194,10 @@ struct MediaApiController: ApiRepositoryController {
         detail.$user.id = user.id
     }
     
+    func createResponse(_ req: Request, _ repository: MediaRepositoryModel, _ detail: Detail) async throws -> Response {
+        try await detailOutput(req, repository, detail).encodeResponse(status: .created, for: req)
+    }
+    
     // MARK: - Update
     
     func setupUpdateRoutes(_ routes: RoutesBuilder) {
@@ -230,6 +264,10 @@ struct MediaApiController: ApiRepositoryController {
         }
     }
     
+    func updateResponse(_ req: Request, _ repository: MediaRepositoryModel, _ detail: Detail) async throws -> Response {
+        try await detailOutput(req, repository, detail).encodeResponse(for: req)
+    }
+    
     // MARK: - Patch
     
     func setupPatchRoutes(_ routes: RoutesBuilder) {
@@ -284,9 +322,17 @@ struct MediaApiController: ApiRepositoryController {
         }
     }
     
+    func patchResponse(_ req: Request, _ repository: MediaRepositoryModel, _ detail: Detail) async throws -> Response {
+        try await detailOutput(req, repository, detail).encodeResponse(for: req)
+    }
+    
     // MARK: - Delete
     
     func beforeDelete(_ req: Request, _ repository: MediaRepositoryModel) async throws {
         try await req.onlyFor(.moderator)
+    }
+    
+    func afterDelete(_ req: Request, _ repository: MediaRepositoryModel) async throws {
+        try await MediaSummaryModel.Elasticsearch.delete(allDetailsWithRepositoryId: repository.requireID(), on: req)
     }
 }

@@ -94,7 +94,6 @@ struct WaypointApiController: ApiElasticDetailController, ApiElasticPagedListCon
             let pageRequest = try req.pageRequest
             // Encode the query values struct since encoding only the location would reset the query and therefore delete the page request
             try req.query.encode(QueryValues(latitude: location.latitude, longitude: location.longitude, page: pageRequest.page, per: pageRequest.per))
-            print(req.query)
         } else {
             // set location sent with request
             location = .init(latitude: decodedLocation.latitude!, longitude: decodedLocation.longitude!)
@@ -118,7 +117,7 @@ struct WaypointApiController: ApiElasticDetailController, ApiElasticPagedListCon
         sort.insert(geoSort, at: sort.startIndex)
     }
     
-    func listOutput(_ req: Request, _ model: WaypointSummaryModel.Elasticsearch) async throws -> Waypoint.Detail.List {
+    func listOutput(_ req: Request, _ model: WaypointSummaryModel.Elasticsearch) -> Waypoint.Detail.List {
         .init(
             id: model.id,
             title: model.title,
@@ -336,16 +335,7 @@ struct WaypointApiController: ApiElasticDetailController, ApiElasticPagedListCon
     // also do that with media
     
     func beforeDelete(_ req: Request, _ repository: WaypointRepositoryModel) async throws {
-        /// Require user to be signed in
-        let authenticatedUser = try req.auth.require(AuthenticatedUser.self)
-        /// find the user model belonging to the authenticated user
-        guard let user = try await UserAccountModel.find(authenticatedUser.id, on: req.db) else {
-            throw Abort(.unauthorized)
-        }
-        /// require the user to be an moderator
-        guard user.role >= .moderator else {
-            throw Abort(.forbidden)
-        }
+        try await req.onlyFor(.moderator)
     }
     
     func afterDelete(_ req: Request, _ repository: WaypointRepositoryModel) async throws {

@@ -90,6 +90,8 @@ extension MediaApiController {
         tagPivot.status = .verified
         try await tagPivot.save(on: req.db)
         
+        try await MediaSummaryModel.Elasticsearch.createOrUpdate(detailsWithRepositoryId: repository.requireID(), on: req)
+        
         return try await detailOutput(req, repository, detail)
     }
     
@@ -126,6 +128,8 @@ extension MediaApiController {
         }
         
         try await repository.$tags.detach(tag, on: req.db)
+        
+        try await MediaSummaryModel.Elasticsearch.createOrUpdate(detailsWithRepositoryId: repository.requireID(), on: req)
         
         return try await detailOutput(req, repository, detail)
     }

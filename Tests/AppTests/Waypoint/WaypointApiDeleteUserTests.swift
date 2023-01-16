@@ -24,6 +24,8 @@ final class WaypointApiDeleteUserTests: AppTestCase, WaypointTest, UserTest {
             .expect(.noContent)
             .test()
         
+        try await Task.sleep(for: .seconds(1))
+        
         try app
             .describe("Get verified waypoint as moderator should return ok and more details")
             .get(waypointsPath.appending(waypointRepository.requireID().uuidString))

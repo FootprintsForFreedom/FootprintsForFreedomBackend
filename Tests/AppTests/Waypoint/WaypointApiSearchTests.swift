@@ -246,7 +246,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
     
     func testSuccessfulSearchWaypointDoesNotReturnDetailsForDeactivatedLanguage() async throws {
         let language = try await createLanguage()
-        let waypoint = try await createNewWaypoint(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verified: true, languageId: language.requireID())
+        let _ = try await createNewWaypoint(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verified: true, languageId: language.requireID())
         
         let adminToken = try await getToken(for: .admin)
         try app
@@ -256,8 +256,6 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
             .expect(.ok)
             .expect(.json)
             .test()
-        
-        try await waypoint.detail.$language.load(on: app.db)
         
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
         

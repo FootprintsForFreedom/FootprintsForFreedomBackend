@@ -16,7 +16,7 @@ final class CleanupOldVerifiedModelsJobTests: AppTestCase, TagTest, WaypointTest
         let tag = try await createNewTag(verified: true)
         try await tag.detail.updateWith(verifiedAt: Date(), on: app.db)
         let createdTagReport = try await createNewTagReport(tag: tag, verifiedAt: Date())
-        let media = try await createNewMedia(verifiedAt: Date())
+        let media = try await createNewMedia(verified: true)
         try await media.detail.updateWith(verifiedAt: Date(), on: app.db)
         let createdMediaReport = try await createNewMediaReport(media: media, verifiedAt: Date())
         let waypoint = try await createNewWaypoint(verified: true)
@@ -57,7 +57,7 @@ final class CleanupOldVerifiedModelsJobTests: AppTestCase, TagTest, WaypointTest
     }
     
     func testSuccessfulCleanupOldVerifiedModelsJobDeletesMediaFilesIfItIsNotUsedAnymore() async throws {
-        let media = try await createNewMedia(verifiedAt: Date())
+        let media = try await createNewMedia(verified: true)
         let newMediaFile = try await MediaFileModel.createWith(
             mediaDirectory: UUID().uuidString,
             group: .allCases.randomElement()!,
@@ -84,7 +84,7 @@ final class CleanupOldVerifiedModelsJobTests: AppTestCase, TagTest, WaypointTest
     
     func testSuccessfulCleanupOldVerifiedModelsJobDoesNotDeleteModelsOlderThanSpecifiedInEnvironmentIfTheyAreTheNewestVerifiedOnes() async throws {
         let tag = try await createNewTag(verified: true)
-        let media = try await createNewMedia(verifiedAt: Date())
+        let media = try await createNewMedia(verified: true)
         let waypoint = try await createNewWaypoint(verified: true)
         let staticContent = try await createNewStaticContent()
         

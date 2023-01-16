@@ -1,38 +1,44 @@
 //
-//  WaypointSummaryModel.swift
+//  MediaSummaryModel.swift
 //  
 //
-//  Created by niklhut on 13.09.22.
+//  Created by niklhut on 09.01.23.
 //
 
 import Vapor
 import Fluent
 import ElasticsearchNIOClient
 
-final class WaypointSummaryModel: DatabaseElasticInterface {
-    typealias Module = WaypointModule
+final class MediaSummaryModel: DatabaseElasticInterface {
+    typealias Module = MediaModule
     
-    static var schema: String = "waypoint_summaries"
+    static var schema: String = "media_summaries"
     
     struct FieldKeys {
         struct v1 {
+            // MediaDetail
+            static var waypointId: FieldKey { "waypoint_id" }
             static var title: FieldKey { "title" }
             static var slug: FieldKey { "slug" }
             static var detailText: FieldKey { "detail_text" }
+            static var source: FieldKey { "source" }
+            static var repositoryId: FieldKey { "repository_id" }
+            static var mediaId: FieldKey { "media_id" }
             static var detailUserId: FieldKey { "detail_user_id" }
             static var detailVerifiedAt: FieldKey { "detail_verified_at" }
             static var detailCreatedAt: FieldKey { "detail_created_at" }
             static var detailUpdatedAt: FieldKey { "detail_updated_at" }
             static var detailDeletedAt: FieldKey { "detail_deleted_at" }
             static var detailId: FieldKey { "detail_id" }
-            static var latitude: FieldKey { "latitude" }
-            static var longitude: FieldKey { "longitude" }
-            static var locationUserId: FieldKey { "location_user_id" }
-            static var locationVerifiedAt: FieldKey { "location_verified_at" }
-            static var locationCreatedAt: FieldKey { "location_created_at" }
-            static var locationUpdatedAt: FieldKey { "location_updated_at" }
-            static var locationDeletedAt: FieldKey { "location_deleted_at" }
-            static var locationId: FieldKey { "location_id" }
+            // MediaFile
+            static var fileId: FieldKey { "file_id" }
+            static var mediaDirectory: FieldKey { "media_directory" }
+            static var group: FieldKey { "group" }
+            static var fileUserId: FieldKey { "file_user_id" }
+            static var fileCreatedAt: FieldKey { "file_created_at" }
+            static var fileUpdatedAt: FieldKey { "file_updated_at" }
+            static var fileDeletedAt: FieldKey { "file_deleted_at" }
+            // Language
             static var languageCode: FieldKey { "language_code" }
             static var languageName: FieldKey { "language_name" }
             static var languageIsRTL: FieldKey { "language_is_rtl" }
@@ -43,24 +49,25 @@ final class WaypointSummaryModel: DatabaseElasticInterface {
     
     @ID() var id: UUID?
     
+    @Field(key: FieldKeys.v1.waypointId) var waypointId: UUID
     @Field(key: FieldKeys.v1.detailId) var detailId: UUID
     @Field(key: FieldKeys.v1.title) var title: String
     @Field(key: FieldKeys.v1.slug) var slug: String
     @Field(key: FieldKeys.v1.detailText) var detailText: String
+    @Field(key: FieldKeys.v1.source) var source: String
     @OptionalField(key: FieldKeys.v1.detailUserId) var detailUserId: UUID?
     @OptionalField(key: FieldKeys.v1.detailVerifiedAt) var detailVerifiedAt: Date?
     @OptionalField(key: FieldKeys.v1.detailCreatedAt) var detailCreatedAt: Date?
     @OptionalField(key: FieldKeys.v1.detailUpdatedAt) var detailUpdatedAt: Date?
     @OptionalField(key: FieldKeys.v1.detailDeletedAt) var detailDeletedAt: Date?
     
-    @Field(key: FieldKeys.v1.locationId) var locationId: UUID
-    @Field(key: FieldKeys.v1.latitude) var latitude: Double
-    @Field(key: FieldKeys.v1.longitude) var longitude: Double
-    @OptionalField(key: FieldKeys.v1.locationUserId) var locationUserId: UUID?
-    @OptionalField(key: FieldKeys.v1.locationVerifiedAt) var locationVerifiedAt: Date?
-    @OptionalField(key: FieldKeys.v1.locationCreatedAt) var locationCreatedAt: Date?
-    @OptionalField(key: FieldKeys.v1.locationUpdatedAt) var locationUpdatedAt: Date?
-    @OptionalField(key: FieldKeys.v1.locationDeletedAt) var locationDeletedAt: Date?
+    @Field(key: FieldKeys.v1.fileId) var fileId: UUID
+    @Field(key: FieldKeys.v1.mediaDirectory) var relativeMediaFilePath: String
+    @Enum(key: FieldKeys.v1.group) var group: Media.Detail.Group
+    @OptionalField(key: FieldKeys.v1.fileUserId) var fileUserId: UUID?
+    @OptionalField(key: FieldKeys.v1.fileCreatedAt) var fileCreatedAt: Date?
+    @OptionalField(key: FieldKeys.v1.fileUpdatedAt) var fileUpdatedAt: Date?
+    @OptionalField(key: FieldKeys.v1.fileDeletedAt) var fileDeletedAt: Date?
     
     @Field(key: FieldKeys.v1.languageId) var languageId: UUID
     @Field(key: FieldKeys.v1.languageName) var languageName: String
@@ -71,17 +78,17 @@ final class WaypointSummaryModel: DatabaseElasticInterface {
     init() { }
 }
 
-extension WaypointSummaryModel {
-    var _$languageCode: FieldProperty<WaypointSummaryModel, String> { $languageCode }
-    var _$detailId: FieldProperty<WaypointSummaryModel, UUID> { $detailId }
-    var _$detailUserId: OptionalFieldProperty<WaypointSummaryModel, UUID> { $detailUserId }
+extension MediaSummaryModel {
+    var _$languageCode: FieldProperty<MediaSummaryModel, String> { $languageCode }
+    var _$detailId: FieldProperty<MediaSummaryModel, UUID> { $detailId }
+    var _$detailUserId: OptionalFieldProperty<MediaSummaryModel, UUID> { $detailUserId }
 }
 
-extension WaypointSummaryModel {
+extension MediaSummaryModel {
     struct Elasticsearch: ElasticModelInterface {
-        typealias DatabaseModel = WaypointSummaryModel
+        typealias DatabaseModel = MediaSummaryModel
         
-        static var baseSchema = "waypoints"
+        static var baseSchema = "media"
         static var mappings: [String : Any] = [
             "properties": [
                 "title": [
@@ -102,20 +109,20 @@ extension WaypointSummaryModel {
                 "id": [
                     "type": "keyword"
                 ],
+                "waypointId": [
+                    "type": "keyword"
+                ],
                 "detailId": [
                     "type": "keyword"
                 ],
                 "detailUserId": [
                     "type": "keyword"
                 ],
-                "locationId": [
+                "fileId": [
                     "type": "keyword"
                 ],
-                "locationUserId": [
+                "fileUserId": [
                     "type": "keyword"
-                ],
-                "location": [
-                    "type": "geo_point"
                 ],
                 "languageId": [
                     "type": "keyword"
@@ -132,30 +139,27 @@ extension WaypointSummaryModel {
             ]
         ]
         
-        struct Location: Codable {
-            var lat: Double
-            var lon: Double
-        }
-        
         var id: UUID
+        var waypointId: UUID
         
         var detailId: UUID
         var title: String
         var slug: String
         var detailText: String
+        var source: String
         @NullCodable var detailUserId: UUID?
         var detailVerifiedAt: Date?
         var detailCreatedAt: Date?
         var detailUpdatedAt: Date?
         var detailDeletedAt: Date?
         
-        var locationId: UUID
-        var location: Location
-        @NullCodable var locationUserId: UUID?
-        var locationVerifiedAt: Date?
-        var locationCreatedAt: Date?
-        var locationUpdatedAt: Date?
-        var locationDeletedAt: Date?
+        var fileId: UUID
+        var relativeMediaFilePath: String
+        var group: Media.Detail.Group
+        @NullCodable var fileUserId: UUID?
+        var fileCreatedAt: Date?
+        var fileUpdatedAt: Date?
+        var fileDeletedAt: Date?
         
         var languageId: UUID
         var languageName: String
@@ -167,9 +171,9 @@ extension WaypointSummaryModel {
     }
     
     func toElasticsearch(on db: Database) async throws -> Elasticsearch {
-        let tags = try await WaypointTagModel
+        let tags = try await MediaTagModel
             .query(on: db)
-            .filter(\.$waypoint.$id == self.requireID())
+            .filter(\.$media.$id == self.requireID())
             .field(\.$tag.$id)
             .all()
             .map { $0.$tag.id }
@@ -179,22 +183,24 @@ extension WaypointSummaryModel {
     func toElasticsearch(tags: [UUID]) throws -> Elasticsearch {
         try Elasticsearch(
             id: self.requireID(),
+            waypointId: self.waypointId,
             detailId: self.detailId,
             title: self.title,
             slug: self.slug,
             detailText: self.detailText,
+            source: self.source,
             detailUserId: self.detailUserId,
             detailVerifiedAt: self.detailVerifiedAt,
             detailCreatedAt: self.detailCreatedAt,
             detailUpdatedAt: self.detailUpdatedAt,
             detailDeletedAt: self.detailDeletedAt,
-            locationId: self.locationId,
-            location: Elasticsearch.Location(lat: self.latitude, lon: self.longitude),
-            locationUserId: self.locationUserId,
-            locationVerifiedAt: self.locationVerifiedAt,
-            locationCreatedAt: self.locationCreatedAt,
-            locationUpdatedAt: self.locationUpdatedAt,
-            locationDeletedAt: self.locationDeletedAt,
+            fileId: self.fileId,
+            relativeMediaFilePath: self.relativeMediaFilePath,
+            group: self.group,
+            fileUserId: self.fileUserId,
+            fileCreatedAt: self.fileCreatedAt,
+            fileUpdatedAt: self.fileUpdatedAt,
+            fileDeletedAt: self.fileDeletedAt,
             languageId: self.languageId,
             languageName: self.languageName,
             languageCode: self.languageCode,
@@ -205,7 +211,7 @@ extension WaypointSummaryModel {
     }
 }
 
-extension WaypointSummaryModel.Elasticsearch {
+extension MediaSummaryModel.Elasticsearch {
     @discardableResult
     static func createOrUpdate(detailsWithRepositoryId repositoryId: UUID, on req: Request) async throws -> ESBulkResponse? {
         let elements = try await DatabaseModel
@@ -227,7 +233,7 @@ extension WaypointSummaryModel.Elasticsearch {
             .group(.or) { query in
                 query
                     .filter(\.$detailUserId == userId)
-                    .filter(\.$locationUserId == userId)
+                    .filter(\.$fileUserId == userId)
             }
             .all()
         
@@ -238,8 +244,8 @@ extension WaypointSummaryModel.Elasticsearch {
                 if document.detailUserId == userId {
                     document.detailUserId = nil
                 }
-                if document.locationUserId == userId {
-                    document.locationUserId = nil
+                if document.fileUserId == userId {
+                    document.fileUserId = nil
                 }
                 return document
             }

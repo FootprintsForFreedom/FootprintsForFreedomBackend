@@ -22,13 +22,13 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
         patchedSource: String? = nil,
         languageId: UUID? = nil,
         waypointId: UUID? = nil,
-        verifiedAt: Date? = nil
+        verified: Bool = false
     ) async throws -> (mediaRepository: MediaRepositoryModel, createdMediaDetail: MediaDetailModel, createdMediaFile: MediaFileModel, patchContent: Media.Detail.Patch) {
         let (repository, detail, file) = try await createNewMedia(
             title: title,
             detailText: detailText,
             source: source,
-            verifiedAt: verifiedAt,
+            verified: verified,
             waypointId: waypointId,
             languageId: languageId
         )
@@ -50,7 +50,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
     
     func testSuccessfulPatchMediaTitle() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, detail, file, patchContent) = try await getMediaPatchContent(patchedTitle: "The patched title", verifiedAt: Date())
+        let (repository, detail, file, patchContent) = try await getMediaPatchContent(patchedTitle: "The patched title", verified: true)
         try await detail.$language.load(on: app.db)
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
@@ -87,7 +87,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
     func testSuccessfulPatchMediaTitleWithDuplicateTitle() async throws {
         let token = try await getToken(for: .user, verified: true)
         let title = "My new title \(UUID())"
-        let (repository, detail, file, patchContent) = try await getMediaPatchContent(title: title, patchedTitle: title, verifiedAt: Date())
+        let (repository, detail, file, patchContent) = try await getMediaPatchContent(title: title, patchedTitle: title, verified: true)
         try await detail.$language.load(on: app.db)
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
@@ -114,7 +114,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
     
     func testSuccessfulPatchMediaDetail() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, detail, file, patchContent) = try await getMediaPatchContent(patchedDetailText: "The patched detailText", verifiedAt: Date())
+        let (repository, detail, file, patchContent) = try await getMediaPatchContent(patchedDetailText: "The patched detailText", verified: true)
         try await detail.$language.load(on: app.db)
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
@@ -150,7 +150,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
     
     func testSuccessfulPatchMediaSource() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, detail, file, patchContent) = try await getMediaPatchContent(patchedSource: "The patched source", verifiedAt: Date())
+        let (repository, detail, file, patchContent) = try await getMediaPatchContent(patchedSource: "The patched source", verified: true)
         try await detail.$language.load(on: app.db)
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
@@ -186,7 +186,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
     
     func testSuccessfulPatchMediaFile() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, detail, file, patchContent) = try await getMediaPatchContent(verifiedAt: Date())
+        let (repository, detail, file, patchContent) = try await getMediaPatchContent(verified: true)
         try await detail.$language.load(on: app.db)
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
@@ -226,7 +226,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
     
     func testEmptyPatchMediaFails() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, _, _, patchContent) = try await getMediaPatchContent(verifiedAt: Date())
+        let (repository, _, _, patchContent) = try await getMediaPatchContent(verified: true)
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
         
@@ -240,7 +240,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
     
     func testPatchMediaNeedsValidTitle() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, _, _, patchContent) = try await getMediaPatchContent(patchedTitle: "", verifiedAt: Date())
+        let (repository, _, _, patchContent) = try await getMediaPatchContent(patchedTitle: "", verified: true)
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
         
@@ -254,7 +254,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
     
     func testPatchMediaNeedsValidDetailText() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, _, _, patchContent) = try await getMediaPatchContent(patchedDetailText: "", verifiedAt: Date())
+        let (repository, _, _, patchContent) = try await getMediaPatchContent(patchedDetailText: "", verified: true)
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
         
@@ -268,7 +268,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
     
     func testPatchMediaNeedsValidSource() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, _, _, patchContent) = try await getMediaPatchContent(patchedSource: "", verifiedAt: Date())
+        let (repository, _, _, patchContent) = try await getMediaPatchContent(patchedSource: "", verified: true)
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
         
@@ -282,7 +282,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
     
     func testPatchMediaNeedsValididForMediaDetailToPatch() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, _, _, _) = try await getMediaPatchContent(verifiedAt: Date())
+        let (repository, _, _, _) = try await getMediaPatchContent(verified: true)
         let patchContent = Media.Detail.Patch(title: nil, detailText: nil, source: nil, idForMediaDetailToPatch: UUID())
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
@@ -297,7 +297,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
     
     func testPatchMediaFileNeedsValidContentType() async throws {
         let token = try await getToken(for: .user, verified: true)
-        let (repository, _, _, patchContent) = try await getMediaPatchContent(verifiedAt: Date())
+        let (repository, _, _, patchContent) = try await getMediaPatchContent(verified: true)
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
         let newFile = TestFile(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png")
@@ -315,7 +315,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
     
     func testPatfchMediaAsUnverifiedUserFails() async throws {
         let token = try await getToken(for: .user, verified: false)
-        let (repository, _, _, patchContent) = try await getMediaPatchContent(patchedSource: "Another source", verifiedAt: Date())
+        let (repository, _, _, patchContent) = try await getMediaPatchContent(patchedSource: "Another source", verified: true)
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
         
@@ -328,7 +328,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
     }
     
     func testPatchMediaWithoutTokenFails() async throws {
-        let (repository, _, _, patchContent) = try await getMediaPatchContent(patchedTitle: "My new Title", verifiedAt: Date())
+        let (repository, _, _, patchContent) = try await getMediaPatchContent(patchedTitle: "My new Title", verified: true)
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
         

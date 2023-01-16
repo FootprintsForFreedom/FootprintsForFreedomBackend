@@ -7,9 +7,12 @@
 
 import Vapor
 import Fluent
+import SQLKit
 
 enum MediaMigrations {
     struct v1: AsyncMigration {
+        let elastic: ElasticHandler
+        
         func prepare(on db: Database) async throws {
             let mediaGroup = try await db.enum(Media.Detail.Group.pathKey)
                 .case(Media.Detail.Group.video.rawValue)
@@ -96,14 +99,72 @@ enum MediaMigrations {
                 .field(MediaReportModel.FieldKeys.v1.deletedAt, .datetime)
             
                 .create()
+            
+            let sqlDatabase = db as! SQLDatabase
+            
+            try await sqlDatabase.raw("""
+            CREATE VIEW \(raw: MediaSummaryModel.schema) AS
+            WITH latest_verified_media_details AS (
+                SELECT
+                    DISTINCT ON (
+                        \(SQLColumn(MediaDetailModel.FieldKeys.v1.repositoryId.description, table: MediaDetailModel.schema)),
+                        \(SQLColumn(MediaDetailModel.FieldKeys.v1.languageId.description, table: MediaDetailModel.schema))
+                    ) *
+                FROM
+                    \(raw: MediaDetailModel.schema)
+                WHERE
+                    \(SQLColumn(MediaDetailModel.FieldKeys.v1.verifiedAt.description, table: MediaDetailModel.schema)) IS NOT NULL
+                    AND \(SQLColumn(MediaDetailModel.FieldKeys.v1.deletedAt.description, table: MediaDetailModel.schema)) IS NULL
+                ORDER BY
+                    \(SQLColumn(MediaDetailModel.FieldKeys.v1.repositoryId.description, table: MediaDetailModel.schema)),
+                    \(SQLColumn(MediaDetailModel.FieldKeys.v1.languageId.description, table: MediaDetailModel.schema)),
+                    \(SQLColumn(MediaDetailModel.FieldKeys.v1.verifiedAt.description, table: MediaDetailModel.schema)) DESC
+            )
+            SELECT
+                details.\(raw: MediaDetailModel.FieldKeys.v1.repositoryId.description) as \(raw: FieldKey.id.description),
+                details.\(raw: FieldKey.id.description) as \(raw: MediaSummaryModel.FieldKeys.v1.detailId.description),
+                details.\(raw: MediaDetailModel.FieldKeys.v1.title.description),
+                details.\(raw: MediaDetailModel.FieldKeys.v1.slug.description),
+                details.\(raw: MediaDetailModel.FieldKeys.v1.detailText.description),
+                details.\(raw: MediaDetailModel.FieldKeys.v1.source.description),
+                details.\(raw: MediaDetailModel.FieldKeys.v1.userId.description) as \(raw: MediaSummaryModel.FieldKeys.v1.detailUserId.description),
+                details.\(raw: MediaDetailModel.FieldKeys.v1.verifiedAt.description) as \(raw: MediaSummaryModel.FieldKeys.v1.detailVerifiedAt.description),
+                details.\(raw: MediaDetailModel.FieldKeys.v1.createdAt.description) as \(raw: MediaSummaryModel.FieldKeys.v1.detailCreatedAt.description),
+                details.\(raw: MediaDetailModel.FieldKeys.v1.updatedAt.description) as \(raw: MediaSummaryModel.FieldKeys.v1.detailUpdatedAt.description),
+                details.\(raw: MediaDetailModel.FieldKeys.v1.deletedAt.description) as \(raw: MediaSummaryModel.FieldKeys.v1.detailDeletedAt.description),
+                \(SQLColumn(MediaRepositoryModel.FieldKeys.v1.waypointId.description, table: MediaRepositoryModel.schema)),
+                \(SQLColumn(FieldKey.id.description, table: MediaFileModel.schema)) as \(raw: MediaSummaryModel.FieldKeys.v1.fileId.description),
+                \(SQLColumn(MediaFileModel.FieldKeys.v1.group.description, table: MediaFileModel.schema)),
+                \(SQLColumn(MediaFileModel.FieldKeys.v1.mediaDirectory.description, table: MediaFileModel.schema)),
+                \(SQLColumn(MediaFileModel.FieldKeys.v1.userId.description, table: MediaFileModel.schema)) as \(raw: MediaSummaryModel.FieldKeys.v1.fileUserId.description),
+                \(SQLColumn(MediaFileModel.FieldKeys.v1.createdAt.description, table: MediaFileModel.schema)) as \(raw: MediaSummaryModel.FieldKeys.v1.fileCreatedAt.description),
+                \(SQLColumn(MediaFileModel.FieldKeys.v1.updatedAt.description, table: MediaFileModel.schema)) as \(raw: MediaSummaryModel.FieldKeys.v1.fileUpdatedAt.description),
+                \(SQLColumn(MediaFileModel.FieldKeys.v1.deletedAt.description, table: MediaFileModel.schema)) as \(raw: MediaSummaryModel.FieldKeys.v1.fileDeletedAt.description),
+                \(SQLColumn(FieldKey.id.description, table: LanguageModel.schema)) as \(raw: MediaSummaryModel.FieldKeys.v1.languageId.description),
+                \(SQLColumn(LanguageModel.FieldKeys.v1.languageCode.description, table: LanguageModel.schema)),
+                \(SQLColumn(LanguageModel.FieldKeys.v1.name.description, table: LanguageModel.schema)) as \(raw: MediaSummaryModel.FieldKeys.v1.languageName.description),
+                \(SQLColumn(LanguageModel.FieldKeys.v1.isRTL.description, table: LanguageModel.schema)) as \(raw: MediaSummaryModel.FieldKeys.v1.languageIsRTL.description),
+                \(SQLColumn(LanguageModel.FieldKeys.v1.priority.description, table: LanguageModel.schema)) as \(raw: MediaSummaryModel.FieldKeys.v1.languagePriority.description)
+            FROM
+                latest_verified_media_details details
+                INNER JOIN \(raw: MediaRepositoryModel.schema) ON \(SQLColumn(FieldKey.id.description, table: MediaRepositoryModel.schema)) = details.\(raw: MediaDetailModel.FieldKeys.v1.repositoryId.description)
+                INNER JOIN \(raw: MediaFileModel.schema) ON \(SQLColumn(FieldKey.id.description, table: MediaFileModel.schema)) = details.\(raw: MediaDetailModel.FieldKeys.v1.mediaId.description)
+                INNER JOIN \(raw: LanguageModel.schema) ON \(SQLColumn(FieldKey.id.description, table: LanguageModel.schema)) = details.\(raw: MediaDetailModel.FieldKeys.v1.languageId.description)
+            WHERE
+                \(SQLColumn(LanguageModel.FieldKeys.v1.priority.description, table: LanguageModel.schema)) IS NOT NULL
+            """)
+            .run()
         }
         
         func revert(on db: Database) async throws {
+            let sqlDatabase = db as! SQLDatabase
+            try await sqlDatabase.raw("DROP VIEW \(raw: MediaSummaryModel.schema)").run()
             try await db.schema(MediaReportModel.schema).delete()
             try await db.schema(MediaDetailModel.schema).delete()
             try await db.schema(MediaFileModel.schema).delete()
             try await db.schema(MediaRepositoryModel.schema).delete()
             try await db.enum(Media.Detail.Group.pathKey).delete()
+            try await elastic.deleteIndex(MediaSummaryModel.Elasticsearch.wildcardSchema)
         }
     }
 }

@@ -52,7 +52,7 @@ final class MediaDetailModel: TitledDetailModel {
     init() { }
     
     init(
-        verifiedAt: Date?,
+        verifiedAt: Date? = nil,
         title: String,
         slug: String,
         detailText: String,
