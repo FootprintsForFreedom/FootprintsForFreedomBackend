@@ -22,6 +22,10 @@ public extension StaticContent.Detail {
         /// Slug uniquely identifying the static content repository.
         public let slug: String
         
+        /// Creates a static content list object.
+        /// - Parameters:
+        ///   - id: Id uniquely identifying the static content repository.
+        ///   - slug: Slug uniquely identifying the static content repository.
         public init(id: UUID, slug: String) {
             self.id = id
             self.slug = slug
