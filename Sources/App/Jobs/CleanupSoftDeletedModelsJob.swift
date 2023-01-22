@@ -63,7 +63,8 @@ struct CleanupSoftDeletedModelsJob: AsyncScheduledJob {
             WaypointLocationModel.self,
             WaypointReportModel.self,
             StaticContentRepositoryModel.self,
-            StaticContentDetailModel.self
+            StaticContentDetailModel.self,
+            RedirectModel.self
         ]
         
         try await timestampedTypes.asyncForEach { timestampedType in

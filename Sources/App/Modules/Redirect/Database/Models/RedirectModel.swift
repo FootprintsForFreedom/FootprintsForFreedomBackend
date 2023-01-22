@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class RedirectModel: DatabaseModelInterface {
+final class RedirectModel: DatabaseModelInterface, Timestamped {
     typealias Module = RedirectModule
     
     static let schema = "redirects"
@@ -44,4 +44,9 @@ final class RedirectModel: DatabaseModelInterface {
         self.source = source
         self.destination = destination
     }
+}
+
+extension RedirectModel {
+    var _$updatedAt: TimestampProperty<RedirectModel, DefaultTimestampFormat> { $updatedAt }
+    var _$deletedAt: TimestampProperty<RedirectModel, DefaultTimestampFormat> { $deletedAt }
 }
