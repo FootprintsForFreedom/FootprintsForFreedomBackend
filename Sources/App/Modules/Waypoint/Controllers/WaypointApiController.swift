@@ -79,7 +79,7 @@ struct WaypointApiController: ApiElasticDetailController, ApiElasticPagedListCon
         let location: Waypoint.Location
         let decodedLocation = try req.query.decode(Waypoint.Detail.GetList.self)
         if decodedLocation.latitude == nil || decodedLocation.longitude == nil {
-            if let userIp = req.remoteAddress?.ipAddress,
+            if let userIp = req.peerAddress?.ipAddress,
                case let .value(result) = req.mmdb.search(address: userIp),
                case let .map(map) = result,
                case let .map(locationMap) = map["location"],
