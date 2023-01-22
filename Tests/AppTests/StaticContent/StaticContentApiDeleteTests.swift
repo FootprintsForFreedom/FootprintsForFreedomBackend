@@ -111,7 +111,7 @@ final class StaticContentApiDeleteTests: AppTestCase, StaticContentTest {
         let adminToken = try await getToken(for: .admin)
         
         try app
-            .describe("Delete nonexistand staticContent fails")
+            .describe("Delete nonexistent staticContent fails")
             .delete(staticContentPath.appending(UUID().uuidString))
             .bearerToken(adminToken)
             .expect(.notFound)

@@ -240,7 +240,7 @@ final class StaticContentApiUpdateTests: AppTestCase, StaticContentTest {
             .test()
     }
     
-    func testUpdateStaticContentNeedsValidLangaugeCode() async throws {
+    func testUpdateStaticContentNeedsValidLanguageCode() async throws {
         let token = try await getToken(for: .admin, verified: true)
         let (repository1, _, updateContent1) = try await getStaticContentUpdateContent(updateLanguageCode: "")
         let (repository2, _, updateContent2) = try await getStaticContentUpdateContent(updateLanguageCode: "zz")
