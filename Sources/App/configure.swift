@@ -76,6 +76,7 @@ public func configure(_ app: Application) throws {
         MediaModule(),
         TagModule(),
         ApiModule(),
+        RedirectModule()
     ]
     for module in modules {
         try module.boot(app)

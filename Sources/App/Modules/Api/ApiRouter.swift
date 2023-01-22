@@ -17,5 +17,6 @@ struct ApiRouter: RouteCollection {
             .grouped("v1")
         
         let _: [Void] = app.invokeAll("api-routes-v1", args: ["routes": apiRoutes])
+        let _: [Void] = app.invokeAll("api-redirects", args: ["routes": app.routes])
     }
 }
