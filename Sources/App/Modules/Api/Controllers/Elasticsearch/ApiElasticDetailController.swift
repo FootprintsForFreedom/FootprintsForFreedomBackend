@@ -6,6 +6,7 @@
 //
 
 import Vapor
+import AppApi
 
 /// Streamlines detailing a model from elasticsearch.
 protocol ApiElasticDetailController: ElasticModelController {

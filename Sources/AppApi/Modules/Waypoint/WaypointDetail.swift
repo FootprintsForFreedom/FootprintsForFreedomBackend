@@ -47,14 +47,14 @@ public extension Waypoint.Detail {
         /// - Note: The items enclosed will be sorted to be near this location.
         public let userLocation: Waypoint.Location
         /// A ``Subset`` of ``Waypoint/Detail/List`` items near the user's location.
-        public let items: Subset<List>
+        public let items: Page<List>
         
         
         /// Used to list waypoint objects with a user location.
         /// - Parameters:
         ///   - userLocation: The location of the user sending the initial ``Waypoint/Detail/GetList`` request.
         ///   - items: A ``Subset`` of ``Waypoint/Detail/List`` items near the user's location.
-        public init(userLocation: Waypoint.Location, items: Subset<List>) {
+        public init(userLocation: Waypoint.Location, items: Page<List>) {
             self.userLocation = userLocation
             self.items = items
         }

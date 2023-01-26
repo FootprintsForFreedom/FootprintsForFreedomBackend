@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 
 extension User.Account.List: Content {}
 extension User.Account.Detail: Content {}
@@ -43,7 +44,7 @@ struct UserApiController: ApiController {
         return queryBuilder
     }
     
-    func listOutput(_ req: Request, _ models: Page<UserAccountModel>) async throws -> Page<User.Account.List> {
+    func listOutput(_ req: Request, _ models: Fluent.Page<UserAccountModel>) async throws -> Fluent.Page<User.Account.List> {
         models.map { model in
                 .init(id: model.id!, name: model.name, school: model.school, verified: model.verified, role: model.role)
         }

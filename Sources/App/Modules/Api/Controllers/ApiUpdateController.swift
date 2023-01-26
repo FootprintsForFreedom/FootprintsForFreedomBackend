@@ -6,6 +6,7 @@
 //
 
 import Vapor
+import AppApi
 
 /// Streamlines updating models.
 protocol ApiUpdateController: UpdateController {

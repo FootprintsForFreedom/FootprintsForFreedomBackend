@@ -6,6 +6,7 @@
 //
 
 import Vapor
+import AppApi
 import SwiftSMTPVapor
 
 protocol MailTemplateRepresentable {

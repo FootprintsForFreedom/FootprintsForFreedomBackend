@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 
 extension Language.Detail.Detail: Content { }
 

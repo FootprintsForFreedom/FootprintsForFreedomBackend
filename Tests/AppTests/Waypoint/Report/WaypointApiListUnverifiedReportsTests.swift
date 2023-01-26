@@ -23,7 +23,7 @@ final class WaypointApiListUnverifiedReportsTests: AppTestCase, WaypointTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Report.List>.self) { content in
+            .expect(AppApi.Page<Report.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == report.id })
             }
             .test()
@@ -41,7 +41,7 @@ final class WaypointApiListUnverifiedReportsTests: AppTestCase, WaypointTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Report.List>.self) { content in
+            .expect(AppApi.Page<Report.List>.self) { content in
                 XCTAssert(!content.items.contains { $0.id == report.id })
             }
             .test()

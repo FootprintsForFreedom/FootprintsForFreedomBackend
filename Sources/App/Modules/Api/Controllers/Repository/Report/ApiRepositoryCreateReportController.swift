@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 
 ///Streamlines creating repository reports.
 protocol ApiRepositoryCreateReportController: DatabaseRepositoryController where DatabaseModel: Reportable {

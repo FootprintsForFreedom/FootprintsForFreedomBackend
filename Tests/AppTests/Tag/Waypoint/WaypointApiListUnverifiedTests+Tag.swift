@@ -29,7 +29,7 @@ extension WaypointApiListUnverifiedTests: TagTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Detail.List>.self) { content in
+            .expect(AppApi.Page<Waypoint.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == waypoint.repository.id })
             }
             .test()
@@ -60,7 +60,7 @@ extension WaypointApiListUnverifiedTests: TagTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Detail.List>.self) { content in
+            .expect(AppApi.Page<Waypoint.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == waypoint.repository.id })
             }
             .test()

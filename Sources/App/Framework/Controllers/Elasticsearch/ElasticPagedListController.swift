@@ -6,7 +6,7 @@
 //
 
 import Vapor
-import Fluent
+import AppApi
 import ElasticsearchNIOClient
 
 struct Empty: Codable { }

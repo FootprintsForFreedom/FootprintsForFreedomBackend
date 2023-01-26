@@ -6,6 +6,7 @@
 //
 
 import Vapor
+import AppApi
 
 extension UserApiController {
     func detailOwnUserApi(_ req: Request) async throws -> User.Account.Detail {

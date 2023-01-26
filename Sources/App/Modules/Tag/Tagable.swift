@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 
 protocol TagPivot: Fluent.Model {
     /// The tag pivot's status.

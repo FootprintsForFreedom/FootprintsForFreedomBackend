@@ -6,7 +6,7 @@
 //
 
 import Vapor
-import Fluent
+import AppApi
 
 /// Streamlines listing models in pages from elasticsearch.
 protocol ApiElasticPagedListController: ElasticPagedListController {

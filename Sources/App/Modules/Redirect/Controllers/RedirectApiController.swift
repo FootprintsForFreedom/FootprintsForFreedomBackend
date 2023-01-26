@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 
 extension Redirect.Detail.Detail: Content { }
 
@@ -67,7 +68,7 @@ struct RedirectApiController: ApiController {
         return queryBuilder
     }
     
-    func listOutput(_ req: Request, _ models: Page<RedirectModel>) async throws -> Page<Redirect.Detail.List> {
+    func listOutput(_ req: Request, _ models: Fluent.Page<RedirectModel>) async throws -> Fluent.Page<Redirect.Detail.List> {
         return try await models.concurrentMap { try await detailOutput(req, $0) }
     }
     

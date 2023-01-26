@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 
 extension Media.Detail.List: Content { }
 extension Media.Detail.Detail: Content { }

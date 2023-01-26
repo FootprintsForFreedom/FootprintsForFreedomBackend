@@ -6,6 +6,7 @@
 //
 
 import Vapor
+import AppApi
 
 /// Streamlines detailing a model.
 protocol ApiDetailController: DetailController {

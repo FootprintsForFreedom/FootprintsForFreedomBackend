@@ -69,7 +69,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
             .get(tagPath.appending("?preferredLanguage=\(language.languageCode)&per=\(tagCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Tag.Detail.List>.self) { content in
+            .expect(AppApi.Page<Tag.Detail.List>.self) { content in
                 XCTAssertEqual(content.metadata.total, content.items.count)
                 XCTAssertEqual(content.items.count, verifiedTagCount)
                 XCTAssertEqual(content.items.map { $0.id }.uniqued().count, verifiedTagCount)
@@ -153,7 +153,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
             .get(tagPath.appending("?per=\(tagCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Tag.Detail.List>.self) { content in
+            .expect(AppApi.Page<Tag.Detail.List>.self) { content in
                 XCTAssertEqual(content.items.count, verifiedTagCount)
                 
                 XCTAssert(content.items.contains { $0.id == verifiedTagRepository.id })
@@ -214,7 +214,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
             .get(tagPath.appending("?per=\(tagCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Tag.Detail.List>.self) { content in
+            .expect(AppApi.Page<Tag.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == verifiedTagRepository.id })
                 XCTAssertFalse(content.items.contains { $0.id == verifiedTagRepositoryForDeactivatedLanguage.id })
             }

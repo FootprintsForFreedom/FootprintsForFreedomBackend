@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 
 /// Streamlines patching repositories.
 protocol ApiRepositoryPatchController: DatabaseRepositoryController, PatchController {

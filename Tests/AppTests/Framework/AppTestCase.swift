@@ -8,6 +8,7 @@
 @testable import App
 import XCTVapor
 import FluentPostgresDriver
+@_exported import AppApi
 
 extension Environment {
     static let pgTestDbName = Self.get("POSTGRES_TEST_DB") ?? pgDbName

@@ -18,6 +18,7 @@ public extension Language {
 }
 
 public extension Language.Detail {
+    /// Used to list languages not yet added to the system.
     struct ListUnused: Codable {
         /// A unique language code identifying the language. In the [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format.
         public let languageCode: String

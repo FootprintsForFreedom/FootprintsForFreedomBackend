@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 
 final class MediaTagModel: DatabaseModelInterface, TagPivot {
     typealias Module = MediaModule

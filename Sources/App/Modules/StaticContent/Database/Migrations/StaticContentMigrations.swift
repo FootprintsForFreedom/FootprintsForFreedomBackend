@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 
 enum StaticContentMigrations {
     struct v1: AsyncMigration {

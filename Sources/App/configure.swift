@@ -4,7 +4,7 @@ import Vapor
 import SwiftSMTPVapor
 import QueuesRedisDriver
 import VaporSecurityHeaders
-@_exported import AppApi
+//@_exported import AppApi
 @_exported import CollectionConcurrencyKit
 
 /// Configures the application.

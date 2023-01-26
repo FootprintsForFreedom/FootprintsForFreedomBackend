@@ -6,6 +6,7 @@
 //
 
 import Vapor
+import AppApi
 
 /// Streamlines deleting models.
 protocol ApiDeleteController: DeleteController {

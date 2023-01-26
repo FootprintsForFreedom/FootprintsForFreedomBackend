@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 
 final class WaypointTagModel: DatabaseModelInterface, TagPivot {
     typealias Module = WaypointModule

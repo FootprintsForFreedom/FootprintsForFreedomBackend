@@ -73,7 +73,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
             .get(mediaPath.appending("?preferredLanguage=\(language.languageCode)&per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Detail.List>.self) { content in
+            .expect(AppApi.Page<Media.Detail.List>.self) { content in
                 XCTAssertEqual(content.metadata.total, content.items.count)
                 XCTAssertEqual(content.items.count, verifiedMediaCount)
                 XCTAssertEqual(content.items.map { $0.id }.uniqued().count, verifiedMediaCount)
@@ -163,7 +163,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
             .get(mediaPath.appending("?per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Detail.List>.self) { content in
+            .expect(AppApi.Page<Media.Detail.List>.self) { content in
                 XCTAssertEqual(content.items.count, verifiedMediaCount)
                 
                 XCTAssert(content.items.contains { $0.id == verifiedMediaRepository.id })
@@ -222,7 +222,7 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
             .get(mediaPath.appending("?per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Detail.List>.self) { content in
+            .expect(AppApi.Page<Media.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == verifiedMediaRepository.id })
                 XCTAssertFalse(content.items.contains { $0.id == verifiedMediaRepositoryForDeactivatedLanguage.id })
             }

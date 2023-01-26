@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 
 extension StaticContent.Detail.List: Content { }
 extension StaticContent.Detail.Detail: Content { }
@@ -66,7 +67,7 @@ struct StaticContentApiController: ApiRepositoryController {
         return queryBuilder
     }
     
-    func listOutput(_ req: Request, _ repositories: Page<DatabaseModel>) async throws -> Page<StaticContent.Detail.List> {
+    func listOutput(_ req: Request, _ repositories: Fluent.Page<DatabaseModel>) async throws -> Fluent.Page<StaticContent.Detail.List> {
         return try await repositories
             .concurrentCompactMap { repository in
                 // load the repository with all fields since the passed parameter can only contain the id field

@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 import SwiftDiff
 
 extension Media.Repository.Changes: Content { }

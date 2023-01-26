@@ -8,6 +8,7 @@
 import Vapor
 import Fluent
 import SQLKit
+import AppApi
 
 enum MediaMigrations {
     struct v1: AsyncMigration {

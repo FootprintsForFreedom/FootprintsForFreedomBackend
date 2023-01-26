@@ -1,30 +1,30 @@
 //
-//  Subset.swift
+//  Page.swift
 //  
 //
 //  Created by niklhut on 08.01.23.
 //
 
 /// A single section of a larger, traversable result set.
-public struct Subset<T> {
+public struct Page<T> {
     /// The page's items.
     public let items: [T]
     
     /// Metadata containing information about current page, items per page, and total items.
-    public let metadata: SubsetMetadata
+    public let metadata: PageMetadata
     
     /// Creates a new `Page`.
-    public init(items: [T], metadata: SubsetMetadata) {
+    public init(items: [T], metadata: PageMetadata) {
         self.items = items
         self.metadata = metadata
     }
 }
 
-extension Subset: Encodable where T: Encodable {}
-extension Subset: Decodable where T: Decodable {}
+extension Page: Encodable where T: Encodable {}
+extension Page: Decodable where T: Decodable {}
 
 /// Metadata for a given `Page`.
-public struct SubsetMetadata: Codable {
+public struct PageMetadata: Codable {
     /// Current page number. Starts at `1`.
     public let page: Int
     

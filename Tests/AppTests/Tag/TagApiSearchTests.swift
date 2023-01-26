@@ -24,7 +24,7 @@ final class TagApiSearchTests: AppTestCase, TagTest {
             .get(tagPath.appending("search/?text=besonder&languageCode=\(tag.detail.language.languageCode)&per=\(tagCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Tag.Detail.List>.self) { content in
+            .expect(AppApi.Page<Tag.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == tag.repository.id })
                 guard let searchedTag = content.items.first(where: { $0.id == tag.repository.id }) else {
                     XCTFail("Could not find searched tag")
@@ -48,7 +48,7 @@ final class TagApiSearchTests: AppTestCase, TagTest {
             .get(tagPath.appending("search/?text=ander&languageCode=\(tag.detail.language.languageCode)&per=\(tagCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Tag.Detail.List>.self) { content in
+            .expect(AppApi.Page<Tag.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == tag.repository.id })
                 guard let searchedTag = content.items.first(where: { $0.id == tag.repository.id }) else {
                     XCTFail("Could not find searched tag")
@@ -70,7 +70,7 @@ final class TagApiSearchTests: AppTestCase, TagTest {
             .get(tagPath.appending("search/?text=ander&languageCode=\(tag.detail.language.languageCode)&per=\(tagCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Tag.Detail.List>.self) { content in
+            .expect(AppApi.Page<Tag.Detail.List>.self) { content in
                 XCTAssert(!content.items.contains { $0.id == tag.repository.id })
             }
             .test()
@@ -87,7 +87,7 @@ final class TagApiSearchTests: AppTestCase, TagTest {
             .get(tagPath.appending("search/?text=hallo&languageCode=\(tag.detail.language.languageCode)&per=\(tagCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Tag.Detail.List>.self) { content in
+            .expect(AppApi.Page<Tag.Detail.List>.self) { content in
                 XCTAssert(!content.items.contains { $0.id == tag.repository.id })
             }
             .test()
@@ -106,7 +106,7 @@ final class TagApiSearchTests: AppTestCase, TagTest {
             .get(tagPath.appending("search/?text=ander&languageCode=\(language2.languageCode)&per=\(tagCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Tag.Detail.List>.self) { content in
+            .expect(AppApi.Page<Tag.Detail.List>.self) { content in
                 XCTAssert(!content.items.contains { $0.id == tag.repository.id })
             }
             .test()
@@ -158,7 +158,7 @@ final class TagApiSearchTests: AppTestCase, TagTest {
             .get(tagPath.appending("search/?text=besonderer&languageCode=\(language.languageCode)&per=\(tagCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Tag.Detail.List>.self) { content in
+            .expect(AppApi.Page<Tag.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == tag.repository.id })
                 guard let searchedTag = content.items.first(where: { $0.id == tag.repository.id }) else {
                     XCTFail("Could not find searched tag")

@@ -8,6 +8,7 @@
 import Vapor
 import Fluent
 import ISO639
+import AppApi
 
 extension AppApi.Language.Detail.ListUnused: Content { }
 

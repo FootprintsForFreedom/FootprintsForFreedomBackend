@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 
 extension Waypoint.Detail.Detail: InitializableById {
     init?(id: UUID?, db: Database) async throws {

@@ -6,6 +6,7 @@
 //
 
 import Vapor
+import AppApi
 
 extension Request {
     func onlyForVerifiedUser() async throws {

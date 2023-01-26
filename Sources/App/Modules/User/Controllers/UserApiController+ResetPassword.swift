@@ -6,6 +6,7 @@
 //
 
 import Vapor
+import AppApi
 
 extension UserApiController {
     

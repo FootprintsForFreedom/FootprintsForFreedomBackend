@@ -6,6 +6,7 @@
 //
 
 import Vapor
+import AppApi
 
 /// Streamlines controlling models.
 public protocol ModelController {

@@ -6,11 +6,11 @@
 //
 
 import Vapor
-import Fluent
+import AppApi
 import ElasticsearchNIOClient
 
 extension WaypointApiController {
-    func listMedia(_ req: Request) async throws -> Page<Media.Detail.List> {
+    func listMedia(_ req: Request) async throws -> AppApi.Page<Media.Detail.List> {
         let pageRequest = try req.pageRequest
         let waypointRepository = try await repository(req)
         

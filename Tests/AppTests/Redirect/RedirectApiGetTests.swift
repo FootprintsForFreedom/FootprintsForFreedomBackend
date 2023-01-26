@@ -30,7 +30,7 @@ final class RedirectApiGetTests: AppTestCase, RedirectTest {
             .bearerToken(adminToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Redirect.Detail.List>.self) { content in
+            .expect(AppApi.Page<Redirect.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == redirect1.id! })
                 XCTAssert(content.items.contains { $0.id == redirect2.id! })
             }

@@ -6,6 +6,7 @@
 //
 
 import Vapor
+import AppApi
 
 extension ApiModelInterface {
     /// The path id component for the model.

@@ -24,7 +24,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
             .get(waypointsPath.appending("search/?text=besonderer&languageCode=\(waypoint.detail.language.languageCode)&per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Detail.List>.self) { content in
+            .expect(AppApi.Page<Waypoint.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == waypoint.repository.id })
                 guard let searchedWaypoint = content.items.first(where: { $0.id == waypoint.repository.id! }) else {
                     XCTFail("Could not find searched waypoint \(waypoint.repository.id!)")
@@ -48,7 +48,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
             .get(waypointsPath.appending("search/?text=anderer&languageCode=\(waypoint.detail.language.languageCode)&per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Detail.List>.self) { content in
+            .expect(AppApi.Page<Waypoint.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == waypoint.repository.id })
                 guard let searchedWaypoint = content.items.first(where: { $0.id == waypoint.repository.id! }) else {
                     XCTFail("Could not find searched waypoint \(waypoint.repository.id!)")
@@ -70,7 +70,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
             .get(waypointsPath.appending("search/?text=ander&languageCode=\(waypoint.detail.language.languageCode)&per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Detail.List>.self) { content in
+            .expect(AppApi.Page<Waypoint.Detail.List>.self) { content in
                 XCTAssert(!content.items.contains { $0.id == waypoint.repository.id })
             }
             .test()
@@ -87,7 +87,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
             .get(waypointsPath.appending("search/?text=hallo&languageCode=\(waypoint.detail.language.languageCode)&per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Detail.List>.self) { content in
+            .expect(AppApi.Page<Waypoint.Detail.List>.self) { content in
                 XCTAssert(!content.items.contains { $0.id == waypoint.repository.id })
             }
             .test()
@@ -116,7 +116,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
             .get(waypointsPath.appending("search/?text=besonderer&languageCode=\(language.languageCode)&per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Detail.List>.self) { content in
+            .expect(AppApi.Page<Waypoint.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == waypoint.repository.id })
                 guard let searchedWaypoint = content.items.first(where: { $0.id == waypoint.repository.id }) else {
                     XCTFail("Could not find searched waypoint")
@@ -150,7 +150,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
             .get(waypointsPath.appending("search/?text=anders&languageCode=\(language.languageCode)&per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Detail.List>.self) { content in
+            .expect(AppApi.Page<Waypoint.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == waypoint.repository.id })
                 guard let searchedWaypoint = content.items.first(where: { $0.id == waypoint.repository.id }) else {
                     XCTFail("Could not find searched waypoint")
@@ -193,7 +193,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
             .get(waypointsPath.appending("search/?text=er&languageCode=\(language.languageCode)&per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Detail.List>.self) { content in
+            .expect(AppApi.Page<Waypoint.Detail.List>.self) { content in
                 XCTAssert(!content.items.contains { $0.id == waypoint.repository.id })
             }
             .test()
@@ -220,7 +220,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
             .get(waypointsPath.appending("search/?text=er&languageCode=\(otherLanguage.languageCode)&per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Detail.List>.self) { content in
+            .expect(AppApi.Page<Waypoint.Detail.List>.self) { content in
                 XCTAssert(!content.items.contains { $0.id == waypoint.repository.id })
             }
             .test()
@@ -238,7 +238,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
             .get(waypointsPath.appending("search/?text=ander&languageCode=\(language2.languageCode)&per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Detail.List>.self) { content in
+            .expect(AppApi.Page<Waypoint.Detail.List>.self) { content in
                 XCTAssert(!content.items.contains { $0.id == waypoint.repository.id })
             }
             .test()
@@ -289,7 +289,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
             .get(waypointsPath.appending("search/?text=besonderer&languageCode=\(language.languageCode)&per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Detail.List>.self) { content in
+            .expect(AppApi.Page<Waypoint.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == waypoint.repository.id })
                 guard let searchedWaypoint = content.items.first(where: { $0.id == waypoint.repository.id }) else {
                     XCTFail("Could not find searched waypoint")

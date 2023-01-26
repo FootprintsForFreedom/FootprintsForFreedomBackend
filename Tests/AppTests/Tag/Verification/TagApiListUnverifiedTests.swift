@@ -57,7 +57,7 @@ final class TagApiListUnverifiedTests: AppTestCase, TagTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Tag.Detail.List>.self) { content in
+            .expect(AppApi.Page<Tag.Detail.List>.self) { content in
                 XCTAssertEqual(content.metadata.total, content.items.count)
                 XCTAssertEqual(content.items.count, unverifiedTagCount)
                 XCTAssertEqual(content.items.map { $0.id }.uniqued().count, unverifiedTagCount)
@@ -179,7 +179,7 @@ final class TagApiListUnverifiedTests: AppTestCase, TagTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Tag.Repository.ListUnverified>.self) { content in
+            .expect(AppApi.Page<Tag.Repository.ListUnverified>.self) { content in
                 XCTAssertEqual(content.metadata.total, content.items.count)
                 XCTAssertEqual(content.items.count, unverifiedTagForRepositoryCount)
                 XCTAssertEqual(content.items.map { $0.detailId }.uniqued().count, unverifiedTagForRepositoryCount)

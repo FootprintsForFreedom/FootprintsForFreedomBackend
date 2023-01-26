@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 import ElasticsearchNIOClient
 
 extension WaypointApiController: ApiElasticSearchController {
@@ -87,7 +88,7 @@ extension WaypointApiController: ApiElasticSearchController {
         let bottomRightLongitude: Double
     }
     
-    func getInCoordinatesApi(_ req: Request) async throws -> Page<Waypoint.Detail.List> {
+    func getInCoordinatesApi(_ req: Request) async throws -> AppApi.Page<Waypoint.Detail.List> {
         try await RequestValidator(getInCoordinatesValidators()).validate(req, .query)
         let pageRequest = try req.pageRequest
         let getInRangeQuery = try req.query.decode(GetInRangeQuery.self)

@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 import ElasticsearchNIOClient
 import MMDB
 
@@ -100,7 +101,7 @@ struct WaypointApiController: ApiElasticDetailController, ApiElasticPagedListCon
         }
         
         let items = try await listApi(req)
-        return .init(userLocation: location, items: .from(items))
+        return .init(userLocation: location, items: items)
     }
     
     func sortList(_ sort: inout [[String: Any]], on req: Request, with parameters: Waypoint.Location) async throws {

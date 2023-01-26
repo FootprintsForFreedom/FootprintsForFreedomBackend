@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 import SwiftDiff
 import ElasticsearchNIOClient
 
@@ -118,7 +119,7 @@ extension WaypointApiController: ApiRepositoryVerificationController {
     // MARK: - list unverified locations
     
     // GET: api/waypoints/:repositoryId/locations/unverified
-    func listUnverifiedLocations(_ req: Request) async throws -> Page<Waypoint.Repository.ListUnverifiedLocations> {
+    func listUnverifiedLocations(_ req: Request) async throws -> Fluent.Page<Waypoint.Repository.ListUnverifiedLocations> {
         try await req.onlyFor(.moderator)
         
         let repository = try await repository(req)

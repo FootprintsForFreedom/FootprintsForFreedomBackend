@@ -24,7 +24,7 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
             .get(mediaPath.appending("search/?text=besonderer&languageCode=\(media.detail.language.languageCode)&per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Detail.List>.self) { content in
+            .expect(AppApi.Page<Media.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == media.repository.id })
                 guard let searchedMedia = content.items.first(where: { $0.id == media.repository.id }) else {
                     XCTFail("Could not find searched media")
@@ -48,7 +48,7 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
             .get(mediaPath.appending("search/?text=anderer&languageCode=\(media.detail.language.languageCode)&per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Detail.List>.self) { content in
+            .expect(AppApi.Page<Media.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == media.repository.id })
                 guard let searchedMedia = content.items.first(where: { $0.id == media.repository.id }) else {
                     XCTFail("Could not find searched media")
@@ -70,7 +70,7 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
             .get(mediaPath.appending("search/?text=ander&languageCode=\(media.detail.language.languageCode)&per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Detail.List>.self) { content in
+            .expect(AppApi.Page<Media.Detail.List>.self) { content in
                 XCTAssert(!content.items.contains { $0.id == media.repository.id })
             }
             .test()
@@ -87,7 +87,7 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
             .get(mediaPath.appending("search/?text=hallo&languageCode=\(media.detail.language.languageCode)&per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Detail.List>.self) { content in
+            .expect(AppApi.Page<Media.Detail.List>.self) { content in
                 XCTAssert(!content.items.contains { $0.id == media.repository.id })
             }
             .test()
@@ -116,7 +116,7 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
             .get(mediaPath.appending("search/?text=besonderer&languageCode=\(language.languageCode)&per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Detail.List>.self) { content in
+            .expect(AppApi.Page<Media.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == media.repository.id })
                 guard let searchedMedia = content.items.first(where: { $0.id == media.repository.id }) else {
                     XCTFail("Could not find searched media")
@@ -150,7 +150,7 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
             .get(mediaPath.appending("search/?text=anders&languageCode=\(language.languageCode)&per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Detail.List>.self) { content in
+            .expect(AppApi.Page<Media.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == media.repository.id })
                 guard let searchedMedia = content.items.first(where: { $0.id == media.repository.id }) else {
                     XCTFail("Could not find searched media")
@@ -186,7 +186,7 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
             .get(mediaPath.appending("search/?text=er&languageCode=\(media.detail.language.languageCode)&per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Detail.List>.self) { content in
+            .expect(AppApi.Page<Media.Detail.List>.self) { content in
                 XCTAssert(!content.items.contains { $0.id == media.repository.id })
             }
             .test()
@@ -206,7 +206,7 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
             .get(mediaPath.appending("search/?text=er&languageCode=\(media.detail.language.languageCode)&per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Detail.List>.self) { content in
+            .expect(AppApi.Page<Media.Detail.List>.self) { content in
                 XCTAssert(!content.items.contains { $0.id == media.repository.id })
             }
             .test()
@@ -225,7 +225,7 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
             .get(mediaPath.appending("search/?text=ander&languageCode=\(language2.languageCode)&per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Detail.List>.self) { content in
+            .expect(AppApi.Page<Media.Detail.List>.self) { content in
                 XCTAssert(!content.items.contains { $0.id == media.repository.id })
             }
             .test()
@@ -280,7 +280,7 @@ final class MediaApiSearchTests: AppTestCase, MediaTest, TagTest {
             .get(mediaPath.appending("search/?text=besonderer&languageCode=\(language.languageCode)&per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Detail.List>.self) { content in
+            .expect(AppApi.Page<Media.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == media.repository.id })
                 guard let searchedMedia = content.items.first(where: { $0.id == media.repository.id }) else {
                     XCTFail("Could not find searched media")

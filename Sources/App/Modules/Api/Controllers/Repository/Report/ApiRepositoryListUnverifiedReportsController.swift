@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 
 /// Streamlines listing unverified repository reports.
 protocol ApiRepositoryListUnverifiedReportsController: DatabaseRepositoryController where DatabaseModel: Reportable {
@@ -20,7 +21,7 @@ protocol ApiRepositoryListUnverifiedReportsController: DatabaseRepositoryControl
     /// The list unverified repository reports action.
     /// - Parameter req: The request on which to find the unverified repository reports.
     /// - Returns: A paged list of the unverified repository reports.
-    func listUnverifiedReportsApi(_ req: Request) async throws -> Page<ReportListObject>
+    func listUnverifiedReportsApi(_ req: Request) async throws -> Fluent.Page<ReportListObject>
     
     /// The output for the unverified reports list.
     /// - Parameters:
@@ -28,7 +29,7 @@ protocol ApiRepositoryListUnverifiedReportsController: DatabaseRepositoryControl
     ///   - repository: The reported repository.
     ///   - reports: The unverified reports to be returned.
     /// - Returns: A paged list of the unverified repository reports.
-    func listUnverifiedReportsOutput(_ req: Request, _ repository: DatabaseModel, _ reports: Page<Report>) async throws -> Page<ReportListObject>
+    func listUnverifiedReportsOutput(_ req: Request, _ repository: DatabaseModel, _ reports: Fluent.Page<Report>) async throws -> Fluent.Page<ReportListObject>
     
     /// The output for one unverified report.
     /// - Parameters:
@@ -46,7 +47,7 @@ protocol ApiRepositoryListUnverifiedReportsController: DatabaseRepositoryControl
 extension ApiRepositoryListUnverifiedReportsController {
     func beforeListUnverifiedReports(_ req: Request) async throws { }
     
-    func listUnverifiedReportsApi(_ req: Request) async throws -> Page<ReportListObject> {
+    func listUnverifiedReportsApi(_ req: Request) async throws -> Fluent.Page<ReportListObject> {
         try await beforeListUnverifiedReports(req)
         
         let repository = try await repository(req)
@@ -60,7 +61,7 @@ extension ApiRepositoryListUnverifiedReportsController {
         return try await listUnverifiedReportsOutput(req, repository, unverifiedReports)
     }
     
-    func listUnverifiedReportsOutput(_ req: Request, _ repository: DatabaseModel, _ reports: Page<Report>) async throws -> Page<ReportListObject> {
+    func listUnverifiedReportsOutput(_ req: Request, _ repository: DatabaseModel, _ reports: Fluent.Page<Report>) async throws -> Fluent.Page<ReportListObject> {
         return try await reports
             .concurrentMap { report in
                 return try await listUnverifiedReportsOutput(req, repository, report)

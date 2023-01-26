@@ -31,7 +31,7 @@ final class WaypointApiGetInCoordinatesTests: AppTestCase, WaypointTest {
             .get(waypointsPath.appending("in/?\(query)&per=\(waypointCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Detail.List>.self) { content in
+            .expect(AppApi.Page<Waypoint.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == waypoint.repository.id! })
             }
             .test()
@@ -58,7 +58,7 @@ final class WaypointApiGetInCoordinatesTests: AppTestCase, WaypointTest {
             .get(waypointsPath.appending("in/?\(query)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Detail.List>.self) { content in
+            .expect(AppApi.Page<Waypoint.Detail.List>.self) { content in
                 XCTAssert(!content.items.contains { $0.id == waypoint.repository.id! })
             }
             .test()
@@ -85,7 +85,7 @@ final class WaypointApiGetInCoordinatesTests: AppTestCase, WaypointTest {
             .get(waypointsPath.appending("in/?\(query)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Detail.List>.self) { content in
+            .expect(AppApi.Page<Waypoint.Detail.List>.self) { content in
                 XCTAssert(!content.items.contains { $0.id == waypoint.repository.id! })
             }
             .test()

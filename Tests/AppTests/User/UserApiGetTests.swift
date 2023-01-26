@@ -37,7 +37,7 @@ final class UserApiGetTests: AppTestCase, UserTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Page<User.Account.List>.self) { content in
+            .expect(AppApi.Page<User.Account.List>.self) { content in
                 XCTAssertEqual(content.metadata.total, userCount)
                 if userCount < content.items.count {
                     XCTAssert(content.items.contains { $0.id == user.id })

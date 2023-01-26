@@ -29,7 +29,7 @@ extension MediaApiListUnverifiedTests: TagTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Detail.List>.self) { content in
+            .expect(AppApi.Page<Media.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == media.repository.id })
             }
             .test()
@@ -60,7 +60,7 @@ extension MediaApiListUnverifiedTests: TagTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Detail.List>.self) { content in
+            .expect(AppApi.Page<Media.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == media.repository.id })
             }
             .test()

@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 
 /// Streamlines detailing a repository.
 protocol ApiRepositoryDetailController: RepositoryDetailController {

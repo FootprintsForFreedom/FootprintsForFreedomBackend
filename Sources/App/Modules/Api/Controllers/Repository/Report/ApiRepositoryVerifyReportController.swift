@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 
 /// Streamlines verifying repository reports.
 protocol ApiRepositoryVerifyReportController: DatabaseRepositoryController where DatabaseModel: Reportable {

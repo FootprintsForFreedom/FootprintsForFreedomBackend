@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 
 extension MediaApiController {
     var tagPathIdKey: String { "tag" }

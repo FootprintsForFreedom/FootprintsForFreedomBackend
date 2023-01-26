@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 
 enum UserMigrations {
     struct v1: AsyncMigration {

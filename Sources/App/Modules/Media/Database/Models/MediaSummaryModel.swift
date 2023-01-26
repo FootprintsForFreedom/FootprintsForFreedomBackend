@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 import ElasticsearchNIOClient
 
 final class MediaSummaryModel: DatabaseElasticInterface {

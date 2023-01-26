@@ -74,7 +74,7 @@ final class WaypointApiMediaGetTests: AppTestCase, MediaTest {
             .get(waypointsPath.appending("\(waypointRepository.requireID())/media/?preferredLanguage=\(language.languageCode)&per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Detail.List>.self) { content in
+            .expect(AppApi.Page<Media.Detail.List>.self) { content in
                 XCTAssertEqual(content.metadata.total, content.items.count)
                 XCTAssertEqual(content.items.map { $0.id }.uniqued().count, content.items.count)
                 
@@ -156,7 +156,7 @@ final class WaypointApiMediaGetTests: AppTestCase, MediaTest {
             .get(waypointsPath.appending("\(waypointRepository.requireID())/media/?per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Detail.List>.self) { content in
+            .expect(AppApi.Page<Media.Detail.List>.self) { content in
                 XCTAssertEqual(content.metadata.total, content.items.count)
                 
                 XCTAssert(content.items.contains { $0.id == verifiedMediaRepository.id })
@@ -216,7 +216,7 @@ final class WaypointApiMediaGetTests: AppTestCase, MediaTest {
             .get(waypointsPath.appending("\(waypointRepository.requireID())/media/?per=\(mediaCount)"))
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Media.Detail.List>.self) { content in
+            .expect(AppApi.Page<Media.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == verifiedMediaRepository.id })
                 XCTAssertFalse(content.items.contains { $0.id == verifiedMediaRepositoryForDeactivatedLanguage.id })
             }

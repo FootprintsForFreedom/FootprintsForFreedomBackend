@@ -58,7 +58,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Detail.List>.self) { content in
+            .expect(AppApi.Page<Waypoint.Detail.List>.self) { content in
                 XCTAssertEqual(content.metadata.total, content.items.count)
                 XCTAssertEqual(content.items.count, unverifiedWaypointCount)
                 XCTAssertEqual(content.items.map { $0.id }.uniqued().count, unverifiedWaypointCount)
@@ -183,7 +183,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Repository.ListUnverifiedWaypoints>.self) { content in
+            .expect(AppApi.Page<Waypoint.Repository.ListUnverifiedWaypoints>.self) { content in
                 XCTAssertEqual(content.metadata.total, content.items.count)
                 XCTAssertEqual(content.items.count, unverifiedWaypointForRepositoryCount)
                 XCTAssertEqual(content.items.map { $0.detailId }.uniqued().count, unverifiedWaypointForRepositoryCount)
@@ -290,7 +290,7 @@ final class WaypointApiListUnverifiedTests: AppTestCase, WaypointTest {
             .bearerToken(moderatorToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Page<Waypoint.Repository.ListUnverifiedLocations>.self) { content in
+            .expect(AppApi.Page<Waypoint.Repository.ListUnverifiedLocations>.self) { content in
                 XCTAssertEqual(content.metadata.total, content.items.count)
                 XCTAssertEqual(content.items.count, unverifiedLocationForRepositoryCount)
                 XCTAssertEqual(content.items.map { $0.locationId }.uniqued().count, unverifiedLocationForRepositoryCount)

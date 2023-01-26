@@ -49,7 +49,7 @@ final class StaticContentApiGetTests: AppTestCase, StaticContentTest {
             .bearerToken(adminToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Page<StaticContent.Detail.List>.self) { content in
+            .expect(AppApi.Page<StaticContent.Detail.List>.self) { content in
                 XCTAssert(content.items.contains { $0.id == staticContentWithLanguage1and2.repository.id! })
                 if let staticContent = content.items.first(where: { $0.id == staticContentWithLanguage1and2.repository.id! }) {
                     XCTAssertEqual(staticContent.slug, staticContentWithLanguage1and2.repository.slug)
@@ -85,7 +85,7 @@ final class StaticContentApiGetTests: AppTestCase, StaticContentTest {
             .bearerToken(adminToken)
             .expect(.ok)
             .expect(.json)
-            .expect(Page<StaticContent.Detail.List>.self) { content in
+            .expect(AppApi.Page<StaticContent.Detail.List>.self) { content in
                 XCTAssert(!content.items.contains { $0.id == staticContentWithDeactivatedLanguage.repository.id! })
             }
             .test()

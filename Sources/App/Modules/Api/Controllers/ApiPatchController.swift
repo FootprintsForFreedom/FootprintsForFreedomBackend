@@ -6,6 +6,7 @@
 //
 
 import Vapor
+import AppApi
 
 /// Streamlines patching models.
 protocol ApiPatchController: PatchController {
