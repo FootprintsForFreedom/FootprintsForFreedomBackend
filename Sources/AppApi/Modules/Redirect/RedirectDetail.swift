@@ -56,7 +56,7 @@ public extension Redirect.Detail {
         }
     }
     
-    // Used to update redirect objects.
+    /// Used to update redirect objects.
     typealias Update = Create
     
     /// Used to create redirect objects.
