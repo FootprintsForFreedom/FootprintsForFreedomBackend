@@ -10,7 +10,7 @@ import XCTVapor
 import Fluent
 import Spec
 
-final class WaypointApiGetTests: AppTestCase, WaypointTest {
+final class WaypointApiGetTests: AppTestCase, WaypointTest, TagTest {
     func testSuccessfulListVerifiedWaypointsWithPreferredLanguageReturnsVerifiedModelsForAllLanguagesButPrefersSpecifiedLanguage() async throws {
         let language = try await createLanguage()
         let language2 = try await createLanguage()
@@ -261,6 +261,42 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest {
             }
             .test()
     }
+    
+    func testSuccessfulGetVerifiedWaypointWithTags() async throws {
+        let language = try await createLanguage()
+        let tag = try await createNewTag(verified: true, languageId: language.requireID())
+        let (waypointRepository, waypoint, location) = try await createNewWaypoint(verified: true, languageId: language.requireID())
+        try await waypointRepository.$tags.attach(tag.repository, on: app.db)
+        try await waypoint.$language.load(on: app.db)
+        
+        try app
+            .describe("Verify tag on waypoint should return ok and the waypoint with the tag")
+            .post(waypointsPath.appending("\(waypointRepository.requireID())/tags/verify/\(tag.repository.requireID())"))
+            .bearerToken(moderatorToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
+        
+        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        
+        try app
+            .describe("Get verified waypoint should return ok")
+            .get(waypointsPath.appending(waypointRepository.requireID().uuidString))
+            .expect(.ok)
+            .expect(.json)
+            .expect(Waypoint.Detail.Detail.self) { content in
+                XCTAssertEqual(content.id, waypointRepository.id)
+                XCTAssertEqual(content.title, waypoint.title)
+                XCTAssertEqual(content.slug, waypoint.slug)
+                XCTAssertEqual(content.detailText, waypoint.detailText)
+                XCTAssertEqual(content.location, location.location)
+                XCTAssertEqual(content.languageCode, waypoint.language.languageCode)
+                XCTAssertNotNil(content.detailId)
+                XCTAssertNotNil(content.locationId)
+            }
+            .test()
+    }
+
     
     func testSuccessfulGetVerifiedWaypointAsModerator() async throws {
         let language = try await createLanguage()

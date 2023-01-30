@@ -256,7 +256,7 @@ extension WaypointSummaryModel.Elasticsearch {
             var query: [String: Any] = [
                 "query": [
                     "terms": [
-                        "id": self.tags
+                        "id": self.tags.map(\.uuidString)
                     ]
                 ],
                 "collapse": [
@@ -289,7 +289,7 @@ extension WaypointSummaryModel.Elasticsearch {
             return try await elastic.perform {
                 guard
                     let queryData = try? JSONSerialization.data(withJSONObject: query),
-                    let responseData = try? await elastic.custom("/\(LatestVerifiedTagModel.Elasticsearch.baseSchema)/_search", method: .GET, body: queryData),
+                    let responseData = try? await elastic.custom("/\(LatestVerifiedTagModel.Elasticsearch.wildcardSchema)/_search", method: .GET, body: queryData),
                     let response = try? ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<LatestVerifiedTagModel.Elasticsearch>.self, from: responseData)
                 else {
                     throw Abort(.internalServerError)
