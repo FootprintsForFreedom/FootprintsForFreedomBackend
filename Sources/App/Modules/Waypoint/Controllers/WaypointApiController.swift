@@ -73,6 +73,7 @@ struct WaypointApiController: ApiElasticDetailController, ApiElasticPagedListCon
         struct QueryValues: Encodable {
             let latitude: Double
             let longitude: Double
+            let preferredLanguage: String?
             let page: Int
             let per: Int
         }
@@ -93,8 +94,9 @@ struct WaypointApiController: ApiElasticDetailController, ApiElasticPagedListCon
                 location = Waypoint.Location(latitude: 49.872222, longitude: 8.652778)
             }
             let pageRequest = try req.pageRequest
+            let preferredLanguage = try req.preferredLanguageCode()
             // Encode the query values struct since encoding only the location would reset the query and therefore delete the page request
-            try req.query.encode(QueryValues(latitude: location.latitude, longitude: location.longitude, page: pageRequest.page, per: pageRequest.per))
+            try req.query.encode(QueryValues(latitude: location.latitude, longitude: location.longitude, preferredLanguage: preferredLanguage, page: pageRequest.page, per: pageRequest.per))
         } else {
             // set location sent with request
             location = .init(latitude: decodedLocation.latitude!, longitude: decodedLocation.longitude!)
