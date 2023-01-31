@@ -14,7 +14,7 @@ final class WaypointApiGetInCoordinatesTests: AppTestCase, WaypointTest {
     func testSuccessfulGetWaypointsInCoordinates() async throws {
         let waypoint = try await createNewWaypoint(verified: true)
         
-        let getInRangeContent = WaypointApiController.GetInRangeQuery(
+        let getInRangeContent = Waypoint.Request.ListInArea(
             topLeftLatitude: waypoint.location.latitude + 1,
             topLeftLongitude: waypoint.location.longitude - 1,
             bottomRightLatitude: waypoint.location.latitude - 1,
@@ -42,7 +42,7 @@ final class WaypointApiGetInCoordinatesTests: AppTestCase, WaypointTest {
         waypoint.detail.verifiedAt = Date()
         try await waypoint.detail.update(on: app.db)
         
-        let getInRangeContent = WaypointApiController.GetInRangeQuery(
+        let getInRangeContent = Waypoint.Request.ListInArea(
             topLeftLatitude: waypoint.location.latitude + 1,
             topLeftLongitude: waypoint.location.longitude - 1,
             bottomRightLatitude: waypoint.location.latitude - 1,
@@ -69,7 +69,7 @@ final class WaypointApiGetInCoordinatesTests: AppTestCase, WaypointTest {
         waypoint.location.verifiedAt = Date()
         try await waypoint.detail.update(on: app.db)
         
-        let getInRangeContent = WaypointApiController.GetInRangeQuery(
+        let getInRangeContent = Waypoint.Request.ListInArea(
             topLeftLatitude: waypoint.location.latitude + 1,
             topLeftLongitude: waypoint.location.longitude - 1,
             bottomRightLatitude: waypoint.location.latitude - 1,

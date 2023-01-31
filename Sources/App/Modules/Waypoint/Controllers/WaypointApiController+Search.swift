@@ -81,17 +81,10 @@ extension WaypointApiController: ApiElasticSearchController {
     
     // MARK: - Get in Range
     
-    struct GetInRangeQuery: Codable {
-        let topLeftLatitude: Double
-        let topLeftLongitude: Double
-        let bottomRightLatitude: Double
-        let bottomRightLongitude: Double
-    }
-    
     func getInCoordinatesApi(_ req: Request) async throws -> AppApi.Page<Waypoint.Detail.List> {
         try await RequestValidator(getInCoordinatesValidators()).validate(req, .query)
         let pageRequest = try req.pageRequest
-        let getInRangeQuery = try req.query.decode(GetInRangeQuery.self)
+        let getInRangeQuery = try req.query.decode(Waypoint.Request.ListInArea.self)
         
         var query: [String: Any] = [
             "from": (pageRequest.page - 1) * pageRequest.per,
