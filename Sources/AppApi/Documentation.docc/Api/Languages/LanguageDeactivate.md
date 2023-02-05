@@ -19,6 +19,7 @@ The admin user token has to be sent as a `BearerToken` with the request.
     "id": "<language-id>",
     "languageCode": "<language-code>",
     "name": "<language-name>",
+    "officialName": "<official-language-name>"
     "isRTL": <is-rtl>
 }
 ```

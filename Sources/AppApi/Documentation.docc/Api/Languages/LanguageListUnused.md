@@ -1,10 +1,10 @@
-# List deactivated languages
+#  List unused languages
 
-Lists all deactivated language objects.
+Lists all languages not yet created. 
 
 ## Request
 
-    GET /api/v1/languages/deactivated
+    Get /api/v1/languages/unused
 
 This endpoint is only available to admins.
 
@@ -17,23 +17,18 @@ The admin user token has to be sent as a `BearerToken` with the request.
 ```json
 [
     {
-        "id": "<language-1-id>",
-        "languageCode": "<language-1-code>",
         "name": "<language-1-name>",
+        "languageCode": "<language-1-code>",
         "officialName": "<official-language-1-name>"
-        "isRTL": <is-rtl>
     },
     {
-        "id": "<language-2-id>",
-        "languageCode": "<language-2-code>",
         "name": "<language-2-name>",
+        "languageCode": "<language-2-code>",
         "officialName": "<official-language-2-name>"
-        "isRTL": <is-rtl>
-    },
-    ...
+    }
 ]
 ```
 
 ## See Also
 
-* ``Language/Detail/List``
+* ``Language/Detail/ListUnused``

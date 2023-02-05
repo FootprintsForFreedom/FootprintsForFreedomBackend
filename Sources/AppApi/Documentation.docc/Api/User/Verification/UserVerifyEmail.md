@@ -4,7 +4,7 @@ Verifies the email address of an user.
 
 ## Request 
 
-    POST /api/v1/<user-id>/verify
+    POST /api/v1/user/accounts/<user-id>/verify
 
 ### Required query parameters
 
@@ -31,6 +31,7 @@ Verifies the email address of an user.
 
 ## See Also
 
+* ``User/Account/Verification``
 * ``User/Account/Create``
 * ``User/Account/Detail``
 * ``User/Role``

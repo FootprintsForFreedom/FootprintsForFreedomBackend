@@ -39,4 +39,7 @@ The moderator token has to be sent as a `BearerToken` with the request.
 
 ## See Also
 
+* ``PageRequest``
 * ``Report/List``
+* ``Page``
+* ``PageMetadata``

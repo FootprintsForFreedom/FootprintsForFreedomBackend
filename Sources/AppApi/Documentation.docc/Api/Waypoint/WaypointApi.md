@@ -1,4 +1,4 @@
-#  Waypoints
+#  Waypoint
 
 The waypoint api endpoints.
 
@@ -8,13 +8,18 @@ See how to create, read, update, delete, verify and report waypoints.
 
 ## Topics
 
-### Create, read, update and delete
+### Get and search 
 
-- <doc:WaypointCreate>
 - <doc:WaypointDetail>
 - <doc:WaypointList>
 - <doc:WaypointListMedia>
 - <doc:WaypointSearch>
+- <doc:WaypointSuggest>
+- <doc:WaypointListInArea>
+
+### Create, update and delete
+
+- <doc:WaypointCreate>
 - <doc:WaypointUpdate>
 - <doc:WaypointPatch>
 - <doc:WaypointDelete>

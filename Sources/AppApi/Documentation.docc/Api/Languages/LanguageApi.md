@@ -4,17 +4,16 @@ The language api endpoints.
 
 ## Overview
 
-See how to create, read, update, activate, deactivate and prioritise languages.
+See how to create, read, activate, deactivate and prioritise languages.
 
 ## Topics
 
-### Create, read and update
+### Create and read
 
 - <doc:LanguageCreate>
 - <doc:LanguageDetail>
 - <doc:LanguageList>
-- <doc:LanguageUpdate>
-- <doc:LanguagePatch>
+- <doc:LanguageListUnused>
 
 ### Activate, deactivate and set priorities
 

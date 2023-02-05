@@ -1,10 +1,10 @@
-# List unverified details for a tag repository
+# List unverified locations for a waypoint repository
 
-Lists all unverified detail models for the specified tag repository.
+Lists all unverified location models for the specified waypoint repository.
 
 ## Request
 
-    GET /api/v1/tags/<tag-repository-id>/unverified
+    GET /api/v1/waypoints/<waypoint-repository-id>/locations/unverified
 
 This endpoint is only available to moderators.
 
@@ -23,14 +23,11 @@ The moderator token has to be sent as a `BearerToken` with the request.
 {
     "items": [
         {
-            "detailId": "<tag-detail-1-id>",
-            "title": "<tag-detail-1-title>",
-            "slug": "<tag-detail-1-slug>",
-            "keywords": [
-                "<keyword-1>",
-                ...
-            ],
-            "languageCode": "<tag-detail-1-language-code>"
+            "locationId": "<waypoint-location-1-id>",
+            "location": {
+                "longitude": <waypoint-1-longitude>,
+                "latitude": <waypoint-1-latitude>
+            },
         },
         ...
     ],
@@ -45,6 +42,6 @@ The moderator token has to be sent as a `BearerToken` with the request.
 ## See Also
 
 * ``PageRequest``
-* ``Tag/Repository/ListUnverified``
+* ``Waypoint/Repository/ListUnverifiedLocations``
 * ``Page``
 * ``PageMetadata``

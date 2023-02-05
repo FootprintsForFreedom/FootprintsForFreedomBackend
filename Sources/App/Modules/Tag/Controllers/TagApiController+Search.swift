@@ -21,7 +21,7 @@ extension TagApiController: ApiElasticSearchController {
     
     // MARK: - Search
     
-    func searchQuery(_ searchContext: RepositoryDefaultSearchContext, _ pageRequest: PageRequest, on elastic: ElasticHandler) async throws -> [String : Any] {
+    func searchQuery(_ searchContext: AppApi.DefaultSearchContext, _ pageRequest: Fluent.PageRequest, on elastic: ElasticHandler) async throws -> [String : Any] {
         [
             "from": (pageRequest.page - 1) * pageRequest.per,
             "size": pageRequest.per,

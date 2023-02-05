@@ -12,12 +12,16 @@ See how to create, read, update, delete, verify and report media objects.
 
 - <doc:MediaThumbnail>
 
-### Create, read, update and delete
+### Get and search
 
-- <doc:MediaCreate>
 - <doc:MediaDetail>
 - <doc:MediaList>
 - <doc:MediaSearch>
+- <doc:MediaSuggest>
+
+### Create, update and delete
+
+- <doc:MediaCreate>
 - <doc:MediaUpdate>
 - <doc:MediaPatch>
 - <doc:MediaDelete>

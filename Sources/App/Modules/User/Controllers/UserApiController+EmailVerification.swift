@@ -35,7 +35,6 @@ extension UserApiController {
     func verificationValidators() -> [AsyncValidator] {
         KeyedContentValidator<String>.required("token")
     }
-
     
     func verificationApi(_ req: Request) async throws -> User.Account.Detail {
         try await RequestValidator(verificationValidators()).validate(req, .query)

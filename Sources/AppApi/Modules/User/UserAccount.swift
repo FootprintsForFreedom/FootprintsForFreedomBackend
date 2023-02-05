@@ -141,7 +141,7 @@ public extension User.Account {
         public let name: String
         /// The user's email address.
         public let email: String?
-        /// The password set by the user for his account.
+        /// The school of the user.
         public let school: String?
         /// Wether or not the user's email has been verified.
         public let verified: Bool?
@@ -152,7 +152,7 @@ public extension User.Account {
         /// - Parameters:
         ///   - id: Id uniquely identifying the user.
         ///   - name: The user name.
-        ///   - school: The password set by the user for his account.
+        ///   - school: The school of the user.
         /// - Returns: A user detail object.
         public static func publicDetail(id: UUID, name: String, school: String?) -> Self {
             return .init(
@@ -167,7 +167,7 @@ public extension User.Account {
         ///   - id: Id uniquely identifying the user.
         ///   - name: The user name.
         ///   - email: The user's email address.
-        ///   - school: The password set by the user for his account.
+        ///   - school: The school of the user.
         ///   - verified: Wether or not the user's email has been verified.
         ///   - role: The user's role.
         /// - Returns: A user detail object.
@@ -186,7 +186,7 @@ public extension User.Account {
         /// - Parameters:
         ///   - id: Id uniquely identifying the user.
         ///   - name: The user name.
-        ///   - school: The password set by the user for his account.
+        ///   - school: The school of the user.
         ///   - verified: Wether or not the user's email has been verified.
         ///   - role: The user's role.
         /// - Returns: A user detail object.
@@ -204,7 +204,7 @@ public extension User.Account {
         /// - Parameters:
         ///   - id: Id uniquely identifying the user.
         ///   - name: The user name.
-        ///   - school: The password set by the user for his account.
+        ///   - school: The school of the user.
         private init(id: UUID, name: String, school: String?) {
             self.id = id
             self.name = name
@@ -218,7 +218,7 @@ public extension User.Account {
         /// - Parameters:
         ///   - id: Id uniquely identifying the user.
         ///   - name: The user name.
-        ///   - school: The password set by the user for his account.
+        ///   - school: The school of the user.
         ///   - verified: Wether or not the user's email has been verified.
         ///   - role: The user's role.
         private init(id: UUID, name: String, school: String?, verified: Bool, role: User.Role) {
@@ -235,7 +235,7 @@ public extension User.Account {
         ///   - id: Id uniquely identifying the user.
         ///   - name: The user name.
         ///   - email: The user's email address.
-        ///   - school: The password set by the user for his account.
+        ///   - school: The school of the user.
         ///   - verified: Wether or not the user's email has been verified.
         ///   - role: The user's role.
         private init(id: UUID, name: String, email: String, school: String?, verified: Bool, role: User.Role) {
@@ -254,17 +254,17 @@ public extension User.Account {
         public let name: String
         /// The user's email address.
         public let email: String
-        /// The password set by the user for his account.
+        /// The school of the user. If no value is set the user's school will be set to no value.
         public let school: String?
-        /// The school of the user. *Optional*.
+        /// The password set by the user for his account.
         public let password: String
         
         /// Creates a user create object.
         /// - Parameters:
         ///   - name: The user name.
         ///   - email: The user's email address.
-        ///   - school: The password set by the user for his account.
-        ///   - password: The school of the user. *Optional*.
+        ///   - school: The school of the user.  If no value is set the user's school will be set to no value.
+        ///   - password: The password set by the user for his account.
         public init(name: String, email: String, school: String?, password: String) {
             self.name = name
             self.email = email
@@ -279,14 +279,14 @@ public extension User.Account {
         public let name: String
         /// The user's email address.
         public let email: String
-        /// The school of the user. *Optional*. If no value is set the user's school will be set to no value.
+        /// The school of the user. If no value is set the user's school will be set to no value.
         public let school: String?
         
         /// Creates a user update object.
         /// - Parameters:
         ///   - name: The user name.
         ///   - email: The user's email address.
-        ///   - school: The school of the user. *Optional*. If no value is set the user's school will be set to no value.
+        ///   - school: The school of the user. If no value is set the user's school will be set to no value.
         public init(name: String, email: String, school: String?) {
             self.name = name
             self.email = email

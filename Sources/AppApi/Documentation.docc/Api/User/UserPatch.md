@@ -16,7 +16,9 @@ At least one of the other following parameters has to be sent with the request f
 
 - term **name**: The user name. 
 - term **email**: The user's email address.
-- term **setSchool**: Wether or not to set the school. A `school` value will only be considered if `setSchool` is set to true. If `setSchool` is true but no school value is set, the user's school will also be set to no value. 
+- term **setSchool**: Wether or not to set the school. 
+    
+    A `school` value will only be considered if `setSchool` is set to true. If `setSchool` is true but no school value is set, the user's school will also be set to no value. 
 - term **school**: The school of the user.
 
 The parameters can be either sent as `application/json` or `multipart/form-data`.

@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 import ElasticsearchNIOClient
 
 protocol ElasticSearchController: ElasticModelController {
@@ -15,7 +16,7 @@ protocol ElasticSearchController: ElasticModelController {
     /// - Parameters:
     ///   - searchContext: The search terms submitted by the user.
     ///   - elastic: An elastic handler to perform optional previous queries.
-    func searchQuery(_ searchContext: RepositoryDefaultSearchContext, _ pageRequest: PageRequest, on elastic: ElasticHandler) async throws -> [String: Any]
+    func searchQuery(_ searchContext: AppApi.DefaultSearchContext, _ pageRequest: Fluent.PageRequest, on elastic: ElasticHandler) async throws -> [String: Any]
     
     /// Searches elasticsearch to get a page of elastic models.
     /// - Parameters:
@@ -23,25 +24,25 @@ protocol ElasticSearchController: ElasticModelController {
     ///   - pageRequest: The page request to paginate the results.
     ///   - elastic: The elastic handler to perform the search.
     /// - Returns: A page of elastic models.
-    func search(_ searchContext: RepositoryDefaultSearchContext, _ pageRequest: PageRequest, on elastic: ElasticHandler) async throws -> Page<ElasticModel>
+    func search(_ searchContext: AppApi.DefaultSearchContext, _ pageRequest: Fluent.PageRequest, on elastic: ElasticHandler) async throws -> AppApi.Page<ElasticModel>
     
     /// The elasticsearch suggest query to be used.
     /// - Returns: A json formatted array.
     /// - Parameters:
     ///   - searchContext: The search terms submitted by the user.
     ///   - elastic: An elastic handler to perform optional previous queries.
-    func suggestQuery(_ searchContext: RepositoryDefaultSearchContext, on elastic: ElasticHandler) async throws -> [String: Any]
+    func suggestQuery(_ searchContext: AppApi.DefaultSearchContext, on elastic: ElasticHandler) async throws -> [String: Any]
     
     /// Searches elasticsearch to get search suggestions..
     /// - Parameters:
     ///   - searchQuery: The search query to use for search.
     ///   - elastic: The elastic handler to perform the search.
     /// - Returns: A  list of elastic model suggestions..
-    func suggest(_ searchContext: RepositoryDefaultSearchContext, on elastic: ElasticHandler) async throws -> [ElasticModel]
+    func suggest(_ searchContext: AppApi.DefaultSearchContext, on elastic: ElasticHandler) async throws -> [ElasticModel]
 }
 
 extension ElasticSearchController {
-    func search(_ searchContext: RepositoryDefaultSearchContext, _ pageRequest: PageRequest, on elastic: ElasticHandler) async throws -> Page<ElasticModel> {
+    func search(_ searchContext: AppApi.DefaultSearchContext, _ pageRequest: Fluent.PageRequest, on elastic: ElasticHandler) async throws -> AppApi.Page<ElasticModel> {
         let query = try await searchQuery(searchContext, pageRequest, on: elastic)
         
         return try await elastic.perform {
@@ -56,7 +57,7 @@ extension ElasticSearchController {
         }
     }
     
-    func suggestQuery(_ searchContext: RepositoryDefaultSearchContext, on elastic: ElasticHandler) async throws -> [String: Any] {
+    func suggestQuery(_ searchContext: AppApi.DefaultSearchContext, on elastic: ElasticHandler) async throws -> [String: Any] {
         [
             "suggest": [
                 "completion": [
@@ -71,7 +72,7 @@ extension ElasticSearchController {
         ]
     }
     
-    func suggest(_ searchContext: RepositoryDefaultSearchContext, on elastic: ElasticHandler) async throws -> [ElasticModel] {
+    func suggest(_ searchContext: AppApi.DefaultSearchContext, on elastic: ElasticHandler) async throws -> [ElasticModel] {
         let query = try await suggestQuery(searchContext, on: elastic)
         return try await elastic.perform {
             let queryData = try JSONSerialization.data(withJSONObject: query)

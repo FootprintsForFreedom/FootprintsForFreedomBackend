@@ -8,7 +8,9 @@ Searches all tag objects and returns the result in pages.
 
 ### Query parameters
 
-- term **text**: The text which should be searched for. The search filters the tag title, as well as the keywords of the tags.
+- term **text**: The text which should be searched for. 
+
+    The search filters the tag title, as well as the keywords of the tags.
 - term **languageCode**: The language code of the language to be searched.
 - term **per**: The amount of items which should be sent per page. Default: 10
 - term **page**: The number of the page which should be returned. Default: 1
@@ -41,4 +43,8 @@ Searches all tag objects and returns the result in pages.
 
 ## See Also
 
+* ``DefaultSearchContext``
+* ``PageRequest``
 * ``Tag/Detail/List``
+* ``Page``
+* ``PageMetadata``

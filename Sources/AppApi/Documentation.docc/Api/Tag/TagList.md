@@ -8,7 +8,11 @@ Lists all tag objects in pages.
 
 ### Optional query parameters
 
-- term **preferredLanguage**: The language code of the preferred language in which each tag object should be returned. If the language is available the tag will be returned in this language otherwise detail object in the language with the highest priority that is available will be returned. Default: The language with the highest priority.
+- term **preferredLanguage**: The language code of the preferred language in which each tag object should be returned.
+
+    If the language is available the tag will be returned in this language otherwise detail object in the language with the highest priority that is available will be returned. 
+    
+    Default: The language with the highest priority.
 - term **per**: The amount of items which should be sent per page. Default: 10
 - term **page**: The number of the page which should be returned. Default: 1
 
@@ -40,4 +44,8 @@ Lists all tag objects in pages.
 
 ## See Also
 
+* ``Language/Request/PreferredLanguage``
+* ``PageRequest``
 * ``Tag/Detail/List``
+* ``Page``
+* ``PageMetadata``

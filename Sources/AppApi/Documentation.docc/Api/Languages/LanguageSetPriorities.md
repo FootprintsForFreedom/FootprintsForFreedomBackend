@@ -28,12 +28,14 @@ The response contains all active languages in their new order.
         "id": "<language-1-id>",
         "languageCode": "<language-1-code>",
         "name": "<language-1-name>",
+        "officialName": "<official-language-1-name>"
         "isRTL": <is-rtl>
     },
     {
         "id": "<language-2-id>",
         "languageCode": "<language-2-code>",
         "name": "<language-2-name>",
+        "officialName": "<official-language-2-name>"
         "isRTL": <is-rtl>
     },
     ...

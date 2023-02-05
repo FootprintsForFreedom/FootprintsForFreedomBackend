@@ -1,14 +1,18 @@
-# List waypoints
+# List in area
 
-Lists all waypoint objects in pages.
+Lists all waypoints in the specified area in pages.
 
 ## Request
 
-    GET /api/v1/waypoints
+    GET /api/v1/waypoints/in
 
-### Optional query parameters
+### Query parameters
 
-- term **preferredLanguage**: The language code of the preferred language in which each waypoint object should be returned. If the language is available the waypoint will be returned in this language otherwise detail object in the language with the highest priority that is available will be returned. Default: The language with the highest priority.
+- term **topLeftLatitude**: The top left latitude of the relevant area.
+- term **topLeftLongitude**: The top left longitude of the relevant area.
+- term **bottomRightLatitude**: The bottom right latitude of the relevant area.
+- term **bottomRightLongitude**: The bottom right longitude of the relevant area.
+- term **preferredLanguage**: The language code of the preferred language in which each waypoint object should be returned.
 - term **per**: The amount of items which should be sent per page. Default: 10
 - term **page**: The number of the page which should be returned. Default: 1
 
@@ -48,5 +52,10 @@ Lists all waypoint objects in pages.
 
 ## See Also
 
+* ``Waypoint/Request/ListInArea``
+* ``Language/Request/PreferredLanguage``
+* ``PageRequest``
 * ``Waypoint/Detail/List``
 * ``Waypoint/Location``
+* ``Page``
+* ``PageMetadata``

@@ -8,7 +8,7 @@
 import Foundation
 
 public extension Waypoint {
-    /// Contains the data transfer objects to request certain waypoints.
+    /// Contains the data transfer objects to request  waypoints.
     enum Request: ApiModelInterface {
         public typealias Module = AppApi.Waypoint
     }

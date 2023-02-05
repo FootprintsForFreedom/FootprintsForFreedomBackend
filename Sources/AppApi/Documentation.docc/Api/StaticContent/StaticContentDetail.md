@@ -12,7 +12,11 @@ or
 
 ### Optional query parameters
 
-- term **preferredLanguage**: The language code of the preferred language in which the static content detail should be returned. If the language is available the static content will be returned in this language otherwise detail object in the language with the highest priority that is available will be returned. Default: The language with the highest priority.  
+- term **preferredLanguage**: The language code of the preferred language in which the static content detail should be returned.
+
+    If the language is available the static content will be returned in this language otherwise detail object in the language with the highest priority that is available will be returned.
+
+    Default: The language with the highest priority.  
 
 ## Response
 

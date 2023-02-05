@@ -39,7 +39,7 @@ extension WaypointApiController: ApiElasticSearchController {
     
     // MARK: - Search
     
-    func searchQuery(_ searchContext: RepositoryDefaultSearchContext, _ pageRequest: PageRequest, on elastic: ElasticHandler) async throws -> [String : Any] {
+    func searchQuery(_ searchContext: AppApi.DefaultSearchContext, _ pageRequest: Fluent.PageRequest, on elastic: ElasticHandler) async throws -> [String : Any] {
         let tags = try await TagApiController().search(searchContext, PageRequest(page: 1, per: 100), on: elastic)
         
         var shouldQueries: [[String: Any]] = [

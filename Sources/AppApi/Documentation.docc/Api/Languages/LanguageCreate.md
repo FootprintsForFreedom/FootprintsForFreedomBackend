@@ -14,9 +14,7 @@ The admin user token has to be sent as a `BearerToken` with the request.
 
 The following parameters have to be sent with the request for it to be successful:
 
-- term **languageCode**: A unique language code identifying the language. Ideally in the [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format.
-- term **name**: The language's unique name.
-- term **isRTL**: A boolean value indicating wether or not the language is right-to-left or not.
+- term **languageCode**: A unique language code identifying the language. Must be in the [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format.
 
 The parameters can be either sent as `application/json` or `multipart/form-data`.
 
@@ -29,6 +27,7 @@ The parameters can be either sent as `application/json` or `multipart/form-data`
     "id": "<language-id>",
     "languageCode": "<language-code>",
     "name": "<language-name>",
+    "officialName": "<official-language-name>"
     "isRTL": <is-rtl>
 }
 ```

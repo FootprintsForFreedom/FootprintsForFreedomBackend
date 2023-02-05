@@ -1,10 +1,10 @@
-# List users
+# List redirects
 
-Lists all users in pages.
+Lists all redirects in pages.
 
-## Request 
+## Request
 
-    GET /api/v1/users/accounts
+    GET /api/v1/redirect
 
 This endpoint is only available to admins.
 
@@ -23,18 +23,14 @@ The admin user token has to be sent as a `BearerToken` with the request.
 {
     "items": [
         {
-            "id": "<user-1-id>",
-            "name": "<user-1-name>",
-            "school": "<user-1-school>",
-            "verified": <user-1-verified>,
-            "role": "<user-1-role>"
+            "id": "<redirect-1-id>",
+            "source": "<redirect-1-source>"
+            "destination": "<redirect-1-destination>",
         },
         {
-            "id": "<user-2-id>",
-            "name": "<user-2-name>",
-            "school": "<user-2-school>",
-            "verified": <user-2-verified>,
-            "role": "<user-2-role>"
+            "id": "<redirect-2-id>",
+            "source": "<redirect-2-source>"
+            "destination": "<redirect-2-destination>",
         },
         ...
     ],
@@ -49,7 +45,6 @@ The admin user token has to be sent as a `BearerToken` with the request.
 ## See Also
 
 * ``PageRequest``
-* ``User/Account/List``
-* ``User/Role``
+* ``Redirect/Detail/List``
 * ``Page``
 * ``PageMetadata``

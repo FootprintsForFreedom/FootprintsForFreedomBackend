@@ -10,6 +10,8 @@ This endpoint is only available to admins.
 
 The admin user token has to be sent as a `BearerToken` with the request.
 
+> Important: Changes to static content don't need to be verified, they take effect immediately.
+
 ### Input parameters
 
 The parameter `idForStaticContentDetailToPatch` and at least one of the other following parameters has to be sent with the request for it to be successful:  
@@ -32,7 +34,12 @@ The parameters can be either sent as `application/json` or `multipart/form-data`
     "title": "<static-content-title>",
     "text": "<static-content-text>",
     "languageCode": "<language-code>",
-    "availableLanguageCodes": ["<language-code>", ...]
+    "availableLanguageCodes": ["<language-code>", ...],
+    "moderationTitle": "<static-content-moderation-title>",
+    "requiredSnippets": [
+        "<snippet-name>",
+        ...
+    ]
 }
 ```
 

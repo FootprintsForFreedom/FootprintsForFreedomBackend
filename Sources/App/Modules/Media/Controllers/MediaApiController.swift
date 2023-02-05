@@ -12,7 +12,6 @@ import AppApi
 extension Media.Detail.List: Content { }
 extension Media.Detail.Detail: Content { }
 
-//struct MediaApiController: ApiRepositoryController {
 struct MediaApiController: ApiElasticDetailController, ApiElasticPagedListController, ApiRepositoryCreateController, ApiRepositoryUpdateController, ApiRepositoryPatchController, ApiDeleteController {
     typealias ApiModel = Media.Detail
     typealias DatabaseModel = MediaRepositoryModel
@@ -73,18 +72,6 @@ struct MediaApiController: ApiElasticDetailController, ApiElasticPagedListContro
             thumbnailFilePath: model.relativeMediaFilePath
         )
     }
-    
-//    func listOutput(_ req: Request, _ repository: MediaRepositoryModel, _ detail: MediaDetailModel) async throws -> Media.Detail.List {
-//        // TODO: is this a bottleneck for the time it takes to return a result?
-//        try await detail.$media.load(on: req.db)
-//        return .init(
-//            id: try repository.requireID(),
-//            title: detail.title,
-//            slug: detail.slug,
-//            group: detail.media.group,
-//            thumbnailFilePath: detail.media.relativeThumbnailFilePath
-//        )
-//    }
     
     // MARK: - Detail
     

@@ -39,5 +39,6 @@ The parameters can be either sent as `application/json`, `multipart/form-data` o
 ## See Also
 
 * ``User/Account/Login``
+* ``User/Token/Detail``
 * ``User/Account/Detail``
 * ``User/Role``

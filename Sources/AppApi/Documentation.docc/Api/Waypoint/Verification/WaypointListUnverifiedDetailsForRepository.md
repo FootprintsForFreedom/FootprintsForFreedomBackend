@@ -1,10 +1,10 @@
-# List unverified locations for a waypoint repository
+# List unverified details for a waypoint repository
 
-Lists all unverified location models for the specified waypoint repository.
+Lists all unverified detail models for the specified waypoint repository.
 
 ## Request
 
-    GET /api/v1/waypoints/<waypoint-repository-id>/locations/unverified
+    GET /api/v1/waypoints/<waypoint-repository-id>/waypoints/unverified
 
 This endpoint is only available to moderators.
 
@@ -23,11 +23,11 @@ The moderator token has to be sent as a `BearerToken` with the request.
 {
     "items": [
         {
-            "locationId": "<waypoint-location-1-id>",
-            "location": {
-                "longitude": <waypoint-1-longitude>,
-                "latitude": <waypoint-1-latitude>
-            },
+            "detailId": "<waypoint-detail-1-id>",
+            "title": "<waypoint-detail-1-title>",
+            "slug": "<waypoint-detail-1-slug>",
+            "detailText": "<waypoint-detail-1-detail-text>",
+            "languageCode": "<waypoint-detail-1-language-code>"
         },
         ...
     ],
@@ -41,4 +41,7 @@ The moderator token has to be sent as a `BearerToken` with the request.
 
 ## See Also
 
-* ``Waypoint/Repository/ListUnverifiedLocations``
+* ``PageRequest``
+* ``Waypoint/Repository/ListUnverifiedWaypoints``
+* ``Page``
+* ``PageMetadata``

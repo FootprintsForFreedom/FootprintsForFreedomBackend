@@ -22,7 +22,7 @@ let package = Package(
         .package(url: "https://github.com/niklhut/SwiftDiff.git", branch: "master"),
         .package(url: "https://github.com/JohnSundell/ShellOut.git", from: "2.0.0"),
         .package(url: "https://github.com/twostraws/SwiftGD.git", from: "2.0.0"),
-        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.1.0"),
         .package(url: "https://github.com/brokenhandsio/VaporSecurityHeaders.git", from: "4.0.0"),
         .package(url: "https://github.com/niklhut/elasticsearch-nio-client.git", branch: "custom"),
         .package(url: "https://github.com/SwiftPackageRepository/ISO639.swift.git", branch: "master"),

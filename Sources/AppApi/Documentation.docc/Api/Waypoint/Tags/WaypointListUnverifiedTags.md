@@ -16,7 +16,11 @@ The moderator token has to be sent as a `BearerToken` with the request.
 
 ### Optional query parameters
 
-- term **preferredLanguage**: The language code of the preferred language in which each tag object should be returned. If the language is available the tag will be returned in this language otherwise detail object in the language with the highest priority that is available will be returned. Default: The language with the highest priority.
+- term **preferredLanguage**: The language code of the preferred language in which each tag object should be returned. 
+
+    If the language is available the tag will be returned in this language otherwise detail object in the language with the highest priority that is available will be returned.
+
+    Default: The language with the highest priority.
 - term **per**: The amount of items which should be sent per page. Default: 10
 - term **page**: The number of the page which should be returned. Default: 1
 
@@ -46,5 +50,9 @@ The moderator token has to be sent as a `BearerToken` with the request.
 
 ## See Also
 
+* ``Language/Request/PreferredLanguage``
+* ``PageRequest``
 * ``Tag/Repository/ListUnverifiedRelation``
 * ``Status``
+* ``Page``
+* ``PageMetadata``

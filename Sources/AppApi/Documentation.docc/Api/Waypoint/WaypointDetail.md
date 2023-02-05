@@ -12,7 +12,11 @@ or
 
 ### Optional query parameters
 
-- term **preferredLanguage**: The language code of the preferred language in which the waypoint detail should be returned. If the language is available the waypoint will be returned in this language otherwise detail object in the language with the highest priority that is available will be returned. Default: The language with the highest priority.  
+- term **preferredLanguage**: The language code of the preferred language in which the waypoint detail should be returned. 
+
+    If the language is available the waypoint will be returned in this language otherwise detail object in the language with the highest priority that is available will be returned.
+
+    Default: The language with the highest priority.  
 
 ## Response
 
@@ -54,6 +58,7 @@ If the request is sent with an moderator token, the following additional attribu
 
 ## See Also
 
+* ``Language/Request/PreferredLanguage``
 * ``Waypoint/Detail/Detail``
 * ``Waypoint/Location``
 * ``Tag/Detail/List``

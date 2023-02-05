@@ -19,7 +19,7 @@ The following parameters have to be sent with the request for it to be successfu
 
 The parameters can be either sent as `application/json` or `multipart/form-data`.
 
-> Note: The new password needs to contain at least
+> Important: The new password needs to contain at least
 >
 > * one uppercase letter
 > * one lowercase letter

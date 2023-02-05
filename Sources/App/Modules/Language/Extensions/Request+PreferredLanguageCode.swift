@@ -6,10 +6,11 @@
 //
 
 import Vapor
+import AppApi
 
 extension Request {
     func preferredLanguageCode() throws -> String? {
-        try self.query.decode(PreferredLanguageQuery.self).preferredLanguage
+        try self.query.decode(Language.Request.PreferredLanguage.self).preferredLanguage
     }
     
     func allLanguageCodesByPriority() async throws -> [String] {

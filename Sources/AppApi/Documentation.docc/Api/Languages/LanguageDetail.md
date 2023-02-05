@@ -15,6 +15,7 @@ Gets a language detail object for the language code.
     "id": "<language-id>",
     "languageCode": "<language-code>",
     "name": "<language-name>",
+    "officialName": "<official-language-name>"
     "isRTL": <is-rtl>
 }
 ```

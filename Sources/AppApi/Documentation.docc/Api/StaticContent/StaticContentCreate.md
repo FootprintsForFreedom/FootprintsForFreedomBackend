@@ -34,7 +34,12 @@ The parameters can be either sent as `application/json` or `multipart/form-data`
     "title": "<static-content-title>",
     "text": "<static-content-text>",
     "languageCode": "<language-code>",
-    "availableLanguageCodes": ["<language-code>", ...]
+    "availableLanguageCodes": ["<language-code>", ...],
+    "moderationTitle": "<static-content-moderation-title>",
+    "requiredSnippets": [
+        "<snippet-name>",
+        ...
+    ]
 }
 ```
 

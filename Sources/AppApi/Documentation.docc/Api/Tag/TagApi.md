@@ -12,12 +12,16 @@ To see how to add tags to waypoints look at: <doc:WaypointApi>.
 
 ## Topics
 
-### Create, read, update and delete
+### Get and search
 
-- <doc:TagCreate>
 - <doc:TagDetail>
 - <doc:TagList>
 - <doc:TagSearch>
+- <doc:TagSuggest>
+
+### Create, update and delete
+
+- <doc:TagCreate>
 - <doc:TagUpdate>
 - <doc:TagPatch>
 - <doc:TagDelete>

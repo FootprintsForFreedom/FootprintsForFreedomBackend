@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 
 protocol ApiElasticSearchController: ElasticSearchController {
     /// The search object content.
@@ -21,7 +22,7 @@ protocol ApiElasticSearchController: ElasticSearchController {
     ///   - req: The request on which the repositories were fetched.
     ///   - repositories: The repositories to be in the output.
     /// - Returns: A paged search of search objects.
-    func searchOutput(_ req: Request, _ models: Page<ElasticModel>) async throws -> Page<ListObject>
+    func searchOutput(_ req: Request, _ models: AppApi.Page<ElasticModel>) async throws -> AppApi.Page<ListObject>
     
     /// The detail output for one repository.
     /// - Parameters:
@@ -33,8 +34,13 @@ protocol ApiElasticSearchController: ElasticSearchController {
     /// The search repositories api action.
     /// - Parameter req: The request on which to search the repositories.
     /// - Returns: A paged search of the repositories.
-    func searchApi(_ req: Request) async throws -> Page<ListObject>
+    func searchApi(_ req: Request) async throws -> AppApi.Page<ListObject>
     
+    /// The suggest repositories api action.
+    ///
+    /// A suggester provides auto-complete/search-as-you-type functionality. This is a navigational feature to guide users to relevant results as they are typing, improving search precision.
+    /// - Parameter req: The request on which to suggest the repositories
+    /// - Returns: A list of the suggested repositories
     func suggestApi(_ req: Request) async throws -> [ListObject]
     
     /// Sets up the search repository routes.
@@ -47,9 +53,9 @@ extension ApiElasticSearchController {
         []
     }
     
-    func searchApi(_ req: Request) async throws -> Page<ListObject> {
+    func searchApi(_ req: Request) async throws -> AppApi.Page<ListObject> {
         try await RequestValidator(searchValidators()).validate(req, .query)
-        let searchContext = try req.query.decode(RepositoryDefaultSearchContext.self)
+        let searchContext = try req.query.decode(AppApi.DefaultSearchContext.self)
         
         guard searchContext.text.trimmingCharacters(in: .whitespacesAndNewlines) != "" else {
             throw Abort(.badRequest)
@@ -63,7 +69,7 @@ extension ApiElasticSearchController {
     
     func suggestApi(_ req: Request) async throws -> [ListObject] {
         try await RequestValidator(searchValidators()).validate(req, .query)
-        let searchContext = try req.query.decode(RepositoryDefaultSearchContext.self)
+        let searchContext = try req.query.decode(AppApi.DefaultSearchContext.self)
         
         guard searchContext.text.trimmingCharacters(in: .whitespacesAndNewlines) != "" else {
             throw Abort(.badRequest)
@@ -73,7 +79,7 @@ extension ApiElasticSearchController {
         return try await models.concurrentCompactMap { try await searchOutput(req, $0) }
     }
     
-    func searchOutput(_ req: Request, _ models: Page<ElasticModel>) async throws -> Page<ListObject> {
+    func searchOutput(_ req: Request, _ models: AppApi.Page<ElasticModel>) async throws -> AppApi.Page<ListObject> {
         try await models.concurrentCompactMap { model in
             try await searchOutput(req, model)
         }

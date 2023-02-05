@@ -1,14 +1,11 @@
 //
-//  Language.swift
+//  LanguageDetail.swift
 //  
 //
 //  Created by niklhut on 03.03.22.
 //
 
 import Foundation
-
-/// The module containing language data transfer objects.
-public enum Language: ApiModuleInterface { }
 
 public extension Language {
     /// Contains the language detail data transfer objects.
@@ -82,6 +79,18 @@ public extension Language.Detail {
         ///   - languageCode: A unique language code identifying the language. Must be in the [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format.
         public init(languageCode: String) {
             self.languageCode = languageCode
+        }
+    }
+    
+    /// Used to update the priority order of all active languages.
+    struct UpdatePriorities: Codable {
+        /// An array containing all active language ids in the new order they should be arranged. The first item will have the highest priority.
+        public let newLanguagesOrder: [UUID]
+        
+        /// Creates a language update priorities object.
+        /// - Parameter newLanguagesOrder: An array containing all active language ids in the new order they should be arranged. The first item will have the highest priority.
+        public init(newLanguagesOrder: [UUID]) {
+            self.newLanguagesOrder = newLanguagesOrder
         }
     }
 }
