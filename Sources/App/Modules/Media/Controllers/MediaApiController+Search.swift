@@ -24,6 +24,7 @@ extension MediaApiController: ApiElasticSearchController {
     func setupSearchRoutes(_ routes: RoutesBuilder) {
         let baseRoutes = getBaseRoutes(routes)
         baseRoutes.get("search", use: searchApi)
+        baseRoutes.get("suggest", use: suggestApi)
     }
     
     // MARK: - Search
