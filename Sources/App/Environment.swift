@@ -6,6 +6,7 @@
 //
 
 import Vapor
+import AppApi
 
 extension Environment {
     
@@ -83,5 +84,14 @@ extension Environment {
             return Int(oldVerifiedLifetime)
         }
         return nil
+    }()
+    
+    /// The default location.
+    ///
+    /// It is used when requesting a list of waypoints when no other location is available.
+    static let defaultLocation: Waypoint.Location = {
+        let defaultLocationLatitude = Double(Self.get("DEFAULT_LOCATION_LATITUDE")!)!
+        let defaultLocationLongitude = Double(Self.get("DEFAULT_LOCATION_LONGITUDE")!)!
+        return .init(latitude: defaultLocationLatitude, longitude: defaultLocationLongitude)
     }()
 }

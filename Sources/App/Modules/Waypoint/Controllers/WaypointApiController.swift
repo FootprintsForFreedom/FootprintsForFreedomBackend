@@ -91,7 +91,7 @@ struct WaypointApiController: ApiElasticDetailController, ApiElasticPagedListCon
                 location = Waypoint.Location(latitude: latitude, longitude: longitude)
             } else {
                 // set default location
-                location = Waypoint.Location(latitude: 49.872222, longitude: 8.652778)
+                location = Environment.defaultLocation
             }
             let pageRequest = try req.pageRequest
             let preferredLanguage = try req.preferredLanguageCode()
