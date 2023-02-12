@@ -18,7 +18,7 @@ All environment variables that need to be set for the app to run.
 
 ### Elasticsearch
 
-- term **ELASTICSEARCH_URL**: The elasticsearch url.
+- term **ELASTIC_URL**: The elasticsearch url.
 
 ### MMDB
 

@@ -33,7 +33,7 @@ extension Environment {
     // MARK: - Elasticsearch
     
     /// The elasticsearch url.
-    static let elasticsearchUrl = Self.get("ELASTICSEARCH_URL")!
+    static let elasticsearchUrl = Self.get("ELASTIC_URL")!
     
     // MARK: - MMDB
     
