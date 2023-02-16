@@ -85,6 +85,12 @@ extension WaypointSummaryModel {
         static var baseSchema = "waypoints"
         static var mappings: [String : Any] = [
             "properties": [
+                "id": [
+                    "type": "keyword"
+                ],
+                "detailId": [
+                    "type": "keyword"
+                ],
                 "title": [
                     "type": "text",
                     "fields": [
@@ -100,32 +106,64 @@ extension WaypointSummaryModel {
                 "slug": [
                     "type": "keyword"
                 ],
-                "id": [
-                    "type": "keyword"
+                "detailText": [
+                    "type": "text",
                 ],
-                "detailId": [
-                    "type": "keyword"
+                "detailVerifiedAt": [
+                    "type": "date"
                 ],
-                "detailUserId": [
-                    "type": "keyword"
+                "detailCreatedAt": [
+                    "type": "date"
+                ],
+                "detailUpdatedAt": [
+                    "type": "date"
+                ],
+                "detailDeletedAt": [
+                    "type": "date"
                 ],
                 "locationId": [
-                    "type": "keyword"
-                ],
-                "locationUserId": [
                     "type": "keyword"
                 ],
                 "location": [
                     "type": "geo_point"
                 ],
+                "locationUserId": [
+                    "type": "keyword"
+                ],
+                "locationVerifiedAt": [
+                    "type": "date"
+                ],
+                "locationCreatedAt": [
+                    "type": "date"
+                ],
+                "locationUpdatedAt": [
+                    "type": "date"
+                ],
+                "locationDeletedAt": [
+                    "type": "date"
+                ],
+                "detailUserId": [
+                    "type": "keyword"
+                ],
                 "languageId": [
+                    "type": "keyword"
+                ],
+                "languageName": [
+                    "type": "text",
+                    "fields": [
+                        "keyword": [
+                            "type": "keyword"
+                        ]
+                    ]
+                ],
+                "languageCode": [
                     "type": "keyword"
                 ],
                 "languageIsRTL": [
                     "type": "boolean"
                 ],
-                "languageCode": [
-                    "type": "keyword"
+                "languagePriority": [
+                    "type": "short"
                 ],
                 "tags": [
                     "type": "keyword"

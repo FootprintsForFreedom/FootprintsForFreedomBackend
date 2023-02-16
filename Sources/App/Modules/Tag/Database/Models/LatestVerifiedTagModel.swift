@@ -67,6 +67,12 @@ extension LatestVerifiedTagModel {
         static var baseSchema = "tags"
         static var mappings: [String : Any] = [
             "properties": [
+                "id": [
+                    "type": "keyword"
+                ],
+                "detailId": [
+                    "type": "keyword"
+                ],
                 "title": [
                     "type": "text",
                     "fields": [
@@ -82,23 +88,48 @@ extension LatestVerifiedTagModel {
                 "slug": [
                     "type": "keyword"
                 ],
-                "id": [
-                    "type": "keyword"
-                ],
-                "detailId": [
-                    "type": "keyword"
+                "keywords": [
+                    "type": "text",
+                    "fields": [
+                        "keyword": [
+                            "type": "keyword"
+                        ]
+                    ]
                 ],
                 "detailUserId": [
                     "type": "keyword"
                 ],
+                "detailVerifiedAt": [
+                    "type": "date"
+                ],
+                "detailCreatedAt": [
+                    "type": "date"
+                ],
+                "detailUpdatedAt": [
+                    "type": "date"
+                ],
+                "detailDeletedAt": [
+                    "type": "date"
+                ],
                 "languageId": [
+                    "type": "keyword"
+                ],
+                "languageName": [
+                    "type": "text",
+                    "fields": [
+                        "keyword": [
+                            "type": "keyword"
+                        ]
+                    ]
+                ],
+                "languageCode": [
                     "type": "keyword"
                 ],
                 "languageIsRTL": [
                     "type": "boolean"
                 ],
-                "languageCode": [
-                    "type": "keyword"
+                "languagePriority": [
+                    "type": "short"
                 ]
             ]
         ]

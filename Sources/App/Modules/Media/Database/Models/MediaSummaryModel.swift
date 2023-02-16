@@ -92,6 +92,15 @@ extension MediaSummaryModel {
         static var baseSchema = "media"
         static var mappings: [String : Any] = [
             "properties": [
+                "id": [
+                    "type": "keyword"
+                ],
+                "waypointId": [
+                    "type": "keyword"
+                ],
+                "detailId": [
+                    "type": "keyword"
+                ],
                 "title": [
                     "type": "text",
                     "fields": [
@@ -107,32 +116,67 @@ extension MediaSummaryModel {
                 "slug": [
                     "type": "keyword"
                 ],
-                "id": [
-                    "type": "keyword"
+                "detailText": [
+                    "type": "text",
                 ],
-                "waypointId": [
-                    "type": "keyword"
-                ],
-                "detailId": [
-                    "type": "keyword"
+                "source": [
+                    "type": "text",
                 ],
                 "detailUserId": [
                     "type": "keyword"
                 ],
+                "detailVerifiedAt": [
+                    "type": "date"
+                ],
+                "detailCreatedAt": [
+                    "type": "date"
+                ],
+                "detailUpdatedAt": [
+                    "type": "date"
+                ],
+                "detailDeletedAt": [
+                    "type": "date"
+                ],
                 "fileId": [
+                    "type": "keyword"
+                ],
+                "relativeMediaFilePath": [
+                    "type": "keyword"
+                ],
+                "group": [
                     "type": "keyword"
                 ],
                 "fileUserId": [
                     "type": "keyword"
                 ],
+                "fileCreatedAt": [
+                    "type": "date"
+                ],
+                "fileUpdatedAt": [
+                    "type": "date"
+                ],
+                "fileDeletedAt": [
+                    "type": "date"
+                ],
                 "languageId": [
+                    "type": "keyword"
+                ],
+                "languageName": [
+                    "type": "text",
+                    "fields": [
+                        "keyword": [
+                            "type": "keyword"
+                        ]
+                    ]
+                ],
+                "languageCode": [
                     "type": "keyword"
                 ],
                 "languageIsRTL": [
                     "type": "boolean"
                 ],
-                "languageCode": [
-                    "type": "keyword"
+                "languagePriority": [
+                    "type": "short"
                 ],
                 "tags": [
                     "type": "keyword"
