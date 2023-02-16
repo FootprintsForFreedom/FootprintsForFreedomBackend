@@ -151,7 +151,7 @@ enum TagMigrations {
             try await db.schema(WaypointTagModel.schema).delete()
             try await db.schema(MediaTagModel.schema).delete()
             try await db.schema(TagRepositoryModel.schema).delete()
-            try await elastic.deleteIndex(LatestVerifiedTagModel.Elasticsearch.wildcardSchema)
+            try await elastic.deleteIndex(LatestVerifiedTagModel.Elasticsearch.self, for: LanguageModel.activeLanguages(on: db))
         }
     }
 }

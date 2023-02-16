@@ -42,6 +42,20 @@ public struct ElasticHandler {
         try await elastic.createIndex(indexName, mappings: mappings, settings: settings).get()
     }
     
+    /// Deletes an index in all available languages.
+    ///
+    /// This acts like an wildcard delete for an index since those are not enabled in elasticsearch.
+    /// - Parameters:
+    ///   - indexType: The index type to delete for all languages.
+    ///   - languages: The languages for which to delete the index.
+    /// - Returns: An array of acknowledged responses.
+    @discardableResult
+    func deleteIndex(_ indexType: any ElasticModelInterface.Type, for languages: [LanguageModel]) async throws -> [ESAcknowledgedResponse] {
+        try await languages.asyncMap { language in
+            try await deleteIndex(indexType.schema(for: language.languageCode))
+        }
+    }
+    
     /// Deletes an index.
     /// - Parameter indexName: The name of the index to delete.
     /// - Returns: Wether or not the request was acknowledged.

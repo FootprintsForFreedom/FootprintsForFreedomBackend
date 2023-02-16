@@ -59,4 +59,11 @@ extension LanguageModel {
             .inserting(preferredLanguageCode, at: 0)
             .uniqued()
     }
+    
+    static func activeLanguages(on db: Database) async throws -> [LanguageModel] {
+        try await self
+            .query(on: db)
+            .filter(\.$priority != nil)
+            .all()
+    }
 }

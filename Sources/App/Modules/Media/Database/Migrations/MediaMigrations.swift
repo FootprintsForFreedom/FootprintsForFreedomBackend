@@ -165,7 +165,7 @@ enum MediaMigrations {
             try await db.schema(MediaFileModel.schema).delete()
             try await db.schema(MediaRepositoryModel.schema).delete()
             try await db.enum(Media.Detail.Group.pathKey).delete()
-            try await elastic.deleteIndex(MediaSummaryModel.Elasticsearch.wildcardSchema)
+            try await elastic.deleteIndex(MediaSummaryModel.Elasticsearch.self, for: LanguageModel.activeLanguages(on: db))
         }
     }
 }
