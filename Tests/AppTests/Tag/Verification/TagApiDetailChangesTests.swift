@@ -30,7 +30,7 @@ final class TagApiDetailChangesTests: AppTestCase, TagTest {
         try await secondTagDetail.$user.load(on: app.db)
         
         try app
-            .describe("Detail changes as moderator schould be successful and return ok and the changes")
+            .describe("Detail changes as moderator should be successful and return ok and the changes")
             .get(tagPath.appending("\(repository.requireID())/changes/?from=\(detail.requireID())&to=\(secondTagDetail.requireID())"))
             .bearerToken(moderatorToken)
             .expect(.ok)
@@ -59,7 +59,7 @@ final class TagApiDetailChangesTests: AppTestCase, TagTest {
         )
         
         try app
-            .describe("Detail changes as user schould fail")
+            .describe("Detail changes as user should fail")
             .get(tagPath.appending("\(repository.requireID())/changes/?from=\(detail.requireID())&to=\(secondTagDetail.requireID())"))
             .bearerToken(userToken)
             .expect(.forbidden)
@@ -165,7 +165,7 @@ final class TagApiDetailChangesTests: AppTestCase, TagTest {
         try await secondTagDetail.$user.load(on: app.db)
         
         try app
-            .describe("Detail changes as moderator schould be successful and return ok and the changes")
+            .describe("Detail changes as moderator should be successful and return ok and the changes")
             .get(tagPath.appending("\(repository.requireID())/changes/?from=\(detail.requireID())&to=\(secondTagDetail.requireID())"))
             .bearerToken(moderatorToken)
             .expect(.badRequest)
