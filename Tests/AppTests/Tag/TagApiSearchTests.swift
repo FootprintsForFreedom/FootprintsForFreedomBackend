@@ -41,7 +41,7 @@ final class TagApiSearchTests: AppTestCase, TagTest {
         
         let tagCount = try await TagRepositoryModel.query(on: app.db).count()
         
-        try await Task.sleep(nanoseconds: UInt64(0.5 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Search tag should return the tag if it is verified and has the search text in the keywords")
