@@ -310,12 +310,10 @@ final class MediaApiGetTests: AppTestCase, MediaTest {
     }
     
     func testGetMediaForDeactivatedLanguageFails() async throws {
-        let deactivatedLanguage = try await createLanguage()
-        deactivatedLanguage.priority = nil
-        
-        let (mediaRepositoryForDeactivatedLanguage, _, _) = try await createNewMedia(verified: true, languageId: deactivatedLanguage.requireID())
-        
         let adminToken = try await getToken(for: .admin)
+        
+        let deactivatedLanguage = try await createLanguage()
+        let (mediaRepositoryForDeactivatedLanguage, _, _) = try await createNewMedia(verified: true, languageId: deactivatedLanguage.requireID())
         
         try app
             .describe("Deactivate language as admin should return ok")

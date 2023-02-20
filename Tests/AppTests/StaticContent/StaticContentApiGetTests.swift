@@ -67,8 +67,14 @@ final class StaticContentApiGetTests: AppTestCase, StaticContentTest {
     func testSuccessfulListStaticContentDoesNotListStaticContentWithDeactivatedLanguage() async throws {
         let adminToken = try await getToken(for: .admin, verified: true)
         let deactivatedLanguage = try await createLanguage()
-        deactivatedLanguage.priority = nil
-        try await deactivatedLanguage.update(on: app.db)
+        
+        try app
+            .describe("Deactivate language as admin should return ok")
+            .put(languagesPath.appending("\(deactivatedLanguage.requireID().uuidString)/deactivate"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
         
         let userId = try await getUser(role: .user).requireID()
         
@@ -80,7 +86,7 @@ final class StaticContentApiGetTests: AppTestCase, StaticContentTest {
             .count()
         
         try app
-            .describe("List static content should reurn ok but no repositories which only have a deactivated language")
+            .describe("List static content should return ok but no repositories which only have a deactivated language")
             .get(staticContentPath.appending("?per=\(staticContentCount)"))
             .bearerToken(adminToken)
             .expect(.ok)
@@ -203,12 +209,18 @@ final class StaticContentApiGetTests: AppTestCase, StaticContentTest {
     }
     
     func testListStaticContentForDeactivatedLanguageFails() async throws {
+        let adminToken = try await getToken(for: .admin)
         let deactivatedLanguage = try await createLanguage()
-        deactivatedLanguage.priority = nil
-        try await deactivatedLanguage.update(on: app.db)
+        
+        try app
+            .describe("Deactivate language as admin should return ok")
+            .put(languagesPath.appending("\(deactivatedLanguage.requireID().uuidString)/deactivate"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
         
         let staticContent = try await createNewStaticContent(languageId: deactivatedLanguage.requireID())
-        let adminToken = try await getToken(for: .admin)
         
         try app
             .describe("Get verified for deactivated language should fail")

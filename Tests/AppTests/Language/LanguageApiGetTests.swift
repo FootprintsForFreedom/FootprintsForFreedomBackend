@@ -51,13 +51,21 @@ final class LanguageApiGetTests: AppTestCase, LanguageTest {
     }
     
     func testListLanguageDoesNotReturnDeactivatedLanguages() async throws {
+        let adminToken = try await getToken(for: .admin)
+        
         var languages = [LanguageModel]()
         for _ in 0...4 {
             let language = try await createLanguage()
             languages.append(language)
         }
-        languages.last!.priority = nil
-        try await languages.last!.update(on: app.db)
+        
+        try app
+            .describe("Deactivate language as admin should return ok")
+            .put(languagesPath.appending("\(languages.last!.requireID().uuidString)/deactivate"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
         
         // Get languages count
         let languagesCount = try await LanguageModel
@@ -78,15 +86,21 @@ final class LanguageApiGetTests: AppTestCase, LanguageTest {
     }
     
     func testSuccessfulGetDeactivatedLanguageAsAdmin() async throws {
-        let token = try await getToken(for: .admin)
+        let adminToken = try await getToken(for: .admin)
         let language = try await createLanguage()
-        language.priority = nil
-        try await language.update(on: app.db)
+        
+        try app
+            .describe("Deactivate language as admin should return ok")
+            .put(languagesPath.appending("\(language.requireID().uuidString)/deactivate"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
         
         try app
             .describe("Get language should return the specified language")
             .get(languagesPath.appending(language.languageCode))
-            .bearerToken(token)
+            .bearerToken(adminToken)
             .expect(.ok)
             .expect(.json)
             .expect(Language.Detail.Detail.self) { content in
@@ -99,10 +113,17 @@ final class LanguageApiGetTests: AppTestCase, LanguageTest {
     }
     
     func testGetDeactivatedLanguageAsModeratorFails() async throws {
+        let adminToken = try await getToken(for: .admin)
         let token = try await getToken(for: .moderator)
         let language = try await createLanguage()
-        language.priority = nil
-        try await language.update(on: app.db)
+        
+        try app
+            .describe("Deactivate language as admin should return ok")
+            .put(languagesPath.appending("\(language.requireID().uuidString)/deactivate"))
+            .bearerToken(adminToken)
+            .expect(.ok)
+            .expect(.json)
+            .test()
         
         try app
             .describe("Get deactivated language as moderator should fail")
