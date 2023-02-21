@@ -18,6 +18,8 @@ To see how to add tags to waypoints look at: <doc:WaypointApi>.
 - <doc:TagList>
 - <doc:TagSearch>
 - <doc:TagSuggest>
+- <doc:TagMedia>
+- <doc:TagWaypoints>
 
 ### Create, update and delete
 
