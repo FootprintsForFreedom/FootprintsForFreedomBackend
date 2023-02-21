@@ -315,7 +315,7 @@ extension MediaSummaryModel.Elasticsearch {
         var query: [String: Any] = [
             "query": [
                 "terms": [
-                    "id": self.tags
+                    "id": self.tags.map(\.uuidString)
                 ]
             ],
             "collapse": [
