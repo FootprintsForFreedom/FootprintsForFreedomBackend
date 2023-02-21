@@ -24,6 +24,8 @@ struct TagRouter: RouteCollection {
         apiController.setupSearchRoutes(routes)
         apiController.setupVerificationRoutes(routes)
         apiController.setupReportRoutes(routes)
+        apiController.setupWaypointRoutes(routes)
+        apiController.setupMediaRoutes(routes)
         waypointApiController.setupTagRoutes(routes)
         mediaApiController.setupTagRoutes(routes)
     }
