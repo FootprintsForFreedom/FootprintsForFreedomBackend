@@ -14,7 +14,7 @@ or
 
 - term **preferredLanguage**: The language code of the preferred language in which the waypoint detail should be returned. 
 
-    If the language is available the waypoint will be returned in this language otherwise detail object in the language with the highest priority that is available will be returned.
+    If the language is available the waypoint will be returned in this language. Otherwise a detail object in the language with the highest priority available will be returned. 
 
     Default: The language with the highest priority.  
 

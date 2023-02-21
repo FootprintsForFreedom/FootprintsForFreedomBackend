@@ -12,7 +12,7 @@ Lists all waypoint objects in pages.
 - term **longitude**: The user's location longitude near which results should be returned.
 - term **preferredLanguage**: The language code of the preferred language in which each waypoint object should be returned.
 
-    If the language is available the waypoint will be returned in this language otherwise detail object in the language with the highest priority that is available will be returned.
+    If the language is available the waypoint will be returned in this language. Otherwise a detail object in the language with the highest priority available will be returned. 
     
     Default: The language with the highest priority.
 - term **per**: The amount of items which should be sent per page. Default: 10

@@ -16,7 +16,7 @@ The moderator token has to be sent as a `BearerToken` with the request.
 
 - term **preferredLanguage**: The language code of the preferred language in which each waypoint object should be returned. 
 
-    If the language is available the waypoint will be returned in this language otherwise detail object in the language with the highest priority that is available will be returned. 
+    If the language is available the waypoint will be returned in this language. Otherwise a detail object in the language with the highest priority available will be returned. 
     
     Default: The language with the highest priority.
 - term **per**: The amount of items which should be sent per page. Default: 10
