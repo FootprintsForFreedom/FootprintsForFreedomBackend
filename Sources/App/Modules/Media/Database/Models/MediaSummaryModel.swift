@@ -213,6 +213,12 @@ extension MediaSummaryModel {
         var languagePriority: Int?
         
         var tags: [UUID]
+        
+        /// The relative file path of the thumbnail.
+        var relativeThumbnailFilePath: String? {
+            if group == .audio { return nil }
+            return MediaFileModel.relativeThumbnailFilePath(for: relativeMediaFilePath)
+        }
     }
     
     func toElasticsearch(on db: Database) async throws -> Elasticsearch {
@@ -302,60 +308,56 @@ extension MediaSummaryModel.Elasticsearch {
     }
     
     func getTagList(preferredLanguageCode: String?, on elastic: ElasticHandler) async throws -> [Tag.Detail.List] {
-        if !self.tags.isEmpty {
-            var query: [String: Any] = [
-                "query": [
-                    "terms": [
-                        "id": self.tags
-                    ]
-                ],
-                "collapse": [
-                    "field": "id"
-                ],
-            ]
-            var sort: [[String: Any]] = []
-            if let preferredLanguageCode = preferredLanguageCode {
-                sort.append(
-                    [
-                        "_script": [
-                            "type": "number",
-                            "script": [
-                                "lang": "painless",
-                                "source": "doc['languageCode'].value == params.preferredLanguageCode ? 0 : doc['languagePriority'].value",
-                                "params": [
-                                    "preferredLanguageCode": "\(preferredLanguageCode)"
-                                ]
-                            ],
-                            "order": "asc"
-                        ]
-                    ]
-                )
-            } else {
-                sort.append(["languagePriority": "asc"])
-            }
-            sort.append([ "title.keyword": "asc" ])
-            query["sort"] = sort
-            
-            return try await elastic.perform {
-                guard
-                    let queryData = try? JSONSerialization.data(withJSONObject: query),
-                    let responseData = try? await elastic.custom("/\(LatestVerifiedTagModel.Elasticsearch.baseSchema)/_search", method: .GET, body: queryData),
-                    let response = try? ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<LatestVerifiedTagModel.Elasticsearch>.self, from: responseData)
-                else {
-                    throw Abort(.internalServerError)
-                }
-                
-                return response.hits.hits.map {
-                    let source = $0.source
-                    return .init(
-                        id: source.id,
-                        title: source.title,
-                        slug: source.slug
-                    )
-                }
-            }
-        } else {
+        guard !self.tags.isEmpty else {
             return []
+        }
+        
+        var query: [String: Any] = [
+            "query": [
+                "terms": [
+                    "id": self.tags
+                ]
+            ],
+            "collapse": [
+                "field": "id"
+            ],
+        ]
+        var sort: [[String: Any]] = []
+        if let preferredLanguageCode = preferredLanguageCode {
+            sort.append(
+                [
+                    "_script": [
+                        "type": "number",
+                        "script": [
+                            "lang": "painless",
+                            "source": "doc['languageCode'].value == params.preferredLanguageCode ? 0 : doc['languagePriority'].value",
+                            "params": [
+                                "preferredLanguageCode": "\(preferredLanguageCode)"
+                            ]
+                        ],
+                        "order": "asc"
+                    ]
+                ]
+            )
+        } else {
+            sort.append(["languagePriority": "asc"])
+        }
+        sort.append([ "title.keyword": "asc" ])
+        query["sort"] = sort
+        
+        return try await elastic.perform {
+            let queryData = try JSONSerialization.data(withJSONObject: query)
+            let responseData = try await elastic.custom("/\(LatestVerifiedTagModel.Elasticsearch.wildcardSchema)/_search", method: .GET, body: queryData)
+            let response = try ElasticHandler.newJSONDecoder().decode(ESGetMultipleDocumentsResponse<LatestVerifiedTagModel.Elasticsearch>.self, from: responseData)
+            
+            return response.hits.hits.map {
+                let source = $0.source
+                return .init(
+                    id: source.id,
+                    title: source.title,
+                    slug: source.slug
+                )
+            }
         }
     }
 }

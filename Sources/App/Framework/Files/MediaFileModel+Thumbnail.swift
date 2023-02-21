@@ -10,10 +10,24 @@ import SwiftGD
 import ShellOut
 
 extension MediaFileModel {
-    /// The maximum length of the longer side of the thumbnail
+    /// The appendix which should be added to the original filename to indicate it is a thumbnail.
+    private static var thumbnailFilenameAppendix: String { "_thumbnail" }
+    
+    /// Gets the relative file path of the thumbnail for a given media file path.
+    /// - Parameter relativeMediaFilePath: The media for which to get the thumbnail file path.
+    /// - Returns: The relative thumbnail file path for the media file. 
+    static func relativeThumbnailFilePath(for relativeMediaFilePath: String) -> String {
+        var components = relativeMediaFilePath.components(separatedBy: ".")
+        guard components.count > 1 else {
+            return relativeMediaFilePath
+        }
+        components[components.count - 2].append(thumbnailFilenameAppendix)
+        components[components.count - 1] = "jpg"
+        return components.joined(separator: ".")
+    }
+    
+    /// The maximum length of the longer side of the thumbnail.
     private var maxThumbnailSideLength: Int { 800 }
-    /// The appendix which should be added to the original filename to indicate it is a thumbnail
-    private var thumbnailFilenameAppendix: String { "_thumbnail" }
     
     /// Creates a thumbnail for this media file on the request.
     ///
@@ -31,14 +45,14 @@ extension MediaFileModel {
     }
     
     /// The file path for this media file.
-    /// - Parameter publicDirectory: The public directory of the application
-    /// - Returns: The file path of this media file
+    /// - Parameter publicDirectory: The public directory of the application.
+    /// - Returns: The file path of this media file.
     func absoluteMediaFilePath(_ publicDirectory: String) -> String {
         publicDirectory + relativeMediaFilePath
     }
     
     /// The file path for this media file.
-    /// - Parameter req: The request which can determine the public directory of the application
+    /// - Parameter req: The request which can determine the public directory of the application.
     /// - Returns: The file path for this media.
     func absoluteMediaFilePath(_ req: Request) -> String {
         absoluteMediaFilePath(req.application.directory.publicDirectory)
@@ -46,13 +60,7 @@ extension MediaFileModel {
     
     /// The relative file path of the thumbnail.
     var relativeThumbnailFilePath: String {
-        var components = relativeMediaFilePath.components(separatedBy: ".")
-        guard components.count > 1 else {
-            return relativeMediaFilePath
-        }
-        components[components.count - 2].append(thumbnailFilenameAppendix)
-        components[components.count - 1] = "jpg"
-        return components.joined(separator: ".")
+        Self.relativeThumbnailFilePath(for: relativeMediaFilePath)
     }
     
     /// The file path for the thumbnail of this media.

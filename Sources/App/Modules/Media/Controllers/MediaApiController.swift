@@ -68,8 +68,7 @@ struct MediaApiController: ApiElasticDetailController, ApiElasticPagedListContro
             title: model.title,
             slug: model.slug,
             group: model.group,
-            // TODO: actual thumbnail file path!!!
-            thumbnailFilePath: model.relativeMediaFilePath
+            thumbnailFilePath: model.relativeThumbnailFilePath
         )
     }
     
