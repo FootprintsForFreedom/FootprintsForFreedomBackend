@@ -89,7 +89,9 @@ extension TagApiController {
                     id: source.id,
                     title: source.title,
                     slug: source.slug,
-                    location: .init(latitude: source.location.lat, longitude: source.location.lon)
+                    detailText: source.detailText,
+                    location: .init(latitude: source.location.lat, longitude: source.location.lon),
+                    languageCode: source.languageCode
                 )
             }
             

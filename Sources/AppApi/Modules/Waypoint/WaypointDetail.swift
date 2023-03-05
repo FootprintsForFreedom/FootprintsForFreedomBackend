@@ -49,20 +49,28 @@ public extension Waypoint.Detail {
         public let title: String
         /// The slug uniquely identifying the waypoint.
         public let slug: String
+        /// The detail text describing the waypoint.
+        public let detailText: String
         /// The location of the waypoint.
         public let location: Waypoint.Location
+        /// The language code for the waypoint title and description.
+        public let languageCode: String
         
         /// Creates a waypoint list object.
         /// - Parameters:
         ///   - id: Id uniquely identifying the waypoint repository.
         ///   - title: The waypoint title.
         ///   - slug: The slug uniquely identifying the waypoint.
+        ///   - detailText: The detail text describing the waypoint.
         ///   - location: The location of the waypoint.
-        public init(id: UUID, title: String, slug: String, location: Waypoint.Location) {
+        ///   - languageCode: The language code for the waypoint title and description.
+        public init(id: UUID, title: String, slug: String, detailText: String, location: Waypoint.Location, languageCode: String) {
             self.id = id
             self.title = title
-            self.location = location
             self.slug = slug
+            self.detailText = detailText
+            self.location = location
+            self.languageCode = languageCode
         }
     }
     

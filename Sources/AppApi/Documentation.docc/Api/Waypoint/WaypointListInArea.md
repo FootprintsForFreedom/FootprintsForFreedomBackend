@@ -27,19 +27,23 @@ Lists all waypoints in the specified area in pages.
             "id": "<waypoint-1-id>",
             "title": "<waypoint-1-title>",
             "slug": "<waypoint-1-slug>",
+            "detailText": "<waypoint-1-detail-text>"
             "location": {
                 "longitude": <waypoint-1-longitude>,
                 "latitude": <waypoint-1-latitude>
             },
+            "languageCode": "waypoint-1-language-code>"
         },
         {
             "id": "<waypoint-2-id>",
             "title": "<waypoint-2-title>",
             "slug": "<waypoint-2-slug>",
+            "detailText": "<waypoint-2-detail-text>"
             "location": {
                 "longitude": <waypoint-2-longitude>,
                 "latitude": <waypoint-2-latitude>
             },
+            "languageCode": "waypoint-2-language-code>"
         }
     ],
     "metadata": {

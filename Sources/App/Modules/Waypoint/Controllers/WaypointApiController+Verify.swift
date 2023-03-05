@@ -78,12 +78,15 @@ extension WaypointApiController: ApiRepositoryVerificationController {
         guard let location = try await repository.$locations.firstFor(needsToBeVerified: false, on: req.db) else {
             throw Abort(.internalServerError)
         }
+        try await detail.$language.load(on: req.db)
         
         return try .init(
             id: repository.requireID(),
             title: detail.title,
             slug: detail.slug,
-            location: location.location
+            detailText: detail.detailText,
+            location: location.location,
+            languageCode: detail.language.languageCode
         )
     }
     

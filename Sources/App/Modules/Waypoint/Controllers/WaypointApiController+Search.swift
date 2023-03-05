@@ -151,7 +151,14 @@ extension WaypointApiController: ApiElasticSearchController {
                 throw Abort(.internalServerError)
             }
             let items = response.hits.hits.map(\.source).map {
-                Waypoint.Detail.List(id: $0.id, title: $0.title, slug: $0.slug, location: .init(latitude: $0.location.lat, longitude: $0.location.lon))
+                Waypoint.Detail.List(
+                    id: $0.id,
+                    title: $0.title,
+                    slug: $0.slug,
+                    detailText: $0.detailText,
+                    location: .init(latitude: $0.location.lat, longitude: $0.location.lon),
+                    languageCode: $0.languageCode
+                )
             }
             return Page(items: items, metadata: .init(page: pageRequest.page, per: pageRequest.per, total: count))
         }

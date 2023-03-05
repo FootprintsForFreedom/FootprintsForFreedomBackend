@@ -125,7 +125,9 @@ struct WaypointApiController: ApiElasticDetailController, ApiElasticPagedListCon
             id: model.id,
             title: model.title,
             slug: model.slug,
-            location: .init(latitude: model.location.lat, longitude: model.location.lon)
+            detailText: model.detailText,
+            location: .init(latitude: model.location.lat, longitude: model.location.lon),
+            languageCode: model.languageCode
         )
     }
     
