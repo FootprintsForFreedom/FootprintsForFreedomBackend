@@ -67,7 +67,7 @@ struct MediaApiController: ApiElasticDetailController, ApiElasticPagedListContro
             id: model.id,
             title: model.title,
             slug: model.slug,
-            group: model.group,
+            fileType: model.fileType,
             thumbnailFilePath: model.relativeThumbnailFilePath
         )
     }
@@ -84,7 +84,7 @@ struct MediaApiController: ApiElasticDetailController, ApiElasticPagedListContro
             slug: model.slug,
             detailText: model.detailText,
             source: model.source,
-            group: model.group,
+            fileType: model.fileType,
             filePath: model.relativeMediaFilePath,
             tags: tagList,
             detailId: model.detailId
@@ -103,7 +103,7 @@ struct MediaApiController: ApiElasticDetailController, ApiElasticPagedListContro
             slug: detail.slug,
             detailText: detail.detailText,
             source: detail.source,
-            group: detail.media.group,
+            fileType: detail.media.fileType,
             filePath: detail.media.relativeMediaFilePath,
             tags: repository.tagList(req),
             detailId: detail.requireID()
@@ -151,7 +151,7 @@ struct MediaApiController: ApiElasticDetailController, ApiElasticPagedListContro
         }
         
         // file preparations
-        guard let mediaFileGroup = req.headers.contentType?.mediaGroup(), let preferredFilenameExtension = req.headers.contentType?.preferredFilenameExtension() else {
+        guard let mediaFileType = req.headers.contentType?.mediaFileType(), let preferredFilenameExtension = req.headers.contentType?.preferredFilenameExtension() else {
             if let fileType = req.headers.contentType {
                 req.logger.log(level: .critical, "A file with the following media type could not be uploaded: \(fileType.serialize()))")
                 throw Abort(.unsupportedMediaType, reason: "This content type is not supported.")
@@ -165,7 +165,7 @@ struct MediaApiController: ApiElasticDetailController, ApiElasticPagedListContro
         let mediaPath = "assets/media"
         let fileId = UUID()
         mediaFile.relativeMediaFilePath = "\(mediaPath)/\(fileId.uuidString).\(preferredFilenameExtension)"
-        mediaFile.group = mediaFileGroup
+        mediaFile.fileType = mediaFileType
         mediaFile.$user.id = user.id
         
         // save the file
@@ -227,7 +227,7 @@ struct MediaApiController: ApiElasticDetailController, ApiElasticPagedListContro
             }
             detail.$media.id = detailForFile.$media.id
         } else {
-            guard let mediaFileGroup = req.headers.contentType?.mediaGroup(), let preferredFilenameExtension = req.headers.contentType?.preferredFilenameExtension() else {
+            guard let mediaFileType = req.headers.contentType?.mediaFileType(), let preferredFilenameExtension = req.headers.contentType?.preferredFilenameExtension() else {
                 if let fileType = req.headers.contentType {
                     req.logger.log(level: .critical, "A file with the following media type could not be uploaded: \(fileType.serialize()))")
                     throw Abort(.unsupportedMediaType, reason: "This content type is not supported.")
@@ -240,7 +240,7 @@ struct MediaApiController: ApiElasticDetailController, ApiElasticPagedListContro
             let fileId = UUID()
             let mediaFile = MediaFileModel()
             mediaFile.relativeMediaFilePath = "\(mediaPath)/\(fileId.uuidString).\(preferredFilenameExtension)"
-            mediaFile.group = mediaFileGroup
+            mediaFile.fileType = mediaFileType
             mediaFile.$user.id = user.id
             
             // save the file
@@ -280,7 +280,9 @@ struct MediaApiController: ApiElasticDetailController, ApiElasticPagedListContro
             throw Abort(.badRequest, reason: "No media with the given id could be found")
         }
         
-        guard input.title != nil || input.detailText != nil || input.source != nil || req.headers.contentType?.mediaGroup() != nil else {
+        let mediaFileType = req.headers.contentType?.mediaFileType()
+        
+        guard input.title != nil || input.detailText != nil || input.source != nil || mediaFileType != nil else {
             throw Abort(.badRequest)
         }
         
@@ -291,12 +293,12 @@ struct MediaApiController: ApiElasticDetailController, ApiElasticPagedListContro
         detail.$language.id = mediaToPatch.$language.id
         detail.$user.id = user.id
         
-        if let mediaFileGroup = req.headers.contentType?.mediaGroup(), let preferredFilenameExtension = req.headers.contentType?.preferredFilenameExtension() {
+        if let mediaFileType, let preferredFilenameExtension = req.headers.contentType?.preferredFilenameExtension() {
             let mediaPath = "assets/media"
             let fileId = UUID()
             let mediaFile = MediaFileModel()
             mediaFile.relativeMediaFilePath = "\(mediaPath)/\(fileId.uuidString).\(preferredFilenameExtension)"
-            mediaFile.group = mediaFileGroup
+            mediaFile.fileType = mediaFileType
             mediaFile.$user.id = user.id
             
             // save the file

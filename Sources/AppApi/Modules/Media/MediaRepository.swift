@@ -53,10 +53,6 @@ public extension Media.Repository {
         public let detailTextDiff: [Diff]
         /// The differences between the sources of the detail objects.
         public let sourceDiff: [Diff]
-        /// The media file group of the source detail object.
-        public let fromGroup: Media.Detail.Group
-        /// The media file group of the destination detail object.
-        public let toGroup: Media.Detail.Group
         /// The file path of the source detail object.
         public let fromFilePath: String
         /// The file path of the destination detail object.
@@ -71,18 +67,14 @@ public extension Media.Repository {
         ///   - titleDiff: The differences between the titles of the detail objects.
         ///   - detailTextDiff: The differences between the detail texts of the detail objects.
         ///   - sourceDiff: The differences between the sources of the detail objects.
-        ///   - fromGroup: The media file group of the source detail object.
-        ///   - toGroup: The media file group of the destination detail object.
         ///   - fromFilePath: The file path of the source detail object.
         ///   - toFilePath: The file path of the destination detail object.
         ///   - fromUser: The user who created the source detail object.
         ///   - toUser: The user who created the destination detail object.
-        public init(titleDiff: [Diff], detailTextDiff: [Diff], sourceDiff: [Diff], fromGroup: Media.Detail.Group, toGroup: Media.Detail.Group, fromFilePath: String, toFilePath: String, fromUser: User.Account.Detail?, toUser: User.Account.Detail?) {
+        public init(titleDiff: [Diff], detailTextDiff: [Diff], sourceDiff: [Diff], fromFilePath: String, toFilePath: String, fromUser: User.Account.Detail?, toUser: User.Account.Detail?) {
             self.titleDiff = titleDiff
             self.detailTextDiff = detailTextDiff
             self.sourceDiff = sourceDiff
-            self.fromGroup = fromGroup
-            self.toGroup = toGroup
             self.fromFilePath = fromFilePath
             self.toFilePath = toFilePath
             self.fromUser = fromUser

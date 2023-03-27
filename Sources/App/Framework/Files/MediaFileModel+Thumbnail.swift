@@ -36,7 +36,7 @@ extension MediaFileModel {
     /// - Parameter req: The request on which to create the thumbnail.
     func createThumbnail(req: Request) async throws {
         guard req.application.environment != .testing else { return }
-        switch self.group {
+        switch self.fileType {
         case .video: try await createVideoThumbnail(req)
         case .audio: return
         case .image: try await createImageThumbnail(req)

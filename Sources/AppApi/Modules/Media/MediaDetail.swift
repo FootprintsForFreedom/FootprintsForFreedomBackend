@@ -23,8 +23,8 @@ public extension Media.Detail {
         public let title: String
         /// The slug uniquely identifying the media.
         public let slug: String
-        /// The group of the media file.
-        public let group: Group
+        /// The file type of the media file.
+        public let fileType: FileType
         /// The relative path at which to find the thumbnail file.
         public let thumbnailFilePath: String?
         
@@ -33,13 +33,13 @@ public extension Media.Detail {
         ///   - id: Id uniquely identifying the media repository.
         ///   - title: The media title.
         ///   - slug: The slug uniquely identifying the media.
-        ///   - group: The group of the media file.
+        ///   - fileType: The file type of the media file.
         ///   - thumbnailFilePath: The relative path at which to find the thumbnail file.
-        public init(id: UUID, title: String, slug: String, group: Group, thumbnailFilePath: String?) {
+        public init(id: UUID, title: String, slug: String, fileType: FileType, thumbnailFilePath: String?) {
             self.id = id
             self.title = title
             self.slug = slug
-            self.group = group
+            self.fileType = fileType
             self.thumbnailFilePath = thumbnailFilePath
         }
     }
@@ -60,8 +60,8 @@ public extension Media.Detail {
         public let detailText: String
         /// The source of the media and/or copyright information.
         public let source: String
-        /// The group of the media file.
-        public let group: Group
+        /// The file type of the media file.
+        public let fileType: FileType
         /// The relative path at which to find the media file.
         public let filePath: String
         /// The tags connected with this media.
@@ -78,11 +78,11 @@ public extension Media.Detail {
         ///   - slug: The slug uniquely identifying the media.
         ///   - detailText: The detail text describing the media.
         ///   - source: The source of the media and/or copyright information.
-        ///   - group: The group of the media file.
+        ///   - fileType: The file type of the media file.
         ///   - filePath: The relative path at which to find the media file.
         ///   - tags: The tags connected with this media.
         ///   - detailId: Id uniquely identifying the media detail object.
-        public init(id: UUID, languageCode: String, availableLanguageCodes: [String], title: String, slug: String, detailText: String, source: String, group: Group, filePath: String, tags: [Tag.Detail.List], detailId: UUID) {
+        public init(id: UUID, languageCode: String, availableLanguageCodes: [String], title: String, slug: String, detailText: String, source: String, fileType: FileType, filePath: String, tags: [Tag.Detail.List], detailId: UUID) {
             self.id = id
             self.languageCode = languageCode
             self.availableLanguageCodes = availableLanguageCodes
@@ -90,7 +90,7 @@ public extension Media.Detail {
             self.slug = slug
             self.detailText = detailText
             self.source = source
-            self.group = group
+            self.fileType = fileType
             self.filePath = filePath
             self.tags = tags
             self.detailId = detailId

@@ -34,7 +34,7 @@ final class MediaSummaryModel: DatabaseElasticInterface {
             // MediaFile
             static var fileId: FieldKey { "file_id" }
             static var mediaDirectory: FieldKey { "media_directory" }
-            static var group: FieldKey { "group" }
+            static var fileType: FieldKey { "file_type" }
             static var fileUserId: FieldKey { "file_user_id" }
             static var fileCreatedAt: FieldKey { "file_created_at" }
             static var fileUpdatedAt: FieldKey { "file_updated_at" }
@@ -64,7 +64,7 @@ final class MediaSummaryModel: DatabaseElasticInterface {
     
     @Field(key: FieldKeys.v1.fileId) var fileId: UUID
     @Field(key: FieldKeys.v1.mediaDirectory) var relativeMediaFilePath: String
-    @Enum(key: FieldKeys.v1.group) var group: Media.Detail.Group
+    @Enum(key: FieldKeys.v1.fileType) var fileType: Media.Detail.FileType
     @OptionalField(key: FieldKeys.v1.fileUserId) var fileUserId: UUID?
     @OptionalField(key: FieldKeys.v1.fileCreatedAt) var fileCreatedAt: Date?
     @OptionalField(key: FieldKeys.v1.fileUpdatedAt) var fileUpdatedAt: Date?
@@ -143,7 +143,7 @@ extension MediaSummaryModel {
                 "relativeMediaFilePath": [
                     "type": "keyword"
                 ],
-                "group": [
+                "fileType": [
                     "type": "keyword"
                 ],
                 "fileUserId": [
@@ -200,7 +200,7 @@ extension MediaSummaryModel {
         
         var fileId: UUID
         var relativeMediaFilePath: String
-        var group: Media.Detail.Group
+        var fileType: Media.Detail.FileType
         @NullCodable var fileUserId: UUID?
         var fileCreatedAt: Date?
         var fileUpdatedAt: Date?
@@ -216,7 +216,7 @@ extension MediaSummaryModel {
         
         /// The relative file path of the thumbnail.
         var relativeThumbnailFilePath: String? {
-            if group == .audio { return nil }
+            if fileType == .audio { return nil }
             return MediaFileModel.relativeThumbnailFilePath(for: relativeMediaFilePath)
         }
     }
@@ -247,7 +247,7 @@ extension MediaSummaryModel {
             detailDeletedAt: self.detailDeletedAt,
             fileId: self.fileId,
             relativeMediaFilePath: self.relativeMediaFilePath,
-            group: self.group,
+            fileType: self.fileType,
             fileUserId: self.fileUserId,
             fileCreatedAt: self.fileCreatedAt,
             fileUpdatedAt: self.fileUpdatedAt,

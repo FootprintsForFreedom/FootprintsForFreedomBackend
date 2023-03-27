@@ -20,7 +20,7 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
         let (mediaRepository, mediaDetail, mediaFile) = try await createNewMedia(waypointId: waypointRepository.requireID(), languageId: language.requireID())
         let secondMediaFile = try await MediaFileModel.createWith(
             mediaDirectory: UUID().uuidString,
-            group: .video,
+            fileType: .video,
             userId: user.requireID(),
             on: app.db
         )
@@ -47,8 +47,6 @@ final class MediaApiDetailChangesTests: AppTestCase, MediaTest {
             .expect(Media.Repository.Changes.self) { content in
                 XCTAssertEqual(content.fromUser?.id, mediaDetail.user?.id)
                 XCTAssertEqual(content.toUser?.id, secondMediaDetail.user?.id)
-                XCTAssertEqual(content.fromGroup, mediaFile.group)
-                XCTAssertEqual(content.toGroup, secondMediaFile.group)
                 XCTAssertEqual(content.fromFilePath, mediaFile.relativeMediaFilePath)
                 XCTAssertEqual(content.toFilePath, secondMediaFile.relativeMediaFilePath)
             }

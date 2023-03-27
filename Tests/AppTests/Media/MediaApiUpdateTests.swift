@@ -74,7 +74,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.detailText, updateContent.detailText)
                 XCTAssertEqual(content.source, updateContent.source)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
-                XCTAssertEqual(content.group, file.group)
+                XCTAssertEqual(content.fileType, file.fileType)
                 XCTAssertEqual(content.filePath, file.relativeMediaFilePath)
             }
             .test()
@@ -110,7 +110,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.detailText, updateContent.detailText)
                 XCTAssertEqual(content.source, updateContent.source)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
-                XCTAssertEqual(content.group, file.group)
+                XCTAssertEqual(content.fileType, file.fileType)
                 XCTAssertEqual(content.filePath, file.relativeMediaFilePath)
             }
             .test()
@@ -181,7 +181,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.detailText, updateContent.detailText)
                 XCTAssertEqual(content.source, updateContent.source)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
-                XCTAssertEqual(content.group, file.group)
+                XCTAssertEqual(content.fileType, file.fileType)
                 XCTAssertEqual(content.filePath, file.relativeMediaFilePath)
             }
             .test()
