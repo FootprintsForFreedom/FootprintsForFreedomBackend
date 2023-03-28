@@ -1,12 +1,15 @@
 # ================================
 # Build image
 # ================================
-FROM swift:5.5-focal as build
+FROM swift:5.7.3-focal as build
 
 # Install OS updates and, if needed, sqlite3
 RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
     && apt-get -q update \
     && apt-get -q dist-upgrade -y \
+    && apt-get -q install imagemagick  -y \
+    && apt-get -q install ffmpeg -y \
+    && apt-get -q install libgd-dev -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Set up a build area
@@ -39,11 +42,17 @@ RUN [ -d /build/Resources ] && { mv /build/Resources ./Resources && chmod -R a-w
 # ================================
 # Run image
 # ================================
-FROM swift:5.5-focal-slim
+# Use -slim when available
+FROM swift:5.7.3-focal
 
 # Make sure all system packages are up to date.
-RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true && \
-    apt-get -q update && apt-get -q dist-upgrade -y && rm -r /var/lib/apt/lists/*
+RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
+    && apt-get -q update \
+    && apt-get -q dist-upgrade -y \
+    && apt-get -q install imagemagick  -y \
+    && apt-get -q install ffmpeg -y \
+    && apt-get -q install libgd-dev -y \
+    && rm -r /var/lib/apt/lists/*
 
 # Create a vapor user and group with /app as its home directory
 RUN useradd --user-group --create-home --system --skel /dev/null --home-dir /app vapor
