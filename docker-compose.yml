@@ -21,6 +21,8 @@ volumes:
   db_data:
   caddy_data:
   caddy_config:
+  geoipupdate_data:
+  esdata:
   
 services:
   app:
@@ -32,14 +34,18 @@ services:
       - db
       - queues
       - redis
+      - elasticsearch
+      - geoipupdate
     
     volumes:
       # - "public_data:/app/Public"
     # uncomment this to preserve the Public files over app restarts
       - "./Public:/app/Public"
+      - "geoipupdate_data:/app/Resources/GeoIP"
       - "./imagemagick-policy.xml:/etc/ImageMagick-6/policy.xml"
-    # user: '0' # uncomment to run as root for testing purposes even though Dockerfile defines 'vapor' user.
     command: ["serve", "--env", "production", "--hostname", "0.0.0.0", "--port", "8080"]
+    ports:
+      - "8080:8080"
   queues: 
     image: digital-traces-backend:1.0
     build:
@@ -57,6 +63,7 @@ services:
     depends_on:
       - db
       - redis
+      - elasticsearch
     command: ["migrate", "--yes"]
     deploy:
       replicas: 0
@@ -68,18 +75,19 @@ services:
     depends_on:
       - db
       - redis
+      - elasticsearch
     command: ["migrate", "--revert", "--yes"]
     deploy:
       replicas: 0
   db:
-    image: postgres:14-alpine
+    image: postgres:15-alpine
     volumes:
       - db_data:/var/lib/postgresql/data/pgdata
     env_file: .env.production
   redis:
-    image: redis:7.0.2
+    image: redis:latest
   caddy:
-    image: caddy:2.5.1
+    image: caddy:latest
     depends_on:
       - app
     ports:
@@ -90,3 +98,38 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
+  geoipupdate:
+    container_name: geoipupdate
+    image: maxmindinc/geoipupdate
+    restart: unless-stopped
+    environment:
+      - GEOIPUPDATE_ACCOUNT_ID=807715
+      - GEOIPUPDATE_LICENSE_KEY=X6K05iqC4iyEc6ET
+      - 'GEOIPUPDATE_EDITION_IDS=GeoLite2-City'
+      - GEOIPUPDATE_FREQUENCY=72
+    volumes:
+      - 'geoipupdate_data:/usr/share/GeoIP'
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.1
+    environment:
+      - node.name=es-node
+      - discovery.type=single-node
+      - cluster.name=es-data-cluster
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
+    env_file: .env
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.6.1
+    env_file: .env
+    depends_on:
+      - elasticsearch
+    ports:
+    - 5601:5601
+
