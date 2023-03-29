@@ -49,7 +49,7 @@ extension MediaTest {
             }
         }()
         
-        let mediaRepository = MediaRepositoryModel()
+        let mediaRepository = MediaRepositoryModel(requiredFileType: fileType)
         mediaRepository.$waypoint.id = waypointId
         try await mediaRepository.create(on: app.db)
         

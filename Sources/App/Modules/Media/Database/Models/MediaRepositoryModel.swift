@@ -42,6 +42,10 @@ final class MediaRepositoryModel: RepositoryModel, Tagable, Reportable {
     @Timestamp(key: FieldKeys.v1.deletedAt, on: .delete) var deletedAt: Date?
     
     init() { }
+    
+    init(requiredFileType: Media.Detail.FileType) {
+        self.requiredFileType = requiredFileType
+    }
 }
 
 extension MediaRepositoryModel {
