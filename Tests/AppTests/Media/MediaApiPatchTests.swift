@@ -273,7 +273,23 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
             .test()
     }
     
-    func testPatchMediaNeedsValididForMediaDetailToPatch() async throws {
+    func testPatchMediaNeedsRequiredContentType() async throws {
+        let token = try await getToken(for: .user, verified: true)
+        let (repository, _, _, patchContent) = try await getMediaPatchContent(verified: true)
+        
+        let query = try URLEncodedFormEncoder().encode(patchContent)
+        let file = FileUtils.testFile(excludedFileType: repository.requiredFileType)
+        
+        try app
+            .describe("Update media should return ok")
+            .put(mediaPath.appending("\(repository.requireID().uuidString)/?\(query)"))
+            .buffer(try FileUtils.data(for: file))
+            .bearerToken(token)
+            .expect(.badRequest)
+            .test()
+    }
+    
+    func testPatchMediaNeedsValidIdForMediaDetailToPatch() async throws {
         let token = try await getToken(for: .user, verified: true)
         let (repository, _, _, _) = try await getMediaPatchContent(verified: true)
         let patchContent = Media.Detail.Patch(title: nil, detailText: nil, source: nil, idForMediaDetailToPatch: UUID())

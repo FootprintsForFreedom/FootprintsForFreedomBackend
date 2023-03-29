@@ -252,6 +252,22 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
             .test()
     }
     
+    func testUpdateMediaNeedsRequiredContentType() async throws {
+        let token = try await getToken(for: .user, verified: true)
+        let (repository, _, _, updateContent) = try await getMediaUpdateContent(setMediaIdForFile: false, verified: true)
+        
+        let query = try URLEncodedFormEncoder().encode(updateContent)
+        let file = FileUtils.testFile(excludedFileType: repository.requiredFileType)
+        
+        try app
+            .describe("Update media should return ok")
+            .put(mediaPath.appending("\(repository.requireID().uuidString)/?\(query)"))
+            .buffer(try FileUtils.data(for: file))
+            .bearerToken(token)
+            .expect(.badRequest)
+            .test()
+    }
+    
     func testUpdateMediaNeedsValidContentType() async throws {
         let token = try await getToken(for: .user, verified: true)
         let (repository, _, _, updateContent) = try await getMediaUpdateContent(setMediaIdForFile: false, verified: true)
