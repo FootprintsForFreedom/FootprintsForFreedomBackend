@@ -1,5 +1,5 @@
 //
-//  MediaGroup.swift
+//  MediaFileType.swift
 //  
 //
 //  Created by niklhut on 16.02.22.
@@ -8,12 +8,40 @@
 import Foundation
 
 public extension Media.Detail {
-    /// Used to categorize media file groups
-    enum Group: String, Codable, CaseIterable, ApiModelInterface {
-        public typealias Module = Waypoint
+    /// Used to categorize media file types
+    enum FileType: String, Codable, CaseIterable, ApiModelInterface {
+        public typealias Module = Media
         
-        case video, audio, image, document
+        /// Used for video files.
+        ///
+        /// Supported mime types are:
+        /// - video/quicktime
+        /// - video/mpeg
+        /// - video/mp4
+        case video
         
+        /// Used for audio files.
+        ///
+        /// Supported mime types are:
+        /// - audio/mpeg
+        /// - audio/wav
+        /// - audio/vnd.wave
+        case audio
+        
+        /// Used for image files.
+        ///
+        /// Supported mime types are:
+        /// - image/png
+        /// - image/jpeg
+        case image
+        
+        /// Used for document files.
+        ///
+        /// Supported mime types are:
+        /// - application/pdf
+        case document
+        
+        /// Allowed mime types for the respective file types.
         public var allowedMimeTypes: [String] {
             switch self {
             case .video:

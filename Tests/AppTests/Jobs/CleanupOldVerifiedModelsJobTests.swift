@@ -60,7 +60,7 @@ final class CleanupOldVerifiedModelsJobTests: AppTestCase, TagTest, WaypointTest
         let media = try await createNewMedia(verified: true)
         let newMediaFile = try await MediaFileModel.createWith(
             mediaDirectory: UUID().uuidString,
-            group: .allCases.randomElement()!,
+            fileType: .allCases.randomElement()!,
             userId: media.detail.$user.id!,
             on: app.db
         )

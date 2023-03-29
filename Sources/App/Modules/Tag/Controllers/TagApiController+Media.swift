@@ -89,7 +89,7 @@ extension TagApiController {
                     id: source.id,
                     title: source.title,
                     slug: source.slug,
-                    group: source.group,
+                    fileType: source.fileType,
                     thumbnailFilePath: source.relativeMediaFilePath
                 )
             }

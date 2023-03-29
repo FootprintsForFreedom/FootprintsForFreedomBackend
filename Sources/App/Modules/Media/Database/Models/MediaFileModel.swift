@@ -15,7 +15,7 @@ final class MediaFileModel: RepositoryModel {
     struct FieldKeys {
         struct v1 {
             static var mediaDirectory: FieldKey { "media_directory" }
-            static var group: FieldKey { "group" }
+            static var fileType: FieldKey { "file_type" }
             static var userId: FieldKey { "user_id" }
             static var createdAt: FieldKey { "created_at" }
             static var updatedAt: FieldKey { "updated_at" }
@@ -28,7 +28,7 @@ final class MediaFileModel: RepositoryModel {
     
     @Children(for: \.$media) var details: [MediaDetailModel]
     
-    @Enum(key: FieldKeys.v1.group) var group: Media.Detail.Group
+    @Enum(key: FieldKeys.v1.fileType) var fileType: Media.Detail.FileType
     
     @OptionalParent(key: FieldKeys.v1.userId) var user: UserAccountModel?
     
@@ -42,11 +42,11 @@ final class MediaFileModel: RepositoryModel {
     
     init(
         mediaDirectory: String,
-        group: Media.Detail.Group,
+        fileType: Media.Detail.FileType,
         userId: UUID
     ) {
         self.relativeMediaFilePath = mediaDirectory
-        self.group = group
+        self.fileType = fileType
         self.$user.id = userId
     }
 }

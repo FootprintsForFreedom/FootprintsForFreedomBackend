@@ -48,12 +48,6 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
         return (repository, detail, file, updateContent)
     }
     
-    struct TestFile {
-        let mimeType: String
-        let filename: String
-        let fileExtension: String
-    }
-    
     func testSuccessfulUpdateMedia() async throws {
         let token = try await getToken(for: .user, verified: true)
         let (repository, _, file, updateContent) = try await getMediaUpdateContent(verified: true)
@@ -74,7 +68,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.detailText, updateContent.detailText)
                 XCTAssertEqual(content.source, updateContent.source)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
-                XCTAssertEqual(content.group, file.group)
+                XCTAssertEqual(content.fileType, file.fileType)
                 XCTAssertEqual(content.filePath, file.relativeMediaFilePath)
             }
             .test()
@@ -110,7 +104,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.detailText, updateContent.detailText)
                 XCTAssertEqual(content.source, updateContent.source)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
-                XCTAssertEqual(content.group, file.group)
+                XCTAssertEqual(content.fileType, file.fileType)
                 XCTAssertEqual(content.filePath, file.relativeMediaFilePath)
             }
             .test()
@@ -130,13 +124,12 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
         let (repository, _, file, updateContent) = try await getMediaUpdateContent(setMediaIdForFile: false, verified: true)
         
         let query = try URLEncodedFormEncoder().encode(updateContent)
-        let newFile = TestFile(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png")
-        let fileData = try data(for: newFile.filename, withExtension: newFile.fileExtension)
+        let newFile = FileUtils.testImage
         
         try app
             .describe("Patch media file should return ok")
             .put(mediaPath.appending("\(repository.requireID().uuidString)/?\(query)"))
-            .buffer(ByteBuffer(data: fileData))
+            .buffer(try FileUtils.data(for: newFile))
             .header("Content-Type", newFile.mimeType)
             .bearerToken(token)
             .expect(.json)
@@ -181,7 +174,7 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
                 XCTAssertEqual(content.detailText, updateContent.detailText)
                 XCTAssertEqual(content.source, updateContent.source)
                 XCTAssertEqual(content.languageCode, updateContent.languageCode)
-                XCTAssertEqual(content.group, file.group)
+                XCTAssertEqual(content.fileType, file.fileType)
                 XCTAssertEqual(content.filePath, file.relativeMediaFilePath)
             }
             .test()
@@ -259,18 +252,33 @@ final class MediaApiUpdateTests: AppTestCase, MediaTest {
             .test()
     }
     
+    func testUpdateMediaNeedsRequiredContentType() async throws {
+        let token = try await getToken(for: .user, verified: true)
+        let (repository, _, _, updateContent) = try await getMediaUpdateContent(setMediaIdForFile: false, verified: true)
+        
+        let query = try URLEncodedFormEncoder().encode(updateContent)
+        let file = FileUtils.testFile(excludedFileType: repository.requiredFileType)
+        
+        try app
+            .describe("Update media should return ok")
+            .put(mediaPath.appending("\(repository.requireID().uuidString)/?\(query)"))
+            .buffer(try FileUtils.data(for: file))
+            .bearerToken(token)
+            .expect(.badRequest)
+            .test()
+    }
+    
     func testUpdateMediaNeedsValidContentType() async throws {
         let token = try await getToken(for: .user, verified: true)
         let (repository, _, _, updateContent) = try await getMediaUpdateContent(setMediaIdForFile: false, verified: true)
         
         let query = try URLEncodedFormEncoder().encode(updateContent)
-        let newFile = TestFile(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png")
-        let fileData = try data(for: newFile.filename, withExtension: newFile.fileExtension)
+        let file = FileUtils.testImage
         
         try app
             .describe("Update media should need valid content type or fail")
             .put(mediaPath.appending("\(repository.requireID().uuidString)/?\(query)"))
-            .buffer(ByteBuffer(data: fileData))
+            .buffer(try FileUtils.data(for: file))
             .header("Content-Type", "hallo/test")
             .bearerToken(token)
             .expect(.unsupportedMediaType)
