@@ -321,7 +321,7 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
             .test()
     }
     
-    func testPatfchMediaAsUnverifiedUserFails() async throws {
+    func testPatchMediaAsUnverifiedUserFails() async throws {
         let token = try await getToken(for: .user, verified: false)
         let (repository, _, _, patchContent) = try await getMediaPatchContent(patchedSource: "Another source", verified: true)
         
