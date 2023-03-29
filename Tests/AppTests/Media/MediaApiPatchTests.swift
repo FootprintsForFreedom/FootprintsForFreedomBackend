@@ -42,12 +42,6 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
         return (repository, detail, file, patchContent)
     }
     
-    struct TestFile {
-        let mimeType: String
-        let filename: String
-        let fileExtension: String
-    }
-    
     func testSuccessfulPatchMediaTitle() async throws {
         let token = try await getToken(for: .user, verified: true)
         let (repository, detail, file, patchContent) = try await getMediaPatchContent(patchedTitle: "The patched title", verified: true)
@@ -190,13 +184,12 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
         try await detail.$language.load(on: app.db)
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
-        let newFile = TestFile(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png")
-        let fileData = try data(for: newFile.filename, withExtension: newFile.fileExtension)
+        let newFile = FileUtils.testImage
         
         try app
             .describe("Patch media file should return ok")
             .patch(mediaPath.appending("\(repository.requireID().uuidString)/?\(query)"))
-            .buffer(ByteBuffer(data: fileData))
+            .buffer(try FileUtils.data(for: newFile))
             .header("Content-Type", newFile.mimeType)
             .bearerToken(token)
             .expect(.ok)
@@ -300,13 +293,12 @@ final class MediaApiPatchTests: AppTestCase, MediaTest {
         let (repository, _, _, patchContent) = try await getMediaPatchContent(verified: true)
         
         let query = try URLEncodedFormEncoder().encode(patchContent)
-        let newFile = TestFile(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png")
-        let fileData = try data(for: newFile.filename, withExtension: newFile.fileExtension)
+        let file = FileUtils.testImage
         
         try app
             .describe("Patch media should need valid content type or abort")
             .patch(mediaPath.appending("\(repository.requireID().uuidString)/?\(query)"))
-            .buffer(ByteBuffer(data: fileData))
+            .buffer(try FileUtils.data(for: file))
             .header("Content-Type", "hallo/test")
             .bearerToken(token)
             .expect(.badRequest)
