@@ -32,12 +32,6 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         return .init(title: title, detailText: detailText, source: source, languageCode: languageCode, waypointId: waypointId)
     }
     
-    struct TestFile {
-        let mimeType: String
-        let filename: String
-        let fileExtension: String
-    }
-    
     func testSuccessfulCreateMedia() async throws {
         let token = try await getToken(for: .user, verified: true)
         let newMedia = try await getMediaCreateContent()
@@ -49,24 +43,12 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         
         let query = try URLEncodedFormEncoder().encode(newMedia)
         
-        let testFiles: [TestFile] = [
-            .init(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png"),
-            .init(mimeType: "image/jpeg", filename: "Logo_groß", fileExtension: "jpg"),
-            .init(mimeType: "video/quicktime", filename: "1280", fileExtension: "mov"),
-            .init(mimeType: "video/mp4", filename: "640", fileExtension: "mp4"),
-            .init(mimeType: "audio/mpeg", filename: "samplemp3", fileExtension: "mp3"),
-            .init(mimeType: "audio/vnd.wave", filename: "Wav_868kb", fileExtension: "wav"),
-            .init(mimeType: "application/pdf", filename: "SamplePdf", fileExtension: "pdf")
-        ]
-        
         // this already tests for duplicate titles since the title is the same for each different file
-        for file in testFiles {
-            let fileData = try data(for: file.filename, withExtension: file.fileExtension)
-            
+        for file in FileUtils.testFiles {
             try app
                 .describe("Create media should return ok")
                 .post(mediaPath.appending("?\(query)"))
-                .buffer(ByteBuffer(data: fileData))
+                .buffer(try FileUtils.data(for: file))
                 .header("Content-Type", file.mimeType)
                 .bearerToken(token)
                 .expect(.created)
@@ -87,8 +69,8 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         // New media count should be one more than original media count
         let newMediaDetailCount = try await MediaDetailModel.query(on: app.db).count()
         let newMediaFileCount = try await MediaFileModel.query(on: app.db).count()
-        XCTAssertEqual(newMediaDetailCount, mediaDetailCount + testFiles.count)
-        XCTAssertEqual(newMediaFileCount, mediaFileCount + testFiles.count)
+        XCTAssertEqual(newMediaDetailCount, mediaDetailCount + FileUtils.testFiles.count)
+        XCTAssertEqual(newMediaFileCount, mediaFileCount + FileUtils.testFiles.count)
         
         // check the new model is unverified
         if let newRepositoryId = newRepositoryId {
@@ -115,23 +97,11 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         
         let query = try URLEncodedFormEncoder().encode(newMedia)
         
-        let testFiles: [TestFile] = [
-            .init(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png"),
-            .init(mimeType: "image/jpeg", filename: "Logo_groß", fileExtension: "jpg"),
-            .init(mimeType: "video/quicktime", filename: "1280", fileExtension: "mov"),
-            .init(mimeType: "video/mp4", filename: "640", fileExtension: "mp4"),
-            .init(mimeType: "audio/mpeg", filename: "samplemp3", fileExtension: "mp3"),
-            .init(mimeType: "audio/vnd.wave", filename: "Wav_868kb", fileExtension: "wav"),
-            .init(mimeType: "application/pdf", filename: "SamplePdf", fileExtension: "pdf")
-        ]
-        
-        for file in testFiles {
-            let fileData = try data(for: file.filename, withExtension: file.fileExtension)
-            
+        for file in FileUtils.testFiles {
             try app
                 .describe("Create media as moderator should return ok")
                 .post(mediaPath.appending("?\(query)"))
-                .buffer(ByteBuffer(data: fileData))
+                .buffer(try FileUtils.data(for: file))
                 .header("Content-Type", file.mimeType)
                 .bearerToken(token)
                 .expect(.created)
@@ -152,8 +122,8 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         // New media count should be one more than original media count
         let newMediaDetailCount = try await MediaDetailModel.query(on: app.db).count()
         let newMediaFileCount = try await MediaFileModel.query(on: app.db).count()
-        XCTAssertEqual(newMediaDetailCount, mediaDetailCount + testFiles.count)
-        XCTAssertEqual(newMediaFileCount, mediaFileCount + testFiles.count)
+        XCTAssertEqual(newMediaDetailCount, mediaDetailCount + FileUtils.testFiles.count)
+        XCTAssertEqual(newMediaFileCount, mediaFileCount + FileUtils.testFiles.count)
         
         // check the new model is unverified
         if let newRepositoryId = newRepositoryId {
@@ -174,13 +144,12 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         let newMedia = try await getMediaCreateContent()
         
         let query = try URLEncodedFormEncoder().encode(newMedia)
-        let file = TestFile(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png")
-        let fileData = try data(for: file.filename, withExtension: file.fileExtension)
+        let file = FileUtils.testImage
             
         try app
             .describe("Create media as unverified user should fail")
             .post(mediaPath.appending("?\(query)"))
-            .buffer(ByteBuffer(data: fileData))
+            .buffer(try FileUtils.data(for: file))
             .header("Content-Type", file.mimeType)
             .bearerToken(token)
             .expect(.forbidden)
@@ -191,13 +160,12 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         let newMedia = try await getMediaCreateContent()
         
         let query = try URLEncodedFormEncoder().encode(newMedia)
-        let file = TestFile(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png")
-        let fileData = try data(for: file.filename, withExtension: file.fileExtension)
+        let file = FileUtils.testImage
             
         try app
             .describe("Create media without token should fail")
             .post(mediaPath.appending("?\(query)"))
-            .buffer(ByteBuffer(data: fileData))
+            .buffer(try FileUtils.data(for: file))
             .header("Content-Type", file.mimeType)
             .expect(.unauthorized)
             .test()
@@ -208,13 +176,12 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         let newMedia = try await getMediaCreateContent(title: "")
         
         let query = try URLEncodedFormEncoder().encode(newMedia)
-        let file = TestFile(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png")
-        let fileData = try data(for: file.filename, withExtension: file.fileExtension)
-            
+        let file = FileUtils.testImage
+        
         try app
             .describe("Create media with empty title should fail")
             .post(mediaPath.appending("?\(query)"))
-            .buffer(ByteBuffer(data: fileData))
+            .buffer(try FileUtils.data(for: file))
             .header("Content-Type", file.mimeType)
             .bearerToken(token)
             .expect(.badRequest)
@@ -226,13 +193,12 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         let newMedia = try await getMediaCreateContent(detailText: "")
         
         let query = try URLEncodedFormEncoder().encode(newMedia)
-        let file = TestFile(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png")
-        let fileData = try data(for: file.filename, withExtension: file.fileExtension)
-            
+        let file = FileUtils.testImage
+        
         try app
             .describe("Create media with empty detailText should fail")
             .post(mediaPath.appending("?\(query)"))
-            .buffer(ByteBuffer(data: fileData))
+            .buffer(try FileUtils.data(for: file))
             .header("Content-Type", file.mimeType)
             .bearerToken(token)
             .expect(.badRequest)
@@ -244,13 +210,12 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         let newMedia = try await getMediaCreateContent(source: "")
         
         let query = try URLEncodedFormEncoder().encode(newMedia)
-        let file = TestFile(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png")
-        let fileData = try data(for: file.filename, withExtension: file.fileExtension)
-            
+        let file = FileUtils.testImage
+        
         try app
             .describe("Create media with empty source should fail")
             .post(mediaPath.appending("?\(query)"))
-            .buffer(ByteBuffer(data: fileData))
+            .buffer(try FileUtils.data(for: file))
             .header("Content-Type", file.mimeType)
             .bearerToken(token)
             .expect(.badRequest)
@@ -264,13 +229,12 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         
         let query1 = try URLEncodedFormEncoder().encode(newMedia1)
         let query2 = try URLEncodedFormEncoder().encode(newMedia2)
-        let file = TestFile(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png")
-        let fileData = try data(for: file.filename, withExtension: file.fileExtension)
-            
+        let file = FileUtils.testImage
+        
         try app
             .describe("Create media with empty language should fail")
             .post(mediaPath.appending("?\(query1)"))
-            .buffer(ByteBuffer(data: fileData))
+            .buffer(try FileUtils.data(for: file))
             .header("Content-Type", file.mimeType)
             .bearerToken(token)
             .expect(.badRequest)
@@ -279,7 +243,7 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         try app
             .describe("Create media with empty language should fail")
             .post(mediaPath.appending("?\(query2)"))
-            .buffer(ByteBuffer(data: fileData))
+            .buffer(try FileUtils.data(for: file))
             .header("Content-Type", file.mimeType)
             .bearerToken(token)
             .expect(.badRequest)
@@ -292,13 +256,12 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         let newMedia = try await getMediaCreateContent(languageCode: language.languageCode)
         
         let query = try URLEncodedFormEncoder().encode(newMedia)
-        let file = TestFile(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png")
-        let fileData = try data(for: file.filename, withExtension: file.fileExtension)
+        let file = FileUtils.testImage
         
         try app
             .describe("Create media for deactivated language code should fail")
             .post(mediaPath.appending("?\(query)"))
-            .buffer(ByteBuffer(data: fileData))
+            .buffer(try FileUtils.data(for: file))
             .header("Content-Type", file.mimeType)
             .bearerToken(token)
             .expect(.badRequest)
@@ -310,13 +273,12 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         let newMedia = try await getMediaCreateContent(waypointId: UUID())
         
         let query = try URLEncodedFormEncoder().encode(newMedia)
-        let file = TestFile(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png")
-        let fileData = try data(for: file.filename, withExtension: file.fileExtension)
-            
+        let file = FileUtils.testImage
+        
         try app
             .describe("Create media with empty source should fail")
             .post(mediaPath.appending("?\(query)"))
-            .buffer(ByteBuffer(data: fileData))
+            .buffer(try FileUtils.data(for: file))
             .header("Content-Type", file.mimeType)
             .bearerToken(token)
             .expect(.badRequest)
@@ -328,13 +290,12 @@ final class MediaApiCreateTests: AppTestCase, MediaTest {
         let newMedia = try await getMediaCreateContent()
         
         let query = try URLEncodedFormEncoder().encode(newMedia)
-        let file = TestFile(mimeType: "image/png", filename: "Logo_groß", fileExtension: "png")
-        let fileData = try data(for: file.filename, withExtension: file.fileExtension)
-            
+        let file = FileUtils.testImage
+        
         try app
             .describe("Create media with empty source should fail")
             .post(mediaPath.appending("?\(query)"))
-            .buffer(ByteBuffer(data: fileData))
+            .buffer(try FileUtils.data(for: file))
             .header("Content-Type", "hallo/test")
             .bearerToken(token)
             .expect(.unsupportedMediaType)

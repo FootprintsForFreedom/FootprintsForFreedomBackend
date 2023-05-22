@@ -15,18 +15,20 @@ enum MediaMigrations {
         let elastic: ElasticHandler
         
         func prepare(on db: Database) async throws {
-            let mediaGroup = try await db.enum(Media.Detail.Group.pathKey)
-                .case(Media.Detail.Group.video.rawValue)
-                .case(Media.Detail.Group.audio.rawValue)
-                .case(Media.Detail.Group.image.rawValue)
-                .case(Media.Detail.Group.document.rawValue)
+            let mediaFileType = try await db.enum(Media.Detail.FileType.pathKey)
+                .case(Media.Detail.FileType.video.rawValue)
+                .case(Media.Detail.FileType.audio.rawValue)
+                .case(Media.Detail.FileType.image.rawValue)
+                .case(Media.Detail.FileType.document.rawValue)
                 .create()
-            
+                
             try await db.schema(MediaRepositoryModel.schema)
                 .id()
             
                 .field(MediaRepositoryModel.FieldKeys.v1.waypointId, .uuid, .required)
                 .foreignKey(MediaRepositoryModel.FieldKeys.v1.waypointId, references: WaypointRepositoryModel.schema, .id, onDelete: .cascade)
+            
+                .field(MediaRepositoryModel.FieldKeys.v1.requiredFileType, mediaFileType, .required)
             
                 .field(MediaRepositoryModel.FieldKeys.v1.createdAt, .datetime, .required)
                 .field(MediaRepositoryModel.FieldKeys.v1.updatedAt, .datetime, .required)
@@ -39,7 +41,7 @@ enum MediaMigrations {
                 .field(MediaFileModel.FieldKeys.v1.mediaDirectory, .string, .required)
                 .unique(on: MediaFileModel.FieldKeys.v1.mediaDirectory)
             
-                .field(MediaFileModel.FieldKeys.v1.group, mediaGroup, .required)
+                .field(MediaFileModel.FieldKeys.v1.fileType, mediaFileType, .required)
             
                 .field(MediaFileModel.FieldKeys.v1.userId, .uuid)
                 .foreignKey(MediaFileModel.FieldKeys.v1.userId, references: UserAccountModel.schema, .id, onDelete: .setNull)
@@ -135,7 +137,7 @@ enum MediaMigrations {
                 details.\(raw: MediaDetailModel.FieldKeys.v1.deletedAt.description) as \(raw: MediaSummaryModel.FieldKeys.v1.detailDeletedAt.description),
                 \(SQLColumn(MediaRepositoryModel.FieldKeys.v1.waypointId.description, table: MediaRepositoryModel.schema)),
                 \(SQLColumn(FieldKey.id.description, table: MediaFileModel.schema)) as \(raw: MediaSummaryModel.FieldKeys.v1.fileId.description),
-                \(SQLColumn(MediaFileModel.FieldKeys.v1.group.description, table: MediaFileModel.schema)),
+                \(SQLColumn(MediaFileModel.FieldKeys.v1.fileType.description, table: MediaFileModel.schema)),
                 \(SQLColumn(MediaFileModel.FieldKeys.v1.mediaDirectory.description, table: MediaFileModel.schema)),
                 \(SQLColumn(MediaFileModel.FieldKeys.v1.userId.description, table: MediaFileModel.schema)) as \(raw: MediaSummaryModel.FieldKeys.v1.fileUserId.description),
                 \(SQLColumn(MediaFileModel.FieldKeys.v1.createdAt.description, table: MediaFileModel.schema)) as \(raw: MediaSummaryModel.FieldKeys.v1.fileCreatedAt.description),
@@ -164,7 +166,7 @@ enum MediaMigrations {
             try await db.schema(MediaDetailModel.schema).delete()
             try await db.schema(MediaFileModel.schema).delete()
             try await db.schema(MediaRepositoryModel.schema).delete()
-            try await db.enum(Media.Detail.Group.pathKey).delete()
+            try await db.enum(Media.Detail.FileType.pathKey).delete()
             try await elastic.deleteIndex(MediaSummaryModel.Elasticsearch.self, for: LanguageModel.activeLanguages(on: db))
         }
     }

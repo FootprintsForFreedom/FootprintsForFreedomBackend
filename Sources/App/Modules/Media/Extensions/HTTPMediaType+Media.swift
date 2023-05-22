@@ -9,15 +9,15 @@ import Vapor
 import AppApi
 
 extension HTTPMediaType {
-    func mediaGroup() -> Media.Detail.Group? {
-        if let group = Media.Detail.Group.for("\(type)/\(subType)") {
+    func mediaFileType() -> Media.Detail.FileType? {
+        if let group = Media.Detail.FileType.for("\(type)/\(subType)") {
             return group
         }
         return nil
     }
     
     var isValidForMedia: Bool {
-        mediaGroup() != nil
+        mediaFileType() != nil
     }
     
     func preferredFilenameExtension() -> String? {

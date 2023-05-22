@@ -67,10 +67,4 @@ open class AppTestCase: XCTestCase {
         let newUser = try await getUser(role: userRole, verified: verified)
         return try await getToken(for: newUser)
     }
-    
-    func data(for resource: String, withExtension fileExtension: String) throws -> Data {
-        let fileURL = Bundle.module.url(forResource: resource, withExtension: fileExtension)!
-        let data = try Data(contentsOf: fileURL)
-        return data
-    }
 }

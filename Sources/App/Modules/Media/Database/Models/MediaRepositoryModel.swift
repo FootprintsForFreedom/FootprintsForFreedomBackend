@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import AppApi
 
 final class MediaRepositoryModel: RepositoryModel, Tagable, Reportable {
     typealias Module = MediaModule
@@ -16,6 +17,7 @@ final class MediaRepositoryModel: RepositoryModel, Tagable, Reportable {
     struct FieldKeys {
         struct v1 {
             static var waypointId: FieldKey { "waypoint_id" }
+            static var requiredFileType: FieldKey { "required_file_type" }
             static var createdAt: FieldKey { "created_at" }
             static var updatedAt: FieldKey { "updated_at" }
             static var deletedAt: FieldKey { "deleted_at" }
@@ -29,6 +31,8 @@ final class MediaRepositoryModel: RepositoryModel, Tagable, Reportable {
     @Children(for: \.$repository) var details: [MediaDetailModel]
     @Children(for: \.$repository) var reports: [MediaReportModel]
     
+    @Enum(key: FieldKeys.v1.requiredFileType) var requiredFileType: Media.Detail.FileType
+    
     @Siblings(through: MediaTagModel.self, from: \.$media, to: \.$tag) var tags: [TagRepositoryModel]
     
     @Timestamp(key: FieldKeys.v1.createdAt, on: .create) var createdAt: Date?
@@ -38,6 +42,10 @@ final class MediaRepositoryModel: RepositoryModel, Tagable, Reportable {
     @Timestamp(key: FieldKeys.v1.deletedAt, on: .delete) var deletedAt: Date?
     
     init() { }
+    
+    init(requiredFileType: Media.Detail.FileType) {
+        self.requiredFileType = requiredFileType
+    }
 }
 
 extension MediaRepositoryModel {

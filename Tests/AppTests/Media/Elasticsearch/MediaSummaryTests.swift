@@ -45,7 +45,7 @@ final class MediaSummaryTests: AppTestCase, MediaTest, TagTest, UserTest {
         XCTAssertEqual(content.languageCode, detail.language.languageCode)
         XCTAssertEqual(content.fileId, file.id)
         XCTAssertEqual(content.relativeMediaFilePath, file.relativeMediaFilePath)
-        XCTAssertEqual(content.group, file.group)
+        XCTAssertEqual(content.fileType, file.fileType)
         XCTAssert(try content.tags.contains(tag.repository.requireID()))
     }
     
@@ -84,7 +84,7 @@ final class MediaSummaryTests: AppTestCase, MediaTest, TagTest, UserTest {
         XCTAssertEqual(content.languageCode, detail.language.languageCode)
         XCTAssertEqual(content.fileId, file.id)
         XCTAssertEqual(content.relativeMediaFilePath, file.relativeMediaFilePath)
-        XCTAssertEqual(content.group, file.group)
+        XCTAssertEqual(content.fileType, file.fileType)
         XCTAssert(try content.tags.contains(tag.repository.requireID()))
     }
     
@@ -132,7 +132,7 @@ final class MediaSummaryTests: AppTestCase, MediaTest, TagTest, UserTest {
         XCTAssertEqual(content.languageCode, newDetail.language.languageCode)
         XCTAssertEqual(content.fileId, file.id)
         XCTAssertEqual(content.relativeMediaFilePath, file.relativeMediaFilePath)
-        XCTAssertEqual(content.group, file.group)
+        XCTAssertEqual(content.fileType, file.fileType)
         XCTAssert(try content.tags.contains(tag.repository.requireID()))
     }
     
@@ -181,7 +181,7 @@ final class MediaSummaryTests: AppTestCase, MediaTest, TagTest, UserTest {
         XCTAssertEqual(content.languageCode, detail.language.languageCode)
         XCTAssertEqual(content.fileId, file.id)
         XCTAssertEqual(content.relativeMediaFilePath, file.relativeMediaFilePath)
-        XCTAssertEqual(content.group, file.group)
+        XCTAssertEqual(content.fileType, file.fileType)
         XCTAssert(try content.tags.contains(tag.repository.requireID()))
         let secondElasticResponse = try await app.elastic.get(document: MediaSummaryModel.Elasticsearch.self, id: repository.requireID().uuidString, from: MediaSummaryModel.Elasticsearch.schema(for: newLanguage.languageCode))
         let secondContent = secondElasticResponse.source
@@ -194,7 +194,7 @@ final class MediaSummaryTests: AppTestCase, MediaTest, TagTest, UserTest {
         XCTAssertEqual(secondContent.languageCode, newDetail.language.languageCode)
         XCTAssertEqual(secondContent.fileId, file.id)
         XCTAssertEqual(secondContent.relativeMediaFilePath, file.relativeMediaFilePath)
-        XCTAssertEqual(secondContent.group, file.group)
+        XCTAssertEqual(secondContent.fileType, file.fileType)
         XCTAssert(try secondContent.tags.contains(tag.repository.requireID()))
     }
     
@@ -296,7 +296,7 @@ final class MediaSummaryTests: AppTestCase, MediaTest, TagTest, UserTest {
             XCTAssertEqual(content.languageCode, newDetail.language.languageCode)
             XCTAssertEqual(content.fileId, file.id)
             XCTAssertEqual(content.relativeMediaFilePath, file.relativeMediaFilePath)
-            XCTAssertEqual(content.group, file.group)
+            XCTAssertEqual(content.fileType, file.fileType)
             XCTAssert(try content.tags.contains(tag.repository.requireID()))
         } else {
             XCTFail()
@@ -366,7 +366,7 @@ final class MediaSummaryTests: AppTestCase, MediaTest, TagTest, UserTest {
             XCTAssertEqual(content.languageCode, detail.language.languageCode)
             XCTAssertEqual(content.fileId, file.id)
             XCTAssertEqual(content.relativeMediaFilePath, file.relativeMediaFilePath)
-            XCTAssertEqual(content.group, file.group)
+            XCTAssertEqual(content.fileType, file.fileType)
             XCTAssert(try content.tags.contains(tag.repository.requireID()))
         } else {
             XCTFail()
@@ -382,7 +382,7 @@ final class MediaSummaryTests: AppTestCase, MediaTest, TagTest, UserTest {
             XCTAssertEqual(secondContent.languageCode, newDetail.language.languageCode)
             XCTAssertEqual(secondContent.fileId, file.id)
             XCTAssertEqual(secondContent.relativeMediaFilePath, file.relativeMediaFilePath)
-            XCTAssertEqual(secondContent.group, file.group)
+            XCTAssertEqual(secondContent.fileType, file.fileType)
             XCTAssert(try secondContent.tags.contains(tag.repository.requireID()))
         } else {
             XCTFail()
@@ -433,7 +433,7 @@ final class MediaSummaryTests: AppTestCase, MediaTest, TagTest, UserTest {
             XCTAssertEqual(content.languageCode, detail.language.languageCode)
             XCTAssertEqual(content.fileId, file.id)
             XCTAssertEqual(content.relativeMediaFilePath, file.relativeMediaFilePath)
-            XCTAssertEqual(content.group, file.group)
+            XCTAssertEqual(content.fileType, file.fileType)
             XCTAssertEqual(content.detailUserId, detail.$user.id)
             XCTAssertEqual(content.fileUserId, file.$user.id)
         } else {
@@ -450,7 +450,7 @@ final class MediaSummaryTests: AppTestCase, MediaTest, TagTest, UserTest {
             XCTAssertEqual(content.languageCode, newDetail.language.languageCode)
             XCTAssertEqual(content.fileId, file.id)
             XCTAssertEqual(content.relativeMediaFilePath, file.relativeMediaFilePath)
-            XCTAssertEqual(content.group, file.group)
+            XCTAssertEqual(content.fileType, file.fileType)
             XCTAssertNil(content.detailUserId)
             XCTAssertNotNil(content.fileUserId)
             XCTAssertEqual(content.fileUserId, file.$user.id)
@@ -504,7 +504,7 @@ final class MediaSummaryTests: AppTestCase, MediaTest, TagTest, UserTest {
             XCTAssertEqual(content.languageCode, detail.language.languageCode)
             XCTAssertEqual(content.fileId, file.id)
             XCTAssertEqual(content.relativeMediaFilePath, file.relativeMediaFilePath)
-            XCTAssertEqual(content.group, file.group)
+            XCTAssertEqual(content.fileType, file.fileType)
             XCTAssertNil(content.detailUserId)
             XCTAssertNil(content.fileUserId)
         } else {
@@ -521,7 +521,7 @@ final class MediaSummaryTests: AppTestCase, MediaTest, TagTest, UserTest {
             XCTAssertEqual(content.languageCode, newDetail.language.languageCode)
             XCTAssertEqual(content.fileId, file.id)
             XCTAssertEqual(content.relativeMediaFilePath, file.relativeMediaFilePath)
-            XCTAssertEqual(content.group, file.group)
+            XCTAssertEqual(content.fileType, file.fileType)
             XCTAssertNotNil(content.detailUserId)
             XCTAssertEqual(content.detailUserId, newDetail.$user.id)
             XCTAssertNil(content.fileUserId)

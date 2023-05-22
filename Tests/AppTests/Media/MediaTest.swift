@@ -18,7 +18,7 @@ extension MediaTest {
         title: String = "New Media Title \(UUID())",
         detailText: String = "New Media Description",
         source: String = "New Media Source",
-        group: Media.Detail.Group = .image,
+        fileType: Media.Detail.FileType = .image,
         verified: Bool = false,
         waypointId: UUID? = nil,
         languageId: UUID? = nil,
@@ -49,13 +49,13 @@ extension MediaTest {
             }
         }()
         
-        let mediaRepository = MediaRepositoryModel()
+        let mediaRepository = MediaRepositoryModel(requiredFileType: fileType)
         mediaRepository.$waypoint.id = waypointId
         try await mediaRepository.create(on: app.db)
         
         let mediaFile = try await MediaFileModel.createWith(
             mediaDirectory: UUID().uuidString,
-            group: group,
+            fileType: fileType,
             userId: userId,
             on: app.db
         )
@@ -92,13 +92,13 @@ extension MediaTest {
 extension MediaFileModel {
     static func createWith(
         mediaDirectory: String,
-        group: Media.Detail.Group,
+        fileType: Media.Detail.FileType,
         userId: UUID,
         on db: Database
     ) async throws -> Self {
         let mediaFile = self.init(
             mediaDirectory: mediaDirectory,
-            group: group,
+            fileType: fileType,
             userId: userId
         )
         try await mediaFile.create(on: db)
