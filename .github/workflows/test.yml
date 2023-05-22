@@ -1,0 +1,54 @@
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
+
+name: Swift
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test_ubuntu:
+
+    runs-on: ubuntu-latest
+    
+    # service containers to run for test
+    services:
+      postgres:
+        # Docker Hub image
+        image: postgres
+        env:
+          POSTGRES_USER: f4f_user
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: f4f
+          
+      elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.7.1
+        env:
+          node.name: main-test-node
+          discovery.type: single-node
+          cluster.name: test-cluster
+          bootstrap.memory_lock: true
+          xpack.security.enabled: false
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: swift build -v
+    - name: Run tests
+      run: swift test -v
+      env:
+        DATABASE_HOST: postgres
+        DATABASE_PORT: 5433
+        POSTGRES_USER: f4f_user
+        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        POSTGRES_DB: f4f
+        ELASTIC_URL: http://elasticsearch:9200
+        APP_NAME: "Footprints for Freedom"
+        APP_URL: http://localhost:8080
+        SOFT_DELETED_LIFETIME: 30
+        DEFAULT_LOCATION_LATITUDE: 49.872222
+        DEFAULT_LOCATION_LONGITUDE: 8.652778
+        # set it to zero for testing
+        OLD_VERIFIED_LIFETIME: 0
