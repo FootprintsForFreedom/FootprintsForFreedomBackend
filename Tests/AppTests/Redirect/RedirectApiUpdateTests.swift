@@ -16,7 +16,7 @@ final class RedirectApiUpdateTests: AppTestCase, RedirectTest {
         updatedSource: String = "some/new/source/\(UUID())",
         destination: String = "and/it/goes/to/\(UUID())",
         updatedDestination: String = "a/different/destination/\(UUID())"
-    ) async throws -> (redirect: RedirectModel, updateContent: Redirect.Detail.Update) {
+    ) async throws -> (redirect: RedirectModel, updateContent: AppApi.Redirect.Detail.Update) {
         let redirect = try await createNewRedirect(source: source, destination: destination)
         let updateContent = Redirect.Detail.Update(source: updatedSource, destination: updatedDestination)
         return (redirect, updateContent)
