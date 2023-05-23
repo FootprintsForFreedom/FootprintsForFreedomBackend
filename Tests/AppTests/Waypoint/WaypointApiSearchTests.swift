@@ -17,7 +17,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
         
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Search waypoint should return the waypoint if it is verified and has the search text in the title")
@@ -41,7 +41,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
         
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Search waypoint should return the waypoint if it is verified and has the search text in the detail text")
@@ -109,7 +109,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
         
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Search waypoint should return the waypoint if it is verified and has the search text in a connected tag title")
@@ -143,7 +143,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
         
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Search waypoint should return the waypoint if it is verified and has the search text in a connected tag keyword")
@@ -282,7 +282,7 @@ final class WaypointApiSearchTests: AppTestCase, WaypointTest, TagTest {
         
         let waypointCount = try await WaypointRepositoryModel.query(on: app.db).count()
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Search waypoint should only return the newest verified detail for a waypoint repository")
