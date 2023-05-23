@@ -10,7 +10,7 @@ import XCTVapor
 import Fluent
 import Spec
 
-extension Redirect.Detail.Patch: Content { }
+extension AppApi.Redirect.Detail.Patch: Content { }
 
 final class RedirectApiPatchTests: AppTestCase, RedirectTest {
     private func getRedirectPatchContent(
@@ -18,7 +18,7 @@ final class RedirectApiPatchTests: AppTestCase, RedirectTest {
         patchedSource: String? = nil,
         destination: String = "and/it/goes/to/\(UUID())",
         patchedDestination: String? = nil
-    ) async throws -> (redirect: RedirectModel, patchContent: Redirect.Detail.Patch) {
+    ) async throws -> (redirect: RedirectModel, patchContent: AppApi.Redirect.Detail.Patch) {
         let redirect = try await createNewRedirect(source: source, destination: destination)
         let patchContent = Redirect.Detail.Patch(source: patchedSource, destination: patchedDestination)
         return (redirect, patchContent)
