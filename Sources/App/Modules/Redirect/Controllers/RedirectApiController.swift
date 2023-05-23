@@ -9,10 +9,10 @@ import Vapor
 import Fluent
 import AppApi
 
-extension Redirect.Detail.Detail: Content { }
+extension AppApi.Redirect.Detail.Detail: Content { }
 
 struct RedirectApiController: ApiController {
-    typealias ApiModel = Redirect.Detail
+    typealias ApiModel = AppApi.Redirect.Detail
     typealias DatabaseModel = RedirectModel
     
     // MARK: - Validators
@@ -68,7 +68,7 @@ struct RedirectApiController: ApiController {
         return queryBuilder
     }
     
-    func listOutput(_ req: Request, _ models: Fluent.Page<RedirectModel>) async throws -> Fluent.Page<Redirect.Detail.List> {
+    func listOutput(_ req: Request, _ models: Fluent.Page<RedirectModel>) async throws -> Fluent.Page<AppApi.Redirect.Detail.List> {
         return try await models.concurrentMap { try await detailOutput(req, $0) }
     }
     
@@ -79,7 +79,7 @@ struct RedirectApiController: ApiController {
         return queryBuilder
     }
     
-    func detailOutput(_ req: Request, _ model: RedirectModel) async throws -> Redirect.Detail.Detail {
+    func detailOutput(_ req: Request, _ model: RedirectModel) async throws -> AppApi.Redirect.Detail.Detail {
         try .init(id: model.requireID(), source: model.source, destination: model.destination)
     }
     
@@ -89,7 +89,7 @@ struct RedirectApiController: ApiController {
         try await req.onlyFor(.admin)
     }
     
-    func createInput(_ req: Request, _ model: RedirectModel, _ input: Redirect.Detail.Create) async throws {
+    func createInput(_ req: Request, _ model: RedirectModel, _ input: AppApi.Redirect.Detail.Create) async throws {
         let source = try sanitize(input.source, ofType: .source)
         let destination = try sanitize(input.destination, ofType: .destination)
         guard source != destination else {
@@ -119,7 +119,7 @@ struct RedirectApiController: ApiController {
         try await req.onlyFor(.admin)
     }
     
-    func updateInput(_ req: Request, _ model: RedirectModel, _ input: Redirect.Detail.Update) async throws {
+    func updateInput(_ req: Request, _ model: RedirectModel, _ input: AppApi.Redirect.Detail.Update) async throws {
         try await createInput(req, model, input)
     }
     
@@ -130,7 +130,7 @@ struct RedirectApiController: ApiController {
     }
     
     
-    func patchInput(_ req: Request, _ model: RedirectModel, _ input: Redirect.Detail.Patch) async throws {
+    func patchInput(_ req: Request, _ model: RedirectModel, _ input: AppApi.Redirect.Detail.Patch) async throws {
         let updateContent = Redirect.Detail.Update(source: input.source ?? model.source, destination: input.destination ?? model.destination)
         return try await createInput(req, model, updateContent)
     }

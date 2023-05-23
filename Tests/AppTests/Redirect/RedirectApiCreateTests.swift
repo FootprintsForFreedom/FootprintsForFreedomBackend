@@ -10,13 +10,13 @@ import XCTVapor
 import Fluent
 import Spec
 
-extension Redirect.Detail.Create: Content { }
+extension AppApi.Redirect.Detail.Create: Content { }
 
 final class RedirectApiCreateTests: AppTestCase, RedirectTest {
     private func getRedirectCreateContent(
         source: String = "this/is/source/\(UUID())",
         destination: String = "and/it/goes/to/\(UUID())"
-    ) async throws -> Redirect.Detail.Create {
+    ) async throws -> AppApi.Redirect.Detail.Create {
         .init(source: source, destination: destination)
     }
     
