@@ -62,7 +62,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
             .filter { $0.details.contains { $0.verifiedAt != nil && $0.language.priority != nil } }
             .count
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("List tag with perferred language should return ok and verified models for all languages. However, it should prefer the specified language")
@@ -146,7 +146,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
             .filter { $0.details.contains { $0.verifiedAt != nil && $0.language.priority != nil } }
             .count
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("List tag should return ok")
@@ -207,7 +207,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
         
         let tagCount = tag.count
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("List tag should return ok")
@@ -225,7 +225,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
         let (repository, detail) = try await createNewTag(verified: true)
         try await detail.$language.load(on: app.db)
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Get verified tag should return ok")
@@ -247,7 +247,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
         let (repository, detail) = try await createNewTag(verified: true)
         try await detail.$language.load(on: app.db)
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Get verified tag should return ok")
@@ -270,7 +270,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
         let (repository, detail) = try await createNewTag(verified: true)
         try await detail.$language.load(on: app.db)
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Get verified tag by slug should return ok")
@@ -301,7 +301,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
             .expect(.json)
             .test()
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Get verified for deactivated language should fail")
@@ -314,7 +314,7 @@ final class TagApiGetTests: AppTestCase, TagTest {
     func testGetUnverifiedTagFails() async throws {
         let (repository, _) = try await createNewTag()
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Get unverified tag should fail")

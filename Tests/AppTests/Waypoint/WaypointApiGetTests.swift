@@ -63,7 +63,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest, TagTest {
             .filter { $0.details.contains { $0.verifiedAt != nil && $0.language.priority != nil } && $0.locations.contains { $0.verifiedAt != nil } }
             .count
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("List waypoints with perferred language should return ok and verified models for all languages. However, it should prefer the specified language")
@@ -154,7 +154,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest, TagTest {
             .filter { $0.details.contains { $0.verifiedAt != nil && $0.language.priority != nil } && $0.locations.contains { $0.verifiedAt != nil } }
             .count
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("List waypoints should return ok")
@@ -221,7 +221,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest, TagTest {
         
         let waypointCount = waypoints.count
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("List waypoints should return ok")
@@ -242,7 +242,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest, TagTest {
         let (waypointRepository, waypoint, location) = try await createNewWaypoint(verified: true)
         try await waypoint.$language.load(on: app.db)
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Get verified waypoint should return ok")
@@ -277,7 +277,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest, TagTest {
             .expect(.json)
             .test()
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Get verified waypoint should return ok")
@@ -303,7 +303,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest, TagTest {
         let (waypointRepository, waypoint, location) = try await createNewWaypoint(verified: true, languageId: language.requireID())
         try await waypoint.$language.load(on: app.db)
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Get verified waypoint as moderator should return ok and more details")
@@ -328,7 +328,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest, TagTest {
         let (waypointRepository, waypoint, location) = try await createNewWaypoint(verified: true, languageId: language.requireID())
         try await waypoint.$language.load(on: app.db)
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Get verified waypoint by slug should return ok")
@@ -362,7 +362,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest, TagTest {
             .expect(.json)
             .test()
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Get waypoint for deactivated language should always fail; instead request the model directly")
@@ -376,7 +376,7 @@ final class WaypointApiGetTests: AppTestCase, WaypointTest, TagTest {
         let (waypointRepository, _, _) = try await createNewWaypoint(verified: false)
         let userToken = try await getToken(for: .user)
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Get unverified waypoint should return not found")

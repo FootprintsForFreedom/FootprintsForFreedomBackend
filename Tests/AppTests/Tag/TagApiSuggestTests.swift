@@ -15,7 +15,7 @@ final class TagApiSuggestTests: AppTestCase, TagTest {
         let tag = try await createNewTag(title: "Ein besonderer Titel \(UUID())", keywords: ["Anders"], verified: true)
         try await tag.detail.$language.load(on: app.db)
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Search tag should return the tag if it is verified and has the suggest text in the title")

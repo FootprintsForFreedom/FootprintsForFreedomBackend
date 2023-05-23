@@ -15,7 +15,7 @@ final class WaypointApiSuggestTests: AppTestCase, WaypointTest, TagTest {
         let waypoint = try await createNewWaypoint(title: "Ein besonderer Titel \(UUID())", detailText: "Anderer Text", verified: true)
         try await waypoint.detail.$language.load(on: app.db)
         
-        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(for: .seconds(1))
         
         try app
             .describe("Suggest waypoint should return the waypoint if it is verified and has the suggest text in the title")
